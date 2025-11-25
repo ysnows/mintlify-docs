@@ -3,9 +3,13 @@ title: "Context Awareness"
 description: "How EnConvo understands your screen and provides relevant assistance"
 ---
 
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
 ## Overview
 
 Context Awareness is EnConvo's core technology that enables it to understand what you're working on and provide relevant, intelligent assistance. Instead of asking you to explain your context, EnConvo sees and understands your screen, active applications, and current tasks.
+
+<YouTubePlayer videoId="VKhyKibToAw" title="Context Awareness Overview & Demo" />
 
 ## How It Works
 
@@ -17,64 +21,32 @@ EnConvo knows which application you're using and adapts its responses accordingl
 | Application | Context Provided |
 |-------------|-----------------|
 | Web Browser | Current URL, page title, visible content |
-| Code Editor | Programming language, file path, visible code |
+| Code Editor | Programming language, file path,  code content |
 | Finder | Selected files, current directory |
-| Mail | Email content, sender, subject |
-| Documents | Document content, format type |
+| Other Apps | Current window content & Screenshot |
 
-### 2. Visual Content Analysis
-EnConvo can analyze:
-- Text on screen (via OCR)
-- Images and diagrams
-- UI elements and layouts
-- Code syntax highlighting
 
-### 3. User Intent Recognition
-Based on context, EnConvo predicts what you might need:
-- Coding? Offers debugging help, documentation lookup
-- Writing? Suggests grammar fixes, tone improvements
-- Browsing? Provides summaries, translations
+### 2. More Contextual responses
+Based on context, EnConvo can provide more contextual responses:
+- Coding? Offers debugging help, documentation lookup, etc.
+- Writing? Suggests grammar fixes, tone improvements, etc.
+- Browsing? Provides summaries, translations, etc.
 
-## Enabling Context Awareness
-
-<Steps>
-  <Step title="Grant Screen Recording Permission">
-    Go to System Settings → Privacy & Security → Screen Recording → Enable EnConvo
-  </Step>
-  <Step title="Restart EnConvo">
-    Quit and relaunch EnConvo for permissions to take effect
-  </Step>
-  <Step title="Verify Context">
-    Open SmartBar and press `Tab` to see the current context preview
-  </Step>
-</Steps>
-
-## Using Context in Queries
-
-### Automatic Context
-When enabled, EnConvo automatically includes relevant context with your queries.
-
-### Manual Context Control
-You have full control over when context is used:
-
-| Action | Method |
-|--------|--------|
-| Include screen | Press `Tab` in SmartBar |
-| Exclude context | Start query with `!` |
-| Specific area | Press `⌘ Shift Tab` to select region |
-| Include clipboard | Press `⌘ V` in SmartBar |
+## Manual Context Control
+<Tip>
+ Use `#` prefix to add context to your queries.
+</Tip>
 
 ### Context Modifiers
 
 Use these prefixes for specific context types:
 
 ```
-@screen - Include full screen capture
-@selection - Include selected text only
-@app - Include active app context
-@clipboard - Include clipboard content
-@file - Reference a specific file
-@webpage - Include current webpage
+#screen - Include current screen content
+#finder - Include current Finder selection
+#clipboard - Include clipboard content
+#browser - Include current browser tab
+#... (and more)
 ```
 
 ## Privacy & Security
@@ -83,32 +55,14 @@ Use these prefixes for specific context types:
 Context data never leaves your Mac without your explicit action. All processing happens locally or through your chosen AI provider only when you submit a query.
 </Warning>
 
-### Data Handling
-- **Local Processing**: Screen captures are processed locally
-- **On-Demand Only**: Data only sent when you initiate a query
-- **No Storage**: Screen captures are not stored on any server
-- **No Training**: Your data is never used for AI training
 
 ### Exclusions
 Configure apps or content to exclude from context:
 
-1. Go to Settings → Privacy → Context Exclusions
+1. Go to Settings → Context Awareness
 2. Add applications to the exclusion list
-3. Enable "Blur sensitive content" for password fields
 
-## Context-Aware Features
 
-### Smart Suggestions
-Based on your current context, EnConvo proactively suggests:
-- Relevant plugins
-- Common actions
-- Related information
-
-### Adaptive Responses
-AI responses adapt to your context:
-- Technical explanations for developers
-- Simplified answers for non-technical apps
-- Language-specific help based on code files
 
 ### App-Specific Actions
 
@@ -119,18 +73,6 @@ AI responses adapt to your context:
     - Extract key information
     - Save to knowledge base
   </Accordion>
-  <Accordion title="Code Editors (VS Code, Xcode)">
-    - Explain selected code
-    - Find bugs in visible code
-    - Generate documentation
-    - Suggest improvements
-  </Accordion>
-  <Accordion title="Document Apps (Pages, Word)">
-    - Improve writing style
-    - Summarize document
-    - Generate outline
-    - Fix formatting
-  </Accordion>
   <Accordion title="Finder">
     - Describe selected files
     - Organize suggestions
@@ -139,37 +81,6 @@ AI responses adapt to your context:
   </Accordion>
 </AccordionGroup>
 
-## Configuration
-
-### Settings → Context Awareness
-
-| Setting | Description |
-|---------|-------------|
-| **Enable Context** | Master toggle for context features |
-| **Auto-include** | Automatically add context to queries |
-| **Preview Context** | Show context preview before sending |
-| **OCR Quality** | Balance between speed and accuracy |
-| **Excluded Apps** | List of apps to exclude |
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Context not detected">
-    1. Verify Screen Recording permission is granted
-    2. Restart EnConvo after granting permission
-    3. Check if the app is in the exclusion list
-  </Accordion>
-  <Accordion title="Slow context analysis">
-    1. Reduce OCR quality in settings
-    2. Disable auto-include and use manual context
-    3. Close unnecessary applications
-  </Accordion>
-  <Accordion title="Incorrect context interpretation">
-    1. Use manual selection for specific areas
-    2. Provide additional context in your query
-    3. Try a different AI model
-  </Accordion>
-</AccordionGroup>
 
 ## Related Features
 
