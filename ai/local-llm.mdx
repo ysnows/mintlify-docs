@@ -1,0 +1,222 @@
+---
+title: "Local LLM"
+description: "Use local AI models for maximum privacy with Ollama and LM Studio"
+---
+
+## Overview
+
+EnConvo supports local Large Language Models (LLMs), allowing you to run AI completely on your Mac without sending data to external servers. This is ideal for privacy-sensitive work, offline use, or when you want full control over your AI.
+
+## Why Use Local LLMs?
+
+<CardGroup cols={2}>
+  <Card title="Complete Privacy" icon="shield-halved">
+    Your data never leaves your Mac. Process sensitive documents with confidence.
+  </Card>
+  <Card title="Offline Access" icon="wifi-slash">
+    Use AI without internet connection. Perfect for travel or restricted networks.
+  </Card>
+  <Card title="No Usage Limits" icon="infinity">
+    Run unlimited queries without worrying about API costs or rate limits.
+  </Card>
+  <Card title="Full Control" icon="sliders">
+    Choose exactly which models to use and how they're configured.
+  </Card>
+</CardGroup>
+
+## Supported Platforms
+
+### Ollama
+
+[Ollama](https://ollama.ai) is the recommended way to run local LLMs on macOS.
+
+<Steps>
+  <Step title="Install Ollama">
+    Download and install from [ollama.ai](https://ollama.ai)
+  </Step>
+  <Step title="Pull a model">
+    ```bash
+    ollama pull llama3
+    ```
+  </Step>
+  <Step title="Configure EnConvo">
+    Go to Settings → AI Models → Add Local Model → Ollama
+  </Step>
+  <Step title="Select Endpoint">
+    Default: `http://localhost:11434`
+  </Step>
+</Steps>
+
+### LM Studio
+
+[LM Studio](https://lmstudio.ai) provides a GUI for managing and running local models.
+
+<Steps>
+  <Step title="Install LM Studio">
+    Download from [lmstudio.ai](https://lmstudio.ai)
+  </Step>
+  <Step title="Download a model">
+    Use LM Studio's model browser to download a GGUF model
+  </Step>
+  <Step title="Start local server">
+    Click "Start Server" in LM Studio (default port: 1234)
+  </Step>
+  <Step title="Configure EnConvo">
+    Settings → AI Models → Add Local Model → LM Studio
+  </Step>
+</Steps>
+
+## Recommended Models
+
+| Model | Size | Best For | Min RAM |
+|-------|------|----------|---------|
+| **Llama 3 8B** | 4.7GB | General purpose | 8GB |
+| **Llama 3 70B** | 40GB | Complex tasks | 64GB |
+| **Mistral 7B** | 4.1GB | Fast responses | 8GB |
+| **CodeLlama** | 4.7GB | Programming | 8GB |
+| **Phi-2** | 1.7GB | Lightweight | 4GB |
+| **Gemma 2B** | 1.5GB | Ultra-light | 4GB |
+
+<Note>
+Model performance depends on your Mac's specifications. Apple Silicon Macs with Metal acceleration provide the best experience.
+</Note>
+
+## Configuration
+
+### Adding a Local Model
+
+1. Go to Settings → AI Models
+2. Click "Add Model" → "Local Model"
+3. Configure connection:
+   - **Name**: Display name in EnConvo
+   - **Provider**: Ollama or LM Studio
+   - **Endpoint**: Server URL (usually localhost)
+   - **Model**: Select from available models
+
+### Model Settings
+
+| Setting | Description |
+|---------|-------------|
+| **Context Window** | Maximum tokens in context |
+| **Temperature** | Response creativity (0-1) |
+| **Top P** | Sampling parameter |
+| **GPU Layers** | Layers to offload to GPU |
+
+## Performance Optimization
+
+### Apple Silicon (M1/M2/M3)
+
+Apple Silicon Macs offer excellent local LLM performance:
+
+- **Metal acceleration**: Automatic GPU utilization
+- **Unified memory**: Efficient memory sharing
+- **Neural Engine**: Additional AI acceleration
+
+### Tips for Better Performance
+
+<AccordionGroup>
+  <Accordion title="Choose appropriate model size">
+    Use smaller models (7B parameters) for faster responses. Larger models (70B) need more RAM and are slower.
+  </Accordion>
+  <Accordion title="Close other apps">
+    Local LLMs use significant RAM. Close unnecessary applications for better performance.
+  </Accordion>
+  <Accordion title="Use quantized models">
+    Q4_K_M or Q5_K_M quantized models offer good quality with better speed.
+  </Accordion>
+  <Accordion title="Adjust context window">
+    Smaller context windows (2048-4096) are faster than maximum settings.
+  </Accordion>
+</AccordionGroup>
+
+## Using Local Models
+
+### Set as Default
+
+Make a local model your default:
+1. Settings → AI Models
+2. Right-click your local model
+3. Select "Set as Default"
+
+### Switch on Demand
+
+Switch models during use:
+1. Click the model name in SmartBar or chat
+2. Select your local model from the list
+
+### Force Local
+
+Use `@local` prefix to always use local models:
+```
+@local Explain this code snippet
+```
+
+## Feature Support
+
+| Feature | Cloud Models | Local Models |
+|---------|--------------|--------------|
+| Chat | ✅ | ✅ |
+| Context awareness | ✅ | ✅ |
+| Knowledge base | ✅ | ✅ |
+| Voice input | ✅ | ✅ |
+| Web search | ✅ | Limited |
+| Image generation | ✅ | Model dependent |
+| Code completion | ✅ | ✅ |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Model not responding">
+    1. Check that Ollama/LM Studio server is running
+    2. Verify the endpoint URL in settings
+    3. Try restarting the local server
+    4. Check system resources (RAM, CPU)
+  </Accordion>
+  <Accordion title="Slow responses">
+    1. Use a smaller model
+    2. Reduce context window size
+    3. Close other memory-intensive apps
+    4. Consider using quantized models
+  </Accordion>
+  <Accordion title="Out of memory">
+    1. Reduce GPU layers
+    2. Use a smaller model
+    3. Restart the local server
+    4. Increase swap space (not recommended)
+  </Accordion>
+  <Accordion title="Connection refused">
+    1. Ensure server is running
+    2. Check firewall settings
+    3. Verify port number matches
+    4. Try localhost vs 127.0.0.1
+  </Accordion>
+</AccordionGroup>
+
+## Best Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Confidential Work" icon="lock">
+    Legal documents, medical records, financial data
+  </Card>
+  <Card title="Code Review" icon="code">
+    Analyze proprietary code without external exposure
+  </Card>
+  <Card title="Offline Work" icon="plane">
+    Travel, restricted networks, air-gapped systems
+  </Card>
+  <Card title="Cost Control" icon="piggy-bank">
+    Unlimited usage without API costs
+  </Card>
+</CardGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="AI Chat" icon="comments" href="/ai/chat">
+    Chat with local models
+  </Card>
+  <Card title="Knowledge Base" icon="database" href="/ai/knowledge-base">
+    Local knowledge processing
+  </Card>
+</CardGroup>
+

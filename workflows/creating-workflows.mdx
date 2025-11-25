@@ -1,0 +1,274 @@
+---
+title: "Creating Workflows"
+description: "Build custom workflows to automate your tasks"
+---
+
+## Overview
+
+Create custom workflows that automate your specific needs. This guide walks you through building workflows from scratch.
+
+## Workflow Editor
+
+### Opening the Editor
+
+1. Go to Settings → Workflows
+2. Click "Create New Workflow"
+3. Or edit existing: Click workflow → "Edit"
+
+### Editor Interface
+
+The workflow editor has three main areas:
+
+- **Canvas**: Visual workflow designer
+- **Actions Panel**: Available actions to add
+- **Properties**: Configure selected action
+
+## Creating Your First Workflow
+
+Let's create a simple "Summarize & Save" workflow:
+
+<Steps>
+  <Step title="Create New Workflow">
+    Settings → Workflows → Create New Workflow
+  </Step>
+  <Step title="Name Your Workflow">
+    Give it a descriptive name: "Quick Summary to Notes"
+  </Step>
+  <Step title="Add Input Action">
+    Drag "Text Input" to the canvas - this accepts your input
+  </Step>
+  <Step title="Add AI Action">
+    Drag "AI Prompt" and configure:
+    ```
+    Summarize the following in 3 bullet points:
+    {{input}}
+    ```
+  </Step>
+  <Step title="Add Output Action">
+    Drag "Save to File" and configure save location
+  </Step>
+  <Step title="Connect Actions">
+    Click and drag from output port to input port
+  </Step>
+  <Step title="Test & Save">
+    Click "Test" to verify, then "Save"
+  </Step>
+</Steps>
+
+## Actions Reference
+
+### Input Actions
+
+| Action | Description |
+|--------|-------------|
+| **Text Input** | Manual text entry |
+| **Selected Text** | Current text selection |
+| **Clipboard** | Clipboard contents |
+| **File Input** | Read from file |
+| **Screen Capture** | Capture screen region |
+| **Voice Input** | Speech-to-text input |
+
+### Processing Actions
+
+| Action | Description |
+|--------|-------------|
+| **AI Prompt** | Send to AI with custom prompt |
+| **Translate** | Translate between languages |
+| **Summarize** | Create summary |
+| **Format** | Apply text formatting |
+| **Transform** | Text transformations |
+| **OCR** | Extract text from image |
+
+### Logic Actions
+
+| Action | Description |
+|--------|-------------|
+| **Condition** | If/else branching |
+| **Loop** | Repeat for multiple items |
+| **Split** | Divide text by delimiter |
+| **Merge** | Combine multiple inputs |
+| **Filter** | Filter items by criteria |
+
+### Output Actions
+
+| Action | Description |
+|--------|-------------|
+| **Display** | Show in chat/popup |
+| **Clipboard** | Copy to clipboard |
+| **Save File** | Write to file |
+| **Knowledge Base** | Add to KB |
+| **Notification** | System notification |
+
+## Variables & Data Flow
+
+### Using Variables
+
+Reference data between actions with `{{variable}}`:
+
+```
+{{input}}          - Original input
+{{step1.output}}   - Output from step 1
+{{clipboard}}      - Current clipboard
+{{date}}          - Current date
+{{selection}}      - Selected text
+```
+
+### Custom Variables
+
+Define custom variables in workflow settings:
+
+```json
+{
+  "language": "Spanish",
+  "max_length": 500,
+  "style": "professional"
+}
+```
+
+Use in prompts: `Translate to {{language}}`
+
+## Advanced Features
+
+### Conditional Logic
+
+Add conditions to control flow:
+
+```yaml
+condition:
+  if: "{{input.length}} > 1000"
+  then: use_summary_action
+  else: use_full_text
+```
+
+### Loops
+
+Process multiple items:
+
+```yaml
+loop:
+  for_each: "{{items}}"
+  action: translate_action
+  collect: translated_items
+```
+
+### Error Handling
+
+Define fallbacks for errors:
+
+```yaml
+action:
+  name: web_search
+  on_error:
+    - retry: 3
+    - fallback: use_cached_result
+```
+
+## Workflow Templates
+
+### Research Template
+
+```yaml
+name: Research Topic
+inputs:
+  - topic: string
+actions:
+  - search_web:
+      query: "{{topic}} research papers 2024"
+  - summarize:
+      content: "{{search_results}}"
+      format: "bullet_points"
+  - save_to_kb:
+      collection: "Research"
+```
+
+### Content Processing Template
+
+```yaml
+name: Process Content
+inputs:
+  - content: text
+  - target_language: string
+actions:
+  - grammar_check:
+      text: "{{content}}"
+  - translate:
+      text: "{{grammar_checked}}"
+      to: "{{target_language}}"
+  - output:
+      display: true
+      clipboard: true
+```
+
+## Sharing Workflows
+
+### Export
+
+Export workflows to share:
+1. Right-click workflow → Export
+2. Choose format (JSON or .enconvo)
+3. Share the file
+
+### Import
+
+Import shared workflows:
+1. Settings → Workflows → Import
+2. Select workflow file
+3. Review and confirm
+
+### Community Workflows
+
+Browse community workflows:
+1. Settings → Workflows → Browse Community
+2. Preview and install
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start simple">
+    Begin with 2-3 actions. Add complexity only when needed.
+  </Accordion>
+  <Accordion title="Test incrementally">
+    Test each action as you add it, not just the final workflow.
+  </Accordion>
+  <Accordion title="Use descriptive names">
+    Name workflows and actions clearly so their purpose is obvious.
+  </Accordion>
+  <Accordion title="Document your workflows">
+    Add descriptions explaining what each workflow does and when to use it.
+  </Accordion>
+  <Accordion title="Handle errors">
+    Add error handling for critical workflows that must complete.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Workflow doesn't run">
+    - Check all connections are complete
+    - Verify required inputs are provided
+    - Look for error indicators on actions
+  </Accordion>
+  <Accordion title="Wrong output">
+    - Check variable references are correct
+    - Verify action order is logical
+    - Test individual actions to isolate issues
+  </Accordion>
+  <Accordion title="Slow performance">
+    - Reduce unnecessary actions
+    - Use parallel actions where possible
+    - Consider caching frequent operations
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Extensions" icon="puzzle-piece" href="/extensions/overview">
+    Use plugins in workflows
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
+    Run workflows from SmartBar
+  </Card>
+</CardGroup>
+
