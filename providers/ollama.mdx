@@ -1,0 +1,130 @@
+---
+title: "Ollama"
+description: "Run local LLMs with Ollama in EnConvo"
+---
+
+## Overview
+
+Ollama allows you to run large language models locally on your Mac. Perfect for privacy-focused work and offline usage.
+
+## Supported Models
+
+Any model available in Ollama:
+
+| Model | Size | Best For |
+|-------|------|----------|
+| **Llama 3.1 70B** | 40GB | Complex tasks |
+| **Llama 3.1 8B** | 4.7GB | General purpose |
+| **Mistral 7B** | 4.1GB | Fast responses |
+| **CodeLlama** | 4.7GB | Programming |
+| **Phi-3** | 2.2GB | Lightweight |
+| **Gemma 2** | 5.4GB | Balanced |
+| **Qwen 2** | Various | Multilingual |
+
+## Setup
+
+<Steps>
+  <Step title="Install Ollama">
+    Download from [ollama.ai](https://ollama.ai) or:
+    ```bash
+    brew install ollama
+    ```
+  </Step>
+  <Step title="Pull a Model">
+    ```bash
+    ollama pull llama3.1
+    ```
+  </Step>
+  <Step title="Verify Installation">
+    ```bash
+    ollama list
+    ```
+  </Step>
+  <Step title="Configure in EnConvo">
+    1. Open **Settings** → **AI Provider**
+    2. Select **Ollama**
+    3. Go to **Credentials** module
+    4. Set endpoint: `http://localhost:11434`
+  </Step>
+  <Step title="Select Model">
+    Choose from your installed models
+  </Step>
+</Steps>
+
+## Configuration
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Credentials** | Endpoint configuration | localhost:11434 |
+| **Model Name** | Installed model | llama2:latest |
+| **Temperature** | Creativity (0-2) | Medium (1) |
+
+## Reasoning Mode
+
+Enable thinking for compatible models:
+
+| Option | Description |
+|--------|-------------|
+| **Disabled** | Standard responses |
+| **Thinking** | Enable reasoning |
+
+## Popular Models
+
+```bash
+ollama pull llama3.1        # General purpose
+ollama pull codellama       # Coding
+ollama pull mistral         # Fast
+ollama pull phi3            # Lightweight
+ollama pull gemma2          # Google's model
+ollama pull qwen2           # Multilingual
+```
+
+## System Requirements
+
+| RAM | Recommended Models |
+|-----|-------------------|
+| 8GB | 7B models (Llama 3.1 8B, Mistral 7B) |
+| 16GB | Larger 7B models, some 13B |
+| 32GB | 13B-30B models |
+| 64GB+ | 70B models |
+
+<Tip>
+Apple Silicon Macs with Metal acceleration provide excellent local LLM performance.
+</Tip>
+
+## Privacy Benefits
+
+<CardGroup cols={2}>
+  <Card title="Complete Privacy" icon="shield-halved">
+    Data never leaves your Mac
+  </Card>
+  <Card title="Offline Access" icon="wifi-slash">
+    Works without internet
+  </Card>
+  <Card title="No Usage Limits" icon="infinity">
+    Unlimited local queries
+  </Card>
+  <Card title="Full Control" icon="sliders">
+    Choose exactly which models to run
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection refused">
+    - Ensure Ollama is running: `ollama serve`
+    - Check port 11434 is available
+    - Verify endpoint in settings
+  </Accordion>
+  <Accordion title="Slow responses">
+    - Use smaller models
+    - Close memory-intensive apps
+    - Consider quantized models
+  </Accordion>
+  <Accordion title="Out of memory">
+    - Use smaller model
+    - Reduce context length
+    - Restart Ollama
+  </Accordion>
+</AccordionGroup>
