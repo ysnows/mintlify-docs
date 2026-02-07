@@ -1,4 +1,4 @@
-# Enconvo 2.2.23 Changelog 🚀
+# Enconvo 2.2.23 Changelog (2026-02-08) 🚀
 
 ## Enconvo in Excel
 
@@ -13,7 +13,7 @@
 - Your Claude Pro/Max subscription
 - Your own API key
 
-## OpenAI gpt5.3 codex is now live on Enconvo
+## GPT-5.3 Codex is now live on Enconvo
 
 💡 You can use the new model in the following ways:
 
@@ -66,7 +66,7 @@
   - optimize delete chat functionality
   - Chats now grouped and displayed by date for easier history browsing
 - **Optimized Markdown Rendering Performance**:
-  - Enhanced markdown rendering efficiency  reduce CPU usage
+  - Enhanced markdown rendering efficiency reduce CPU usage
   - Full LaTeX formula rendering support
   - Code block syntax highlighting support
 
@@ -90,3 +90,12 @@
 - Fixed Notion MCP installation failure
 - Fixed Screenshot Explain/Translation settings page scrolling issue where bottom settings were inaccessible
 - Fixed App Sidebar icon not appearing after opening Finder
+
+## Minimum macOS Version Requirement
+
+- The minimum supported version is now macOS 14.
+
+
+
+
+## SKILLs Feature Coming Soon!
