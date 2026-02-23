@@ -46,7 +46,7 @@ EnConvo can activate skills in two ways:
 
 <CardGroup cols={2}>
   <Card title="Explicit Invocation" icon="hand-pointer">
-    Mention the skill directly in your prompt using `/skills` or the `$` prefix. Use this when you know exactly which skill you need.
+    Mention the skill directly in your prompt using the `/` prefix. Use this when you know exactly which skill you need.
   </Card>
   <Card title="Implicit Invocation" icon="wand-magic-sparkles">
     EnConvo automatically selects a skill when your task matches its description. No manual selection needed.
@@ -74,7 +74,7 @@ If two skills share the same name in different locations, both remain available 
 The fastest way to create a skill is with the built-in creator:
 
 ```
-$skill-creator
+/skill-creator
 ```
 
 The creator walks you through:
@@ -166,60 +166,6 @@ Reference them in instructions:
 ```markdown
 Consult `references/api-docs.md` for the API schema before making requests.
 ```
-
-## Skill Configuration
-
-### Disabling a Skill
-
-Disable a skill without deleting it by updating your configuration:
-
-```toml
-[[skills.config]]
-path = "/path/to/skill/SKILL.md"
-enabled = false
-```
-
-Restart EnConvo after changing the configuration.
-
-### Invocation Policy
-
-Control whether a skill can be implicitly invoked by adding metadata:
-
-```yaml
-# agents/enconvo.yaml
-policy:
-  allow_implicit_invocation: false  # Only explicit $skill invocation works
-```
-
-### UI Metadata
-
-Customize how the skill appears in EnConvo:
-
-```yaml
-# agents/enconvo.yaml
-interface:
-  display_name: "My Custom Skill"
-  short_description: "A brief user-facing description"
-  icon_small: "./assets/icon-small.svg"
-  icon_large: "./assets/icon-large.png"
-  brand_color: "#EF4444"
-```
-
-## Installing Community Skills
-
-Browse and install skills shared by the community:
-
-```
-$skill-installer install the translation skill
-```
-
-You can also install from a GitHub repository:
-
-```
-$skill-installer install https://github.com/user/enconvo-skills
-```
-
-EnConvo detects newly installed skills automatically.
 
 ## Best Practices
 
