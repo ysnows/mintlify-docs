@@ -1,0 +1,297 @@
+---
+title: "Agent Skills"
+description: "Extend EnConvo with task-specific AI capabilities using Agent Skills"
+---
+
+## Overview
+
+Use Agent Skills to extend EnConvo with task-specific capabilities. A skill packages instructions, resources, and optional scripts so EnConvo can follow a workflow reliably. You can share skills across teams or with the community.
+
+<Note>
+Skills use **progressive disclosure** to manage context efficiently: EnConvo starts with each skill's metadata (name, description, file path). Full instructions are loaded only when a skill is activated.
+</Note>
+
+## Skill Structure
+
+A skill is a directory with a `SKILL.md` file plus optional scripts and references.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### SKILL.md Format
+
+The `SKILL.md` file must include a frontmatter block with `name` and `description`:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Because implicit matching depends on the `description` field, write descriptions with clear scope and boundaries. Be specific about **when** and **when not** to use the skill.
+</Tip>
+
+## How Skills Are Activated
+
+EnConvo can activate skills in two ways:
+
+<CardGroup cols={2}>
+  <Card title="Explicit Invocation" icon="hand-pointer">
+    Mention the skill directly in your prompt using `/skills` or the `$` prefix. Use this when you know exactly which skill you need.
+  </Card>
+  <Card title="Implicit Invocation" icon="wand-magic-sparkles">
+    EnConvo automatically selects a skill when your task matches its description. No manual selection needed.
+  </Card>
+</CardGroup>
+
+## Skill Locations
+
+EnConvo reads skills from multiple locations, with different scopes:
+
+| Scope | Location | Use Case |
+|-------|----------|----------|
+| **Project** | `$PROJECT/.agents/skills/` | Skills specific to a project or workspace |
+| **User** | `~/.agents/skills/` | Personal skills that apply across all projects |
+| **System** | Bundled with EnConvo | Built-in skills available to everyone |
+
+<Note>
+If two skills share the same name in different locations, both remain available — EnConvo does not merge them.
+</Note>
+
+## Creating a Skill
+
+### Using the Skill Creator
+
+The fastest way to create a skill is with the built-in creator:
+
+```
+$skill-creator
+```
+
+The creator walks you through:
+1. What the skill does
+2. When it should trigger
+3. Whether it should be instruction-only or include scripts
+
+<Info>
+**Instruction-only** is the default and recommended approach. Use scripts only when you need deterministic behavior or external tooling.
+</Info>
+
+### Manual Creation
+
+Create a folder with a `SKILL.md` file:
+
+<Steps>
+  <Step title="Create the skill directory">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="Write SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Verify">
+    EnConvo detects skill changes automatically. If the new skill doesn't appear, restart EnConvo.
+  </Step>
+</Steps>
+
+## Adding Scripts
+
+For skills that need executable logic, add a `scripts/` directory:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Reference scripts in your `SKILL.md`:
+
+```markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+```
+
+## Adding References
+
+Include documentation or context files that the skill can consult:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Reference them in instructions:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+## Skill Configuration
+
+### Disabling a Skill
+
+Disable a skill without deleting it by updating your configuration:
+
+```toml
+[[skills.config]]
+path = "/path/to/skill/SKILL.md"
+enabled = false
+```
+
+Restart EnConvo after changing the configuration.
+
+### Invocation Policy
+
+Control whether a skill can be implicitly invoked by adding metadata:
+
+```yaml
+# agents/enconvo.yaml
+policy:
+  allow_implicit_invocation: false  # Only explicit $skill invocation works
+```
+
+### UI Metadata
+
+Customize how the skill appears in EnConvo:
+
+```yaml
+# agents/enconvo.yaml
+interface:
+  display_name: "My Custom Skill"
+  short_description: "A brief user-facing description"
+  icon_small: "./assets/icon-small.svg"
+  icon_large: "./assets/icon-large.png"
+  brand_color: "#EF4444"
+```
+
+## Installing Community Skills
+
+Browse and install skills shared by the community:
+
+```
+$skill-installer install the translation skill
+```
+
+You can also install from a GitHub repository:
+
+```
+$skill-installer install https://github.com/user/enconvo-skills
+```
+
+EnConvo detects newly installed skills automatically.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep each skill focused" icon="bullseye">
+    One skill = one job. A skill that does too many things is harder to trigger correctly and harder to maintain.
+  </Accordion>
+  <Accordion title="Prefer instructions over scripts" icon="file-lines">
+    Use plain-language instructions unless you need deterministic behavior or external tooling. Instructions are easier to write, debug, and iterate on.
+  </Accordion>
+  <Accordion title="Write imperative steps" icon="list-ol">
+    Be explicit about inputs, steps, and expected outputs. Vague instructions lead to inconsistent results.
+  </Accordion>
+  <Accordion title="Test your trigger descriptions" icon="flask">
+    Try various prompts against your skill's `description` field to confirm it triggers (and doesn't trigger) correctly.
+  </Accordion>
+  <Accordion title="Use clear boundaries" icon="shield">
+    In the description, state both what the skill **should** handle and what it **should not** handle.
+  </Accordion>
+</AccordionGroup>
+
+## Example Skills
+
+### Code Reviewer
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (🔴 Critical / 🟡 Warning / 🔵 Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Meeting Notes
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="EnConvo GitHub" icon="github" href="https://github.com/enconvo">
+    Browse open-source extensions and skills
+  </Card>
+  <Card title="Community Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">
+    Share skills and get help from the community
+  </Card>
+</CardGroup>
