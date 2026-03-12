@@ -1,0 +1,324 @@
+---
+title: "Agents & Custom Bots"
+description: "Create and use AI agents with specialized capabilities, tools, and personalities"
+---
+
+## Overview
+
+Agents in EnConvo are AI assistants with specialized capabilities, custom instructions, and access to tools. While standard chat provides general-purpose AI conversation, agents are purpose-built for specific tasks -- they have defined personalities, access to particular tools, and follow structured workflows to deliver consistent, high-quality results.
+
+EnConvo comes with powerful built-in agents and lets you create your own custom agents (bots) tailored to your exact needs.
+
+## Agent Mode vs Chat Mode
+
+Understanding the difference between these two modes is key to getting the most out of EnConvo:
+
+| Feature | Chat Mode | Agent Mode |
+|---------|-----------|------------|
+| **Tool Use** | No tools -- pure conversation | Full access to configured tools |
+| **Planning** | Direct response | Plans steps, executes tools, synthesizes results |
+| **Context** | Conversation history only | Conversation + tool outputs + external data |
+| **Use Case** | Quick questions, brainstorming | Complex tasks, research, multi-step work |
+| **Speed** | Faster responses | Slower but more capable |
+
+<Tip>
+You can switch between Chat Mode and Agent Mode at any time using the mode toggle in the chat interface. Use Chat Mode for quick questions and Agent Mode when you need the AI to take action.
+</Tip>
+
+## Built-in Agents
+
+EnConvo ships with several pre-configured agents for common tasks:
+
+### Mavis -- Your AI Assistant
+
+Mavis is EnConvo's default general-purpose agent. It has access to a broad set of tools and can handle most everyday tasks:
+
+- Answer questions using web search
+- Read and analyze files on your Mac
+- Generate and edit images
+- Manage your knowledge base
+- Execute MCP server tools
+- Run workflows
+
+### Deep Research Agent
+
+The Deep Research Agent is designed for in-depth investigation of complex topics:
+
+<Steps>
+  <Step title="Define Your Research Question">
+    Provide a clear research question or topic
+  </Step>
+  <Step title="Agent Plans Research">
+    The agent creates a research plan, identifying key areas to investigate
+  </Step>
+  <Step title="Multi-Source Search">
+    Searches across multiple web sources, academic databases, and your knowledge base
+  </Step>
+  <Step title="Analysis & Synthesis">
+    Analyzes findings, identifies patterns, compares perspectives
+  </Step>
+  <Step title="Comprehensive Report">
+    Delivers a structured report with citations and key takeaways
+  </Step>
+</Steps>
+
+**Best for**: Market research, competitive analysis, literature reviews, technical deep-dives, fact-checking complex claims.
+
+### Other Built-in Agents
+
+| Agent | Purpose | Key Tools |
+|-------|---------|-----------|
+| **Code Assistant** | Programming help with file system access | Filesystem, code execution |
+| **Writing Coach** | Long-form writing with research | Web search, knowledge base |
+| **Data Analyst** | Data processing and visualization | Database tools, file system |
+| **Task Manager** | Project and task management | Calendar, todo, integrations |
+
+## Creating Custom Agents (Bots)
+
+Custom agents let you build specialized AI assistants with exactly the capabilities you need.
+
+### Using the Bot Builder
+
+<Steps>
+  <Step title="Open Bot Builder">
+    Go to **Settings** and navigate to the **Bots** section, or use the command `/create-bot` in SmartBar
+  </Step>
+  <Step title="Define Identity">
+    Give your bot a name, icon, and description that clearly convey its purpose
+  </Step>
+  <Step title="Write System Prompt">
+    Define the bot's personality, expertise, and behavior rules in the system prompt. This is the most important step -- it shapes every response.
+  </Step>
+  <Step title="Select Tools">
+    Choose which tools your bot can access: MCP servers, web search, file system, knowledge base, and more
+  </Step>
+  <Step title="Configure Model">
+    Select the AI model and parameters (temperature, max tokens) for this bot
+  </Step>
+  <Step title="Test & Refine">
+    Test your bot with sample queries and refine its behavior
+  </Step>
+</Steps>
+
+### System Prompt Best Practices
+
+The system prompt defines your agent's behavior. A well-written prompt makes the difference between a useful agent and a frustrating one.
+
+```markdown
+# Role
+You are a senior code reviewer specializing in TypeScript and React applications.
+
+# Expertise
+- React component architecture and best practices
+- TypeScript type safety and advanced patterns
+- Performance optimization
+- Accessibility compliance (WCAG 2.1)
+
+# Behavior
+- Always explain WHY something is a problem, not just WHAT
+- Suggest specific fixes with code examples
+- Prioritize issues by severity: critical > warning > suggestion
+- Be constructive and educational in tone
+
+# Constraints
+- Do not rewrite entire files -- focus on specific issues
+- Always check for security vulnerabilities first
+- Reference official documentation when suggesting patterns
+```
+
+<AccordionGroup>
+  <Accordion title="Be specific about the role" icon="user-tie">
+    Instead of "You are a helpful assistant", write "You are a senior marketing strategist specializing in B2B SaaS content". Specificity leads to better, more focused responses.
+  </Accordion>
+  <Accordion title="Define boundaries" icon="shield">
+    Clearly state what the agent should and should not do. Include explicit constraints like "Do not provide medical advice" or "Always cite sources".
+  </Accordion>
+  <Accordion title="Include output formats" icon="table">
+    If you want structured output, include examples: "Format your response as: Summary (2-3 sentences), Key Points (bullet list), Action Items (numbered list)".
+  </Accordion>
+  <Accordion title="Add domain knowledge" icon="book">
+    Include relevant terminology, frameworks, or standards your agent should know. This helps it respond with appropriate expertise.
+  </Accordion>
+</AccordionGroup>
+
+### Selecting Agent Tools
+
+Tools give your agent the ability to take action beyond generating text. Choose tools based on what your agent needs to accomplish:
+
+| Tool Category | Examples | Use When |
+|--------------|----------|----------|
+| **Web Search** | Google, Brave Search | Agent needs real-time information |
+| **File System** | Read/write files, list directories | Agent works with local files |
+| **Knowledge Base** | Search your documents | Agent needs your personal data |
+| **MCP Servers** | GitHub, Notion, Slack, databases | Agent interacts with external services |
+| **Code Execution** | Run scripts, terminal commands | Agent needs to compute or automate |
+| **Image Generation** | DALL-E, Stable Diffusion | Agent creates visual content |
+
+<Warning>
+Be selective with tools. An agent with too many tools may take longer to respond and may choose suboptimal tools. Give each agent only the tools it genuinely needs.
+</Warning>
+
+## Using Agents
+
+### From SmartBar
+
+Invoke any agent from SmartBar using the `@` prefix:
+
+```
+@deep-research What are the current trends in AI regulation?
+@code-reviewer Review this pull request for security issues
+@my-custom-bot Analyze the Q4 sales report
+```
+
+### From the Chat Interface
+
+1. Open the chat interface
+2. Click the agent/bot selector at the top
+3. Choose your desired agent
+4. Start your conversation
+
+### From Workflows
+
+Agents can be used as nodes in workflows, allowing you to chain agent tasks together:
+
+1. Add an **Agent Node** to your workflow
+2. Select which agent to use
+3. Define the input from the previous node
+4. The agent's output feeds into the next step
+
+## Agent Memory
+
+Agents can maintain memory across conversations:
+
+- **Conversation Memory**: The agent remembers the current conversation context
+- **Persistent Memory**: Key facts and preferences are stored and recalled in future conversations
+- **Knowledge Base Integration**: The agent can reference your stored documents
+
+See [Memory](/ai/memory) for more details on how memory works.
+
+## Example Custom Agents
+
+### Email Composer
+
+```markdown
+# Role
+Professional email writer for business communication.
+
+# Behavior
+- Ask clarifying questions before writing (recipient, purpose, tone)
+- Default to professional but friendly tone
+- Keep emails concise -- under 200 words when possible
+- Include a clear subject line suggestion
+- Offer formal and casual variants when tone is ambiguous
+
+# Output Format
+**Subject:** [suggested subject line]
+
+[email body]
+
+---
+**Tone:** [formal/casual/neutral]
+**Word count:** [count]
+```
+
+### Meeting Summarizer
+
+```markdown
+# Role
+Meeting notes specialist who turns transcripts into structured, actionable summaries.
+
+# Behavior
+1. Identify all participants mentioned
+2. Extract key decisions made
+3. List action items with owners and deadlines
+4. Note any unresolved questions
+5. Keep summary under 500 words
+
+# Output Format
+## Meeting Summary
+**Date:** [extracted date]
+**Participants:** [list]
+
+### Key Decisions
+- [decision 1]
+- [decision 2]
+
+### Action Items
+| Owner | Task | Deadline |
+|-------|------|----------|
+
+### Open Questions
+- [question 1]
+```
+
+### Technical Documentation Writer
+
+```markdown
+# Role
+Technical writer who creates clear, developer-friendly documentation.
+
+# Tools
+- File system (to read source code)
+- Web search (to check API references)
+
+# Behavior
+- Start with a one-sentence overview
+- Include code examples for every concept
+- Use consistent heading hierarchy
+- Add a "Quick Start" section for new users
+- Cross-reference related documentation
+- Avoid jargon without explanation
+```
+
+## Sharing Agents
+
+You can share your custom agents with others:
+
+### Export
+
+1. Go to **Settings** -> **Bots**
+2. Select the bot you want to share
+3. Click **Export** to save the configuration
+
+### Import
+
+1. Go to **Settings** -> **Bots**
+2. Click **Import**
+3. Select the exported bot configuration file
+
+## Tips for Effective Agents
+
+<AccordionGroup>
+  <Accordion title="Start simple, then iterate" icon="seedling">
+    Begin with a minimal system prompt and a few tools. Test thoroughly, then add complexity as needed. Over-engineering from the start leads to unpredictable behavior.
+  </Accordion>
+  <Accordion title="Test edge cases" icon="flask">
+    Try unusual inputs, ambiguous requests, and tasks outside the agent's scope. A good agent handles these gracefully.
+  </Accordion>
+  <Accordion title="Match the model to the task" icon="microchip">
+    Use powerful models (GPT-4o, Claude Sonnet) for complex reasoning tasks. Use faster models (GPT-4o mini) for simple, high-frequency tasks.
+  </Accordion>
+  <Accordion title="Use temperature wisely" icon="temperature-half">
+    Low temperature (0-0.3) for factual tasks, code review, data analysis. Higher temperature (0.7-1.0) for creative writing, brainstorming, marketing copy.
+  </Accordion>
+  <Accordion title="Monitor and refine" icon="chart-line">
+    Pay attention to where your agent falls short. Update the system prompt and tool selection based on real usage patterns.
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">
+    Connect agents to external tools and data
+  </Card>
+  <Card title="Memory" icon="brain" href="/ai/memory">
+    How agents remember across conversations
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/configuration/skills">
+    Extend agent capabilities with skills
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Chain agents together in automated workflows
+  </Card>
+</CardGroup>

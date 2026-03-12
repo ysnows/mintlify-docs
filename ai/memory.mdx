@@ -1,0 +1,260 @@
+---
+title: "Memory"
+description: "Give your AI assistant persistent memory that grows smarter over time"
+---
+
+## Overview
+
+Memory is a feature that lets EnConvo remember important information across conversations. Instead of starting fresh every time, your AI assistant retains key facts, preferences, and context from previous interactions -- making it more personalized and effective the more you use it.
+
+Without memory, every conversation begins from zero. With memory enabled, EnConvo learns that you prefer concise responses, that you work with React and TypeScript, that your company's product is called "Acme Cloud", and hundreds of other details that make interactions smoother and more productive.
+
+## How Memory Works
+
+<Steps>
+  <Step title="Conversation Happens">
+    You interact with EnConvo through chat, SmartBar, or any other interface
+  </Step>
+  <Step title="Memory Extraction">
+    EnConvo identifies important facts, preferences, and context worth remembering
+  </Step>
+  <Step title="Storage">
+    Extracted memories are stored locally on your Mac in a structured format
+  </Step>
+  <Step title="Recall">
+    In future conversations, relevant memories are automatically retrieved and included as context for the AI
+  </Step>
+</Steps>
+
+## What Gets Remembered
+
+EnConvo's memory system is designed to capture useful, long-lived information:
+
+| Category | Examples |
+|----------|---------|
+| **Personal Preferences** | "Prefers bullet-point responses", "Uses dark mode", "Likes detailed explanations" |
+| **Technical Context** | "Works with React 19 and TypeScript", "Uses PostgreSQL for databases", "Deploys to AWS" |
+| **Project Details** | "Current project is a SaaS dashboard", "Team uses Jira for task tracking" |
+| **Communication Style** | "Prefers formal tone for emails", "Wants code comments in English" |
+| **Facts & Knowledge** | "Company name is Acme Inc.", "Product launches in Q2" |
+| **Workflow Patterns** | "Always wants unit tests with code", "Prefers functional components over class components" |
+
+<Note>
+Memory extraction is intelligent -- it does not store every message verbatim. Instead, it distills conversations into concise, reusable facts that will be valuable in future interactions.
+</Note>
+
+## Adding Items to Memory
+
+### Automatic Memory
+
+When memory is enabled, EnConvo automatically extracts and saves important information from your conversations. You do not need to do anything special -- just interact naturally.
+
+Examples of what triggers automatic memory:
+- "I always want responses in Spanish"
+- "Our API uses REST with JSON payloads"
+- "My project deadline is March 15th"
+- Corrections you make ("Actually, we use Yarn, not npm")
+
+### Manual Memory
+
+You can explicitly tell EnConvo to remember something:
+
+```
+Remember that our staging server is at staging.acme.com
+Remember my preferred code style: 2-space indentation, single quotes
+Remember that I'm working on the authentication module this week
+```
+
+The AI will confirm that the information has been saved to memory.
+
+### From the Memory Manager
+
+You can also add memory items directly through the Memory Manager:
+
+1. Open **Settings**
+2. Navigate to **Memory**
+3. Click **Add Memory**
+4. Type the fact or preference you want stored
+5. Optionally assign a category or tag
+
+## Memory Management
+
+### Viewing Your Memories
+
+Access your stored memories through **Settings** -> **Memory**. Here you can:
+
+- Browse all stored memories
+- Search for specific memories by keyword
+- Filter by category (preferences, facts, projects, etc.)
+- See when each memory was created and last used
+
+### Editing Memories
+
+Memories can become outdated. To update them:
+
+1. Open **Settings** -> **Memory**
+2. Find the memory you want to edit
+3. Click to edit the content
+4. Save your changes
+
+You can also correct memories during conversation:
+
+```
+Actually, we switched from PostgreSQL to MySQL last month. Please update your memory.
+```
+
+### Deleting Memories
+
+Remove memories that are no longer relevant:
+
+1. Open **Settings** -> **Memory**
+2. Select the memory or memories to delete
+3. Click **Delete**
+
+Or tell EnConvo directly:
+
+```
+Forget that my project deadline is March 15th -- it has been moved to April 1st.
+```
+
+### Bulk Management
+
+For larger cleanup tasks:
+
+| Action | How |
+|--------|-----|
+| **Clear all memories** | Settings -> Memory -> Clear All |
+| **Export memories** | Settings -> Memory -> Export (JSON format) |
+| **Import memories** | Settings -> Memory -> Import |
+| **Disable memory** | Settings -> Memory -> toggle off |
+
+## How Memory Is Used in Conversations
+
+When you start a conversation, EnConvo performs a relevance search across your stored memories. Only memories relevant to the current topic are included as context -- not your entire memory store.
+
+### Example Flow
+
+1. You ask: "Help me write a database migration script"
+2. EnConvo retrieves relevant memories:
+   - "Uses PostgreSQL for databases"
+   - "Prefers TypeScript"
+   - "Uses Drizzle ORM for database management"
+   - "Prefers detailed code comments"
+3. The AI generates a PostgreSQL migration script in TypeScript using Drizzle with thorough comments -- without you needing to specify any of that.
+
+### Memory Priority
+
+When multiple memories apply, EnConvo prioritizes:
+
+1. **Explicit instructions** in the current message (always highest priority)
+2. **Recent memories** from similar contexts
+3. **Frequently used memories** that appear across many conversations
+4. **General preferences** that apply broadly
+
+<Tip>
+If the AI uses an outdated memory, simply correct it in the conversation. The correction will update the stored memory automatically.
+</Tip>
+
+## Memory Scope
+
+Memories can apply at different scopes:
+
+| Scope | Description | Example |
+|-------|-------------|---------|
+| **Global** | Applies to all conversations | "Prefers concise responses" |
+| **Agent-specific** | Applies only when using a particular agent | "When using Code Reviewer, focus on security" |
+| **Project-specific** | Applies only within a project context | "This project uses Vue 3 with Composition API" |
+
+## Privacy & Security
+
+<Warning>
+All memory data is stored locally on your Mac. Memories are never uploaded to EnConvo's servers or shared with any third party.
+</Warning>
+
+### Privacy Controls
+
+| Control | Description |
+|---------|-------------|
+| **Enable/Disable** | Turn memory on or off entirely |
+| **Selective Deletion** | Remove specific memories at any time |
+| **Full Clear** | Delete all stored memories with one action |
+| **Export** | Download your memory data as a JSON file |
+| **No Cloud Sync** | Memory stays on your local machine |
+
+### What Is Never Stored
+
+EnConvo's memory system is designed to avoid storing sensitive information:
+
+- Passwords and API keys
+- Financial account numbers
+- Personal identification numbers
+- Health information (unless explicitly requested)
+
+<Note>
+If you notice sensitive information in your memory store, delete it immediately through the Memory Manager.
+</Note>
+
+## Configuration
+
+### Settings -> Memory
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Enable Memory** | Turn memory feature on/off | On |
+| **Auto-extract** | Automatically extract memories from conversations | On |
+| **Max Memories** | Maximum number of stored memories | 1000 |
+| **Memory Model** | AI model used for memory extraction | Default model |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with explicit memories" icon="hand-pointer">
+    When you first enable memory, explicitly tell EnConvo your most important preferences and context. This gives it a solid foundation to build on.
+  </Accordion>
+  <Accordion title="Review periodically" icon="calendar-check">
+    Check your stored memories every few weeks. Remove outdated items and correct any inaccuracies to keep the AI's context fresh and relevant.
+  </Accordion>
+  <Accordion title="Be specific with corrections" icon="pen">
+    When correcting a memory, be explicit: "Update: we now use pnpm instead of Yarn" is better than "We use pnpm" because it clearly signals a change.
+  </Accordion>
+  <Accordion title="Use project-scoped memories" icon="folder">
+    For project-specific details (tech stack, conventions, team members), use project-scoped memories so they do not bleed into unrelated conversations.
+  </Accordion>
+  <Accordion title="Do not over-memorize" icon="brain">
+    Not everything needs to be remembered. Focus on preferences, recurring context, and facts that genuinely save you time across multiple conversations.
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Personalized Coding" icon="code">
+    Remember your tech stack, coding style, and project architecture for consistent code generation
+  </Card>
+  <Card title="Writing Assistant" icon="pen-fancy">
+    Store your writing style, tone preferences, and recurring topics for better drafts
+  </Card>
+  <Card title="Team Context" icon="users">
+    Remember team members, project timelines, and organizational details
+  </Card>
+  <Card title="Learning Companion" icon="graduation-cap">
+    Track what you have learned, your skill level, and learning goals for adaptive tutoring
+  </Card>
+</CardGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Agents use memory for personalized assistance
+  </Card>
+  <Card title="Knowledge Base" icon="database" href="/ai/knowledge-base">
+    Store and query your documents
+  </Card>
+  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
+    Real-time context from your screen
+  </Card>
+  <Card title="AI Chat" icon="comments" href="/ai/chat">
+    Memory enhances every conversation
+  </Card>
+</CardGroup>

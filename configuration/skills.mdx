@@ -53,6 +53,42 @@ EnConvo can activate skills in two ways:
   </Card>
 </CardGroup>
 
+### Explicit Invocation
+
+Type `/` followed by the skill name in SmartBar or chat to invoke it directly:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+This is the most reliable way to invoke a skill -- you get exactly the one you want.
+
+### Implicit Invocation
+
+When you do not specify a skill, EnConvo automatically matches your request to the most relevant skill based on the `description` field:
+
+1. You type: "Summarize these meeting notes into action items"
+2. EnConvo scans all available skill descriptions
+3. The `meeting-notes` skill matches ("...format raw meeting transcripts into structured notes with action items...")
+4. The skill is activated and its instructions guide the response
+
+### How to Write Descriptions That Match Well
+
+Good implicit matching depends entirely on well-written `description` fields:
+
+| Quality | Example |
+|---------|---------|
+| **Too vague** | "Helps with code" |
+| **Too broad** | "Does anything related to programming" |
+| **Good** | "Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code." |
+
+The key elements:
+- **What it does**: "Review code for bugs, security issues, and best practices"
+- **When to trigger**: "Use when the user asks for a code review"
+- **When NOT to trigger**: "Do not use for code generation or writing new code"
+
 ## Skill Locations
 
 EnConvo reads skills from multiple locations, with different scopes:
@@ -64,8 +100,40 @@ EnConvo reads skills from multiple locations, with different scopes:
 | **System** | Bundled with EnConvo | Built-in skills available to everyone |
 
 <Note>
-If two skills share the same name in different locations, both remain available — EnConvo does not merge them.
+If two skills share the same name in different locations, both remain available -- EnConvo does not merge them.
 </Note>
+
+### Project Skills
+
+Project-scoped skills are stored inside your project directory. They are available only when that project is active:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+This is ideal for skills that depend on project-specific conventions, file structures, or tools.
+
+### User Skills
+
+User-scoped skills in `~/.agents/skills/` are available across all projects. Use this for personal productivity skills that are not project-specific:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
 
 ## Creating a Skill
 
@@ -118,6 +186,61 @@ Create a folder with a `SKILL.md` file:
   </Step>
 </Steps>
 
+### Writing Effective Instructions
+
+The body of `SKILL.md` (below the frontmatter) contains the instructions the AI follows. Write them as clear, imperative steps:
+
+```markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+```
+
+<AccordionGroup>
+  <Accordion title="Be specific about inputs" icon="arrow-right-to-bracket">
+    State exactly where the input comes from: "Read the selected text", "Parse the attached file", "Use the URL from the user's message".
+  </Accordion>
+  <Accordion title="Define the output format" icon="arrow-right-from-bracket">
+    Include a concrete example of what the output should look like. This prevents ambiguity and ensures consistency.
+  </Accordion>
+  <Accordion title="Handle edge cases" icon="triangle-exclamation">
+    Add instructions for common edge cases: "If no commits are found, report that the range is empty" or "If the input is not valid JSON, ask the user to check the format".
+  </Accordion>
+  <Accordion title="Keep it focused" icon="bullseye">
+    One skill should do one thing well. If you find yourself writing a skill with 10+ steps covering multiple tasks, split it into separate skills.
+  </Accordion>
+</AccordionGroup>
+
 ## Adding Scripts
 
 For skills that need executable logic, add a `scripts/` directory:
@@ -147,6 +270,15 @@ description: Check API endpoint health and response times.
 3. Report status, response time, and any errors.
 ```
 
+### When to Use Scripts
+
+| Use Scripts When | Use Instructions Only When |
+|-----------------|---------------------------|
+| You need deterministic output (exact formats, calculations) | The task is primarily about reasoning and language |
+| You interact with external APIs or databases | The task uses only the AI's built-in capabilities |
+| You need to process or transform data programmatically | The task is about writing, summarizing, or analyzing |
+| You require authentication or credential handling | The instructions alone are sufficient |
+
 ## Adding References
 
 Include documentation or context files that the skill can consult:
@@ -167,6 +299,12 @@ Reference them in instructions:
 Consult `references/api-docs.md` for the API schema before making requests.
 ```
 
+References are useful for:
+- API documentation the skill needs to follow
+- Style guides or brand guidelines
+- Code examples and templates
+- Domain-specific knowledge
+
 ## Installing Skills
 
 EnConvo supports two methods to install skills using `/skill-installer`:
@@ -183,7 +321,7 @@ This searches the EnConvo skills store and installs the matching skill. EnConvo 
 
 ### From GitHub
 
-Install skills directly from a GitHub repository URL — including subdirectories:
+Install skills directly from a GitHub repository URL -- including subdirectories:
 
 ```
 /skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
@@ -192,6 +330,49 @@ Install skills directly from a GitHub repository URL — including subdirectorie
 <Tip>
 GitHub installation supports **subdirectory paths**, so you can point to a specific skill folder within a larger repository. No need to clone the entire repo.
 </Tip>
+
+### Browsing the Skills Store
+
+The Skills Store provides a curated collection of community-built skills:
+
+1. Open **Settings**
+2. Navigate to **Skills Store**
+3. Browse categories or search by keyword
+4. Click **Install** on any skill
+5. The skill is downloaded and ready to use immediately
+
+Popular skill categories:
+- **Development**: Code review, documentation generation, testing
+- **Writing**: Email composition, blog posts, technical writing
+- **Data**: Analysis, visualization, reporting
+- **Productivity**: Meeting notes, task management, scheduling
+
+## Managing Skills
+
+### Viewing Installed Skills
+
+See all your installed skills in **Settings** -> **Skills**:
+
+- System skills (built-in)
+- User skills (from `~/.agents/skills/`)
+- Project skills (from current project)
+- Store-installed skills
+
+### Updating Skills
+
+- **Store skills**: Check for updates in the Skills Store
+- **GitHub skills**: Re-run the installer with the same URL
+- **Custom skills**: Edit the `SKILL.md` file directly -- changes are detected automatically
+
+### Disabling Skills
+
+You can disable a skill without deleting it:
+
+1. Go to **Settings** -> **Skills**
+2. Find the skill
+3. Toggle it off
+
+Disabled skills will not be available for implicit or explicit invocation until re-enabled.
 
 ## Best Practices
 
@@ -210,6 +391,9 @@ GitHub installation supports **subdirectory paths**, so you can point to a speci
   </Accordion>
   <Accordion title="Use clear boundaries" icon="shield">
     In the description, state both what the skill **should** handle and what it **should not** handle.
+  </Accordion>
+  <Accordion title="Version your skills" icon="code-branch">
+    For team-shared skills, keep them in version control (git). This makes it easy to track changes, roll back, and collaborate.
   </Accordion>
 </AccordionGroup>
 
@@ -233,7 +417,7 @@ description: Review code for bugs, security issues, and best practices. Use when
    - Code style and readability
 3. Provide feedback as a numbered list.
 4. For each issue, include:
-   - Severity (🔴 Critical / 🟡 Warning / 🔵 Suggestion)
+   - Severity (Critical / Warning / Suggestion)
    - Line reference
    - Explanation and fix
 ```
@@ -257,6 +441,74 @@ description: Format raw meeting transcripts into structured notes with action it
 3. Use markdown formatting for readability.
 ```
 
+### Git Commit Message
+
+```markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+```
+
+### API Documentation Generator
+
+```markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+```
+
 ## Resources
 
 <CardGroup cols={2}>
@@ -265,5 +517,11 @@ description: Format raw meeting transcripts into structured notes with action it
   </Card>
   <Card title="Community Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">
     Share skills and get help from the community
+  </Card>
+  <Card title="Skills Store" icon="store" href="https://www.enconvo.com">
+    Browse and install community skills
+  </Card>
+  <Card title="MCP Integration" icon="plug" href="/features/mcp">
+    Combine skills with MCP tools
   </Card>
 </CardGroup>

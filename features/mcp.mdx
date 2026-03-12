@@ -1,0 +1,321 @@
+---
+title: "MCP (Model Context Protocol)"
+description: "Connect AI to external tools, data sources, and services with MCP servers"
+---
+
+## Overview
+
+Model Context Protocol (MCP) is an open standard that lets AI models interact with external tools, data sources, and services through a unified interface. EnConvo provides native MCP support, allowing you to extend your AI assistant's capabilities far beyond text generation -- giving it the ability to read files, query databases, control applications, browse the web, and much more.
+
+Think of MCP servers as plugins for your AI. Each server exposes a set of tools that the AI can call when needed. Instead of copy-pasting data between applications, your AI assistant can directly access the information and perform actions on your behalf.
+
+## Why MCP Matters
+
+<CardGroup cols={2}>
+  <Card title="Universal Connectivity" icon="plug">
+    One standard protocol to connect AI to any tool or data source -- no custom integrations needed
+  </Card>
+  <Card title="Real-Time Data" icon="bolt">
+    AI accesses live data from databases, APIs, and file systems instead of relying on stale context
+  </Card>
+  <Card title="Tool Execution" icon="screwdriver-wrench">
+    AI can perform real actions -- create files, run queries, send messages, manage tasks
+  </Card>
+  <Card title="Community Ecosystem" icon="users">
+    Thousands of community-built MCP servers available in the MCP Store
+  </Card>
+</CardGroup>
+
+## How MCP Works in EnConvo
+
+<Steps>
+  <Step title="Install an MCP Server">
+    Browse the MCP Store or add a custom server configuration
+  </Step>
+  <Step title="Server Connects">
+    EnConvo launches the MCP server process and establishes a connection via stdio, HTTP, or SSE transport
+  </Step>
+  <Step title="Tools Become Available">
+    The server advertises its available tools (e.g., "read_file", "query_database", "search_web")
+  </Step>
+  <Step title="AI Uses Tools Automatically">
+    When you ask a question or give a task, the AI decides which tools to call and uses them to fulfill your request
+  </Step>
+</Steps>
+
+## Setting Up MCP Servers
+
+### From the MCP Store
+
+The easiest way to add MCP servers is through EnConvo's built-in MCP Store:
+
+1. Open **Settings** in EnConvo
+2. Navigate to **MCP Store**
+3. Browse or search for the server you need
+4. Click **Install** to add it
+5. Configure any required settings (API keys, paths, etc.)
+
+<Tip>
+The MCP Store provides one-click installation for hundreds of servers. Each listing includes a description of available tools and required configuration.
+</Tip>
+
+### Manual Configuration
+
+For custom or private MCP servers, you can add them manually:
+
+1. Open **Settings** in EnConvo
+2. Go to **MCP Servers**
+3. Click **Add Server**
+4. Choose the transport type and fill in the configuration
+
+### Transport Types
+
+EnConvo supports all three MCP transport protocols:
+
+| Transport | Description | Use Case |
+|-----------|-------------|----------|
+| **stdio** | Launches a local process and communicates via stdin/stdout | Local CLI tools, Node.js/Python servers |
+| **SSE** | Server-Sent Events over HTTP | Remote servers, long-running connections |
+| **HTTP** | Standard HTTP request/response | REST-style servers, stateless tools |
+
+### Example: Adding a stdio Server
+
+To add a local MCP server that runs as a Node.js process:
+
+```json
+{
+  "name": "filesystem",
+  "transport": "stdio",
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/Documents"]
+}
+```
+
+### Example: Adding an SSE Server
+
+To connect to a remote MCP server:
+
+```json
+{
+  "name": "remote-tools",
+  "transport": "sse",
+  "url": "https://your-server.com/mcp/sse"
+}
+```
+
+## MCP in Workflows
+
+MCP servers integrate seamlessly with EnConvo's workflow system. You can use MCP tools as steps in automated workflows, combining AI reasoning with tool execution.
+
+### Using MCP Tools in a Workflow
+
+<Steps>
+  <Step title="Create or Edit a Workflow">
+    Open the Workflow Builder from Settings
+  </Step>
+  <Step title="Add an Agent Node">
+    Add an agent node that has access to MCP tools
+  </Step>
+  <Step title="Select MCP Tools">
+    In the agent's tool configuration, enable the MCP servers whose tools you want available
+  </Step>
+  <Step title="Define the Task">
+    Write the prompt or instructions that tell the agent what to accomplish using those tools
+  </Step>
+</Steps>
+
+### Workflow Examples
+
+| Workflow | MCP Servers Used | Description |
+|----------|-----------------|-------------|
+| **Daily Briefing** | Google Calendar, Gmail, News API | Summarize today's meetings, unread emails, and relevant news |
+| **Code Review** | GitHub, Filesystem | Pull latest PRs, analyze code changes, post review comments |
+| **Research Pipeline** | Web Search, Filesystem, Notion | Search topics, compile findings, save to Notion |
+| **Data Analysis** | SQLite, Filesystem | Query database, generate charts, save reports |
+
+## Popular MCP Servers
+
+### Productivity
+
+| Server | Tools Provided |
+|--------|---------------|
+| **Filesystem** | Read, write, and manage files and directories |
+| **GitHub** | Manage repos, issues, PRs, and code search |
+| **Google Drive** | Access and manage Google Drive files |
+| **Notion** | Read and write Notion pages and databases |
+| **Slack** | Send messages, read channels, manage threads |
+| **Linear** | Create and manage issues and projects |
+
+### Data & Search
+
+| Server | Tools Provided |
+|--------|---------------|
+| **Web Search** | Search the web and retrieve results |
+| **Brave Search** | Privacy-focused web search |
+| **SQLite / PostgreSQL** | Query and manage databases |
+| **Puppeteer / Playwright** | Browse web pages, extract content, take screenshots |
+
+### Development
+
+| Server | Tools Provided |
+|--------|---------------|
+| **Docker** | Manage containers and images |
+| **Kubernetes** | Cluster management and deployment |
+| **AWS** | Interact with AWS services |
+| **Sentry** | Error tracking and monitoring |
+
+### Knowledge & Memory
+
+| Server | Tools Provided |
+|--------|---------------|
+| **Memory** | Persistent memory storage for the AI |
+| **Obsidian** | Access and manage Obsidian vaults |
+| **Exa** | Neural search across the web |
+
+## Creating Custom MCP Servers
+
+You can build your own MCP servers to connect EnConvo to any tool or data source.
+
+### Quick Start with TypeScript
+
+```typescript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+const server = new McpServer({
+  name: "my-custom-server",
+  version: "1.0.0"
+});
+
+// Define a tool
+server.tool(
+  "get_weather",
+  "Get current weather for a city",
+  { city: { type: "string", description: "City name" } },
+  async ({ city }) => {
+    const weather = await fetchWeather(city);
+    return {
+      content: [{ type: "text", text: JSON.stringify(weather) }]
+    };
+  }
+);
+
+// Start the server
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+### Quick Start with Python
+
+```python
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+
+server = Server("my-custom-server")
+
+@server.tool()
+async def get_weather(city: str) -> str:
+    """Get current weather for a city."""
+    weather = await fetch_weather(city)
+    return json.dumps(weather)
+
+async def main():
+    async with stdio_server() as (read, write):
+        await server.run(read, write)
+```
+
+### Publishing to the MCP Store
+
+Once your server is ready, you can share it with the community:
+
+1. Package your server as an npm or pip package
+2. Add an MCP manifest file with tool descriptions
+3. Submit to the EnConvo MCP Store registry
+4. Community members can then install it with one click
+
+<Info>
+For full MCP specification details, visit [modelcontextprotocol.io](https://modelcontextprotocol.io). EnConvo supports the latest MCP specification.
+</Info>
+
+## Connection Management
+
+EnConvo manages MCP server connections automatically:
+
+- **Auto-start**: Servers launch when needed and shut down when idle
+- **Connection pooling**: Multiple conversations can share the same server instance
+- **Health monitoring**: Unresponsive servers are automatically restarted
+- **Timeout handling**: Long-running tool calls have configurable timeouts
+
+### Connection Status
+
+Check the status of your MCP servers in **Settings** -> **MCP Servers**:
+
+| Status | Meaning |
+|--------|---------|
+| **Connected** | Server is running and ready |
+| **Disconnected** | Server is not running (will start on demand) |
+| **Error** | Server failed to start -- check configuration |
+| **Connecting** | Server is starting up |
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with the MCP Store" icon="store">
+    The MCP Store has hundreds of pre-configured servers. Check there before building a custom solution -- chances are someone has already built what you need.
+  </Accordion>
+  <Accordion title="Limit active servers" icon="gauge">
+    Each MCP server consumes resources. Enable only the servers you actively use. Disable servers you do not need for your current workflow.
+  </Accordion>
+  <Accordion title="Secure your credentials" icon="lock">
+    Many MCP servers require API keys or tokens. Store these securely in EnConvo's credential management rather than hardcoding them in configuration files.
+  </Accordion>
+  <Accordion title="Test tools before workflows" icon="flask">
+    Before incorporating MCP tools into automated workflows, test them interactively in chat to verify they work as expected.
+  </Accordion>
+  <Accordion title="Use specific tool selections" icon="bullseye">
+    When configuring agents in workflows, enable only the specific MCP tools needed for that task. Giving an agent too many tools can lead to confusion and slower execution.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Server fails to start">
+    - Verify the command and arguments in your configuration
+    - For stdio servers, ensure the binary or script is installed and in your PATH
+    - Check the server logs in **Settings** -> **MCP Servers** -> **Logs**
+    - For Node.js servers, ensure `npx` or `node` is available
+  </Accordion>
+  <Accordion title="Tools not appearing">
+    - Confirm the server is in **Connected** status
+    - Some servers require initial configuration (API keys, file paths) before exposing tools
+    - Try disconnecting and reconnecting the server
+  </Accordion>
+  <Accordion title="Slow tool execution">
+    - Check network connectivity for remote servers
+    - Some tools (web scraping, database queries) are inherently slower
+    - Consider increasing the timeout in server settings
+  </Accordion>
+  <Accordion title="Authentication errors">
+    - Verify API keys are correct and not expired
+    - Check that required environment variables are set
+    - Ensure your account has the necessary permissions
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Use MCP tools in automated workflows
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Agents use MCP tools to accomplish complex tasks
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/configuration/skills">
+    Combine skills with MCP tools for powerful automation
+  </Card>
+  <Card title="Extensions" icon="puzzle-piece" href="/extensions/overview">
+    Build custom extensions with MCP integration
+  </Card>
+</CardGroup>
