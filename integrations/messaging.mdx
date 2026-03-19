@@ -1,0 +1,222 @@
+---
+title: "Messaging Channels"
+description: "Connect Enconvo to Slack, Discord, Telegram, and Feishu"
+---
+
+## Overview
+
+The IM Channels extension connects EnConvo to your team's messaging platforms. Send and read messages on Slack, Discord, Telegram, and Feishu (Lark) directly through AI conversations, or set up automated bot listeners that reply to incoming messages using your configured LLM.
+
+This turns EnConvo into a unified messaging hub where your AI assistant can communicate across platforms on your behalf.
+
+<CardGroup cols={2}>
+  <Card title="Slack" icon="slack">
+    Send messages, read channels, Socket Mode listener
+  </Card>
+  <Card title="Discord" icon="discord">
+    Channel messaging via REST API and Gateway WebSocket
+  </Card>
+  <Card title="Telegram" icon="paper-plane">
+    Bot API messaging with long-polling listener
+  </Card>
+  <Card title="Feishu / Lark" icon="comments">
+    Open API integration with auto-refreshing tokens
+  </Card>
+</CardGroup>
+
+## Setting Up Channels
+
+Each platform requires its own bot token or API credentials. Configure them in the extension settings.
+
+### Slack
+
+<Steps>
+  <Step title="Create a Slack App">
+    Go to [api.slack.com/apps](https://api.slack.com/apps) and create a new app for your workspace
+  </Step>
+  <Step title="Configure Bot Permissions">
+    Under **OAuth & Permissions**, add the scopes your bot needs (e.g., `chat:write`, `channels:read`, `channels:history`)
+  </Step>
+  <Step title="Install to Workspace">
+    Install the app to your Slack workspace and copy the **Bot User OAuth Token** (`xoxb-...`)
+  </Step>
+  <Step title="Enter Token in EnConvo">
+    Go to **Settings** -> **IM Channels** -> **Slack Channel** and paste your Bot Token
+  </Step>
+  <Step title="(Optional) Enable Socket Mode">
+    For the bot listener feature, create an **App-Level Token** (`xapp-...`) with `connections:write` scope and enter it in the App Token field
+  </Step>
+</Steps>
+
+### Discord
+
+<Steps>
+  <Step title="Create a Discord Application">
+    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and create a new application
+  </Step>
+  <Step title="Create a Bot">
+    Navigate to the **Bot** section and click **Add Bot**. Copy the bot token.
+  </Step>
+  <Step title="Set Permissions">
+    Under **OAuth2** -> **URL Generator**, select the `bot` scope and the permissions you need (Send Messages, Read Message History, etc.)
+  </Step>
+  <Step title="Invite to Server">
+    Use the generated URL to invite the bot to your Discord server
+  </Step>
+  <Step title="Enter Token in EnConvo">
+    Go to **Settings** -> **IM Channels** -> **Discord Channel** and paste your Bot Token
+  </Step>
+</Steps>
+
+### Telegram
+
+<Steps>
+  <Step title="Create a Bot via BotFather">
+    Open Telegram and message [@BotFather](https://t.me/BotFather). Send `/newbot` and follow the prompts to create your bot
+  </Step>
+  <Step title="Copy the Bot Token">
+    BotFather will provide a token in the format `123456:ABC-DEF...`
+  </Step>
+  <Step title="Enter Token in EnConvo">
+    Go to **Settings** -> **IM Channels** -> **Telegram Channel** and paste the Bot Token
+  </Step>
+</Steps>
+
+### Feishu / Lark
+
+<Steps>
+  <Step title="Create a Feishu App">
+    Go to the [Feishu Open Platform](https://open.feishu.cn/app) and create a new application
+  </Step>
+  <Step title="Get App Credentials">
+    Copy the **App ID** and **App Secret** from the app's credentials page
+  </Step>
+  <Step title="Configure Permissions">
+    Add the messaging permissions your bot needs (send messages, read messages, etc.)
+  </Step>
+  <Step title="Enter Credentials in EnConvo">
+    Go to **Settings** -> **IM Channels** -> **Feishu / Lark Channel** and enter the App ID and App Secret
+  </Step>
+  <Step title="(Optional) Set API Domain">
+    For Lark (international version), change the API Domain to `https://open.larksuite.com`. The default is `https://open.feishu.cn` for the China version.
+  </Step>
+</Steps>
+
+## Using Messaging in Conversations
+
+Once channels are configured, the AI can send and read messages on your behalf.
+
+### Sending Messages
+
+```
+"Send a message to the #general channel on Slack saying the deployment is complete"
+"Message the QA team on Discord that the build is ready for testing"
+"Send a Telegram message to the support chat with today's status update"
+```
+
+### Reading Messages
+
+```
+"Show me the last 10 messages from #engineering on Slack"
+"What did the team say in the Discord dev channel today?"
+"Read recent messages from the Telegram project group"
+```
+
+### Cross-Platform Communication
+
+```
+"Post the meeting summary to both Slack #team and Discord #announcements"
+"Read messages from Telegram and forward the important ones to Slack"
+```
+
+## Bot Listener
+
+The Channel Listener Service runs in the background and automatically replies to incoming messages using your configured AI model.
+
+### How It Works
+
+1. The listener connects to each configured platform (Slack via Socket Mode, Discord via Gateway WebSocket, Telegram via long-polling)
+2. When someone messages or mentions your bot, the listener receives the message
+3. The message is processed by your configured LLM provider
+4. The AI's response is sent back to the channel
+
+### Agent Binding
+
+You can bind specific channels to specific AI agents. This lets different channels use different system prompts, tools, and behaviors.
+
+| Concept | Description |
+|---------|-------------|
+| **One agent to many channels** | A single agent can serve multiple channels across platforms |
+| **One channel to one agent** | Each channel is bound to exactly one agent |
+| **Default fallback** | Unbound channels use the default LLM configuration |
+
+### Configuring the Listener
+
+1. Go to **Settings** -> **IM Channels** -> **Channel Listener Service**
+2. Select the **AI Model Provider** to use for bot replies
+3. The listener automatically starts for all configured channels with valid credentials
+
+<Tip>
+You can bind different AI agents to different channels. For example, a customer support agent for your Telegram support group and a development assistant for your Slack engineering channel.
+</Tip>
+
+## Platform Details
+
+| Platform | Transport | Listener Method | Max Message Length |
+|----------|-----------|----------------|-------------------|
+| **Slack** | HTTPS Web API | Socket Mode WebSocket | 4,000 characters |
+| **Discord** | HTTPS REST v10 | Gateway WebSocket | 2,000 characters |
+| **Telegram** | HTTPS Bot API | Long-polling (30s) | 4,096 characters |
+| **Feishu** | HTTPS Open API | Polling | 4,000 characters |
+
+<Note>
+Long messages are automatically split into multiple parts at natural break points (newlines, then spaces) to stay within platform limits.
+</Note>
+
+## Using Channels in Workflows
+
+Messaging channels integrate with EnConvo workflows for automated communication:
+
+| Workflow | Description |
+|----------|-------------|
+| **Status Broadcast** | Automatically post status updates to multiple channels |
+| **Alert Pipeline** | Monitor events and send alerts to the appropriate channel |
+| **Daily Digest** | Compile information and post a daily summary |
+| **Cross-Platform Relay** | Read from one platform and forward to another |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Channel shows as not configured">
+    Verify that the bot token or API credentials are entered correctly in **Settings** -> **IM Channels**. Tokens must be valid and not expired.
+  </Accordion>
+  <Accordion title="Bot cannot send messages">
+    Ensure the bot has been invited to the target channel/group and has the correct permissions. On Slack, the bot must be added to channels before it can post.
+  </Accordion>
+  <Accordion title="Listener not responding to messages">
+    Check that the Channel Listener Service is running. For Slack, Socket Mode requires an App-Level Token. For Discord, the bot needs the Message Content intent enabled in the Developer Portal.
+  </Accordion>
+  <Accordion title="Messages are cut off">
+    Each platform has a maximum message length. EnConvo automatically splits long messages, but very long responses may be sent across multiple messages.
+  </Accordion>
+  <Accordion title="Feishu token errors">
+    Feishu tokens auto-refresh, but if you see authentication errors, verify your App ID and App Secret. For Lark international, make sure the API Domain is set to `https://open.larksuite.com`.
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Gmail Integration" icon="envelope" href="/integrations/gmail">
+    Email management via Gmail API
+  </Card>
+  <Card title="Apple Ecosystem" icon="apple" href="/integrations/apple-ecosystem">
+    Native Apple Mail, Reminders, Calendar
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Automate messaging in workflows
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Bind AI agents to messaging channels
+  </Card>
+</CardGroup>

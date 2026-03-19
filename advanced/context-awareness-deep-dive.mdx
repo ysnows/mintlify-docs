@@ -1,0 +1,230 @@
+---
+title: "Context Awareness Deep Dive"
+description: "How Enconvo understands your screen and provides relevant assistance"
+---
+
+## Overview
+
+Context Awareness is the foundation of EnConvo's intelligent assistance. Instead of asking you to explain what you are working on, EnConvo observes your active environment -- the application you are using, the text you have selected, the URL you are viewing, and the files you are working with -- and uses this information to provide relevant, targeted help.
+
+This guide explains how context awareness works under the hood, what data is collected, and how to configure it.
+
+<Note>
+For basic usage, see the [Context Awareness introduction](/features/context-awareness). This guide covers the technical details and advanced configuration.
+</Note>
+
+## How It Works
+
+### Accessibility API
+
+EnConvo reads screen content through macOS Accessibility APIs (the same APIs used by screen readers and assistive technologies). When you grant EnConvo Accessibility permission, it can:
+
+- Detect the frontmost application
+- Read the title of the active window
+- Access selected text in supported applications
+- Identify the current URL in web browsers
+- Read file paths from Finder selections
+
+This is a read-only, event-driven system. EnConvo listens for focus changes and selection events rather than continuously scanning your screen.
+
+### Context Detection Pipeline
+
+When you invoke EnConvo (via SmartBar, Companion Orb, App Sidebar, or keyboard shortcut), the system collects context through this pipeline:
+
+```
+User triggers EnConvo
+  → Detect frontmost application (bundle ID, app name)
+  → Read active window title
+  → Check for selected text (Accessibility API)
+  → If browser: extract current URL and page content
+  → If Finder: read selected file paths
+  → If code editor: detect language, file path, project
+  → Assemble context object
+  → Pass to AI along with user query
+```
+
+### Context Resolution Time
+
+Context is captured at the moment you trigger EnConvo. The system does not continuously monitor your screen -- it takes a snapshot when needed. This means:
+
+- Context reflects what is on screen when you press the hotkey
+- Switching apps after triggering EnConvo does not change the captured context
+- Each new query captures fresh context
+
+## Context Types
+
+### Active Application
+
+EnConvo detects the frontmost application and adapts its behavior accordingly.
+
+| Application Category | Context Gathered | AI Behavior |
+|---------------------|-----------------|-------------|
+| **Web Browsers** (Safari, Chrome, Arc, Firefox) | URL, page title, visible page content | Offers summarization, translation, content extraction |
+| **Code Editors** (VS Code, Xcode, JetBrains) | Programming language, file path, selected code | Provides debugging help, code explanations, refactoring |
+| **Finder** | Selected files, current directory path | File operations, content analysis, organization |
+| **Text Editors** (TextEdit, Notes, Pages) | Selected text, document content | Writing assistance, grammar, tone adjustment |
+| **Other Applications** | Window title, screenshot (when requested) | General assistance based on visible content |
+
+### Selected Text
+
+When you select text in any application before invoking EnConvo, the selected text is automatically included as context. This is the most common context type -- select some code, a paragraph, or an error message, then ask the AI about it.
+
+### Screen Content
+
+The `#screen` context modifier captures a screenshot of your current screen. This is processed through EnConvo's vision capabilities to understand visual content like charts, diagrams, error dialogs, or UI elements that cannot be read through text-based APIs.
+
+### Clipboard
+
+The `#clipboard` modifier includes the current clipboard content. This is useful when you have copied something and want to ask about it without pasting it into the input field.
+
+### Browser Content
+
+For web browsers, EnConvo can read:
+
+- **URL**: The full URL of the active tab
+- **Page title**: The document title
+- **Page content**: The visible text content of the page (extracted via the browser extension or Accessibility API)
+
+### File Context
+
+When working in Finder or when files are selected, EnConvo can access:
+
+- File paths and names
+- File types and sizes
+- For supported formats: file content (with your confirmation)
+
+## Configuration
+
+### Enabling Context Sources
+
+Configure which context sources are active in **Settings** -> **Context Awareness**:
+
+| Source | Default | Description |
+|--------|---------|-------------|
+| **Active app detection** | On | Detect the frontmost application |
+| **Selected text** | On | Include highlighted text |
+| **Browser URL** | On | Read current browser URL |
+| **Browser content** | On | Read page content from browsers |
+| **Clipboard** | Off | Include clipboard automatically |
+
+### Application Exclusion List
+
+You may want to exclude specific applications from context awareness for privacy reasons. For example, you might exclude a password manager or a private messaging app.
+
+1. Go to **Settings** -> **Context Awareness**
+2. Click **Exclusions**
+3. Add applications to the exclusion list
+4. EnConvo will not read context from excluded applications
+
+### Manual Context Modifiers
+
+Use `#` prefix modifiers to manually control what context is included in your query:
+
+| Modifier | Description |
+|----------|-------------|
+| `#screen` | Capture and include current screen content |
+| `#finder` | Include current Finder file selection |
+| `#clipboard` | Include clipboard content |
+| `#browser` | Include current browser tab content |
+| `#xcode` | Include current Xcode project context |
+| `#safari` | Include current Safari tab specifically |
+
+These modifiers override the automatic context detection, letting you be explicit about what information the AI should consider.
+
+## Context in AI Conversations
+
+### How Context is Used
+
+When context is available, it is included in the AI prompt as additional information. The AI can:
+
+- Reference the context directly in its response
+- Use context to understand ambiguous queries ("Fix this" -- fix what? The selected code)
+- Provide more specific suggestions based on what you are working on
+- Avoid asking clarifying questions when the answer is visible on screen
+
+### Context Priority
+
+When multiple context sources are available, they are prioritized:
+
+1. **Explicitly requested context** (`#screen`, `#browser`, etc.) -- highest priority
+2. **Selected text** -- included when present
+3. **Active application context** -- always included
+4. **Clipboard** -- only when explicitly requested or auto-enabled
+
+### Token Usage
+
+Context data consumes tokens from the AI model's context window. Larger context (full page content, screenshots) uses more tokens, which may:
+
+- Increase response latency
+- Increase API costs for cloud models
+- Leave less room for conversation history
+
+<Tip>
+For long conversations, use specific context modifiers rather than including everything. Asking `#browser summarize this page` is more efficient than including full page content with every message.
+</Tip>
+
+## Privacy and Security
+
+<Warning>
+Context data is never collected, stored, or transmitted without your explicit action. All context processing happens at the moment you submit a query.
+</Warning>
+
+### What Is Read
+
+- Context is captured only when you actively invoke EnConvo
+- No background monitoring or continuous screen recording
+- Context is held in memory for the duration of the query processing
+- Context is sent to your configured AI provider (along with your query) only when you submit
+
+### What Is Never Read
+
+- Passwords in secure input fields (macOS Accessibility API does not expose these)
+- Content in excluded applications
+- Content when EnConvo is not actively invoked
+- Content from other user accounts on the same Mac
+
+### Data Flow
+
+```
+Screen context → EnConvo (local) → Your AI provider (when you submit a query)
+```
+
+If you use a local AI model (Ollama, LM Studio, MLX), context never leaves your Mac. If you use a cloud provider, context is sent encrypted over HTTPS as part of the prompt.
+
+### Audit
+
+There is no persistent log of captured context. Once a query is processed, the context object is discarded from memory.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Context not detected">
+    Ensure EnConvo has **Accessibility** permission in **System Settings** -> **Privacy & Security** -> **Accessibility**. Restart EnConvo after granting permission.
+  </Accordion>
+  <Accordion title="Browser URL not captured">
+    The browser content feature works best with the EnConvo browser extension installed. Without the extension, EnConvo falls back to Accessibility API which may not capture URL content in all browsers.
+  </Accordion>
+  <Accordion title="Selected text not included">
+    Not all applications expose selected text through the Accessibility API. If selected text is not detected, try using `#clipboard` after copying the text instead.
+  </Accordion>
+  <Accordion title="Context from wrong application">
+    Context is captured at the moment you trigger EnConvo. If you switch applications quickly before the hotkey registers, the context may come from the wrong app. Wait for the previous app to be fully focused before triggering.
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Context Awareness Basics" icon="eye" href="/features/context-awareness">
+    Introduction to context awareness
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
+    Use context in SmartBar queries
+  </Card>
+  <Card title="App Sidebar" icon="sidebar" href="/features/app-sidebar">
+    Per-app AI context
+  </Card>
+  <Card title="OCR" icon="text" href="/ai/ocr">
+    Extract text from screen content
+  </Card>
+</CardGroup>

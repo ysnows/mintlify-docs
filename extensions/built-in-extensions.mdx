@@ -1,0 +1,249 @@
+---
+title: "Built-in Extensions"
+description: "Complete guide to all built-in extensions in Enconvo"
+---
+
+## Overview
+
+EnConvo ships with 80+ built-in extensions organized into functional categories. Each extension provides specialized capabilities that can be used standalone, combined in workflows, or called by AI agents as tools.
+
+<Note>
+All built-in extensions are open source and available on [GitHub](https://github.com/enconvo). You can customize or fork any extension to fit your needs.
+</Note>
+
+## AI & Chat
+
+Core AI interaction extensions that power EnConvo's conversational interface.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **AI (chat_with_ai)** | Multi-modal AI chat agent with tool use and knowledge base retrieval | Agent mode with planning, multi-LLM support, dynamic context awareness, customizable system prompts, post-actions |
+| **Agent (agent)** | AI agent management with the Mavis personal assistant | Create, list, and message agents; configurable prompts, tools, and session handling; built-in Mavis assistant |
+| **Custom Bot (custom_bot)** | Registry for user-created custom AI bots and agents | Dynamic command creation, personalized bot configurations |
+| **Writing Toolkit (writing_package)** | AI-powered writing commands | Fix spelling/grammar, improve writing, summarize, explain, rewrite, tone adjustment, proofreading, dictation polishing |
+| **Web Search (internet_browsing)** | Real-time web search with AI synthesis | Configurable search providers, LLM-synthesized cited answers |
+
+<Tip>
+The **AI** extension is the primary chat interface. Use `@` in SmartBar to select tools, and `#` to add context sources like screenshots, browser tabs, or clipboard content.
+</Tip>
+
+## Language Models
+
+Extensions for managing and connecting to AI model providers.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **AI Model Providers (llm)** | Unified LLM provider integrations for 20+ services | OpenAI, Anthropic, Google Gemini, Ollama, Groq, Mistral, DeepSeek, X.AI, Azure OpenAI, LM Studio, and more; streaming chat completion; model management APIs |
+| **Embedding Providers (embeddings_providers)** | Text embedding for semantic search and knowledge base indexing | OpenAI, Voyage AI, Ollama, SiliconFlow, Enconvo Cloud; configurable concurrency and model selection |
+| **Reranker Providers (reranker_providers)** | Document reranking for improved search relevance | Voyage AI, SiliconFlow, Enconvo Cloud reranking models |
+| **MLX (mlx_manage)** | Apple Silicon local AI model management | Local LLM chat, vision-language models, TTS, STT via MLX; Hugging Face model downloads |
+
+<Tip>
+Use the **Enconvo Cloud Plan** provider for zero-configuration access to multiple models. For privacy-sensitive work, configure **Ollama** or **MLX** for fully local inference.
+</Tip>
+
+## Voice & Audio
+
+Text-to-speech, speech recognition, transcription, and audio utilities.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **TTS (tts)** | Text-to-speech commands | Read aloud, text-to-audio file conversion, sound effects, SRT-to-audio, Gemini single/multi-speaker TTS |
+| **TTS Providers (tts_providers)** | 11+ TTS provider backends | OpenAI, Microsoft Azure, ElevenLabs, MiniMax, Speechify, Google Cloud, xAI, macOS system, Edge TTS; voice listing and speed configuration |
+| **Dictation Model Providers (speech_recognize_providers)** | 15+ real-time speech-to-text providers | Groq Whisper, OpenAI, Deepgram, AssemblyAI, ElevenLabs, Google Gemini, Microsoft Azure, NVIDIA Parakeet, Qwen ASR, local Whisper |
+| **Transcription Providers (transcription_providers)** | File-based transcription for long-form audio | Same provider backends as dictation; optimized for longer recordings |
+| **Audio Utils (audio_utils)** | Audio file compression | ffmpeg-based compression with configurable quality; batch processing of MP3, WAV, M4A, AAC, OGG, FLAC |
+| **My Recordings (my_recordings)** | Recording management | Organize and access voice recordings |
+
+<Tip>
+For the best free dictation experience, use **Microsoft (Enconvo Cloud Plan) Free** which requires no API key.
+</Tip>
+
+## Content & Knowledge
+
+Extensions for managing knowledge, searching, reading web content, and crawling websites.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Knowledge Base (knowledge_base)** | Document management and semantic search | Create knowledge bases, ingest files/text/webpages/audio/video, vector similarity search via LanceDB, personal memory system with automatic knowledge extraction |
+| **Search (search)** | Unified search engine | Search commands, files, applications, skills, and conversations; fuzzy matching, context-aware recommendations, real-time index updates |
+| **Web Fetch (link_reader)** | Fetch and extract content from URLs | Convert webpages to markdown/text, summarize pages using LLM |
+| **Link Reader Providers (link_reader_providers)** | Web scraping backends | Local Fetch, Crawl4AI, Jina AI, Firecrawl, Enconvo Cloud |
+| **Website Crawler (website_crawler)** | Multi-page website crawling | Configurable depth and page limits, output as text or saved to file |
+| **Website Crawler Providers (website_crawler_providers)** | Crawler backends | Crawl4AI (local, free), Firecrawl (cloud API) |
+| **Web Search Providers (browsing_providers)** | Web search backends for AI agents | Tavily, Bing, Google Custom Search, Exa, Gemini grounding |
+| **Document Loader Providers (document_loader_providers)** | Document text extraction | Mistral OCR for structured text and markdown from documents and images |
+
+<Tip>
+Combine **Knowledge Base** with **Embedding Providers** and **Reranker Providers** for a powerful RAG (Retrieval-Augmented Generation) pipeline. Ingest your documents, then ask questions in chat with knowledge base context enabled.
+</Tip>
+
+## Image & Video
+
+Image generation, video creation, compression, OCR, and media utilities.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Image Create (image_generation)** | Generate and edit images from text prompts | Background removal, multiple output formats, batch generation |
+| **Image Generate Providers (image_generation_providers)** | 7+ image generation backends | OpenAI DALL-E, Google Gemini, Fal.ai, Azure, Together AI, Straico; text-to-image and image editing |
+| **Video Generation (video_generation)** | AI video creation | Text-to-video, image-to-video using Sora, Kling, Hailuo, Veo, Wan |
+| **Video Generate Providers (video_generation_providers)** | Video generation backends | Enconvo Cloud (fal.ai), OpenAI Sora, Fal.ai direct |
+| **Image Compress (compress_image)** | Image compression | Caesium engine, adjustable quality, batch compression, overwrite or output to folder |
+| **Video Utils (video_utils)** | Video utilities | Compress video via ffmpeg, extract audio to MP3, download videos from YouTube/TikTok/Instagram/Reddit/Twitter via yt-dlp |
+| **OCR (ocr_action)** | Text extraction from images | Screenshot OCR, silent clipboard copy, interactive SmartBar display |
+| **OCR Providers (ocr_providers)** | OCR backends | Apple native Vision OCR, AI model-based OCR via LLM vision, Mistral OCR |
+
+## Productivity
+
+Workflow automation, scheduling, prompt management, and utility extensions.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Workflow (workflow)** | Visual workflow automation engine | Node-based execution, manual/scheduled/file-change triggers, conditional branching, loop iteration, AI parameter generation, Jinja2 templating, run logging |
+| **Cron (cron)** | Scheduled task management | Create, list, update, delete, toggle cron jobs; execute commands on recurring schedules; execution logs |
+| **Prompt (prompt)** | Reusable prompt template system | Create, manage, execute prompt templates with variable substitution, diff highlighting, post-actions |
+| **Variables (variables)** | System variable providers | Active app info, screenshots, clipboard, selected text, Finder paths, browser tabs, date/time for use in workflows and templates |
+| **Quick Links (quick_links)** | Parameterized URL launcher | Open URLs in configurable browser; presets for Google, YouTube, Twitter/X search |
+| **Skills Manager (skills_manager)** | Skill installation and updates | Install from Enconvo Store, GitHub, or ZIP; version checking; auto-install built-in skills |
+| **Enconvo (enconvo)** | Core platform APIs | 30+ internal endpoints for extension management, command configuration, credential loading, cache operations, user profile |
+
+## Communication
+
+Email, messaging, and channel integrations.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Gmail (gmail)** | Gmail API integration | Send, draft, read, search, delete emails; manage labels; batch operations |
+| **IM Channels (im_channels)** | Messaging platform integration | Slack, Telegram, Discord, Feishu/Lark; send and read messages; channel listener service |
+| **Message Manager (message_manager)** | Chat message persistence | SQLite + Drizzle ORM; store, query, paginate conversation messages across agents and sessions |
+
+<Tip>
+Set up **IM Channels** to receive AI agent notifications directly in Slack or Telegram. Combine with **Cron** to schedule automated reports sent to your team channels.
+</Tip>
+
+## Apple Integration
+
+Native macOS application integrations using AppleScript and system APIs.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Apple Mail (apple_mail)** | Apple Mail integration | Compose, read, manage emails; archive, trash, delete, move between mailboxes; toggle read status |
+| **Apple Reminders (apple_reminders)** | Apple Reminders integration | Create, update, delete, list reminders; due dates, priorities, recurrence rules, location-based triggers |
+| **Shortcuts (apple_shortcuts)** | Apple Shortcuts integration | Dynamically populated commands based on shortcuts available on the system |
+| **Apple Calendar (calender)** | Apple Calendar integration | Full CRUD for events and calendars; recurrence rules, alarms, all-day events |
+
+<Tip>
+These extensions work through native macOS APIs, so they require appropriate permissions. Grant access in System Settings when prompted.
+</Tip>
+
+## System & Control
+
+System utilities, file operations, window management, and computer control.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Mac Applications (application)** | AI-powered app assistants | Context-aware prompts for 12+ apps: Finder, Calendar, Mail, Notes, Obsidian, Microsoft Office |
+| **File System (file_system)** | File system tools for AI agents | Read, write, edit files; search with ripgrep (grep); find files by glob patterns |
+| **Window (window)** | Window management | PopBar configuration, Mini SmartBar setup, display mode options |
+| **System Tools (system)** | macOS system utilities | Toggle dark mode, hidden files, mute, full screen; web search; URL opening |
+| **Computer Control (computer_control)** | Accessibility API control | Navigate UI trees, click elements, type text, screenshots, scroll; works with any accessible macOS app |
+
+## Development & Automation
+
+Code execution, browser automation, and protocol integrations.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Code Runner (code_runner)** | Shell command execution | Bash/zsh commands with auto Python venv activation, configurable working directory, timeout handling |
+| **MCP (mcp)** | Model Context Protocol client | Connection pooling, stdio/HTTP/SSE transports, OAuth authentication for MCP server tools |
+| **Browser Control (browser_control)** | Browser automation | Navigate, click, type, screenshots, read page content, manage tabs; works with Chrome, Edge, Brave, Arc, Vivaldi, Opera, Firefox via Companion extension |
+
+<Tip>
+**Browser Control** uses your existing browser sessions -- all your login cookies and extensions work automatically. Install the Enconvo Companion browser extension for the best experience.
+</Tip>
+
+## Translation
+
+Multi-language translation with multiple provider backends.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Translate (translate)** | Text and word translation | AI-powered LLM, DeepL, Google Translate, Youdao, Caiyun; auto language detection, dictionary mode, screenshot OCR translation, TTS playback |
+| **Translate Providers (translate_providers)** | Translation backends | LLM-based, DeepL, Google Translate, Youdao, Caiyun, Enconvo Cloud |
+
+## Other Utilities
+
+Additional tools for export, credentials, YouTube, and more.
+
+| Extension | Description | Key Features |
+|-----------|-------------|--------------|
+| **Exporter (exporter)** | Export conversations and documents | Save as Markdown, PDF, or audio (MP3) via TTS |
+| **Credentials (credentials)** | Centralized API key management | 40+ AI service providers; key validation; secure storage in macOS Keychain |
+| **YouTube (youtube)** | YouTube tools | Extract video transcripts with timestamps and language selection; download videos/audio via yt-dlp |
+| **EnConvo WebApp (enconvo_webapp)** | Management UI | Extension store, agent creation, workflow builder (React Flow), knowledge base management, MCP server installation |
+
+## Extension Architecture
+
+### How Extensions Work
+
+Every extension follows a consistent pattern:
+
+1. **Package Definition**: `package.json` declares commands, preferences, and metadata
+2. **Command Handlers**: TypeScript files in `src/` export entry functions
+3. **API Routes**: Files in `src/api/` are auto-discovered as HTTP-like endpoints
+4. **Provider Pattern**: Extensions with `commandType: "provider"` register capabilities that consumer extensions select
+
+### Command Key Format
+
+All extensions use the format `extensionName|commandName` for targeting. For example:
+- `chat_with_ai|chat` -- the main chat command
+- `llm|chat_open_ai` -- OpenAI LLM provider
+- `gmail|send_email` -- Gmail send tool
+
+### Provider Selection
+
+Many extensions use a provider pattern where you choose which backend to use:
+
+```
+chat_with_ai (consumer) → llm|chat_open_ai (provider)
+tts (consumer) → tts_providers|openai_tts_provider (provider)
+translate (consumer) → translate_providers|deepl_translate_provider (provider)
+```
+
+Configure default providers in each extension's settings, or let AI agents choose automatically.
+
+## Installing Additional Extensions
+
+Beyond built-in extensions, you can install community extensions:
+
+<Steps>
+  <Step title="Open Extension Store">
+    Settings → Extensions → Browse, or use the `/` command in SmartBar
+  </Step>
+  <Step title="Search or browse">
+    Find extensions by name or category
+  </Step>
+  <Step title="Install">
+    Click Install -- the extension is downloaded and available immediately
+  </Step>
+  <Step title="Configure">
+    Some extensions require API keys or preferences. Configure in Settings → Extensions → [Extension Name]
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Develop Extensions" icon="code" href="/extensions/developing">
+    Create your own custom extensions
+  </Card>
+  <Card title="Extension API Reference" icon="book" href="/extensions/extension-api-reference">
+    Complete API reference for extension development
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Combine extensions into automated workflows
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/configuration/skills">
+    Extend AI capabilities with task-specific skills
+  </Card>
+</CardGroup>

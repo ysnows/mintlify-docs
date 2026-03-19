@@ -1,0 +1,279 @@
+---
+title: "Settings Reference"
+description: "Complete reference for all Enconvo settings and preferences"
+---
+
+## Overview
+
+EnConvo's settings are organized into sections accessible from the Settings panel (`Cmd + ,`). This reference covers every configurable option.
+
+## General
+
+Basic application behavior and appearance.
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| **Language** | System, English, Chinese, Japanese, etc. | System | Interface language for EnConvo |
+| **Appearance** | Light, Dark, Auto | Auto | Color theme. Auto follows macOS system preference |
+| **Launch at Login** | On/Off | On | Start EnConvo when you log in to your Mac |
+| **Menu Bar Icon** | Show/Hide | Show | Display the EnConvo icon in the macOS menu bar |
+| **Response Language** | 50+ languages | English | Default language for AI responses |
+| **Text Size** | Medium, Large | Medium | Font size in chat views |
+
+<Note>
+EnConvo runs as a menu bar app (`LSUIElement=true`) -- it does not appear in the Dock by default. Access it from the menu bar icon or via keyboard shortcuts.
+</Note>
+
+## SmartBar
+
+Settings for the Spotlight-like AI interface.
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| **Global Shortcut** | Any key combination | `Shift + Cmd + D` | Keyboard shortcut to open SmartBar |
+| **Default AI Model** | Any configured LLM | Enconvo Cloud | The LLM used for chat when no specific model is selected |
+| **Context Awareness** | On/Off + Sources | On | Automatically detect context from active app, browser, clipboard |
+| **Auto-Execute** | On/Off | Off | Automatically execute commands without pressing Enter |
+| **Pin on Top** | On/Off | Off | Keep SmartBar above all other windows |
+| **Show History** | On/Off | On | Show recent conversations when opening SmartBar |
+
+## PopBar
+
+Settings for the floating text selection toolbar.
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| **Global Shortcut** | Any key combination | `Shift + Cmd + Space` | Shortcut to activate PopBar |
+| **Auto Show** | On/Off | On | Automatically show PopBar when text is selected |
+| **Actions** | Configurable list | Improve Writing, Fix Spelling, Translate, Summarize, Explain | Actions displayed in the PopBar |
+| **Position** | Above/Below selection | Above | Where PopBar appears relative to selected text |
+
+### Configuring PopBar Actions
+
+<Steps>
+  <Step title="Open PopBar settings">
+    Settings → PopBar → PopBar Instances
+  </Step>
+  <Step title="Add or remove actions">
+    Click "Add Commands" to add new actions, or remove existing ones
+  </Step>
+  <Step title="Reorder actions">
+    Drag and drop to change the order of actions
+  </Step>
+</Steps>
+
+## Companion Bar
+
+Settings for the persistent AI sidebar.
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| **Global Shortcut** | Any key combination | `Shift + Cmd + E` | Shortcut to toggle Companion Bar |
+| **Position** | Left, Right | Right | Which side of the screen the sidebar appears on |
+| **Width** | Number (pixels) | 400 | Width of the sidebar panel |
+
+## AI Models
+
+Configure default AI model preferences and parameters.
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Default Model** | Primary LLM for all AI interactions | Enconvo Cloud |
+| **Temperature** | Controls randomness (0 = deterministic, 2 = creative) | 0.7 |
+| **Top P** | Nucleus sampling parameter | 1.0 |
+| **Max Tokens** | Maximum tokens in AI response | Model default |
+| **System Prompt** | Default system instructions for AI | Built-in prompt |
+| **Agent Mode** | Enable tool use and multi-step reasoning | On |
+
+### Model Provider Configuration
+
+Each LLM provider has its own settings:
+
+| Provider | Key Settings |
+|----------|-------------|
+| **OpenAI** | API Key, Organization ID, Base URL |
+| **Anthropic** | API Key |
+| **Google Gemini** | API Key |
+| **Ollama** | Server URL (default: `http://localhost:11434`) |
+| **Groq** | API Key |
+| **DeepSeek** | API Key |
+| **Azure OpenAI** | Endpoint, API Key, Deployment Name, API Version |
+| **Mistral** | API Key |
+
+<Tip>
+Use the **Enconvo Cloud Plan** for zero-configuration access to multiple providers. You only need to add API keys if you want to use your own accounts.
+</Tip>
+
+## Voice Settings
+
+Configure text-to-speech and speech-to-text.
+
+### Text-to-Speech (TTS)
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Default TTS Provider** | Which service to use for reading aloud | Edge TTS |
+| **Voice** | Voice selection (varies by provider) | Provider default |
+| **Speed** | Speech rate multiplier | 1.0 |
+| **Output Format** | Audio format for saved files | MP3 |
+
+### Speech-to-Text (STT / Dictation)
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Default Dictation Provider** | Which service to use for voice input | Microsoft (Enconvo Cloud) Free |
+| **Language** | Dictation language | Auto-detect |
+| **Input Device** | Microphone to use | System default |
+| **Silence Detection** | Auto-stop after silence | On |
+
+## Knowledge Base
+
+Settings for document storage and semantic search.
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Default Embedding Model** | Model for generating text embeddings | Enconvo Cloud |
+| **Reranker** | Model for reranking search results | None |
+| **Chunk Size** | Size of text chunks for indexing (tokens) | 512 |
+| **Chunk Overlap** | Overlap between adjacent chunks | 50 |
+| **Top K Results** | Number of results to return from search | 5 |
+| **Score Threshold** | Minimum similarity score for results | 0.5 |
+
+<Tip>
+For better search quality, enable a **Reranker** provider. Voyage AI and SiliconFlow both offer good reranking models.
+</Tip>
+
+## Extensions
+
+Manage installed extensions and their settings.
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Auto Update** | Automatically update extensions | On |
+| **Extension Path** | Installation directory | `~/.config/enconvo/extension/` |
+| **Dev Extension Path** | Development extensions directory | `~/.config/enconvo/extension/` |
+
+### Per-Extension Settings
+
+Each extension can define its own preferences. Access them at:
+
+Settings → Extensions → [Extension Name]
+
+Common extension preference types:
+- **API Keys**: Securely stored in macOS Keychain
+- **Default Options**: Dropdowns, toggles, text fields
+- **Hotkeys**: Custom keyboard shortcuts
+- **Provider Selection**: Choose which backend service to use
+
+## Key Management
+
+Centralized credential management for all API providers.
+
+<Steps>
+  <Step title="Open Key Management">
+    Settings → Key Management Center
+  </Step>
+  <Step title="Select a provider">
+    Choose from 40+ supported services (OpenAI, Anthropic, Google, etc.)
+  </Step>
+  <Step title="Enter your API key">
+    Paste your API key. It is encrypted and stored in macOS Keychain.
+  </Step>
+  <Step title="Validate">
+    Click "Validate" to test the key works correctly
+  </Step>
+</Steps>
+
+## Network & Proxy
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **HTTP Proxy** | Proxy server for outbound requests | None |
+| **Custom API Base URL** | Override API endpoints for providers | Provider default |
+
+## Advanced Settings
+
+Settings for power users and developers.
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Socket Path** | Unix Domain Socket for Swift-Node.js communication | `~/.config/Enconvo/.macopilot.socket` |
+| **Worker Timeout** | Auto-cleanup idle worker threads after this duration | 30 minutes |
+| **Log Level** | Verbosity of extension logs | Info |
+| **Developer Mode** | Show developer tools and debug options | Off |
+
+### Developer Mode Features
+
+When Developer Mode is enabled:
+- Access extension logs in real-time
+- View JSON-RPC messages between Swift and Node.js
+- Hot-reload extensions during development
+- Access the debug console
+
+## Accessibility Permissions
+
+EnConvo requires certain macOS permissions to function fully.
+
+| Permission | Required For | How to Grant |
+|------------|-------------|--------------|
+| **Accessibility** | Reading selected text, PopBar, keyboard shortcuts | System Settings → Privacy & Security → Accessibility |
+| **Screen Recording** | Screenshot OCR, screen context awareness | System Settings → Privacy & Security → Screen Recording |
+| **Microphone** | Voice dictation, audio recording | System Settings → Privacy & Security → Microphone |
+| **Automation** | AppleScript integration (Mail, Calendar, Reminders) | System Settings → Privacy & Security → Automation |
+
+<Warning>
+If permissions are not granted, some features will be unavailable. EnConvo will prompt you to grant permissions when you first use a feature that requires them.
+</Warning>
+
+## Resetting Settings
+
+### Reset a Single Setting
+
+Click the reset icon next to any setting to restore its default value.
+
+### Reset All Settings
+
+<Steps>
+  <Step title="Open Settings">
+    Press `Cmd + ,`
+  </Step>
+  <Step title="Navigate to Advanced">
+    Find the Reset section
+  </Step>
+  <Step title="Choose reset scope">
+    - **Reset Preferences**: Resets all settings to defaults
+    - **Clear Cache**: Removes cached data
+    - **Reset Everything**: Full factory reset (preferences + cache + extensions)
+  </Step>
+</Steps>
+
+<Warning>
+"Reset Everything" will remove all installed extensions, API keys, and conversation history. This action cannot be undone.
+</Warning>
+
+## Configuration File Locations
+
+| File | Path | Purpose |
+|------|------|---------|
+| Extension data | `~/.config/enconvo/` | Extension runtime, data, cache |
+| Extension install | `~/.config/enconvo/extension/` | Installed extensions |
+| Hooks config | `~/.config/enconvo/hooks.json` | Event hooks configuration |
+| Socket | `~/.config/Enconvo/.macopilot.socket` | IPC socket |
+| Knowledge bases | `~/.config/enconvo/` (per KB) | Vector DB and metadata |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/configuration/keyboard-shortcuts">
+    Customize all keyboard shortcuts
+  </Card>
+  <Card title="Privacy & Security" icon="shield" href="/configuration/privacy-security">
+    How EnConvo protects your data
+  </Card>
+  <Card title="Hooks" icon="bolt" href="/configuration/hooks">
+    Automate actions with event hooks
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/getting-started/troubleshooting">
+    Fix common issues
+  </Card>
+</CardGroup>

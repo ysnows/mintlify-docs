@@ -1,0 +1,282 @@
+---
+title: "Apple Ecosystem Integration"
+description: "Seamlessly integrate with Apple Mail, Reminders, Shortcuts, and Calendar"
+---
+
+## Overview
+
+EnConvo deeply integrates with macOS native applications, letting you manage email, reminders, calendar events, and shortcuts through natural language. Because these integrations use native macOS APIs and AppleScript, they work offline, respect your system preferences, and feel like a natural extension of your Mac.
+
+<CardGroup cols={2}>
+  <Card title="Apple Mail" icon="envelope">
+    Read, compose, and manage emails
+  </Card>
+  <Card title="Apple Reminders" icon="check-circle">
+    Create, update, and complete reminders
+  </Card>
+  <Card title="Apple Shortcuts" icon="bolt">
+    Run any shortcut from your system
+  </Card>
+  <Card title="Apple Calendar" icon="calendar">
+    View, create, and manage events
+  </Card>
+</CardGroup>
+
+## Apple Mail
+
+The Apple Mail integration provides full email management through the native Mail app on your Mac.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Compose New Message** | Create and send a new email with To, CC, BCC, subject, body, and attachments |
+| **See Recent Mail** | View recent messages (optionally unread-only) |
+| **See Mail Accounts** | List all configured email accounts |
+| **Get Message Content** | Read the full content of a specific email |
+| **Open Message in Mail** | Open a specific email in the Mail app |
+| **Toggle Message Read** | Mark a message as read or unread |
+| **Move to Archive** | Archive a specific email |
+| **Move to Trash** | Move an email to the trash |
+| **Delete Message** | Permanently delete an email |
+| **Move to Mailbox** | Move an email to a specific mailbox |
+| **Mark All as Read** | Mark all emails as read |
+
+### Example Usage
+
+```
+"Show me my unread emails"
+"Send an email to alice@example.com about the project deadline"
+"Archive all emails from notifications@github.com"
+"What did Bob say in his last email?"
+```
+
+### Configuration
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Unread-Only** | Only show unread messages in recent mail | On |
+
+<Note>
+Apple Mail integration works with all email accounts configured in the macOS Mail app, including iCloud, Gmail, Outlook, and Exchange accounts.
+</Note>
+
+## Apple Reminders
+
+Create, manage, and track reminders with full support for due dates, priorities, recurrence rules, and location-based triggers.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Add to Apple Reminders** | Create a new reminder with title, notes, due date, priority, recurrence, and location |
+| **Get Reminders Events** | List all reminders across all lists |
+| **Get Reminders Lists** | List all reminder lists |
+| **Toggle Completion Status** | Mark a reminder as complete or incomplete |
+| **Delete Reminder** | Remove a reminder |
+| **Update Reminder** | Modify an existing reminder's title, notes, date, priority, recurrence, or location |
+
+### Reminder Features
+
+**Due dates and times:**
+```
+"Remind me to call the dentist tomorrow at 2pm"
+"Add a reminder for the team standup every weekday at 9am"
+```
+
+**Priorities:**
+```
+"Create a high-priority reminder to submit the report by Friday"
+```
+
+**Recurrence rules:**
+- Daily, weekly, monthly, or yearly frequency
+- Custom intervals (e.g., every 2 weeks)
+- End date or occurrence count
+
+```
+"Set a recurring reminder to review expenses on the first of every month"
+```
+
+**Location-based triggers:**
+```
+"Remind me to buy groceries when I arrive at the store"
+```
+
+### Recurrence Configuration
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `frequency` | Recurrence type | `daily`, `weekly`, `monthly`, `yearly` |
+| `interval` | Repeat every N periods | `2` (every 2 weeks) |
+| `endDate` | When recurrence stops | `2025-12-31` |
+| `occurrenceCount` | Number of occurrences | `10` |
+
+## Apple Shortcuts
+
+Run any Apple Shortcut installed on your system directly from EnConvo. The Shortcuts integration dynamically discovers all shortcuts available on your Mac.
+
+### How It Works
+
+<Steps>
+  <Step title="Automatic Discovery">
+    EnConvo scans your system for all installed Apple Shortcuts and makes them available as tools
+  </Step>
+  <Step title="Natural Language Trigger">
+    Ask the AI to run any shortcut by name -- no need to remember exact names
+  </Step>
+  <Step title="Input and Output">
+    Pass text input to shortcuts and receive their output (both text and binary data are supported)
+  </Step>
+</Steps>
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **List Shortcuts** | See all Apple Shortcuts available on your system |
+| **Run Shortcut** | Execute a shortcut by name with optional text input |
+
+### Example Usage
+
+```
+"Run my 'Morning Routine' shortcut"
+"List all my shortcuts"
+"Execute the 'Resize Image' shortcut with the file on my desktop"
+```
+
+### Siri Integration
+
+Since Shortcuts work with Siri, you can create powerful automation chains:
+
+1. Create a Shortcut in the Shortcuts app that calls EnConvo
+2. Trigger it via Siri voice command
+3. EnConvo processes the request using AI
+4. Results flow back through the Shortcut
+
+<Tip>
+Combine Apple Shortcuts with EnConvo workflows for advanced automation. For example, a Shortcut can trigger an EnConvo workflow that uses AI to process data and then passes the result to another Shortcut.
+</Tip>
+
+## Apple Calendar
+
+Full calendar management with support for creating, updating, deleting, and querying events, including recurrence rules, alarms, and all-day events.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Add to Calendar** | Create a new calendar event with title, dates, location, notes, alarms, and recurrence |
+| **Update Calendar Event** | Modify an existing event |
+| **Get Calendar Events** | Retrieve events for a specified number of days |
+| **Delete Calendar Event** | Remove an event (optionally all recurrences) |
+| **Get Calendar List** | List all available calendars |
+
+### Event Features
+
+**Basic events:**
+```
+"Schedule a team meeting tomorrow at 3pm for one hour"
+"Add a dentist appointment on March 25th from 10am to 11am at 123 Main St"
+```
+
+**All-day events:**
+```
+"Block off next Friday as a personal day"
+```
+
+**Recurring events:**
+```
+"Create a weekly team standup every Monday at 9am"
+"Schedule a monthly review on the first of each month"
+```
+
+**Alarms and reminders:**
+```
+"Schedule a meeting at 2pm with a 15-minute reminder"
+"Add a 1-hour warning alarm to my flight tomorrow"
+```
+
+**Multiple calendars:**
+```
+"Add this event to my Work calendar"
+"Show me events from all calendars for the next week"
+```
+
+### Event Properties
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `title` | Event title | `"Team Standup"` |
+| `startDate` / `endDate` | Date range | `yyyy-MM-dd HH:mm:ss` format |
+| `location` | Event location | `"Conference Room B"` |
+| `notes` | Additional details | `"Bring Q4 report"` |
+| `isAllDay` | All-day event flag | `true` / `false` |
+| `url` | Associated URL | Meeting link |
+| `alarms` | Alert offsets in seconds | `-3600` (1 hour before) |
+| `recurrence` | Repeat rule | `{frequency: "weekly", interval: 1}` |
+| `availability` | Busy/free status | `0` (free), `1` (busy) |
+
+## Required Permissions
+
+These integrations use native macOS APIs and require appropriate system permissions.
+
+<Steps>
+  <Step title="Accessibility Permission">
+    Go to **System Settings** -> **Privacy & Security** -> **Accessibility** and enable EnConvo. This is required for reading screen content and interacting with apps.
+  </Step>
+  <Step title="Automation Permission">
+    When EnConvo first tries to control Mail, Reminders, Calendar, or Shortcuts, macOS will prompt you to grant Automation permission. Click **Allow**.
+  </Step>
+  <Step title="Calendar Access">
+    Grant EnConvo access to your calendars when prompted. Go to **System Settings** -> **Privacy & Security** -> **Calendars** if you need to change this later.
+  </Step>
+  <Step title="Reminders Access">
+    Grant EnConvo access to your reminders when prompted. Go to **System Settings** -> **Privacy & Security** -> **Reminders** if needed.
+  </Step>
+</Steps>
+
+<Warning>
+If you deny a permission prompt, the corresponding integration will not function. You can always re-enable permissions in **System Settings** -> **Privacy & Security**.
+</Warning>
+
+## Privacy
+
+- All Apple ecosystem integrations operate entirely on your Mac using native macOS APIs
+- No data is sent to external servers unless you explicitly ask the AI to process content (e.g., "summarize this email")
+- Email content, reminders, and calendar events are accessed on demand -- nothing is cached or stored by EnConvo
+- You can revoke permissions at any time through macOS System Settings
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Mail tools not working">
+    Verify that the Mail app is configured with at least one email account. Check that EnConvo has Automation permission for Mail in **System Settings** -> **Privacy & Security** -> **Automation**.
+  </Accordion>
+  <Accordion title="Calendar access denied">
+    Go to **System Settings** -> **Privacy & Security** -> **Calendars** and ensure EnConvo is listed and enabled. Restart EnConvo after granting permission.
+  </Accordion>
+  <Accordion title="Reminders not appearing">
+    Ensure EnConvo has Reminders access in **System Settings** -> **Privacy & Security** -> **Reminders**. Also verify that your reminders are synced and visible in the native Reminders app.
+  </Accordion>
+  <Accordion title="Shortcuts not discovered">
+    The Shortcuts integration dynamically scans your system. If a newly created shortcut does not appear, try restarting EnConvo. Shortcuts must be saved in the Shortcuts app (not just in iCloud).
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Gmail Integration" icon="google" href="/integrations/gmail">
+    Google Gmail integration via API
+  </Card>
+  <Card title="Messaging Channels" icon="comments" href="/integrations/messaging">
+    Slack, Discord, Telegram, Feishu
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    AI agents that use Apple tools automatically
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Automate Apple app tasks in workflows
+  </Card>
+</CardGroup>

@@ -1,0 +1,312 @@
+---
+title: "Knowledge Base Deep Dive"
+description: "Advanced configuration and optimization for your knowledge bases"
+---
+
+## Overview
+
+This guide covers the technical architecture and advanced configuration options for EnConvo's knowledge base system. If you are new to knowledge bases, start with the [Knowledge Base introduction](/ai/knowledge-base) first.
+
+EnConvo's knowledge base is built on a dual-database architecture: **LanceDB** for vector storage and similarity search, and **SQLite** (via Drizzle ORM) for metadata management. This combination provides fast semantic search with rich metadata capabilities.
+
+## Architecture
+
+### Dual Database Design
+
+```
+Document → Chunking → Embedding → Storage
+                                     │
+                          ┌──────────┼──────────┐
+                          │                       │
+                     LanceDB                  SQLite
+                  (Vector Store)           (Metadata)
+                          │                       │
+                  Embedding vectors        Knowledge base records
+                  Text chunks              Attachment details
+                  Similarity search        Content chunk metadata
+```
+
+**LanceDB** stores document embeddings for semantic similarity search. Each knowledge base gets its own LanceDB table plus an attachments table. Data is stored locally at `~/.config/enconvo/cache/knowledge_base/{dbName}`.
+
+**SQLite** stores structured metadata: knowledge base records, attachment details, and content chunk information. Schema migrations are managed through Drizzle ORM.
+
+### Knowledge Base Identifiers
+
+Each knowledge base is identified by a composite key in the format `{dbName}|{tableName}`. This key is used throughout the system when referencing a specific knowledge base.
+
+## Document Processing Pipeline
+
+When you add content to a knowledge base, it flows through a multi-stage pipeline.
+
+### Stage 1: Content Loading
+
+The `AttachmentLoader` routes content to the appropriate loader based on type:
+
+| Content Type | Loader | Description |
+|-------------|--------|-------------|
+| **PDF** | pdf-parse | Extracts text from PDF documents |
+| **DOCX** | mammoth | Converts Word documents to text |
+| **PPTX** | officeparser | Extracts text from PowerPoint presentations |
+| **EPUB** | epub2 | Parses e-book content |
+| **XLSX / CSV** | xlsx, d3-dsv | Reads spreadsheet data |
+| **TXT / MD** | Direct read | Plain text and Markdown files |
+| **HTML** | cheerio, html-to-text | Parses and extracts text from HTML |
+| **XML / JSON** | fast-xml-parser | Structured data parsing |
+| **Images** | OCR Provider | Optical character recognition |
+| **Audio / Video** | Transcription Provider | Speech-to-text conversion |
+| **Webpages** | Link Reader Provider | Scrapes page content (supports sitemap.xml for entire websites) |
+| **YouTube** | Dedicated handler | Extracts transcript and metadata |
+
+### Stage 2: Text Chunking
+
+After content is extracted, it is split into manageable chunks using `RecursiveCharacterTextSplitter` from LangChain:
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| **Chunk size** | 6,000 characters | Maximum size of each text chunk |
+| **Chunk overlap** | 100 characters | Overlap between consecutive chunks for context continuity |
+
+The recursive splitter tries to split on natural boundaries in this order:
+1. Double newlines (paragraphs)
+2. Single newlines
+3. Sentences (periods, exclamation marks, question marks)
+4. Words (spaces)
+5. Characters (last resort)
+
+<Tip>
+The 6,000-character chunk size balances retrieval precision with context completeness. Smaller chunks improve precision but may lose context. Larger chunks preserve context but may include irrelevant information.
+</Tip>
+
+### Stage 3: Embedding
+
+Each text chunk is converted to a vector embedding using your configured embedding model. EnConvo uses a custom `EnConvoEmbeddingFunction` that wraps the platform's embedding provider system.
+
+Embeddings are generated in batches with concurrent processing for performance.
+
+### Stage 4: Storage
+
+Embedded chunks are stored in LanceDB with the following schema:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `text` | Source text | The original text chunk |
+| `vector` | Float32 array | The embedding vector |
+| `id` | UTF-8 string | Unique chunk identifier |
+| Additional metadata | Various | Source file, position, timestamps, etc. |
+
+## Embedding Model Selection
+
+The choice of embedding model significantly impacts search quality. EnConvo supports multiple embedding providers.
+
+### Cloud Embedding Models
+
+| Provider | Model | Dimensions | Best For |
+|----------|-------|------------|----------|
+| **OpenAI** | text-embedding-3-small | 1,536 | General purpose, good balance of quality and cost |
+| **OpenAI** | text-embedding-3-large | 3,072 | Highest quality, best for critical applications |
+| **Voyage AI** | voyage-3 | 1,024 | Code and technical documentation |
+| **Cohere** | embed-english-v3.0 | 1,024 | English text, good multilingual support |
+
+### Local Embedding Models
+
+| Provider | Model | Description |
+|----------|-------|-------------|
+| **Ollama** | nomic-embed-text | Good general-purpose local model |
+| **Ollama** | mxbai-embed-large | Higher quality, more resource intensive |
+| **LM Studio** | Various | Any GGUF embedding model |
+
+<Warning>
+Once a knowledge base is created with a specific embedding model, you cannot change the model without re-indexing all content. The embedding dimensions must match.
+</Warning>
+
+### Choosing an Embedding Model
+
+Consider these factors:
+
+1. **Quality**: Larger models generally produce better embeddings but are slower and more expensive
+2. **Privacy**: Local models keep all data on your Mac; cloud models send text chunks to the provider
+3. **Cost**: Cloud models charge per token; local models use your hardware
+4. **Speed**: Cloud models are typically faster for large batches; local models avoid network latency
+5. **Language**: Some models handle multilingual content better than others
+
+## Search and Retrieval
+
+EnConvo uses a hybrid search approach combining vector similarity with full-text search.
+
+### Vector Similarity Search
+
+The primary search method. When you query the knowledge base, your query is embedded using the same model, then compared against all stored vectors using cosine similarity.
+
+```
+Query "How does authentication work?"
+  → Embed query → [0.12, -0.45, 0.78, ...]
+  → Compare against all chunk vectors
+  → Return top-K most similar chunks
+```
+
+### Full-Text Search (FTS)
+
+LanceDB also supports full-text search with fuzzy matching for keyword-based retrieval. This catches cases where exact terms matter more than semantic meaning.
+
+```
+Query "OAuth2 PKCE flow"
+  → Full-text index lookup with fuzziness
+  → Return matching chunks
+```
+
+### Hybrid Search Strategy
+
+For best results, EnConvo combines both approaches:
+
+1. Run vector similarity search for semantic matches
+2. Run full-text search for keyword matches
+3. Merge and deduplicate results
+4. Apply reranking (if configured) to produce the final ranking
+
+### Reranking
+
+Reranking models re-score search results for improved relevance. After the initial retrieval, a reranker evaluates each result against the query and reorders them.
+
+| Provider | Model | Description |
+|----------|-------|-------------|
+| **Cohere** | rerank-english-v3.0 | High-quality English reranking |
+| **Cohere** | rerank-multilingual-v3.0 | Multilingual reranking |
+| **SiliconFlow** | Various | Alternative reranking provider |
+
+<Tip>
+Reranking is especially useful when you have large knowledge bases. The initial search retrieves a broad set of candidates, and the reranker narrows them down to the most relevant results.
+</Tip>
+
+## Performance Optimization
+
+### Batch Embedding
+
+When adding multiple documents, EnConvo processes embeddings in batches with concurrent processing. This significantly reduces the time to index large document collections compared to sequential processing.
+
+### Index Management
+
+LanceDB supports creating indexes for faster search:
+
+- **Vector index**: Speeds up similarity search for large tables
+- **FTS index**: Enables full-text search with fuzzy matching
+
+Indexes are created automatically when needed. For very large knowledge bases, you may want to trigger re-indexing after bulk imports.
+
+### Storage Considerations
+
+| Knowledge Base Size | Expected Storage | Notes |
+|-------------------|-----------------|-------|
+| 100 documents | ~50-200 MB | Depends on document size and embedding dimensions |
+| 1,000 documents | ~500 MB - 2 GB | Consider using a dedicated storage location |
+| 10,000+ documents | 2+ GB | Recommend SSD storage for best performance |
+
+## Multi-Knowledge Base Management
+
+You can create multiple knowledge bases for different purposes. Each operates independently with its own:
+
+- Embedding model
+- Document collection
+- Search index
+- Storage location
+
+### Organization Strategies
+
+| Strategy | Description | Example |
+|----------|-------------|---------|
+| **By project** | One KB per project | `project-alpha`, `project-beta` |
+| **By type** | Separate KBs by content type | `code-docs`, `meeting-notes`, `research` |
+| **By team** | Team-specific knowledge | `engineering`, `marketing`, `support` |
+| **By scope** | Personal vs shared | `personal-notes`, `company-wiki` |
+
+### Querying Multiple Knowledge Bases
+
+You can search across multiple knowledge bases simultaneously by referencing them with the `@kb` modifier or by configuring auto-reference to include specific collections.
+
+## Knowledge Base API
+
+The knowledge base extension exposes API endpoints for programmatic access. These are used internally by EnConvo and can be accessed by other extensions and workflows.
+
+### Key Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| **Create Knowledge Base** | Create a new knowledge base with specified embedding model |
+| **Delete Knowledge Base** | Remove a knowledge base and all its data |
+| **Add Content** | Ingest files, text, URLs, or media into a knowledge base |
+| **Search / Retrieve** | Perform semantic search against a knowledge base |
+| **List Knowledge Bases** | List all available knowledge bases |
+| **List Attachments** | List all documents in a knowledge base |
+| **Delete Attachment** | Remove a specific document from a knowledge base |
+| **Summarize** | Generate an AI summary of knowledge base content |
+
+### Using in Workflows
+
+Knowledge base operations can be used as steps in workflows:
+
+```
+Trigger: New file in ~/Documents/research/
+  → Add to Knowledge Base "research"
+  → Search for related content
+  → Generate summary
+  → Save summary to notes
+```
+
+## Advanced Configuration
+
+### Custom Chunk Sizes
+
+While the default 6,000-character chunk size works well for most content, specific use cases may benefit from adjustments:
+
+| Content Type | Recommended Chunk Size | Reason |
+|-------------|----------------------|--------|
+| Short Q&A pairs | 1,000-2,000 | Each pair should be a single chunk |
+| Technical docs | 4,000-6,000 | Balance detail with context |
+| Legal documents | 6,000-8,000 | Preserve clause context |
+| Code files | 2,000-4,000 | Function-level granularity |
+
+### Monitoring and Maintenance
+
+- **Re-index**: If search quality degrades after many incremental updates, re-index the knowledge base to rebuild indexes
+- **Embedding model upgrades**: When better models become available, create a new knowledge base with the new model and re-ingest your content
+- **Storage cleanup**: Delete knowledge bases you no longer need to reclaim disk space
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Search returns irrelevant results">
+    Try these steps in order:
+    1. Check that the embedding model is appropriate for your content language
+    2. Re-index the knowledge base to rebuild search indexes
+    3. Consider enabling reranking for better result ordering
+    4. If content is very domain-specific, try a more capable embedding model
+  </Accordion>
+  <Accordion title="Slow indexing performance">
+    Large documents take longer to process. To improve speed:
+    - Use a cloud embedding provider for batch processing
+    - Ensure your Mac has sufficient RAM (embedding models are memory-intensive)
+    - For local models, check that your Mac supports Metal acceleration
+  </Accordion>
+  <Accordion title="Unsupported file format">
+    If a file type is not directly supported, try converting it to a supported format (PDF, TXT, or MD) before adding it to the knowledge base.
+  </Accordion>
+  <Accordion title="Knowledge base not found">
+    Knowledge bases are identified by composite keys (`dbName|tableName`). Ensure you are referencing the correct name. Check **Settings** -> **Knowledge Base** for the list of available knowledge bases.
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Knowledge Base Basics" icon="book" href="/ai/knowledge-base">
+    Getting started with knowledge bases
+  </Card>
+  <Card title="AI Chat" icon="comments" href="/ai/chat">
+    Chat with your knowledge base
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Automate knowledge base tasks
+  </Card>
+  <Card title="Providers" icon="server" href="/providers/overview">
+    Configure embedding and reranking providers
+  </Card>
+</CardGroup>

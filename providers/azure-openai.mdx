@@ -1,0 +1,112 @@
+---
+title: "Azure OpenAI"
+description: "Configure Azure OpenAI Service in EnConvo"
+---
+
+## Overview
+
+Azure OpenAI Service provides access to OpenAI models through Microsoft's Azure cloud platform. It offers enterprise-grade security, regional data residency, and compliance certifications, making it suitable for organizations with strict data governance requirements.
+
+## Supported Models
+
+Models available depend on your Azure deployment. Common options include:
+
+| Model | Description | Best For |
+|-------|-------------|----------|
+| **GPT-4o** | Most capable multimodal | General use, analysis |
+| **GPT-4o mini** | Fast and affordable | Daily tasks, chat |
+| **GPT-4** | Previous flagship | Complex reasoning |
+| **o1 / o3** | Reasoning models | Logic, math, code |
+
+<Warning>
+You must deploy a model in your Azure portal before you can use it. Azure does not provide default model endpoints -- each model requires its own deployment.
+</Warning>
+
+## Setup
+
+<Steps>
+  <Step title="Create Azure Subscription">
+    1. Go to [Azure Portal](https://portal.azure.com)
+    2. Sign in or create a Microsoft Azure account
+    3. Ensure you have an active Azure subscription
+  </Step>
+  <Step title="Create Azure OpenAI Resource">
+    1. In Azure Portal, search for **Azure OpenAI**
+    2. Click **Create** and fill in the resource details
+    3. Select your preferred region
+    4. Wait for the resource to be provisioned
+  </Step>
+  <Step title="Deploy a Model">
+    1. Open your Azure OpenAI resource
+    2. Go to **Model deployments** → **Manage Deployments**
+    3. Click **Create new deployment**
+    4. Select a model (e.g., gpt-4o) and give it a deployment name
+    5. Note down the **deployment name** -- you will need it
+  </Step>
+  <Step title="Get Endpoint and API Key">
+    1. In your Azure OpenAI resource, go to **Keys and Endpoint**
+    2. Copy the **Endpoint** URL (e.g., `https://your-resource.openai.azure.com/`)
+    3. Copy one of the **API Keys**
+  </Step>
+  <Step title="Configure in EnConvo">
+    1. Open **Settings** → **AI Provider**
+    2. Select **Azure OpenAI**
+    3. Go to **Credentials** module
+    4. Enter your **API Key**, **Endpoint URL**, and **Deployment Name**
+  </Step>
+</Steps>
+
+## Configuration
+
+| Setting | Description | Required |
+|---------|-------------|----------|
+| **API Key** | Azure OpenAI API key | Yes |
+| **Endpoint** | Your resource endpoint URL | Yes |
+| **Deployment Name** | Name of your model deployment | Yes |
+| **API Version** | Azure API version | Yes (auto-filled) |
+| **Temperature** | Creativity (0-2) | No |
+
+## Pricing
+
+Azure OpenAI pricing mirrors OpenAI's pricing but may vary by region. Check [Azure OpenAI Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) for details.
+
+<Note>
+Azure OpenAI billing goes through your Azure subscription. You can set spending alerts and budgets in the Azure portal.
+</Note>
+
+## Enterprise Benefits
+
+<CardGroup cols={2}>
+  <Card title="Data Residency" icon="globe">
+    Choose which Azure region hosts your data
+  </Card>
+  <Card title="Compliance" icon="shield-check">
+    SOC 2, HIPAA, GDPR, and more
+  </Card>
+  <Card title="Private Networking" icon="lock">
+    VNet integration, private endpoints
+  </Card>
+  <Card title="Managed Identity" icon="id-card">
+    Azure AD authentication support
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    - Verify your API key is correct
+    - Check that the key belongs to the correct Azure OpenAI resource
+    - Ensure the resource is in an active subscription
+  </Accordion>
+  <Accordion title="404 Deployment not found">
+    - Confirm your deployment name matches exactly (case-sensitive)
+    - Verify the endpoint URL is correct
+    - Check that the deployment has finished provisioning in Azure portal
+  </Accordion>
+  <Accordion title="Region availability">
+    - Not all models are available in all Azure regions
+    - Check [Azure OpenAI model availability](https://learn.microsoft.com/azure/ai-services/openai/concepts/models) for your region
+    - Consider creating a resource in a different region
+  </Accordion>
+</AccordionGroup>

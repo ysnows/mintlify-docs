@@ -1,0 +1,425 @@
+---
+title: "Creating Custom MCP Servers"
+description: "Build and publish your own MCP servers for Enconvo"
+---
+
+## Overview
+
+Model Context Protocol (MCP) is an open standard that lets AI models interact with external tools, data sources, and services. While EnConvo's MCP Store provides hundreds of pre-built servers, you can build your own to connect the AI to any custom tool or data source.
+
+This guide covers creating MCP servers in TypeScript and Python, configuring transport and authentication, and publishing to the MCP Store.
+
+<Note>
+For basic MCP setup and usage, see the [MCP introduction](/features/mcp). This guide focuses on building and deploying your own servers.
+</Note>
+
+## MCP Protocol Basics
+
+An MCP server exposes **tools** that an AI model can call. Each tool has:
+
+- **Name**: A unique identifier (e.g., `get_weather`, `query_database`)
+- **Description**: A human-readable explanation of what the tool does
+- **Input schema**: A JSON Schema defining the tool's parameters
+- **Handler**: The function that executes when the tool is called
+
+The AI decides when and how to call tools based on the user's request and the tool descriptions.
+
+### Communication Flow
+
+```
+User → "What's the weather in Tokyo?"
+  → AI sees get_weather tool with description
+  → AI calls get_weather({city: "Tokyo"})
+  → MCP server executes the function
+  → Server returns weather data
+  → AI formats the result for the user
+```
+
+## Creating a TypeScript MCP Server
+
+### Project Setup
+
+```bash
+mkdir my-mcp-server
+cd my-mcp-server
+npm init -y
+npm install @modelcontextprotocol/sdk
+npm install -D typescript @types/node
+```
+
+Create a `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "outDir": "./dist",
+    "strict": true
+  },
+  "include": ["src/**/*"]
+}
+```
+
+### Basic Server
+
+Create `src/index.ts`:
+
+```typescript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+const server = new McpServer({
+  name: "my-custom-server",
+  version: "1.0.0",
+});
+
+// Define a simple tool
+server.tool(
+  "hello",
+  "Say hello to someone",
+  {
+    name: { type: "string", description: "Person's name" },
+  },
+  async ({ name }) => {
+    return {
+      content: [{ type: "text", text: `Hello, ${name}!` }],
+    };
+  }
+);
+
+// Define a tool with complex input
+server.tool(
+  "search_records",
+  "Search records in the database",
+  {
+    query: { type: "string", description: "Search query" },
+    limit: { type: "number", description: "Max results to return" },
+    category: {
+      type: "string",
+      description: "Filter by category",
+      enum: ["all", "active", "archived"],
+    },
+  },
+  async ({ query, limit = 10, category = "all" }) => {
+    // Your search logic here
+    const results = await performSearch(query, limit, category);
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  }
+);
+
+// Start the server with stdio transport
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+### Build and Run
+
+```bash
+npx tsc
+node dist/index.js
+```
+
+### Adding to EnConvo
+
+After building, add the server to EnConvo manually:
+
+```json
+{
+  "name": "my-custom-server",
+  "transport": "stdio",
+  "command": "node",
+  "args": ["/path/to/my-mcp-server/dist/index.js"]
+}
+```
+
+Or if published to npm:
+
+```json
+{
+  "name": "my-custom-server",
+  "transport": "stdio",
+  "command": "npx",
+  "args": ["-y", "my-mcp-server"]
+}
+```
+
+## Creating a Python MCP Server
+
+### Project Setup
+
+```bash
+mkdir my-mcp-server
+cd my-mcp-server
+pip install mcp
+```
+
+### Basic Server
+
+Create `server.py`:
+
+```python
+import json
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+
+server = Server("my-custom-server")
+
+
+@server.tool()
+async def hello(name: str) -> str:
+    """Say hello to someone.
+
+    Args:
+        name: Person's name
+    """
+    return f"Hello, {name}!"
+
+
+@server.tool()
+async def search_records(
+    query: str,
+    limit: int = 10,
+    category: str = "all"
+) -> str:
+    """Search records in the database.
+
+    Args:
+        query: Search query
+        limit: Max results to return
+        category: Filter by category (all, active, archived)
+    """
+    results = await perform_search(query, limit, category)
+    return json.dumps(results, indent=2)
+
+
+async def main():
+    async with stdio_server() as (read, write):
+        await server.run(read, write)
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+```
+
+### Adding to EnConvo
+
+```json
+{
+  "name": "my-custom-server",
+  "transport": "stdio",
+  "command": "python",
+  "args": ["/path/to/my-mcp-server/server.py"]
+}
+```
+
+## Transport Types
+
+MCP supports three transport protocols. Choose based on your deployment scenario.
+
+### stdio (Standard I/O)
+
+The most common transport for local servers. EnConvo launches the server as a child process and communicates via stdin/stdout.
+
+**Best for**: Local CLI tools, Node.js and Python servers running on the same machine.
+
+```json
+{
+  "transport": "stdio",
+  "command": "node",
+  "args": ["server.js"],
+  "env": {
+    "API_KEY": "your-api-key"
+  }
+}
+```
+
+### SSE (Server-Sent Events)
+
+For remote servers that maintain a persistent connection. The client connects via HTTP and receives events over a long-lived connection.
+
+**Best for**: Remote servers, long-running connections, servers shared across multiple clients.
+
+```json
+{
+  "transport": "sse",
+  "url": "https://your-server.com/mcp/sse"
+}
+```
+
+### HTTP (Streamable HTTP)
+
+Standard HTTP request/response pattern. Each tool call is a separate HTTP request.
+
+**Best for**: REST-style servers, stateless tools, serverless deployments.
+
+```json
+{
+  "transport": "http",
+  "url": "https://your-server.com/mcp"
+}
+```
+
+## OAuth Authentication
+
+For servers that require user authentication, MCP supports OAuth 2.0 flows.
+
+### How It Works in EnConvo
+
+1. When a server requires OAuth, EnConvo prompts the user to authenticate
+2. The user completes the OAuth flow in their browser
+3. EnConvo stores the access token, refresh token, and expiry date securely
+4. Tokens are automatically refreshed when they expire
+5. The access token is sent with each request to the MCP server
+
+### Server-Side OAuth Configuration
+
+Your server's manifest should declare the OAuth configuration:
+
+```json
+{
+  "auth": {
+    "type": "oauth2",
+    "authorizationUrl": "https://your-service.com/oauth/authorize",
+    "tokenUrl": "https://your-service.com/oauth/token",
+    "scopes": ["read", "write"]
+  }
+}
+```
+
+EnConvo handles the OAuth flow automatically, storing credentials securely using the platform's credential management.
+
+## Connection Management
+
+EnConvo manages MCP server connections with several reliability features.
+
+### Connection Pooling
+
+Multiple conversations and tools can share the same server instance. EnConvo maintains a connection pool keyed by server configuration, so each unique server runs only once regardless of how many conversations use it.
+
+### Auto-Restart
+
+If a server process crashes or becomes unresponsive, EnConvo automatically restarts it on the next tool call.
+
+### Idle Timeout
+
+Servers that have not been used for an extended period are shut down to conserve resources. They restart automatically when needed.
+
+### Dynamic Configuration
+
+Server configurations support template strings for dynamic values:
+
+```json
+{
+  "command": "node",
+  "args": ["${__dirname}/server.js"],
+  "env": {
+    "HOME": "${HOME}",
+    "CUSTOM_SETTING": "${user_config.custom_setting}"
+  }
+}
+```
+
+Template variables have access to `__dirname` (server directory), `HOME` (user home), and `user_config` (user-provided configuration values).
+
+## Publishing to the MCP Store
+
+Share your MCP server with the EnConvo community by publishing it to the MCP Store.
+
+<Steps>
+  <Step title="Package Your Server">
+    Publish your server as an npm package (for TypeScript/JavaScript) or a pip package (for Python). Ensure the entry point is clearly defined.
+  </Step>
+  <Step title="Create a Manifest">
+    Add an MCP manifest file that describes your server, its tools, required configuration, and installation instructions.
+
+    ```json
+    {
+      "name": "my-awesome-server",
+      "version": "1.0.0",
+      "description": "Does awesome things with AI",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "my-awesome-server"],
+      "config": {
+        "api_key": {
+          "type": "password",
+          "description": "Your API key for the awesome service",
+          "required": true
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Submit to the Registry">
+    Submit your server to the EnConvo MCP Store registry. The submission is reviewed and, once approved, becomes available for one-click installation.
+  </Step>
+  <Step title="Maintain and Update">
+    Keep your server updated. Users will be notified of new versions and can update with one click from the MCP Store.
+  </Step>
+</Steps>
+
+## Debugging Tips
+
+<AccordionGroup>
+  <Accordion title="Test locally before adding to EnConvo" icon="flask">
+    Run your server standalone and send test messages via stdin to verify tool definitions and responses before connecting it to EnConvo.
+
+    ```bash
+    echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | node dist/index.js
+    ```
+  </Accordion>
+  <Accordion title="Check server logs" icon="file-lines">
+    In EnConvo, go to **Settings** -> **MCP Servers** and click on your server to view its logs. Stderr output from stdio servers is captured here.
+  </Accordion>
+  <Accordion title="Validate tool schemas" icon="check">
+    Ensure your tool input schemas are valid JSON Schema. Invalid schemas prevent tools from appearing in the AI's tool list. Use a JSON Schema validator to check.
+  </Accordion>
+  <Accordion title="Handle errors gracefully" icon="shield">
+    Return structured error messages from your tools. The AI can better handle and explain errors when they include a clear description of what went wrong.
+
+    ```typescript
+    server.tool("risky_operation", "...", {}, async (params) => {
+      try {
+        const result = await doSomething(params);
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      } catch (error) {
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true,
+        };
+      }
+    });
+    ```
+  </Accordion>
+  <Accordion title="Use environment variables for secrets" icon="lock">
+    Never hardcode API keys or secrets in your server code. Use the `env` configuration to pass them:
+
+    ```json
+    {
+      "env": { "API_KEY": "${user_config.api_key}" }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="MCP Basics" icon="plug" href="/features/mcp">
+    Getting started with MCP in EnConvo
+  </Card>
+  <Card title="MCP Specification" icon="book" href="https://modelcontextprotocol.io">
+    Official MCP protocol documentation
+  </Card>
+  <Card title="Extensions" icon="puzzle-piece" href="/extensions/developing">
+    Build EnConvo extensions with MCP integration
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    How agents use MCP tools
+  </Card>
+</CardGroup>

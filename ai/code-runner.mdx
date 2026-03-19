@@ -1,0 +1,255 @@
+---
+title: "Code Runner"
+description: "Execute code snippets directly within Enconvo"
+---
+
+## Overview
+
+EnConvo's Code Runner lets AI agents execute shell commands and code directly on your Mac. When you ask an AI agent to perform tasks like running scripts, installing packages, or managing files through the terminal, Code Runner handles the execution in a controlled environment with automatic timeout handling and output optimization.
+
+## How It Works
+
+Code Runner is primarily used as a **tool by AI agents**. When you chat with an AI agent that has code execution capabilities, it can invoke the Code Runner to:
+
+- Run shell commands (bash/zsh)
+- Execute Python scripts
+- Install packages via npm, pip, or other package managers
+- Perform git operations
+- Run build tools and development servers
+- Execute any command-line operation
+
+```
+You: "Create a new Python virtual environment and install pandas"
+
+Agent: I'll create a virtual environment and install pandas for you.
+> python3 -m venv myenv
+> source myenv/bin/activate && pip install pandas
+
+Done! Created virtual environment 'myenv' and installed pandas successfully.
+```
+
+## Supported Operations
+
+### Shell Commands
+
+Code Runner executes commands through `/bin/zsh`, inheriting your shell profile (`.zshrc` or `.bashrc`). This means all your PATH settings, aliases, and environment variables are available.
+
+| Category | Examples |
+|----------|----------|
+| **Package Management** | `npm install`, `pip install`, `brew install`, `cargo add` |
+| **Version Control** | `git status`, `git commit`, `git push`, `git log` |
+| **File Operations** | `mkdir`, `cp`, `mv`, `chmod`, `tar` |
+| **Development** | `npm run build`, `python script.py`, `cargo build` |
+| **System** | `ls`, `pwd`, `which`, `env`, `ps` |
+| **Docker** | `docker run`, `docker-compose up`, `docker build` |
+| **Network** | `curl`, `wget`, `ssh`, `scp` |
+
+### Python
+
+Code Runner automatically activates Python virtual environments when available:
+
+1. If a `venv` or `.venv` directory exists in the working directory, it is activated automatically
+2. `uv` is preferred over `pip` for Python package management when available
+3. All standard Python tooling works: `pytest`, `mypy`, `black`, `ruff`, etc.
+
+### Node.js / JavaScript
+
+Full support for the Node.js ecosystem:
+
+- `node`, `npm`, `npx`, `pnpm`, `yarn`
+- Direct execution of `.js` and `.ts` files (via `ts-node` or `tsx`)
+- Package scripts via `npm run`
+
+### Other Languages
+
+Any language with a command-line compiler or interpreter works:
+
+| Language | Run Command |
+|----------|------------|
+| **Python** | `python3 script.py` |
+| **Node.js** | `node script.js` |
+| **Ruby** | `ruby script.rb` |
+| **Go** | `go run main.go` |
+| **Rust** | `cargo run` |
+| **Swift** | `swift script.swift` |
+| **Shell** | `bash script.sh` |
+| **C/C++** | `gcc -o app main.c && ./app` |
+
+## Configuration
+
+### Working Directory
+
+Code Runner uses a configurable working directory that persists between commands. The AI agent can specify the working directory for each command, or it defaults to the current workspace directory.
+
+<Tip>
+The working directory persists between commands within the same session, but shell state (variables, aliases defined in-session) does not. Each command starts a fresh shell process.
+</Tip>
+
+### Timeout Settings
+
+| Setting | Value |
+|---------|-------|
+| Default timeout | 2 minutes (120,000 ms) |
+| Maximum timeout | 10 minutes (600,000 ms) |
+
+Commands that exceed the timeout are automatically terminated. The AI agent can specify custom timeouts for long-running operations.
+
+### RTK Token Optimization
+
+Code Runner includes **RTK (Rust Token Killer)** -- a token compression system that reduces command output size before sending it back to the AI agent.
+
+- **Enabled by default** -- reduces token usage and costs
+- Compresses verbose command output while preserving essential information
+- Particularly useful for commands that produce large outputs (e.g., `npm install`, build logs)
+
+You can toggle this in the Code Runner preferences:
+
+| Setting | Description |
+|---------|-------------|
+| **Enable RTK** | Use RTK to compress command output and reduce token usage (default: on) |
+
+### Background Execution
+
+Long-running commands can be executed in the background:
+
+- The AI agent marks a command as background when it does not need the result immediately
+- You are notified when the background command completes
+- Useful for builds, installations, and server startups
+
+## Security
+
+<Warning>
+Code Runner executes real commands on your system. While AI agents follow safety guidelines, always review what the agent proposes to do before confirming execution of destructive operations.
+</Warning>
+
+### Safety Measures
+
+EnConvo implements several safety measures for code execution:
+
+1. **Non-interactive execution:** Commands run non-interactively (`execFileSync`), so they cannot prompt for input. Commands requiring `-y` or `--yes` flags must include them explicitly.
+
+2. **Timeout protection:** All commands have enforced timeouts to prevent runaway processes.
+
+3. **Output limits:** Command output exceeding 30,000 characters is automatically truncated.
+
+4. **Agent guidelines:** AI agents follow strict safety protocols:
+   - Prefer non-destructive operations
+   - Use absolute paths to avoid accidental directory changes
+   - Quote file paths with spaces
+   - Verify directories exist before creating files
+
+### Sandboxing
+
+Code Runner supports an optional sandbox mode. When sandbox mode is enabled, commands run in a restricted environment. The AI agent can request to disable sandboxing for specific commands when necessary, but this is done with explicit intent.
+
+## Usage in AI Chat
+
+Code Runner is automatically available to AI agents with tool-use capabilities. You do not need to configure anything -- simply ask the agent to perform tasks that require command execution.
+
+### Example Interactions
+
+**Running a build:**
+```
+You: Build my React project and tell me if there are any errors.
+
+Agent: I'll run the build command for you.
+> npm run build
+Build completed successfully with 0 errors and 2 warnings.
+```
+
+**Git operations:**
+```
+You: Show me what files have changed since my last commit.
+
+Agent: Let me check the git status.
+> git diff --stat HEAD
+3 files changed, 45 insertions(+), 12 deletions(-)
+```
+
+**System information:**
+```
+You: How much disk space do I have left?
+
+Agent: Let me check your disk usage.
+> df -h /
+Filesystem  Size  Used  Avail  Use%
+/dev/disk3  460G  287G   173G   63%
+
+You have 173 GB of free space on your main drive.
+```
+
+**Python scripting:**
+```
+You: Create a Python script that converts all PNG files in my
+Downloads folder to JPEG.
+
+Agent: I'll create and run the script for you.
+> python3 convert_images.py
+Converted 12 PNG files to JPEG in ~/Downloads
+```
+
+## Output Handling
+
+### Output Format
+
+Command output is captured from both stdout and stderr and returned to the AI agent for analysis. The agent then presents relevant information in a human-readable format.
+
+### Large Output
+
+For commands with verbose output:
+
+1. **RTK compression** reduces token usage automatically
+2. **Truncation** at 30,000 characters prevents excessive token consumption
+3. The AI agent summarizes key information from the output
+
+### Error Handling
+
+When a command fails:
+
+1. The exit code and error message are captured
+2. The AI agent analyzes the error and suggests fixes
+3. The agent may retry with a corrected command
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command not found">
+    1. The command may not be installed or not in your PATH
+    2. Check that your shell profile (`.zshrc`) properly exports the PATH
+    3. Some tools installed via Homebrew need `eval "$(/opt/homebrew/bin/brew shellenv)"` in your profile
+    4. Try using the full path to the command (e.g., `/usr/local/bin/python3`)
+  </Accordion>
+  <Accordion title="Permission denied">
+    1. The file may not have execute permissions -- the agent can run `chmod +x file`
+    2. Some system directories require `sudo` which is not supported in non-interactive mode
+    3. Check file ownership with `ls -la`
+  </Accordion>
+  <Accordion title="Command times out">
+    1. The default timeout is 2 minutes -- long builds or downloads may need more
+    2. The AI agent can specify a longer timeout (up to 10 minutes)
+    3. Consider running long tasks in background mode
+    4. Break complex operations into smaller steps
+  </Accordion>
+  <Accordion title="Output appears garbled or truncated">
+    1. RTK compression may be too aggressive for certain output -- try disabling it
+    2. Very long outputs are truncated at 30,000 characters by design
+    3. Ask the agent to redirect output to a file for full access
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="AI Agents" icon="robot" href="/ai/agents">
+    Agents that use Code Runner as a tool
+  </Card>
+  <Card title="AI Chat" icon="comments" href="/ai/chat">
+    Chat interface for code execution
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
+    Quick command execution
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Automate code execution in workflows
+  </Card>
+</CardGroup>

@@ -1,0 +1,249 @@
+---
+title: "Privacy & Security"
+description: "How Enconvo handles your data and keeps your information secure"
+---
+
+## Overview
+
+EnConvo is designed with privacy as a core principle. Your data stays on your Mac by default, API keys are stored securely in the macOS Keychain, and you have full control over when data leaves your device.
+
+## Data Storage
+
+### Local-First Architecture
+
+All EnConvo data is stored locally on your Mac:
+
+| Data Type | Storage Location | Format |
+|-----------|-----------------|--------|
+| Conversations | `~/.config/enconvo/` | SQLite database |
+| Knowledge bases | `~/.config/enconvo/` | LanceDB (vectors) + SQLite (metadata) |
+| Extension data | `~/.config/enconvo/extension/` | Files and SQLite |
+| Preferences | `~/.config/enconvo/` | JSON files |
+| Cache | `~/.config/enconvo/cache/` | Temporary files |
+| Audio recordings | `~/.config/enconvo/` | Audio files (MP3, WAV) |
+
+<Tip>
+All your conversations, knowledge bases, and settings are stored under `~/.config/enconvo/`. Back up this directory to preserve your data.
+</Tip>
+
+### No Cloud Sync by Default
+
+EnConvo does not automatically sync data to any cloud service. Your conversations, knowledge bases, and preferences remain exclusively on your local machine unless you explicitly use a cloud-based feature.
+
+## API Key Security
+
+### macOS Keychain Storage
+
+All API keys and credentials are stored in the macOS Keychain, the system's built-in encrypted credential store:
+
+- Keys are encrypted at rest using your macOS login credentials
+- Keys are never written to plain-text files
+- Keys are accessible only to EnConvo and only while your Mac is unlocked
+- Keys are never logged or included in crash reports
+
+### Key Management
+
+<Steps>
+  <Step title="Adding a key">
+    Settings → Key Management → Select Provider → Enter Key
+    The key is immediately encrypted and stored in Keychain.
+  </Step>
+  <Step title="Validating a key">
+    Click "Validate" to test the key with the provider's API.
+    Only a minimal test request is sent.
+  </Step>
+  <Step title="Removing a key">
+    Delete the key from Settings. It is immediately removed from Keychain.
+  </Step>
+</Steps>
+
+## Network Requests
+
+### When Data Leaves Your Device
+
+EnConvo only sends data over the network in these specific situations:
+
+| Scenario | What Is Sent | Destination |
+|----------|-------------|-------------|
+| **Cloud AI chat** | Your messages and context | AI provider API (OpenAI, Anthropic, Google, etc.) |
+| **Web search** | Search queries | Search provider (Tavily, Bing, Google, etc.) |
+| **TTS/STT** | Text or audio | TTS/STT provider API |
+| **Extension store** | Extension metadata requests | enconvo.com |
+| **License validation** | License key | enconvo.com |
+| **Cloud image generation** | Text prompts | Image generation provider |
+| **Email integration** | Email content (when using Gmail tools) | Gmail API |
+
+### What Is Never Sent
+
+- Your local files (unless you explicitly use them as context)
+- Your screen content (unless you explicitly use screenshot context)
+- Your clipboard content (unless you explicitly include it)
+- Your browsing history
+- Application usage data
+- Other application content
+
+<Note>
+When using cloud AI providers, your messages are sent to their APIs and subject to their respective privacy policies. Review each provider's data handling practices.
+</Note>
+
+## Local AI: Fully Offline Mode
+
+For maximum privacy, use local AI models that run entirely on your Mac:
+
+### Local LLM Options
+
+| Provider | Setup | Privacy Level |
+|----------|-------|---------------|
+| **Ollama** | Install Ollama, download models | Full offline -- zero network calls |
+| **MLX** | Built-in Apple Silicon models | Full offline -- zero network calls |
+| **LM Studio** | Install LM Studio, download models | Full offline -- zero network calls |
+
+### Local TTS/STT Options
+
+| Feature | Local Provider | Notes |
+|---------|---------------|-------|
+| **TTS** | macOS System TTS | Built into macOS, no download needed |
+| **STT** | NVIDIA Parakeet, Qwen ASR, Whisper | Requires model download, then fully offline |
+| **OCR** | Apple Native Vision OCR | Built into macOS, fully offline |
+
+### Setting Up Full Offline Mode
+
+<Steps>
+  <Step title="Install Ollama">
+    Download from ollama.com and install a model:
+    ```bash
+    ollama pull llama3.2
+    ```
+  </Step>
+  <Step title="Configure EnConvo">
+    Settings → AI Models → Default Model → Select Ollama
+  </Step>
+  <Step title="Use local providers">
+    Set local providers for TTS (macOS System), STT (Parakeet), and OCR (Apple Native)
+  </Step>
+  <Step title="Disable cloud features">
+    Avoid selecting cloud-based providers in any extension settings
+  </Step>
+</Steps>
+
+<Tip>
+With local models configured, you can disconnect from the internet entirely and EnConvo will continue to work. This is ideal for working with sensitive documents.
+</Tip>
+
+## Extension Security
+
+### Extension Sandboxing
+
+Extensions run in isolated Node.js Worker threads with these constraints:
+
+- Each command executes in its own Worker thread
+- Workers have a 30-minute idle timeout and are automatically cleaned up
+- Extensions can only access the file system through defined APIs
+- Extensions communicate with the host app through a structured JSON-RPC protocol
+
+### Extension Source Verification
+
+- All official extensions are open source on [GitHub](https://github.com/enconvo)
+- Extensions from the store are reviewed before publication
+- You can inspect any extension's source code before installing
+- Side-loaded extensions (from folder or ZIP) run with the same permissions as store extensions
+
+### Extension Permissions
+
+Extensions declare their capabilities in `package.json`. When an extension tries to use a system feature (file access, network, clipboard), it goes through EnConvo's API layer which mediates access.
+
+## Telemetry & Analytics
+
+### Anonymous Usage Statistics
+
+EnConvo collects minimal, anonymous usage statistics to improve the product:
+
+- Feature usage frequency (which features are used, not what content)
+- Error and crash reports (stack traces only, no user content)
+- App version and macOS version
+
+### What Is Not Collected
+
+- Conversation content
+- AI prompts or responses
+- File contents
+- Screen captures
+- API keys or credentials
+- Personal information
+
+### Opting Out
+
+You can disable telemetry entirely:
+
+Settings → General → Analytics → Toggle Off
+
+When disabled, EnConvo sends zero telemetry data.
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use local models for sensitive work">
+    When working with confidential documents, legal materials, or proprietary code, configure local LLM providers (Ollama, MLX) to ensure nothing leaves your device.
+  </Accordion>
+  <Accordion title="Review extension permissions">
+    Before installing third-party extensions, review their source code on GitHub. Check what APIs they use and what network requests they make.
+  </Accordion>
+  <Accordion title="Rotate API keys regularly">
+    Periodically rotate your AI provider API keys. Remove old keys from EnConvo's Key Management and add fresh ones.
+  </Accordion>
+  <Accordion title="Keep EnConvo updated">
+    Updates include security patches. Enable auto-updates or check for updates regularly.
+  </Accordion>
+  <Accordion title="Back up your data">
+    Regularly back up `~/.config/enconvo/` to preserve your knowledge bases, conversations, and settings. Use Time Machine or your preferred backup tool.
+  </Accordion>
+  <Accordion title="Lock your Mac">
+    Since API keys are protected by your macOS login, always lock your Mac when stepping away. Keychain access requires an unlocked session.
+  </Accordion>
+</AccordionGroup>
+
+## Data Deletion
+
+### Deleting Conversations
+
+- Delete individual conversations from the chat list
+- Clear all conversations from Settings → Advanced → Clear Data
+
+### Deleting Knowledge Bases
+
+- Delete individual knowledge bases from the Knowledge Base manager
+- All associated vector data and metadata are removed
+
+### Complete Data Removal
+
+To remove all EnConvo data from your Mac:
+
+```bash
+# Remove all EnConvo data
+rm -rf ~/.config/enconvo/
+rm -rf ~/.config/Enconvo/
+
+# Remove API keys from Keychain
+# Open Keychain Access app → Search "enconvo" → Delete entries
+```
+
+<Warning>
+This permanently deletes all conversations, knowledge bases, extensions, and preferences. This action cannot be undone.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Settings Reference" icon="gear" href="/configuration/settings-reference">
+    Configure all EnConvo settings
+  </Card>
+  <Card title="Local LLM" icon="computer" href="/ai/local-llm">
+    Set up fully local AI models
+  </Card>
+  <Card title="Knowledge Base" icon="database" href="/ai/knowledge-base">
+    Learn about knowledge base data storage
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/getting-started/troubleshooting">
+    Fix common issues
+  </Card>
+</CardGroup>

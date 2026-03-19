@@ -1,0 +1,304 @@
+---
+title: "Text to Speech"
+description: "Convert text to natural-sounding speech with multiple TTS providers"
+---
+
+## Overview
+
+EnConvo integrates with 13+ Text-to-Speech providers, giving you access to hundreds of natural-sounding voices across dozens of languages. Whether you want to listen to AI responses, read selected text aloud, or convert documents to audio files, EnConvo makes it seamless.
+
+## Supported TTS Providers
+
+<CardGroup cols={2}>
+  <Card title="OpenAI TTS" icon="microphone">
+    High-quality voices (alloy, echo, fable, onyx, nova, shimmer) with tts-1 and tts-1-hd models
+  </Card>
+  <Card title="ElevenLabs" icon="waveform-lines">
+    Industry-leading voice synthesis with hundreds of voices and multiple models including flash v2.5
+  </Card>
+  <Card title="Microsoft Azure TTS" icon="windows">
+    Enterprise-grade TTS with multilingual neural voices like EmmaMultilingualNeural
+  </Card>
+  <Card title="Edge TTS" icon="globe">
+    Free Microsoft Edge voices -- no API key required
+  </Card>
+  <Card title="Google Cloud TTS" icon="google">
+    Google's neural TTS with WaveNet and Neural2 voices
+  </Card>
+  <Card title="Gemini TTS" icon="sparkles">
+    Google Gemini-powered TTS with style control and multi-speaker support
+  </Card>
+  <Card title="MiniMax TTS" icon="volume-high">
+    High-quality multilingual speech with turbo and HD models
+  </Card>
+  <Card title="xAI TTS" icon="bolt">
+    Expressive voices (Eve, Ara, Rex, Sal, Leo) with speech tag support for 20+ languages
+  </Card>
+  <Card title="Speechify TTS" icon="headphones">
+    Simba model family -- Base, English, Multilingual, and Turbo variants
+  </Card>
+  <Card title="Straico TTS" icon="layer-group">
+    Access ElevenLabs and OpenAI TTS through a single Straico API key
+  </Card>
+  <Card title="macOS System TTS" icon="apple">
+    Built-in macOS `say` command -- works offline with system voices
+  </Card>
+  <Card title="Kokoro TTS (Local)" icon="shield-halved">
+    Fully local, privacy-first TTS powered by the Kokoro model via FluidAudio
+  </Card>
+</CardGroup>
+
+## Provider Comparison
+
+| Provider | Quality | Speed | Offline | Free Tier | Languages |
+|----------|---------|-------|---------|-----------|-----------|
+| **OpenAI TTS** | Excellent | Fast | No | No | 50+ |
+| **ElevenLabs** | Excellent | Fast | No | Limited | 29+ |
+| **Microsoft Azure** | Excellent | Fast | No | Free via Enconvo Cloud | 140+ |
+| **Edge TTS** | Good | Fast | No | Yes (free) | 90+ |
+| **Google Cloud** | Excellent | Fast | No | No | 40+ |
+| **Gemini TTS** | Excellent | Medium | No | No | 24+ |
+| **MiniMax** | Excellent | Fast | No | No | 17+ |
+| **xAI TTS** | Good | Fast | No | No | 20+ |
+| **Speechify** | Good | Fast | No | No | 20+ |
+| **macOS System** | Basic | Fast | Yes | Yes (free) | 30+ |
+| **Kokoro (Local)** | Good | Fast | Yes | Yes (free) | Multiple |
+
+## Getting Started
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to the TTS command settings in EnConvo. You can find TTS configurations under the **TTS** extension.
+  </Step>
+  <Step title="Choose a TTS Provider">
+    Select your preferred provider from the **TTS Provider** dropdown. Options include cloud providers (OpenAI, ElevenLabs, Azure) and free options (Edge TTS, System TTS).
+  </Step>
+  <Step title="Configure Credentials">
+    For cloud providers, set up your API key through the Credential Provider setting. If you are on the **Enconvo Cloud Plan**, Microsoft TTS and MiniMax TTS are available without your own API key.
+  </Step>
+  <Step title="Select a Voice">
+    Each provider offers different voices. Browse the **Voice** dropdown to find one that fits your needs. You can preview voices using the built-in preview feature.
+  </Step>
+  <Step title="Adjust Speed">
+    Set your preferred speech speed from 0.25x to 4x using the **Speech Speed** dropdown. The default is 1.2x.
+  </Step>
+</Steps>
+
+## Usage Methods
+
+### Read Aloud
+
+The most common way to use TTS -- have EnConvo read text aloud in real time.
+
+1. Select any text on your screen
+2. Trigger the **Read Aloud** command from the SmartBar or PopBar
+3. EnConvo streams the audio as it generates, so playback starts almost immediately
+
+You can also click the speaker icon on any AI chat response to read it aloud.
+
+### Text to Audio File
+
+Convert text into a saved audio file for later use.
+
+1. Open the **TTS (Text To Speech)** command
+2. Enter or paste the text you want to convert
+3. The audio file is saved to your specified output directory
+4. Use the **Show in Finder** or **Save As** actions to manage the file
+
+### Gemini TTS (Style-Controlled)
+
+Gemini TTS offers unique style-controlled speech generation.
+
+**Single Speaker:**
+```
+Read aloud with a dramatic flair: It was a dark and stormy night..
+```
+
+**Multi-Speaker (dialog):**
+```
+Read aloud in a warm, welcoming tone
+Speaker 1: Hello! We're excited to show you our native speech capabilities
+Speaker 2: Where you can direct a voice, create realistic dialog, and so much more.
+```
+
+Gemini TTS supports models like **Gemini 2.5 Flash Preview TTS** and **Gemini 2.5 Pro Preview TTS**, with voice options such as Zephyr, Puck, and more.
+
+### Convert SRT Subtitles to Audio
+
+Convert subtitle files to audio:
+
+1. Provide your `.srt` subtitle file
+2. EnConvo processes each subtitle segment with the configured TTS provider
+3. Outputs a synchronized audio file
+
+## Voice Configuration by Provider
+
+<Tabs>
+  <Tab title="OpenAI">
+    **Models:** tts-1 (fast), tts-1-hd (high quality)
+
+    **Voices:**
+    | Voice | Character |
+    |-------|-----------|
+    | alloy | Neutral, balanced |
+    | echo | Warm, conversational |
+    | fable | Expressive, storytelling |
+    | onyx | Deep, authoritative |
+    | nova | Friendly, upbeat |
+    | shimmer | Clear, gentle |
+
+    You can also add custom voices if available through the OpenAI API.
+  </Tab>
+  <Tab title="ElevenLabs">
+    **Models:** eleven_flash_v2_5 (recommended), and more available via API
+
+    ElevenLabs provides hundreds of pre-made voices plus custom voice cloning. Browse voices in the dropdown or add a custom voice ID.
+  </Tab>
+  <Tab title="Microsoft Azure">
+    **Voices:** 400+ neural voices across 140+ languages
+
+    Default: `en-US-EmmaMultilingualNeural` -- a multilingual voice that adapts to the input language automatically.
+
+    <Tip>
+    Azure TTS is available **free** through the Enconvo Cloud Plan, with no separate API key required.
+    </Tip>
+  </Tab>
+  <Tab title="Edge TTS">
+    Microsoft Edge TTS provides high-quality neural voices for free. No API key is required. Voice list is fetched dynamically from Microsoft's Edge services.
+  </Tab>
+  <Tab title="xAI">
+    **Voices:**
+    | Voice | Style |
+    |-------|-------|
+    | Eve | Energetic, upbeat |
+    | Ara | Warm, friendly |
+    | Rex | Confident, clear |
+    | Sal | Smooth, balanced |
+    | Leo | Authoritative, strong |
+
+    Supports 20+ languages with automatic language detection.
+  </Tab>
+</Tabs>
+
+## Speed Settings
+
+All providers support adjustable speech speed:
+
+| Speed | Use Case |
+|-------|----------|
+| **0.5x -- 0.75x** | Careful listening, language learning |
+| **1.0x** | Normal speaking pace |
+| **1.2x** (default) | Slightly faster, efficient listening |
+| **1.5x -- 2.0x** | Speed listening, familiar content |
+| **2.5x -- 4.0x** | Scanning content, experienced listeners |
+
+## Offline TTS Options
+
+For privacy-first or no-internet scenarios, EnConvo offers two fully offline options:
+
+<AccordionGroup>
+  <Accordion title="macOS System TTS">
+    Uses the built-in macOS `say` command. No downloads required -- works with any voice installed in System Settings > Accessibility > Spoken Content > System Voice.
+
+    - Supports M4A output format
+    - Adjustable speed
+    - Works completely offline
+    - Quality varies by voice; download enhanced voices for better quality
+  </Accordion>
+  <Accordion title="Kokoro TTS (via FluidAudio)">
+    A local neural TTS model bundled with EnConvo's FluidAudio framework. Runs entirely on your Mac using Apple Silicon acceleration.
+
+    - High-quality neural speech
+    - No internet connection required
+    - No API key needed
+    - Your text never leaves your device
+  </Accordion>
+</AccordionGroup>
+
+## Using TTS in Chat
+
+EnConvo integrates TTS directly into the AI chat experience:
+
+1. **Manual playback:** Click the speaker icon on any AI response to hear it read aloud
+2. **Auto-TTS:** Enable automatic TTS in chat settings to have every response read aloud
+3. **Playback controls:** Pause, resume, or stop playback at any time
+
+## Using TTS with Translation
+
+The Translate command can automatically play TTS audio of the translated result:
+
+1. Open the **Translator** command settings
+2. Enable **Automatically Play TTS Audio** under the Text-to-Speech group
+3. Select your preferred TTS provider
+4. Every translation result is now read aloud automatically
+
+## Sound Effects Generation
+
+EnConvo can also generate sound effects from text descriptions:
+
+1. Use the **Text To Sound Effect** command
+2. Describe the sound you want in English (up to 200 characters)
+3. The more detailed the description, the better the result
+
+```
+A gentle rain falling on a tin roof with distant thunder
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No audio playing">
+    1. Check that your Mac's audio output is working (System Settings > Sound)
+    2. Verify the TTS provider is configured with valid credentials
+    3. Try switching to Edge TTS or System TTS to rule out API issues
+    4. Check the console logs for error messages
+  </Accordion>
+  <Accordion title="Voice sounds robotic or low quality">
+    1. Switch to a higher-quality provider like ElevenLabs or OpenAI TTS HD
+    2. If using OpenAI, switch from `tts-1` to `tts-1-hd`
+    3. Adjust the speed -- very high speeds can reduce quality
+    4. Try a different voice; some voices perform better than others
+  </Accordion>
+  <Accordion title="TTS is too slow">
+    1. Use a turbo/flash model variant when available (e.g., ElevenLabs flash v2.5, MiniMax turbo)
+    2. Edge TTS and System TTS are typically the fastest options
+    3. Check your internet connection for cloud providers
+    4. Try reducing the text length for faster initial playback
+  </Accordion>
+  <Accordion title="Wrong language pronunciation">
+    1. For xAI TTS, explicitly set the language instead of using Auto Detect
+    2. Use a multilingual voice like Azure's EmmaMultilingualNeural
+    3. Ensure the text language matches the voice's supported languages
+  </Accordion>
+</AccordionGroup>
+
+## Enconvo Cloud Plan
+
+The Enconvo Cloud Plan includes built-in access to several TTS providers without needing your own API keys:
+
+| Provider | Via Cloud Plan |
+|----------|----------------|
+| Microsoft Azure TTS | Included |
+| MiniMax TTS | Included |
+| xAI TTS | Included |
+
+<Note>
+Cloud Plan TTS usage consumes your Enconvo points. Check Settings > Usage for your current balance.
+</Note>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Dictation" icon="microphone" href="/features/dictation">
+    Convert speech to text
+  </Card>
+  <Card title="AI Chat" icon="comments" href="/ai/chat">
+    Chat with AI and listen to responses
+  </Card>
+  <Card title="Translation" icon="language" href="/ai/translate">
+    Translate and listen to results
+  </Card>
+  <Card title="Speech Recognition" icon="ear-listen" href="/ai/speech-recognition">
+    Advanced speech-to-text providers
+  </Card>
+</CardGroup>

@@ -1,0 +1,292 @@
+---
+title: "Speech Recognition"
+description: "Convert speech to text with advanced recognition providers"
+---
+
+## Overview
+
+EnConvo supports 15+ speech recognition providers, from cloud-based services with the highest accuracy to fully local models that keep your audio data private. Whether you need real-time dictation, long-form audio transcription, or multilingual support, EnConvo has a provider for every use case.
+
+## Supported Providers
+
+### Cloud Providers
+
+| Provider | Model | Best For | Languages |
+|----------|-------|----------|-----------|
+| **Groq Whisper** | Whisper Large V3 Turbo | Fast cloud transcription | 57+ |
+| **OpenAI** | gpt-4o-transcribe, gpt-4o-mini-transcribe | High accuracy with AI post-processing | 57+ |
+| **Microsoft Azure** | Azure Speech Services | Enterprise-grade, real-time streaming | 100+ |
+| **Google Gemini** | Gemini 3.1 Flash Lite | Multimodal audio understanding, up to 9.5 hours | 100+ |
+| **Mistral** | Voxtral Mini | Lightweight, fast transcription | 20+ |
+| **Deepgram** | Nova-3 | Real-time streaming, high accuracy | 30+ |
+| **AssemblyAI** | Universal | Speaker diarization, content analysis | 12+ |
+| **ElevenLabs** | Scribe v1 | High quality, automatic language detection | 29+ |
+
+### Local Providers (Offline)
+
+| Provider | Model | Best For | Languages |
+|----------|-------|----------|-----------|
+| **NVIDIA Parakeet** | Parakeet TDT 0.6B V3 | Fast local ASR on Apple Silicon | 25 |
+| **Qwen ASR** | Qwen3-ASR 0.6B/1.7B | Multilingual local ASR, Chinese dialects | 30+ |
+| **Local Whisper** | whisper-base / small / large-v3 | Privacy-first offline recognition | 57+ |
+
+## Provider Highlights
+
+### NVIDIA Parakeet TDT (Local)
+
+The flagship local ASR model in EnConvo, powered by the FluidAudio framework.
+
+- **209.8x real-time speed** on Apple Silicon -- a 1-minute audio file transcribes in under 0.3 seconds
+- **2.1% Word Error Rate (WER)** -- approaching cloud provider accuracy
+- **25 European languages** with automatic language detection
+- Automatic punctuation, capitalization, and word-level timestamps
+- Supports long audio up to 24 minutes (full attention) or 3 hours (local attention)
+- Released under CC-BY-4.0 open-source license
+
+<Tip>
+Parakeet TDT is recommended for users who prioritize privacy and speed. It runs entirely on your Mac with no internet connection required.
+</Tip>
+
+### Qwen ASR (Local)
+
+Alibaba's state-of-the-art open-source ASR model with exceptional multilingual support.
+
+- **30 languages and 22 Chinese dialects** -- ideal for Chinese language users
+- Available in 0.6B and 1.7B parameter sizes
+- 4-bit and 8-bit quantized variants for efficient local inference via MLX
+- Automatic language identification
+- Streaming and offline unified inference
+
+| Model | Parameters | Quantization | Memory |
+|-------|-----------|--------------|--------|
+| Qwen3-ASR-0.6B-4bit | 0.6B | 4-bit | Minimal |
+| Qwen3-ASR-0.6B-8bit | 0.6B | 8-bit | Low |
+| Qwen3-ASR-1.7B-4bit | 1.7B | 4-bit | Moderate |
+| Qwen3-ASR-1.7B-8bit | 1.7B | 8-bit | Moderate |
+
+### Groq Whisper (Cloud)
+
+Ultra-fast cloud inference powered by Groq's LPU hardware.
+
+- **Whisper Large V3 Turbo** -- fastest cloud Whisper variant
+- **Whisper Large V3** -- highest accuracy Whisper model
+- Custom prompts for domain-specific vocabulary (up to 224 tokens)
+- Language-specific hints for improved accuracy
+- Available free through Enconvo Cloud Plan
+
+### Google Gemini STT (Cloud)
+
+Uses Gemini's multimodal understanding for audio transcription.
+
+- Supports audio files up to **9.5 hours** in duration
+- **Gemini 3.1 Flash Lite** -- cost-efficient, fastest performance
+- Supports structured output and advanced text post-processing
+- Available through Enconvo Cloud Plan or your own Google API key
+
+## Configuration
+
+<Steps>
+  <Step title="Open Dictation Settings">
+    Navigate to the **Dictation** command settings in EnConvo. The speech recognition provider is configured as the **Dictation Model Provider**.
+  </Step>
+  <Step title="Select a Provider">
+    Choose your preferred provider from the dropdown. Cloud providers offer the highest accuracy, while local providers offer privacy and offline support.
+  </Step>
+  <Step title="Set Up Credentials">
+    For cloud providers, configure your API key through the Credential Provider. Enconvo Cloud Plan users get access to Groq Whisper, Microsoft Azure, Google Gemini, OpenAI, and Mistral without separate API keys.
+  </Step>
+  <Step title="Choose a Language">
+    Set your primary language for transcription. Most providers support **Auto Detect**, but specifying a language can improve accuracy and speed.
+  </Step>
+  <Step title="Select a Model (if applicable)">
+    Some providers offer multiple models. For example, Local Whisper offers base (fast), small (balanced), and large-v3 (most accurate) variants.
+  </Step>
+</Steps>
+
+## Use Cases
+
+### Real-Time Dictation
+
+The primary use of speech recognition in EnConvo is real-time dictation -- speaking and having your words appear as text instantly.
+
+1. Press the dictation hotkey (default: `Option + V`) or hold `Fn`
+2. Speak naturally at a comfortable pace
+3. Press the hotkey again (or release `Fn`) to finish
+4. The transcribed text is inserted at your cursor position
+
+<Note>
+For real-time dictation, streaming providers like Microsoft Azure and Deepgram provide the lowest latency. Batch providers like Groq Whisper and OpenAI process after you finish speaking.
+</Note>
+
+### Dictation in SmartBar
+
+Use voice input directly within the SmartBar for AI interactions:
+
+1. Open the SmartBar
+2. Click the microphone icon or use the dictation shortcut
+3. Speak your query
+4. The transcribed text becomes your AI prompt
+
+### Audio/Video File Transcription
+
+Transcribe pre-recorded audio and video files:
+
+1. Use the **Transcribe Audio/Video files** command
+2. Drag and drop audio or video files
+3. Choose your output format (plain text or .txt file)
+4. EnConvo processes the files with speaker diarization support
+
+Supported formats include MP3, WAV, FLAC, M4A, MP4, MOV, and more.
+
+### Meeting Transcription
+
+Combined with EnConvo's Meeting Recording feature, speech recognition powers live meeting transcription. See the [Meeting Recording](/features/meeting-recording) documentation for details.
+
+## Voice Activity Detection (VAD)
+
+EnConvo includes built-in Voice Activity Detection powered by Silero VAD via the FluidAudio framework:
+
+- **Automatic start/stop:** Detects when you begin and stop speaking
+- **Background noise filtering:** Ignores ambient sounds and only captures speech
+- **Low latency:** Sub-100ms detection for natural dictation flow
+- **Runs locally:** VAD processing happens entirely on your Mac
+
+VAD works automatically with all speech recognition providers -- you do not need to configure it separately.
+
+## Language Support
+
+### Provider Language Coverage
+
+<Tabs>
+  <Tab title="Most Languages">
+    **Microsoft Azure** supports 100+ languages and dialects, making it the broadest choice. Combined with the free Enconvo Cloud Plan tier, it is an excellent default option.
+  </Tab>
+  <Tab title="Best for Chinese">
+    **Qwen ASR** supports 22 Chinese dialects in addition to 30 standard languages. If you frequently work in Chinese, Qwen ASR provides the best accuracy for Mandarin and regional dialects.
+  </Tab>
+  <Tab title="European Languages">
+    **NVIDIA Parakeet** supports 25 European languages with automatic detection. Ideal for users working primarily in European languages who want local processing.
+  </Tab>
+  <Tab title="Universal">
+    **Groq Whisper** and **Local Whisper** are based on OpenAI's Whisper model, supporting 57+ languages. They handle most world languages well.
+  </Tab>
+</Tabs>
+
+### Setting the Language
+
+Most providers support automatic language detection, but explicitly setting the language is recommended for:
+
+- **Better accuracy:** The model focuses on the correct language's phonemes
+- **Faster processing:** Skips the language detection step
+- **Mixed content:** When you know the primary language in multilingual audio
+
+## Offline Speech Recognition
+
+For users who need speech recognition without an internet connection:
+
+| Solution | Model Size | Speed | Accuracy | Setup |
+|----------|-----------|-------|----------|-------|
+| **NVIDIA Parakeet** | ~600 MB | Fastest | Excellent | Auto-download on first use |
+| **Qwen ASR (4-bit)** | ~400 MB | Fast | Very Good | Auto-download on first use |
+| **Local Whisper (small)** | ~216 MB | Good | Good | Auto-download on first use |
+| **Local Whisper (large-v3)** | ~626 MB | Moderate | Excellent | Auto-download on first use |
+
+<Tip>
+For the best offline experience, we recommend **NVIDIA Parakeet TDT 0.6B V3** -- it offers the fastest speed with near-cloud accuracy. Models are automatically downloaded when you first select them.
+</Tip>
+
+## Advanced Configuration
+
+### Custom Prompts (Groq Whisper / Local Whisper)
+
+Provide context to improve transcription of domain-specific terms:
+
+```
+Medical terminology: cardiovascular, myocardial infarction, electrocardiogram
+```
+
+Prompts are limited to 224 tokens and help the model correctly spell specialized vocabulary.
+
+### Audio Preprocessing
+
+EnConvo automatically preprocesses audio for optimal recognition:
+
+- Converts to 16kHz mono FLAC/WAV format
+- Splits large files into manageable chunks with overlap
+- Merges transcription results using sequence alignment
+- Cleans up temporary files after processing
+
+### Large File Handling
+
+For long audio files, EnConvo automatically:
+
+1. Splits audio into provider-appropriate chunks
+2. Adds overlap between chunks to avoid word loss at boundaries
+3. Processes chunks in parallel where possible
+4. Merges results using intelligent sequence alignment
+
+## Enconvo Cloud Plan
+
+The Enconvo Cloud Plan includes access to multiple STT providers:
+
+| Provider | Model | Points per Use |
+|----------|-------|----------------|
+| Groq Whisper | Whisper Large V3 Turbo | 100 |
+| Groq Whisper | Whisper Large V3 | 200 |
+| OpenAI | gpt-4o-mini-transcribe | 100 |
+| OpenAI | gpt-4o-transcribe | 200 |
+| Google Gemini | Gemini 3.1 Flash Lite | 100 |
+| Mistral | Voxtral Mini | 100 |
+| Microsoft Azure | Azure Speech Services | Free |
+| AssemblyAI | Universal | Via Cloud |
+
+<Note>
+Microsoft Azure STT via the Enconvo Cloud Plan is free and does not consume points. It is the recommended default for most users.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Microphone not detected">
+    1. Open **System Settings > Privacy & Security > Microphone**
+    2. Ensure EnConvo has microphone access enabled
+    3. Check that the correct microphone is selected in your system audio settings
+    4. Try restarting EnConvo after granting permissions
+  </Accordion>
+  <Accordion title="Poor transcription accuracy">
+    1. Speak clearly at a moderate pace
+    2. Reduce background noise or use a directional microphone
+    3. Explicitly set the language instead of using Auto Detect
+    4. Try a larger model (e.g., Whisper Large V3 instead of V3 Turbo)
+    5. Use custom prompts for specialized vocabulary
+  </Accordion>
+  <Accordion title="Local model download fails">
+    1. Ensure you have a stable internet connection for the initial download
+    2. Check available disk space -- models range from 200 MB to 1 GB
+    3. Try a smaller model variant first (e.g., Qwen3-ASR-0.6B-4bit)
+    4. Check the console logs for download errors
+  </Accordion>
+  <Accordion title="Transcription is slow">
+    1. For real-time dictation, switch to a streaming provider (Azure, Deepgram)
+    2. For batch transcription, Groq Whisper offers the fastest cloud processing
+    3. For local transcription, NVIDIA Parakeet is the fastest option
+    4. Ensure your Mac is not thermally throttling (check Activity Monitor)
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Dictation" icon="microphone" href="/features/dictation">
+    Voice-to-text dictation interface
+  </Card>
+  <Card title="Text to Speech" icon="volume-high" href="/ai/text-to-speech">
+    Convert text back to speech
+  </Card>
+  <Card title="Meeting Recording" icon="video" href="/features/meeting-recording">
+    Record and transcribe meetings
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
+    Use voice input in SmartBar
+  </Card>
+</CardGroup>

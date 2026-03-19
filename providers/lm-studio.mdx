@@ -1,0 +1,130 @@
+---
+title: "LM Studio"
+description: "Run local models with LM Studio in EnConvo"
+---
+
+## Overview
+
+LM Studio is a desktop application for running large language models locally on your Mac. It provides a user-friendly GUI for discovering, downloading, and running GGUF models with no API key required. Like Ollama, it keeps all data on your machine for complete privacy.
+
+## Supported Models
+
+LM Studio supports any GGUF-format model. Popular choices include:
+
+| Model | Size | Best For |
+|-------|------|----------|
+| **Llama 3.1 8B** | ~5 GB | General purpose |
+| **Llama 3.1 70B** | ~40 GB | Complex tasks |
+| **Mistral 7B** | ~4 GB | Fast responses |
+| **Phi-3 Mini** | ~2 GB | Lightweight tasks |
+| **CodeLlama 7B** | ~4 GB | Programming |
+| **Qwen 2.5 7B** | ~5 GB | Multilingual |
+
+## Setup
+
+<Steps>
+  <Step title="Install LM Studio">
+    1. Download from [lmstudio.ai](https://lmstudio.ai)
+    2. Install the application on your Mac
+    3. Launch LM Studio
+  </Step>
+  <Step title="Download a Model">
+    1. In LM Studio, go to the **Discover** tab
+    2. Search for a model (e.g., "Llama 3.1")
+    3. Click **Download** on your preferred quantization (Q4_K_M recommended for balance)
+    4. Wait for the download to complete
+  </Step>
+  <Step title="Start the Local Server">
+    1. Go to the **Developer** tab in LM Studio
+    2. Select your downloaded model
+    3. Click **Start Server**
+    4. Note the server address (default: `http://localhost:1234`)
+  </Step>
+  <Step title="Configure in EnConvo">
+    1. Open **Settings** → **AI Provider**
+    2. Select **LM Studio**
+    3. Go to **Credentials** module
+    4. Set the endpoint to `http://localhost:1234` (or your custom port)
+  </Step>
+  <Step title="Select Model">
+    Choose from your loaded models in the dropdown
+  </Step>
+</Steps>
+
+<Tip>
+No API key is needed -- LM Studio runs entirely on your local machine.
+</Tip>
+
+## Configuration
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Endpoint** | Local server address | `http://localhost:1234` |
+| **Model Name** | Currently loaded model | Auto-detected |
+| **Temperature** | Creativity (0-2) | Medium (1) |
+
+## System Requirements
+
+| RAM | Recommended Models |
+|-----|-------------------|
+| 8 GB | 7B models (Q4 quantization) |
+| 16 GB | Larger 7B/13B models |
+| 32 GB | 30B models |
+| 64 GB+ | 70B models |
+
+<Note>
+Apple Silicon Macs (M1/M2/M3/M4) with Metal acceleration provide significantly better performance than Intel Macs for local LLM inference. GPU VRAM (unified memory) is the key factor for model size.
+</Note>
+
+## LM Studio vs Ollama
+
+| Feature | LM Studio | Ollama |
+|---------|-----------|--------|
+| **Interface** | GUI application | Command-line |
+| **Model format** | GGUF | GGUF (auto-managed) |
+| **Model discovery** | In-app browser | `ollama pull` command |
+| **Server control** | Manual start/stop | Auto-starts on install |
+| **Configuration** | Visual settings | Config files |
+
+## Privacy Benefits
+
+<CardGroup cols={2}>
+  <Card title="Complete Privacy" icon="shield-halved">
+    All data stays on your Mac
+  </Card>
+  <Card title="Offline Access" icon="wifi-slash">
+    Works without internet after model download
+  </Card>
+  <Card title="No Usage Limits" icon="infinity">
+    Run unlimited queries locally
+  </Card>
+  <Card title="No Cost" icon="dollar-sign">
+    Free to use, no API fees
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection refused">
+    - Ensure LM Studio's local server is running (check the Developer tab)
+    - Verify the port matches your EnConvo configuration (default: 1234)
+    - Check that no other application is using the same port
+  </Accordion>
+  <Accordion title="Slow responses">
+    - Use a smaller model or higher quantization (Q4_K_M or Q4_K_S)
+    - Close other memory-intensive applications
+    - Check that Metal GPU acceleration is enabled in LM Studio settings
+  </Accordion>
+  <Accordion title="Model fails to load">
+    - Ensure you have enough RAM for the model size
+    - Try a smaller quantization variant
+    - Re-download the model if the file may be corrupted
+    - Restart LM Studio and try again
+  </Accordion>
+  <Accordion title="No models in dropdown">
+    - Make sure a model is loaded and the server is started in LM Studio
+    - Refresh the model list in EnConvo settings
+    - Check the endpoint URL is correct
+  </Accordion>
+</AccordionGroup>

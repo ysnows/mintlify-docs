@@ -1,0 +1,654 @@
+---
+title: "Extension API Reference"
+description: "Complete API reference for developing Enconvo extensions"
+---
+
+## Overview
+
+The `@enconvo/api` SDK provides the full API surface for building EnConvo extensions. Extensions run as isolated Worker threads communicating with the native macOS app over a Unix Domain Socket using JSON-RPC.
+
+<Note>
+All imports in this reference come from `@enconvo/api` unless otherwise noted. The SDK is linked locally from `enconvo.nodejs/enconvo_api/` during development.
+</Note>
+
+## Commander API
+
+The `Commander` namespace handles all communication between extension Worker threads and the EnConvo host process.
+
+### Commander.addClickListener
+
+Registers the main entry point handler for a command. This is the primary way to define what happens when a command is invoked.
+
+```typescript
+import { Commander } from "@enconvo/api";
+
+Commander.addClickListener(async (req: Request) => {
+  const options = await req.json();
+  // Process the request
+  return EnconvoResponse.text("Hello from my extension!");
+});
+```
+
+The `req` parameter is a standard `Request` object. Use `req.json()` to access the merged command configuration and user-provided parameters.
+
+### Commander.send
+
+Fire-and-forget message to the native macOS app. Returns a Promise that resolves when the host acknowledges.
+
+```typescript
+// Send a custom method with payloads
+await Commander.send("responseStream", {
+  type: "messages",
+  messages: [message]
+});
+```
+
+### Commander.sendRequest
+
+Request/response communication with the native app. Returns a Promise resolved when the host sends back a matching response.
+
+```typescript
+const result = await Commander.sendRequest({
+  method: "getSelectedText",
+  payloads: {},
+  extensionName: "enconvo",
+  commandName: "get_selected_text"
+});
+```
+
+### Commander.sendAsync
+
+Non-blocking fire-and-forget message. Does not wait for acknowledgment.
+
+```typescript
+Commander.sendAsync("responseStream", { type: "text", content: "partial result" });
+```
+
+## Request Object
+
+When `Commander.addClickListener` fires, you receive a standard `Request`. The body contains `RequestOptions` -- a merged object of command configuration, user preferences, and runtime parameters.
+
+```typescript
+Commander.addClickListener(async (req: Request) => {
+  const options: RequestOptions = await req.json();
+
+  // Common fields
+  options.input_text;          // User input text
+  options.commandType;         // "agent" | "chat" | "tool" | "provider" | etc.
+  options.commandName;         // Current command name
+  options.extensionName;       // Current extension name
+  options.messages;            // Conversation history (for chat/agent)
+  options.context;             // Context data (screen, clipboard, browser)
+  options.tools;               // Available tools (for agent mode)
+  options.system_prompt;       // System prompt
+  options.temperature;         // LLM temperature
+  options.max_tokens;          // Max token limit
+
+  // All preference values are accessible by their name
+  options.my_custom_preference; // Value of preference named "my_custom_preference"
+});
+```
+
+## EnconvoResponse
+
+The return type for command handlers. Multiple factory methods create different response types.
+
+### EnconvoResponse.text
+
+Returns a simple text response displayed as a chat message.
+
+```typescript
+return EnconvoResponse.text("Here is your result");
+```
+
+### EnconvoResponse.messages
+
+Returns one or more structured chat messages with rich content.
+
+```typescript
+import { BaseChatMessage, ChatMessageContent } from "@enconvo/api";
+
+return EnconvoResponse.messages([
+  BaseChatMessage.assistant([
+    ChatMessageContent.text("Here is the analysis:"),
+    ChatMessageContent.image({ url: "https://example.com/chart.png" })
+  ])
+]);
+```
+
+### EnconvoResponse.json
+
+Returns a JSON object as a text response (serialized).
+
+```typescript
+return EnconvoResponse.json({ status: "ok", count: 42 });
+```
+
+### EnconvoResponse.none
+
+Returns nothing -- useful for commands that produce side effects only.
+
+```typescript
+await Clipboard.copy("copied text");
+return EnconvoResponse.none();
+```
+
+### EnconvoResponse.error
+
+Returns an error message displayed to the user.
+
+```typescript
+return EnconvoResponse.error("API key is missing", 401);
+```
+
+### Returning a string
+
+You can also return a plain string, which is automatically wrapped as a text response.
+
+```typescript
+Commander.addClickListener(async (req: Request) => {
+  return "Simple text response";
+});
+```
+
+## NativeAPI
+
+The `NativeAPI` namespace provides typed methods for calling native macOS operations and invoking other extension commands.
+
+### NativeAPI.callCommand
+
+Invoke any other extension command programmatically.
+
+```typescript
+import { NativeAPI } from "@enconvo/api";
+
+// Call Gmail to send an email
+const result = await NativeAPI.callCommand("gmail|send_email", {
+  to: "user@example.com",
+  subject: "Hello",
+  body: "Message content"
+});
+```
+
+### NativeAPI.request / NativeAPI.api
+
+Call extension API routes (files in `src/api/`).
+
+```typescript
+// Call an API endpoint
+const response = await NativeAPI.request("knowledge_base/search", {
+  query: "machine learning",
+  limit: 10
+});
+```
+
+### NativeAPI.localApi
+
+Call the local HTTP server API endpoint directly.
+
+```typescript
+const response = await NativeAPI.localApi("enconvo/cache", {
+  action: "get",
+  key: "my_cache_key"
+});
+```
+
+## Clipboard
+
+Read and write clipboard content, paste into the active application, or insert text below the cursor.
+
+```typescript
+import { Clipboard } from "@enconvo/api";
+
+// Copy text to clipboard
+await Clipboard.copy("text to copy");
+
+// Paste text into the frontmost application
+await Clipboard.paste("text to paste");
+
+// Insert text below the current cursor position
+await Clipboard.insertBelow("text below cursor");
+
+// Read current clipboard content
+const content = await Clipboard.read();
+```
+
+## Toast & HUD
+
+Display notifications and heads-up messages.
+
+```typescript
+import { showToast, showHUD } from "@enconvo/api";
+
+// Show a toast notification
+await showToast({ title: "Success", message: "File saved" });
+
+// Show a brief HUD message overlay
+await showHUD("Operation complete");
+```
+
+## SmartBar & Window
+
+Control the SmartBar and window display modes.
+
+```typescript
+import { SmartBar } from "@enconvo/api";
+
+// Close the SmartBar
+await SmartBar.close();
+```
+
+## environment
+
+The `environment` object exposes runtime context about the current command execution.
+
+```typescript
+import { environment } from "@enconvo/api";
+
+environment.extensionName;       // Current extension name
+environment.commandName;         // Current command name
+environment.commandTitle;        // Display title of the command
+environment.assetsPath;          // Path to extension's assets/ directory
+environment.supportPath;         // Per-extension support directory
+environment.rootSupportPath;     // Root support directory
+environment.cachePath;           // Cache directory
+environment.isDevelopment;       // true if running in dev mode
+environment.appearance;          // "light" | "dark"
+environment.textSize;            // "medium" | "large"
+environment.chatConversationId;  // Current conversation ID
+environment.chatSessionId;       // Current session ID
+environment.enconvoVersion;      // EnConvo app version
+environment.runType;             // "command" | "api" | "flow"
+environment.flowId;              // Workflow ID (if running in a workflow)
+```
+
+## KV (Key-Value Storage)
+
+Persistent key-value storage for extension data. Values persist across command invocations.
+
+```typescript
+import { KV } from "@enconvo/api";
+
+// String operations
+await KV.set("last_query", "machine learning");
+const query = await KV.get("last_query", "default_value");
+
+// Number operations
+await KV.setNumber("run_count", 42);
+const count = await KV.getNumber("run_count", 0);
+
+// Boolean operations
+await KV.setBool("feature_enabled", true);
+const enabled = await KV.getBool("feature_enabled");
+```
+
+## Stream
+
+The `Stream` class provides utilities for working with streaming responses, particularly SSE (Server-Sent Events) from LLM APIs.
+
+### Stream.fromSSEResponse
+
+Parse an SSE response into an async iterable of typed objects.
+
+```typescript
+import { Stream } from "@enconvo/api";
+
+const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  body: JSON.stringify({ stream: true, /* ... */ })
+});
+
+const controller = new AbortController();
+const stream = Stream.fromSSEResponse<ChatCompletionChunk>(response, controller);
+
+for await (const chunk of stream) {
+  // Process each SSE chunk
+  console.log(chunk.choices[0].delta.content);
+}
+```
+
+### Stream.fromReadableStream
+
+Parse a newline-delimited JSON `ReadableStream` into typed objects.
+
+```typescript
+const stream = Stream.fromReadableStream<MyItem>(readableStream, controller);
+
+for await (const item of stream) {
+  // Process each JSON item
+}
+```
+
+### Stream.tee
+
+Split a stream into two independent streams that can be read at different speeds.
+
+```typescript
+const [stream1, stream2] = stream.tee();
+```
+
+### Stream.toReadableStream
+
+Convert back to a `ReadableStream` of newline-delimited JSON.
+
+```typescript
+const readable = stream.toReadableStream();
+```
+
+## res (Response Streaming)
+
+The `res` namespace provides methods for streaming partial results back to the UI during command execution.
+
+### res.write
+
+Stream content incrementally to the chat UI.
+
+```typescript
+import { res, BaseChatMessage, ChatMessageContent } from "@enconvo/api";
+
+// Stream text content
+await res.write({
+  content: "Partial result...",
+  action: EnconvoResponse.WriteAction.AppendToLastMessageLastTextContent
+});
+
+// Stream a structured message
+await res.write({
+  content: new AssistantMessage([ChatMessageContent.text("Updated content")]),
+  action: EnconvoResponse.WriteAction.OverwriteLastMessage
+});
+```
+
+### res.writeLoading
+
+Display a loading indicator in the chat UI.
+
+```typescript
+await res.writeLoading("Analyzing document...");
+```
+
+### Write Actions
+
+Control how streamed content updates the UI:
+
+| Action | Behavior |
+|--------|----------|
+| `AppendToLastMessageLastTextContent` | Append text to the last message's text content |
+| `OverwriteLastMessage` | Replace the entire last message |
+| `OverwriteLastMessageAllContent` | Replace all content in the last message |
+| `AppendToLastMessageContent` | Append a new content block to the last message |
+| `AppendMessage` | Add a new message to the conversation |
+
+## LLMProvider Base Class
+
+The abstract base class for implementing LLM provider extensions.
+
+```typescript
+import { LLMProvider, Stream, BaseChatMessage, BaseChatMessageChunk } from "@enconvo/api";
+
+class MyLLMProvider extends LLMProvider {
+  constructor(options: LLMProvider.LLMOptions) {
+    super(options);
+  }
+
+  // Required: non-streaming completion
+  protected async _call(params: LLMProvider.ResolvedParams): Promise<BaseChatMessage> {
+    const response = await myApiCall(params.messages, {
+      model: this.options.model,
+      temperature: this.options.temperature
+    });
+    return BaseChatMessage.assistant([
+      ChatMessageContent.text(response.content)
+    ]);
+  }
+
+  // Required: streaming completion
+  protected async _stream(params: LLMProvider.ResolvedParams): Promise<Stream<BaseChatMessageChunk>> {
+    const response = await myStreamingApiCall(params.messages, {
+      model: this.options.model,
+      stream: true
+    });
+    return Stream.fromSSEResponse(response, new AbortController());
+  }
+}
+
+// Entry point
+export default function main(options: LLMProvider.LLMOptions) {
+  return new MyLLMProvider(options);
+}
+```
+
+### LLMProvider.LLMOptions
+
+Key options available on `this.options`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `model` | `string` | Selected model identifier |
+| `temperature` | `number` | Sampling temperature (0-2) |
+| `max_tokens` | `number` | Maximum tokens to generate |
+| `top_p` | `number` | Top-p sampling parameter |
+| `tools` | `AITool[]` | Available tools for function calling |
+| `messages` | `BaseChatMessageLike[]` | Conversation history |
+
+## TTSProvider Base Class
+
+The abstract base class for implementing TTS provider extensions.
+
+```typescript
+import { TTSProvider } from "@enconvo/api";
+
+class MyTTSProvider extends TTSProvider {
+  constructor(options: TTSProvider.TTSOptions) {
+    super({ options });
+  }
+
+  // Required: convert text to audio file
+  protected async _toFile(params: TTSProvider._ToFileTTSParams): Promise<TTSProvider.TTSItem> {
+    const audioBuffer = await myTTSApi(params.text, {
+      voice: this.options.voice?.value,
+      speed: this.options.speed?.value
+    });
+
+    const filePath = `${params.outputDir}/${params.audioFileName}.mp3`;
+    fs.writeFileSync(filePath, audioBuffer);
+
+    return { audioFilePath: filePath };
+  }
+}
+
+export default function main(options: TTSProvider.TTSOptions) {
+  return new MyTTSProvider(options);
+}
+```
+
+## ServiceProvider.load
+
+Load and instantiate any provider extension dynamically.
+
+```typescript
+import { ServiceProvider } from "@enconvo/api";
+
+// Load an LLM provider
+const llm = ServiceProvider.load<LLMProvider>(options);
+
+// Load a TTS provider
+const tts = ServiceProvider.load<TTSProvider>(options);
+```
+
+The `options` object must include `extensionName` and `commandName` identifying the provider to load. Provider instances are cached by their options hash for reuse.
+
+## Extension & Command Management
+
+Utilities for working with extension metadata and configuration.
+
+```typescript
+import { CommandManageUtils, ExtensionManageUtils, PreferenceManageUtils } from "@enconvo/api";
+
+// Load a command's full configuration
+const config = await CommandManageUtils.loadCommandConfig({
+  commandKey: "gmail|send_email",
+  useAsRunParams: true
+});
+
+// Get raw command info (synchronous)
+const rawCmd = CommandManageUtils.getRawCommandInfo("llm|chat_open_ai");
+```
+
+## NativeEventUtils
+
+Send and listen for events across extensions and the native app.
+
+```typescript
+import { NativeEventUtils } from "@enconvo/api";
+
+// Send a custom event
+await NativeEventUtils.sendEvent("my_custom_event", {
+  key: "value"
+});
+```
+
+Events sent through this system can be hooked by the user via `~/.config/enconvo/hooks.json`.
+
+## Action
+
+Response actions displayed as buttons below chat messages.
+
+```typescript
+import { Action } from "@enconvo/api";
+
+return EnconvoResponse.messages(
+  [BaseChatMessage.assistant([ChatMessageContent.text("Done!")])],
+  [
+    Action.OpenLink({ url: "https://example.com", title: "Open Website" }),
+    Action.OpenConfig({ page: "key_management", title: "Configure Keys" }),
+    Action.Retry({ chatConversationId: environment.chatConversationId })
+  ]
+);
+```
+
+## src/api/ Auto-Discovery
+
+Files placed in `src/api/` are automatically discovered and registered as API routes during build. No `package.json` entry is needed.
+
+### Single File Route
+
+```
+src/api/status.ts  →  extensionName/status
+```
+
+```typescript
+// src/api/status.ts
+export default async function main(request: Request) {
+  return Response.json({ status: "ok", uptime: process.uptime() });
+}
+```
+
+### Directory Route
+
+```
+src/api/users/          →  extensionName/users (auto-generated router)
+src/api/users/list.ts   →  extensionName/users/list
+src/api/users/create.ts →  extensionName/users/create
+```
+
+```typescript
+// src/api/users/list.ts
+interface ListParams {
+  /** Maximum number of users to return @default 20 */
+  limit: number;
+  /** Page offset @required */
+  offset: number;
+}
+
+export default async function main(request: Request) {
+  const params = await request.json() as ListParams;
+  // The interface is parsed for automatic schema generation
+  return Response.json({ users: [], total: 0 });
+}
+```
+
+### JSDoc Annotations
+
+| Annotation | Effect |
+|------------|--------|
+| `@private` on export | Hides from generated API docs and schemas |
+| `@required` on interface field | Marks parameter as required |
+| `@default <value>` on interface field | Sets default value in schema |
+
+### Generated Files
+
+The build system generates:
+- `skills/schemas.json` -- JSON schema for all API endpoints
+- `skills/docs.md` -- Human-readable API documentation
+- `skills/SKILL.md` -- Skill metadata for AI agent discovery
+
+## Command Entry Point Pattern
+
+### Standard Command
+
+```typescript
+// src/my_command.ts
+import { Commander, EnconvoResponse } from "@enconvo/api";
+
+export default async function main(req: Request): Promise<EnconvoResponse> {
+  const options = await req.json();
+  const result = processInput(options.input_text);
+  return EnconvoResponse.text(result);
+}
+```
+
+### Provider Command
+
+```typescript
+// src/my_provider.ts
+export default function main(options: any) {
+  return new MyProvider(options);
+}
+```
+
+### API Route
+
+```typescript
+// src/api/my_endpoint.ts
+export default async function main(request: Request) {
+  const params = await request.json();
+  return Response.json({ result: "ok" });
+}
+```
+
+## Building Extensions
+
+```bash
+# Build for production
+npx enconvo build
+
+# Dev mode with hot reload
+npx enconvo build --dev
+
+# Generate API schema
+npx enconvo generate-schema
+
+# Generate API docs + schema
+npx enconvo generate-docs
+
+# Publish to store
+npx enconvo publish
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Developing Extensions" icon="code" href="/extensions/developing">
+    Step-by-step guide to creating extensions
+  </Card>
+  <Card title="Built-in Extensions" icon="puzzle-piece" href="/extensions/built-in-extensions">
+    Explore all available extensions
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/configuration/skills">
+    Package AI instructions as reusable skills
+  </Card>
+  <Card title="Hooks" icon="bolt" href="/configuration/hooks">
+    React to extension events with hooks
+  </Card>
+</CardGroup>

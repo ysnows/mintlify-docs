@@ -1,0 +1,439 @@
+---
+title: "Advanced Workflows"
+description: "Master advanced workflow features including loops, conditions, and API integrations"
+---
+
+## Overview
+
+EnConvo's workflow engine supports advanced features beyond simple linear chains. This guide covers conditional branching, loops, variables, parallel execution, error handling, scheduled triggers, and more. All workflows use the visual node-based editor built with React Flow.
+
+<Note>
+Make sure you are familiar with [basic workflow creation](/workflows/creating-workflows) before diving into advanced features.
+</Note>
+
+## Conditional Branching
+
+The **If** node lets you route workflow execution based on conditions.
+
+### Simple Condition
+
+Add an **If** node to create two branches -- one for when the condition is true, another for when it is false.
+
+```
+Input → If (condition) → True Branch → Output A
+                       → False Branch → Output B
+```
+
+Configure the condition using comparison operators:
+
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `eq` | Equals | `{{input_text}}` eq `"yes"` |
+| `ne` | Not equals | `{{status}}` ne `"error"` |
+| `gt` | Greater than | `{{word_count}}` gt `1000` |
+| `lt` | Less than | `{{score}}` lt `50` |
+| `contains` | Contains substring | `{{input_text}}` contains `"urgent"` |
+| `is_empty` | Value is empty | `{{input_text}}` is_empty |
+
+### Multiple Conditions (AND/OR)
+
+Combine multiple conditions with AND or OR logic:
+
+- **AND**: All conditions must be true for the True branch
+- **OR**: Any condition being true triggers the True branch
+
+For example, to check if the input is long AND in English:
+```
+Condition 1: {{word_count}} gt 100     AND
+Condition 2: {{language}} eq "English"
+```
+
+### Nested Conditions
+
+Chain multiple If nodes for complex decision trees:
+
+```
+Input → If (is_email?)
+         → True → If (is_urgent?)
+                    → True → Priority Handler
+                    → False → Normal Handler
+         → False → If (is_code?)
+                     → True → Code Analyzer
+                     → False → General AI
+```
+
+## Loop Nodes
+
+The **Loop Items** node iterates over a list, executing a sub-workflow for each item.
+
+### Basic Loop
+
+```
+Input (list) → Loop Items → Process Each Item → Collect Results → Output
+```
+
+Configure the loop:
+1. **Input**: A list variable (array of items)
+2. **Item Variable**: Name for the current item (e.g., `{{current_item}}`)
+3. **Body**: The actions to perform on each item
+4. **Collect**: Optionally collect all results into a new list
+
+### Example: Process Multiple URLs
+
+```
+URL List → Loop Items (for each url)
+             → Web Fetch ({{current_item}})
+             → Summarize ({{fetch_result}})
+           → Collect Summaries → Format Report
+```
+
+### Loop with Index
+
+Access the current iteration index with `{{loop_index}}` for numbering or conditional logic within the loop.
+
+## Variable System
+
+Variables allow data to flow between workflow nodes using Nunjucks/Jinja2 template syntax.
+
+### Built-in Variables
+
+| Variable | Description |
+|----------|-------------|
+| `{{input_text}}` | The initial input text passed to the workflow |
+| `{{now}}` | Current date and time |
+| `{{working_directory}}` | Current workspace directory |
+| `{{responseLanguage}}` | User's configured response language |
+| `{{clipboard}}` | Current clipboard content |
+| `{{selection_text}}` | Currently selected text |
+
+### Node Output Variables
+
+Reference the output of any previous node:
+
+```
+{{node_id.output}}           -- Full output of a node
+{{node_id.output.field}}     -- Specific field from JSON output
+```
+
+### Custom Variables
+
+Define custom variables in workflow settings that can be referenced in any node:
+
+```json
+{
+  "target_language": "Spanish",
+  "max_length": 500,
+  "output_format": "markdown"
+}
+```
+
+Use in prompts: `Translate to {{target_language}} and keep under {{max_length}} words.`
+
+### Jinja2 Template Features
+
+The variable system supports full Jinja2 templating:
+
+```
+{% if word_count > 1000 %}
+Summarize in 5 bullet points.
+{% else %}
+Provide a brief one-paragraph summary.
+{% endif %}
+
+{% for item in items %}
+- {{ item.title }}: {{ item.description }}
+{% endfor %}
+```
+
+## Delay Node
+
+Add a wait step between actions. Useful for rate limiting or timed sequences.
+
+```
+Fetch API → Delay (5 seconds) → Fetch Next API
+```
+
+## Parallel Execution
+
+Run multiple nodes simultaneously when they do not depend on each other.
+
+```
+Input → [Parallel]
+          → Translate to Spanish
+          → Translate to French
+          → Translate to German
+        → [Merge] → Format All Translations
+```
+
+This reduces total execution time by running independent tasks concurrently.
+
+## Nested Workflow Calls
+
+A workflow can invoke another workflow as a sub-step. This lets you build modular, reusable components.
+
+```
+Main Workflow → Trigger Sub-Workflow ("summarize-and-translate")
+             → Use Sub-Workflow Result
+             → Continue Main Workflow
+```
+
+<Tip>
+Break complex workflows into smaller, focused sub-workflows. This makes them easier to test, debug, and reuse across different parent workflows.
+</Tip>
+
+## Error Handling
+
+### On-Failure Behavior
+
+Each node can be configured with failure behavior:
+
+| Behavior | Description |
+|----------|-------------|
+| **Stop** | Halt the entire workflow on error (default) |
+| **Skip** | Skip the failed node and continue with the next one |
+| **Retry** | Retry the node a specified number of times before failing |
+
+### Retry Configuration
+
+```
+Node Settings:
+  On Failure: retry
+  Max Retries: 3
+  Retry Delay: 2 seconds
+```
+
+### Fallback Nodes
+
+Connect a fallback branch from any node's error output:
+
+```
+Web Fetch → (success) → Process Content
+          → (error) → Use Cached Content → Process Content
+```
+
+## External API Calls
+
+Use the **Code Runner** or **Web Fetch** nodes to integrate with external services.
+
+### HTTP Request via Code Runner
+
+```bash
+curl -X POST https://api.example.com/data \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{{input_text}}"}'
+```
+
+### Web Fetch Node
+
+Fetch and parse web content directly:
+
+```
+Web Fetch (url: "https://api.example.com/news?q={{topic}}")
+  → Parse JSON Response
+  → Process Results
+```
+
+## AI Parameter Generation
+
+Use an LLM node to dynamically generate parameters for subsequent nodes. This lets the AI decide how to proceed based on context.
+
+```
+User Request → LLM ("Analyze this request and output JSON with: action, parameters")
+             → Parse AI Output
+             → Dynamic Action Node (uses AI-generated parameters)
+```
+
+For example, the AI might analyze "Send a summary of today's news to my Slack channel" and output:
+```json
+{
+  "action": "web_search_then_slack",
+  "search_query": "today's top news",
+  "channel": "#general",
+  "format": "bullet_points"
+}
+```
+
+## Scheduled Triggers (Cron)
+
+Workflows can be triggered on a schedule using the **Trigger Schedule** node.
+
+### Setting Up a Scheduled Workflow
+
+<Steps>
+  <Step title="Add Trigger Schedule node">
+    Drag a **Trigger Schedule** node as the starting point of your workflow
+  </Step>
+  <Step title="Configure the schedule">
+    Set the cron expression or use the visual scheduler:
+    - Every 5 minutes: `*/5 * * * *`
+    - Every hour: `0 * * * *`
+    - Daily at 9 AM: `0 9 * * *`
+    - Weekly on Monday: `0 9 * * 1`
+  </Step>
+  <Step title="Enable the workflow">
+    Save and enable the workflow. It will run automatically at the configured times.
+  </Step>
+</Steps>
+
+### File Change Triggers
+
+Use **Watch Files Changes** to trigger workflows when files are modified:
+
+```
+Watch Files Changes (path: ~/Documents/notes/)
+  → Read Changed File
+  → Process Content
+  → Update Knowledge Base
+```
+
+## Complete Workflow Examples
+
+### 1. Automated Email Summary + Translation
+
+Summarize new emails and translate the summary for a multilingual team.
+
+```
+Trigger Schedule (every hour)
+  → Gmail Search ("is:unread after:1h")
+  → Loop Items (for each email)
+      → Read Email Content
+      → LLM ("Summarize in 2 sentences: {{email.body}}")
+      → Translate (to: Spanish)
+  → Collect Results
+  → Format as HTML Report
+  → Gmail Send (to: team@company.com, subject: "Hourly Email Digest")
+```
+
+### 2. Daily News Collection + Knowledge Base
+
+Collect daily news on configured topics and store in your knowledge base.
+
+```
+Trigger Schedule (daily at 8 AM)
+  → Loop Items (for each topic in ["AI", "Startups", "Tech"])
+      → Web Search ("{{current_item}} news today")
+      → Loop Items (for each result, max 5)
+          → Web Fetch ({{result.url}})
+          → LLM ("Extract key facts and insights")
+      → Merge Results
+  → Format as Daily Digest
+  → Knowledge Base Ingest (collection: "Daily News")
+  → IM Channel Send (Slack: #news-digest)
+```
+
+### 3. Code Review Workflow
+
+Automated code review with multi-aspect analysis.
+
+```
+Input (code snippet or file path)
+  → If (is_file_path?)
+      → True → File System Read
+      → False → Use Input Directly
+  → [Parallel]
+      → LLM ("Review for bugs and logic errors: {{code}}")
+      → LLM ("Review for security vulnerabilities: {{code}}")
+      → LLM ("Review for performance issues: {{code}}")
+  → [Merge]
+  → LLM ("Synthesize these reviews into a single report with severity ratings")
+  → Output as Markdown
+```
+
+### 4. Batch Image Processing
+
+Process a folder of images with compression and OCR.
+
+```
+Input (folder path)
+  → File System Glob ("{{folder}}/*.{png,jpg,jpeg}")
+  → Loop Items (for each image)
+      → [Parallel]
+          → Image Compress (quality: 80%)
+          → OCR (extract text)
+      → If (has_text?)
+          → True → Save OCR text to {{image_name}}.txt
+          → False → Skip
+  → Collect Results
+  → Format Summary ("Processed {{count}} images, {{compressed_size}} saved")
+```
+
+### 5. Customer Message Auto-Reply
+
+Automatically categorize and respond to customer messages.
+
+```
+IM Channel Listener (Slack: #support)
+  → LLM ("Categorize this message: {{message}}
+          Categories: billing, technical, feature_request, other
+          Output JSON: {category, urgency, suggested_response}")
+  → If (urgency eq "high")
+      → True → IM Channel Send (Slack: #urgent-support, "URGENT: {{message}}")
+  → If (category eq "billing")
+      → True → LLM (use billing FAQ context)
+      → False → If (category eq "technical")
+          → True → LLM (use technical docs context + Knowledge Base)
+          → False → LLM (general helpful response)
+  → IM Channel Reply (thread: {{message.thread}}, content: {{response}})
+  → Log to Knowledge Base (for future reference)
+```
+
+## Debugging Workflows
+
+### Run Logging
+
+Every workflow execution is logged. View logs in:
+- Settings → Workflows → [Workflow Name] → Run History
+- Each log entry shows node-by-node execution, timing, and any errors
+
+### Step-by-Step Testing
+
+Test individual nodes before running the full workflow:
+1. Select a node in the editor
+2. Click "Test This Node"
+3. Provide sample input
+4. Verify the output
+
+### Variable Inspector
+
+During a test run, hover over any connection line to see the data flowing between nodes.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep workflows modular">
+    Break complex workflows into sub-workflows. A single workflow should do one thing well. If it has more than 10 nodes, consider splitting it.
+  </Accordion>
+  <Accordion title="Use meaningful node names">
+    Rename nodes from defaults like "LLM Node 3" to descriptive names like "Categorize Customer Intent". This makes debugging much easier.
+  </Accordion>
+  <Accordion title="Add error handling for external calls">
+    Any node that calls external APIs (Web Fetch, Gmail, Slack) should have retry or fallback configured. Network failures are inevitable.
+  </Accordion>
+  <Accordion title="Test with edge cases">
+    Test with empty inputs, very long inputs, unexpected formats, and error responses. Workflows that only work with perfect input will fail in production.
+  </Accordion>
+  <Accordion title="Use variables for configuration">
+    Put values like API endpoints, model names, and output formats in workflow variables rather than hardcoding them in node prompts. This makes workflows easier to update.
+  </Accordion>
+  <Accordion title="Monitor scheduled workflows">
+    Set up hooks or IM Channel notifications for scheduled workflows so you know if they fail silently.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Creating Workflows" icon="plus" href="/workflows/creating-workflows">
+    Start with the basics of workflow creation
+  </Card>
+  <Card title="Hooks" icon="bolt" href="/configuration/hooks">
+    Trigger scripts and webhooks from workflow events
+  </Card>
+  <Card title="Built-in Extensions" icon="puzzle-piece" href="/extensions/built-in-extensions">
+    Explore extensions to use in your workflows
+  </Card>
+  <Card title="Cron Jobs" icon="clock" href="/extensions/built-in-extensions#productivity">
+    Learn more about scheduled task management
+  </Card>
+</CardGroup>
