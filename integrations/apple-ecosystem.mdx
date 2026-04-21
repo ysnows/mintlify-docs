@@ -1,24 +1,36 @@
 ---
 title: "Apple Ecosystem Integration"
-description: "Seamlessly integrate with Apple Mail, Reminders, Shortcuts, and Calendar"
+description: "Seamlessly integrate with Apple Mail, Reminders, Calendar, Contacts, Messages, Notes, Maps, and Shortcuts"
 ---
 
 ## Overview
 
-EnConvo deeply integrates with macOS native applications, letting you manage email, reminders, calendar events, and shortcuts through natural language. Because these integrations use native macOS APIs and AppleScript, they work offline, respect your system preferences, and feel like a natural extension of your Mac.
+EnConvo deeply integrates with macOS native applications, letting you manage email, reminders, calendar events, contacts, messages, notes, and shortcuts through natural language. Because these integrations use native macOS APIs and AppleScript, they work offline, respect your system preferences, and feel like a natural extension of your Mac.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Apple Mail" icon="envelope">
     Read, compose, and manage emails
   </Card>
   <Card title="Apple Reminders" icon="check-circle">
     Create, update, and complete reminders
   </Card>
-  <Card title="Apple Shortcuts" icon="bolt">
-    Run any shortcut from your system
-  </Card>
   <Card title="Apple Calendar" icon="calendar">
     View, create, and manage events
+  </Card>
+  <Card title="Apple Contacts" icon="user">
+    Search and read contact details
+  </Card>
+  <Card title="Apple Messages" icon="message">
+    Send iMessages to contacts
+  </Card>
+  <Card title="Apple Notes" icon="note-sticky">
+    Create, read, and update notes
+  </Card>
+  <Card title="Apple Maps" icon="map">
+    Look up addresses and directions
+  </Card>
+  <Card title="Apple Shortcuts" icon="bolt">
+    Run any shortcut from your system
   </Card>
 </CardGroup>
 
@@ -217,6 +229,90 @@ Full calendar management with support for creating, updating, deleting, and quer
 | `recurrence` | Repeat rule | `{frequency: "weekly", interval: 1}` |
 | `availability` | Busy/free status | `0` (free), `1` (busy) |
 
+## Apple Contacts
+
+Search and read entries from the macOS Contacts app.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Search Contacts** | Look up a contact by name, phone, or email |
+| **Get Contact Details** | Read full details (emails, phones, addresses, notes) |
+
+### Example Usage
+
+```
+"What is Alice's phone number?"
+"Find all contacts at Acme Corp"
+"Get Bob's email address"
+```
+
+## Apple Messages
+
+Send iMessage or SMS messages to anyone in your Contacts.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Send Message** | Send an iMessage or SMS to a contact, phone number, or email |
+
+### Example Usage
+
+```
+"Send a text to Alice saying I'll be 10 minutes late"
+"Message Bob 'meeting pushed to 3pm'"
+```
+
+<Note>
+Apple Messages sending is limited by iMessage/SMS configuration on your Mac. The Messages app must be signed in to your Apple ID for iMessage delivery.
+</Note>
+
+## Apple Notes
+
+Full Notes integration including reading, writing, and observing the currently selected note.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Create Note** | Add a new note in a specified folder |
+| **Get Notes** | List notes in a folder or across all folders |
+| **Read Note** | Fetch a note's content by ID or title |
+| **Update Note** | Modify an existing note |
+| **Get Selected Note** | Return whatever note the user has selected in Notes.app |
+
+### Example Usage
+
+```
+"Create a note titled 'Trip Checklist' with my packing list"
+"Add today's meeting notes to my 'Work' folder"
+"Summarize the note I have open"
+```
+
+<Tip>
+The **Get Selected Note** tool lets the AI react to the note you are currently viewing — ideal for "summarize this" or "translate this" flows.
+</Tip>
+
+## Apple Maps
+
+Query addresses, coordinates, and directions via the native Maps app.
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| **Search Address** | Look up a location by free-text query |
+| **Get Directions** | Compute a route between two locations |
+
+### Example Usage
+
+```
+"Where is 1 Infinite Loop?"
+"Directions from my office to SFO by car"
+```
+
 ## Required Permissions
 
 These integrations use native macOS APIs and require appropriate system permissions.
@@ -226,13 +322,16 @@ These integrations use native macOS APIs and require appropriate system permissi
     Go to **System Settings** -> **Privacy & Security** -> **Accessibility** and enable EnConvo. This is required for reading screen content and interacting with apps.
   </Step>
   <Step title="Automation Permission">
-    When EnConvo first tries to control Mail, Reminders, Calendar, or Shortcuts, macOS will prompt you to grant Automation permission. Click **Allow**.
+    When EnConvo first tries to control Mail, Reminders, Calendar, Contacts, Messages, Notes, or Shortcuts, macOS will prompt you to grant Automation permission for each app. Click **Allow**.
   </Step>
   <Step title="Calendar Access">
     Grant EnConvo access to your calendars when prompted. Go to **System Settings** -> **Privacy & Security** -> **Calendars** if you need to change this later.
   </Step>
   <Step title="Reminders Access">
     Grant EnConvo access to your reminders when prompted. Go to **System Settings** -> **Privacy & Security** -> **Reminders** if needed.
+  </Step>
+  <Step title="Contacts Access">
+    Grant EnConvo access to your contacts when prompted. Go to **System Settings** -> **Privacy & Security** -> **Contacts** if needed.
   </Step>
 </Steps>
 
