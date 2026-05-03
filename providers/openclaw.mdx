@@ -1,0 +1,171 @@
+---
+title: "OpenClaw"
+description: "Use OpenClaw agents as OpenAI-compatible models in EnConvo"
+---
+
+## Overview
+
+OpenClaw can expose its agents through an OpenAI-compatible Gateway. After you enable the Gateway, EnConvo can use an OpenClaw agent like any other AI model, including inside chat, EnConvo agents, and model-powered features.
+
+OpenClaw's Gateway exposes OpenAI-compatible endpoints such as `/v1/models`, `/v1/chat/completions`, and `/v1/responses`. EnConvo's OpenClaw provider uses the Chat Completions API by default.
+
+<Tip>
+  See the [OpenClaw Gateway docs](https://docs.openclaw.ai/gateway#openai-compatible-endpoints) for the full Gateway endpoint reference.
+</Tip>
+
+## What You Need
+
+- OpenClaw installed on the machine that will run the Gateway
+- The OpenClaw Gateway running on a reachable host and port
+- The Gateway token from `~/.openclaw/openclaw.json`
+- EnConvo with the OpenClaw AI model provider enabled
+
+## Enable OpenClaw Gateway
+
+You can ask OpenClaw to prepare the Gateway details for you:
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+Use the returned base URL and token in EnConvo's OpenClaw credential settings.
+
+<Steps>
+  <Step title="Enable Chat Completions">
+    Enable the OpenAI-compatible chat completions endpoint once:
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="Choose the bind mode">
+    For local-only access, keep the default loopback bind. For another device on your LAN to reach the Gateway, bind to LAN:
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="Restart the Gateway">
+    Apply the configuration change:
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="Check Gateway status">
+    Confirm the Gateway is running:
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## Configure OpenClaw in EnConvo
+
+Open EnConvo **Settings** -> **AI Model** -> **OpenClaw**, then configure the credential provider.
+
+![OpenClaw credential settings in EnConvo](/img/openclaw-settings.png)
+
+| Setting | Value |
+|---------|-------|
+| **API Type** | `Completions API` |
+| **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
+| **Gateway Token** | `gateway.auth.token` from `~/.openclaw/openclaw.json` |
+
+<Warning>
+  Use the base URL ending in `/v1`, not the full `/v1/chat/completions` endpoint. For example, if your endpoint is `http://192.168.1.18:18789/v1/chat/completions`, enter `http://192.168.1.18:18789/v1`.
+</Warning>
+
+To read the Gateway token from the default OpenClaw config file:
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+EnConvo sends this value as:
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+Click **Validate** after entering the base URL and token.
+
+## Use OpenClaw as an AI Model
+
+Once configured, OpenClaw appears in the model selector. Choose **OpenClaw** and select the agent-backed model, such as `openclaw:main`.
+
+![OpenClaw selected as the chat model](/img/openclaw-chat-model.png)
+
+Use this mode when you want an EnConvo conversation, command, or feature to run through an OpenClaw agent while keeping the normal EnConvo interface.
+
+<Steps>
+  <Step title="Open the model picker">
+    In chat or another model-powered EnConvo feature, click the current model name.
+  </Step>
+  <Step title="Choose OpenClaw">
+    Select **OpenClaw** in the provider list.
+
+    ![OpenClaw in the model selector](/img/openclaw-model-selector.png)
+  </Step>
+  <Step title="Select an OpenClaw agent model">
+    Choose `openclaw:main` or another OpenClaw agent from the model list.
+  </Step>
+  <Step title="Run the feature normally">
+    Ask your question or run the EnConvo feature. The selected OpenClaw agent handles the model call behind the scenes.
+  </Step>
+</Steps>
+
+<Note>
+  EnConvo loads OpenClaw models from `openclaw agents list`. If the OpenClaw CLI is not available locally, EnConvo falls back to `openclaw:main`.
+</Note>
+
+## Create an EnConvo Agent for OpenClaw
+
+You can also create an EnConvo agent that coordinates an OpenClaw agent. This is useful when you want an EnConvo-facing workflow, tool set, or prompt around a specific OpenClaw agent.
+
+<Steps>
+  <Step title="Open Create Agent">
+    Open SmartBar and search for **Create Agent**.
+
+    ![Create Agent command in EnConvo](/img/openclaw-create-agent-command.png)
+  </Step>
+  <Step title="Name the agent">
+    Create a clear title, such as `OpenClaw Main`.
+
+    ![Create New Agent form for OpenClaw](/img/openclaw-agent-form.png)
+  </Step>
+  <Step title="Write coordinator instructions">
+    Give the EnConvo agent instructions that explain how it should work with OpenClaw.
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Choose the OpenClaw model">
+    In the agent's model settings, select **OpenClaw** and choose `openclaw:main`.
+  </Step>
+  <Step title="Save and use the agent">
+    Start a conversation with the new EnConvo agent. It will use the selected OpenClaw agent model while retaining the EnConvo agent interface and tools you configured.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="OpenClaw does not appear in the model picker">
+    Make sure the OpenClaw provider is enabled in **Settings** -> **AI Model**. If the model list is empty, verify that `openclaw agents list` works locally or use the default `openclaw:main`.
+  </Accordion>
+  <Accordion title="Validation fails with unauthorized">
+    Recheck the Gateway token. EnConvo expects the value from `gateway.auth.token` and sends it as a Bearer token.
+  </Accordion>
+  <Accordion title="Connection fails">
+    Confirm the Gateway is running with `openclaw gateway status`. If EnConvo is on another device, set `gateway.bind` to `lan`, restart the Gateway, and use the host's LAN IP in the base URL.
+  </Accordion>
+  <Accordion title="Wrong base URL">
+    Enter `http://<gateway-host>:<port>/v1`. Do not include `/chat/completions` in the EnConvo base URL field.
+  </Accordion>
+</AccordionGroup>
