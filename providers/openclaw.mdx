@@ -5,9 +5,15 @@ description: "Use OpenClaw agents as OpenAI-compatible models in EnConvo"
 
 ## Overview
 
+OpenClaw is a self-hosted AI agent platform for running assistants across chat, messaging channels, tools, skills, and automations.
+
 OpenClaw can expose its agents through an OpenAI-compatible Gateway. After you enable the Gateway, EnConvo can use an OpenClaw agent like any other AI model, including inside chat, EnConvo agents, and model-powered features.
 
 OpenClaw's Gateway exposes OpenAI-compatible endpoints such as `/v1/models`, `/v1/chat/completions`, and `/v1/responses`. EnConvo's OpenClaw provider uses the Chat Completions API by default.
+
+<Tip>
+  New to OpenClaw? Start with the [OpenClaw Getting Started guide](https://docs.openclaw.ai/start/getting-started), then return here to connect it to EnConvo.
+</Tip>
 
 <Tip>
   See the [OpenClaw Gateway docs](https://docs.openclaw.ai/gateway#openai-compatible-endpoints) for the full Gateway endpoint reference.
@@ -69,9 +75,10 @@ Open EnConvo **Settings** -> **AI Model** -> **OpenClaw**, then configure the cr
 
 | Setting | Value |
 |---------|-------|
-| **API Type** | `Completions API` |
 | **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
 | **Gateway Token** | `gateway.auth.token` from `~/.openclaw/openclaw.json` |
+
+EnConvo uses the Chat Completions API for OpenClaw automatically.
 
 <Warning>
   Use the base URL ending in `/v1`, not the full `/v1/chat/completions` endpoint. For example, if your endpoint is `http://192.168.1.18:18789/v1/chat/completions`, enter `http://192.168.1.18:18789/v1`.

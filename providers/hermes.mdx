@@ -1,0 +1,166 @@
+---
+title: "Hermes Agent"
+description: "Use Hermes Agent as an OpenAI-compatible model in EnConvo"
+---
+
+## Overview
+
+Hermes Agent is an open-source AI agent from Nous Research. It runs as a local or server-hosted agent runtime with tools, memory, skills, terminal access, and messaging integrations.
+
+In EnConvo, Hermes Agent is used through its OpenAI-compatible API server. After the Hermes gateway is running, EnConvo can use Hermes like any other AI model in chat, EnConvo agents, and model-powered features.
+
+<Tip>
+  New to Hermes? Start with the [Hermes Agent Quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart), then return here to connect it to EnConvo.
+</Tip>
+
+<Tip>
+  API reference: [Hermes Agent API server docs](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server). Source: [Hermes Agent GitHub repo](https://github.com/NousResearch/hermes-agent).
+</Tip>
+
+## What You Need
+
+- Hermes Agent already installed and configured
+- Hermes gateway running with the API server enabled
+- The API server token from `API_SERVER_KEY` in `~/.hermes/.env`
+- EnConvo with the Hermes Agent AI model provider enabled
+
+Hermes exposes OpenAI-compatible endpoints such as `/v1/models` and `/v1/chat/completions`. EnConvo's Hermes provider uses the Chat Completions API.
+
+## Get Base URL and API Key
+
+Use this base URL when EnConvo runs on the same Mac as Hermes:
+
+```text
+http://127.0.0.1:8642/v1
+```
+
+Read the API server token from `~/.hermes/.env`:
+
+```bash
+awk -F= '/^API_SERVER_KEY=/{print $2}' ~/.hermes/.env
+```
+
+EnConvo sends this value as:
+
+```http
+Authorization: Bearer <API_SERVER_KEY>
+```
+
+To test the OpenAI-compatible endpoint directly:
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer <API_SERVER_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      { "role": "user", "content": "Hello!" }
+    ]
+  }'
+```
+
+<Warning>
+  Use the base URL ending in `/v1`, not the full `/v1/chat/completions` endpoint.
+</Warning>
+
+## Configure Hermes in EnConvo
+
+Open EnConvo **Settings** -> **AI Model** -> **Hermes Agent**, then configure the credential provider.
+
+![Hermes Agent credential settings in EnConvo](/img/hermes-settings.png)
+
+| Setting | Value |
+|---------|-------|
+| **Hermes Base URL** | `http://127.0.0.1:8642/v1` |
+| **API Server Key** | `API_SERVER_KEY` from `~/.hermes/.env` |
+
+Click **Validate** after entering the base URL and token.
+
+## Use Hermes as an AI Model
+
+Once configured, Hermes appears in the model selector. Choose **Hermes Agent** and select the advertised model, usually `hermes-agent`.
+
+![Hermes Agent selected as the chat model](/img/hermes-chat-model.png)
+
+Use this mode when you want an EnConvo conversation, command, or feature to run through Hermes Agent while keeping the normal EnConvo interface.
+
+<Steps>
+  <Step title="Open the model picker">
+    In chat or another model-powered EnConvo feature, click the current model name.
+  </Step>
+  <Step title="Choose Hermes Agent">
+    Select **Hermes Agent** in the provider list.
+  </Step>
+  <Step title="Select the Hermes model">
+    Choose `hermes-agent` or the model name advertised by your Hermes API server.
+  </Step>
+  <Step title="Run the feature normally">
+    Ask your question or run the EnConvo feature. Hermes handles the model call behind the scenes.
+  </Step>
+</Steps>
+
+<Note>
+  EnConvo loads Hermes models from the Hermes `/v1/models` endpoint. If Hermes is not running or the endpoint is unavailable, EnConvo falls back to `hermes-agent`.
+</Note>
+
+## Create an EnConvo Agent for Hermes
+
+You can also create an EnConvo agent that coordinates Hermes Agent. This is useful when you want an EnConvo-facing workflow, tool set, or prompt around Hermes' agent runtime.
+
+<Steps>
+  <Step title="Open Create Agent">
+    Open SmartBar and search for **Create Agent**.
+  </Step>
+  <Step title="Name the agent">
+    Create a clear title, such as `Hermes Agent`.
+  </Step>
+  <Step title="Write coordinator instructions">
+    Give the EnConvo agent instructions that explain how it should work with Hermes.
+
+    ```markdown
+    You coordinate Hermes Agent for the user.
+
+    Use Hermes for agentic work, automation, terminal-backed tasks, and requests that should run through the user's Hermes setup.
+    Summarize what Hermes did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Choose the Hermes model">
+    In the agent's model settings, select **Hermes Agent** and choose `hermes-agent`.
+  </Step>
+  <Step title="Save and use the agent">
+    Start a conversation with the new EnConvo agent. It will use Hermes while retaining the EnConvo agent interface and tools you configured.
+  </Step>
+</Steps>
+
+## LAN Access
+
+If Hermes is running on another machine, use the host machine's LAN IP in EnConvo:
+
+```text
+http://<hermes-host-lan-ip>:8642/v1
+```
+
+<Warning>
+  LAN access should use a strong `API_SERVER_KEY`. Only expose the Hermes API server on networks you trust.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Hermes Agent does not appear in the model picker">
+    Make sure the Hermes provider is enabled in **Settings** -> **AI Model**. If the model list is empty, confirm the gateway is running with `hermes gateway status`.
+  </Accordion>
+  <Accordion title="Validation fails with unauthorized">
+    Recheck `API_SERVER_KEY` in `~/.hermes/.env`. EnConvo expects this value and sends it as a Bearer token.
+  </Accordion>
+  <Accordion title="Connection fails">
+    Confirm the API server is healthy with `curl http://127.0.0.1:8642/v1/health`. If EnConvo runs on another device, use the host's LAN IP and make sure Hermes is bound for network access.
+  </Accordion>
+  <Accordion title="Wrong base URL">
+    Enter `http://<gateway-host>:8642/v1`. Do not include `/chat/completions` in the EnConvo base URL field.
+  </Accordion>
+  <Accordion title="Need gateway logs">
+    Read Hermes gateway logs with `tail -f ~/.hermes/logs/gateway.log` and errors with `tail -f ~/.hermes/logs/gateway.error.log`.
+  </Accordion>
+</AccordionGroup>
