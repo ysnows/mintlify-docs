@@ -1,0 +1,113 @@
+---
+title: "Soniox"
+description: "Configure Soniox speech-to-text in EnConvo"
+---
+
+## Overview
+
+Soniox is a cloud speech platform for speech-to-text, speech translation, and text-to-speech. In EnConvo, Soniox is available as a speech recognition provider for dictation and audio/video transcription.
+
+Soniox is useful when you need high-accuracy multilingual transcription, real-time dictation, speaker diarization, and automatic language detection through your own Soniox API key.
+
+## Supported Models
+
+| Model | Mode | Best For |
+|-------|------|----------|
+| **Soniox STT Realtime v4** | Real-time | Low-latency dictation and live speech input |
+| **Soniox STT Async v4** | File-based | Audio/video file transcription and longer recordings |
+
+<Note>
+Real-time dictation uses EnConvo's macOS realtime client with Soniox's WebSocket STT API. File transcription uses Soniox's async transcription API.
+</Note>
+
+## Setup
+
+<Steps>
+  <Step title="Create a Soniox API key">
+    1. Go to the [Soniox Console](https://console.soniox.com)
+    2. Sign in or create a Soniox account
+    3. Open your project
+    4. Create an API key
+  </Step>
+  <Step title="Configure credentials in EnConvo">
+    1. Open **Settings** -> **Credentials**
+    2. Select **Soniox**
+    3. Paste your Soniox API key
+    4. Validate and save the credential
+  </Step>
+  <Step title="Select Soniox for dictation">
+    1. Open **Settings** -> **Dictation**
+    2. Set the dictation provider to **Soniox**
+    3. Choose **Soniox STT Realtime v4** for real-time voice input
+    4. Set **Language** to **Auto** or pick a specific language
+  </Step>
+  <Step title="Use Soniox for file transcription">
+    In the **Transcribe Audio/Video files** command, select **Soniox** and use **Soniox STT Async v4** for file-based transcription.
+  </Step>
+</Steps>
+
+## Configuration
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Credential Provider** | Soniox API key stored in EnConvo Credentials | Soniox |
+| **Model** | Realtime or async STT model | Soniox STT Realtime v4 |
+| **Language** | Auto detection or a language hint | Auto |
+| **Speaker Diarization** | Separate speakers when the workflow supports diarization | Available |
+| **Punctuation** | Automatic punctuation in recognized text | Enabled |
+
+## Choosing a Model
+
+<AccordionGroup>
+  <Accordion title="Use Realtime v4 for dictation">
+    Choose **Soniox STT Realtime v4** when you want text to appear during live voice input. This is the best fit for Dictation, SmartBar voice input, and short spoken commands.
+  </Accordion>
+  <Accordion title="Use Async v4 for files">
+    Choose **Soniox STT Async v4** for recorded audio/video files, longer clips, and workflows where EnConvo transcribes after the recording is complete.
+  </Accordion>
+  <Accordion title="Use Auto language detection for multilingual speech">
+    Set **Language** to **Auto** if you switch languages or do not know the source language. Pick a specific language when the recording is mostly one language and you want more predictable recognition.
+  </Accordion>
+</AccordionGroup>
+
+## Privacy
+
+Soniox is a cloud provider. Audio sent through the Soniox provider is processed by Soniox over the network using your Soniox account and API key.
+
+For fully offline transcription, use a local provider such as Parakeet MLX, Qwen MLX, or Whisper MLX instead.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Invalid API key">
+    - Verify the key was copied from the Soniox Console without extra spaces
+    - Check that the key belongs to the project you want to use
+    - Regenerate the key in Soniox and update the EnConvo credential
+  </Accordion>
+  <Accordion title="Dictation is not real-time">
+    - Confirm the selected model is **Soniox STT Realtime v4**
+    - Confirm the provider is **Soniox**, not another batch transcription provider
+    - Restart dictation after changing provider or model settings
+  </Accordion>
+  <Accordion title="Transcription language is wrong">
+    - Set **Language** to a specific language instead of **Auto**
+    - Check that the selected language is supported by Soniox
+    - For mixed-language audio, switch back to **Auto**
+  </Accordion>
+  <Accordion title="No transcript from an audio file">
+    - Try a common format such as MP3, WAV, FLAC, or M4A
+    - Confirm the recording contains clear speech
+    - Check your Soniox account usage, quota, and billing status
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Speech Recognition" icon="microphone" href="/ai/speech-recognition">
+    Compare Soniox with other speech-to-text providers.
+  </Card>
+  <Card title="Dictation" icon="keyboard" href="/features/dictation">
+    Use Soniox for voice-to-text input.
+  </Card>
+</CardGroup>
