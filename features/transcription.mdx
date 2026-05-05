@@ -1,0 +1,175 @@
+---
+title: "Transcription"
+description: "Transcribe audio and video files to text with speaker diarization"
+---
+
+## Overview
+
+The **Transcribe Audio/Video files** command turns recorded audio and video files into text. Drop in a meeting recording, lecture, podcast, or voice memo and EnConvo runs it through your chosen speech-to-text provider — cloud or fully local — returning plain text or a `.txt` file with optional speaker labels and timestamps.
+
+Where [Dictation](/features/dictation) is for live voice input, Transcription is for files you already have on disk.
+
+## Supported Formats
+
+EnConvo accepts most common audio and video containers:
+
+- **Audio**: `.mp3`, `.wav`, `.flac`, `.aac`, `.ogg`, `.m4a`, `.aiff`, `.amr`, `.webm`, `.opus`
+- **Video**: `.mp4`, `.mov`, `.mkv`, `.avi` (audio track is extracted automatically)
+
+Files are normalized to 16 kHz mono before transcription. Large files are chunked with overlap, transcribed in parallel where the provider allows, and stitched back together using sequence alignment so words at chunk boundaries are not lost.
+
+## Triggering Transcription
+
+<Steps>
+  <Step title="Open the Transcribe command">
+    Search **Transcribe Audio/Video files** in SmartBar, or invoke it via a workflow.
+  </Step>
+  <Step title="Provide the files">
+    Drag and drop one or more audio/video files, or pass them as `filePaths` parameters from a workflow or shortcut.
+  </Step>
+  <Step title="Pick output format">
+    Choose **Plain Text** to receive the transcript inline, or **TXT File** to save it next to the source media.
+  </Step>
+  <Step title="Run">
+    EnConvo preprocesses the audio, sends it to your selected transcription provider, and streams progress back to SmartBar.
+  </Step>
+</Steps>
+
+<Tip>
+The transcription provider used here is configured separately from Dictation. Set it in **Settings → Transcribe Audio/Video files → Transcription Provider** so file transcription can use a heavier, more accurate model than your real-time dictation provider.
+</Tip>
+
+## Provider Selection
+
+The Transcription command works with every speech-to-text provider EnConvo supports. The right choice depends on file length, language, accuracy needs, and whether the audio can leave your machine.
+
+<Tabs>
+  <Tab title="Recommended Defaults">
+    | Use case | Recommended provider |
+    |----------|----------------------|
+    | Free, accurate, broad language coverage | **Microsoft Azure** (Cloud Plan, free tier) |
+    | Long meetings with multiple speakers | **AssemblyAI Universal** |
+    | Long audio, multimodal post-processing | **Google Gemini** |
+    | Privacy / offline | **NVIDIA Parakeet** or **Local Whisper** |
+    | Chinese & dialects | **Qwen3 ASR** (local) or **Volcengine BigASR** (cloud) |
+    | Fast turnaround on short clips | **Groq Whisper Large V3 Turbo** |
+  </Tab>
+  <Tab title="Cloud (Async)">
+    | Provider | Default model | Notes |
+    |----------|---------------|-------|
+    | Microsoft Azure | Azure Fast Transcription | Free via Cloud Plan; 100+ languages; built-in diarization |
+    | AssemblyAI | Universal | Strong diarization with `speaker_labels`; up to 10 speakers |
+    | Soniox | STT Async v4 | Multilingual + language-hints, context terms, optional diarization |
+    | Volcengine BigASR | Flash (sync) → async fallback | Best for Mandarin & ByteDance ecosystem |
+    | OpenAI | gpt-4o-transcribe / mini | High accuracy, AI-cleaned text |
+    | Groq Whisper | Whisper Large V3 Turbo | Cheapest per-minute via LPU |
+    | Mistral Voxtral | Voxtral Mini | Lightweight, fast |
+    | Google Gemini | Gemini 3.1 Flash Lite | Up to 9.5 h per file; structured JSON segments |
+    | ElevenLabs Scribe | Scribe v2 | Strong on noisy / accented speech |
+  </Tab>
+  <Tab title="Local (Offline)">
+    | Provider | Model | Notes |
+    |----------|-------|-------|
+    | NVIDIA Parakeet | parakeet-tdt-0.6b-v3 | 25 European languages, ~210x realtime on Apple Silicon |
+    | Qwen3 ASR | Qwen3-ASR-0.6B / 1.7B (4-bit / 8-bit) | 30 languages + 22 Chinese dialects |
+    | Local Whisper | whisper-base / small / large-v3 | 57+ languages via mlx-audio |
+  </Tab>
+</Tabs>
+
+## Speaker Diarization
+
+When transcribing meetings or interviews, enable **Speaker Diarization** in the command preferences. EnConvo will:
+
+- Pass the diarization flag to providers that support it natively (AssemblyAI, Soniox, Volcengine, Azure, ElevenLabs)
+- Group transcript segments by speaker
+- Label each line as `Speaker 0:`, `Speaker 1:`, etc.
+
+<Note>
+Diarization quality depends on the provider. AssemblyAI and Soniox produce the cleanest speaker turns; cloud Whisper-style models do not separate speakers and will return a single track.
+</Note>
+
+## Output
+
+<AccordionGroup>
+  <Accordion title="Plain Text">
+    The transcript is returned inline as a string — useful for chaining into AI summarization, translation, or knowledge base ingestion in a workflow.
+  </Accordion>
+  <Accordion title="TXT File">
+    A `.txt` file is written next to the source media (or to `output_dir` if specified). When diarization is enabled the file is laid out one speaker turn per paragraph.
+  </Accordion>
+  <Accordion title="Segments & Words (raw)">
+    Providers that return per-segment / per-word timestamps include them on the `SpeechToTextResult.segments` and `.words` fields. Workflows can read these to build subtitles, jump-to-time UIs, or speaker-aware summaries.
+  </Accordion>
+</AccordionGroup>
+
+## Hot Words & Domain Vocabulary
+
+Most providers accept a list of **hot words** or **context terms** to bias recognition toward names, jargon, and product terms. Set them in the provider's settings:
+
+- **Soniox** → Context Terms (one per line)
+- **Volcengine** → Hot Words
+- **AssemblyAI** → Word Boost
+- **Groq / OpenAI / Local Whisper** → Prompt (free-form, up to 224 tokens)
+
+Useful for medical terms, code names, acronyms, brand names, or anything not in the model's general vocabulary.
+
+## Working With Long Files
+
+EnConvo handles large media without manual splitting:
+
+1. Audio is decoded to a 16 kHz mono WAV
+2. If the file exceeds the provider's per-call limit, it is split into chunks with several seconds of overlap
+3. Chunks are transcribed (in parallel where the provider permits)
+4. Sequence alignment merges chunk transcripts so words at boundaries are not duplicated or dropped
+
+Concrete provider limits worth knowing:
+
+- **Groq / OpenAI / ElevenLabs**: 25 MB per request — chunked automatically
+- **Volcengine Flash**: ≤ 2 hours and ≤ 100 MB per call; longer files fall back to the async submit/query pipeline
+- **Google Gemini**: up to 9.5 hours per file with no chunking required
+- **AssemblyAI / Soniox / Azure Fast**: server-side chunking, no client-side split needed
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Transcription returns empty text">
+    1. Confirm the file actually contains speech (silent or music-only files return empty)
+    2. Try a different provider — Whisper-based models can drop very short clips
+    3. For Volcengine and Soniox, set a `language_hints` value matching the spoken language
+  </Accordion>
+  <Accordion title="Transcription is too slow">
+    1. For cloud: prefer Groq Whisper Large V3 Turbo or Azure Fast Transcription for the highest throughput
+    2. For local: use NVIDIA Parakeet on Apple Silicon — ~210x realtime
+    3. Local Whisper `large-v3` is the slowest local option; switch to `small` or Parakeet if speed matters
+  </Accordion>
+  <Accordion title="Speaker labels look wrong">
+    1. Diarization assumes distinct speakers — overlapping speech produces noisy labels
+    2. Try AssemblyAI Universal, which has the most robust diarization
+    3. Provide a hint of the expected speaker count where the provider exposes one (e.g. `maxSpeakers`)
+  </Accordion>
+  <Accordion title="Domain terms are misspelled">
+    1. Add the terms to the provider's hot-words / context-terms / prompt field
+    2. Set the language explicitly instead of using auto-detect
+    3. Try a larger model — `whisper-large-v3` over `turbo`, AssemblyAI Universal over base
+  </Accordion>
+  <Accordion title="Video file is rejected">
+    EnConvo extracts the audio track automatically using ffmpeg. If extraction fails, re-export the video to MP4 with a standard AAC track or convert to WAV first.
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Dictation" icon="microphone" href="/features/dictation">
+    Live voice-to-text, push-to-talk and SmartBar dictation
+  </Card>
+  <Card title="Speech Recognition" icon="waveform" href="/ai/speech-recognition">
+    Provider deep-dive: models, languages, Cloud Plan pricing
+  </Card>
+  <Card title="Meeting Recording" icon="video" href="/features/meeting-recording">
+    Capture meetings end-to-end with live transcription
+  </Card>
+  <Card title="Soniox" icon="microphone-lines" href="/providers/soniox">
+    Configure Soniox real-time and async transcription
+  </Card>
+</CardGroup>

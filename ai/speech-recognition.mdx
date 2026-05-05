@@ -5,7 +5,9 @@ description: "Convert speech to text with advanced recognition providers"
 
 ## Overview
 
-EnConvo supports 15+ speech recognition providers, from cloud-based services with the highest accuracy to fully local models that keep your audio data private. Whether you need real-time dictation, long-form audio transcription, or multilingual support, EnConvo has a provider for every use case.
+EnConvo supports a dozen+ speech recognition providers, from cloud services with the highest accuracy to fully local models that keep your audio data private. Whether you need real-time dictation, long-form file transcription, or multilingual support, EnConvo has a provider for every use case.
+
+For the user-facing features built on top of these providers, see [Dictation](/features/dictation) and [Transcription](/features/transcription).
 
 ## Supported Providers
 
@@ -13,15 +15,15 @@ EnConvo supports 15+ speech recognition providers, from cloud-based services wit
 
 | Provider | Model | Best For | Languages |
 |----------|-------|----------|-----------|
-| **Groq Whisper** | Whisper Large V3 Turbo | Fast cloud transcription | 57+ |
+| **Groq Whisper** | Whisper Large V3 Turbo, Whisper Large V3 | Fast cloud transcription | 57+ |
 | **OpenAI** | gpt-4o-transcribe, gpt-4o-mini-transcribe | High accuracy with AI post-processing | 57+ |
-| **Microsoft Azure** | Azure Speech Services | Enterprise-grade, real-time streaming | 100+ |
+| **Microsoft Azure** | Azure Realtime, Azure Fast Transcription | Enterprise-grade streaming and batch | 100+ |
 | **Google Gemini** | Gemini 3.1 Flash Lite | Multimodal audio understanding, up to 9.5 hours | 100+ |
 | **Mistral** | Voxtral Mini | Lightweight, fast transcription | 20+ |
 | **Soniox** | STT Realtime v4, STT Async v4 | Multilingual real-time dictation and file transcription | 60+ |
-| **Deepgram** | Nova-3 | Real-time streaming, high accuracy | 30+ |
-| **AssemblyAI** | Universal | Speaker diarization, content analysis | 12+ |
-| **ElevenLabs** | Scribe v1 | High quality, automatic language detection | 29+ |
+| **AssemblyAI** | Universal, Universal-Streaming v3 | Best-in-class speaker diarization | 12+ |
+| **ElevenLabs** | Scribe v2, Scribe v2 Realtime | High quality, automatic language detection | 29+ |
+| **Volcengine BigASR** | Realtime, Flash, Async (ByteDance) | Mandarin and Chinese dialects | 10+ |
 
 ### Local Providers (Offline)
 
@@ -97,6 +99,33 @@ Soniox provides multilingual speech recognition for both real-time dictation and
 Use Soniox when you want a bring-your-own-key cloud STT provider with real-time dictation and broad multilingual coverage.
 </Tip>
 
+### Volcengine BigASR (Cloud)
+
+ByteDance's Doubao speech model, optimized for Mandarin and Chinese dialects.
+
+- **Realtime** (`volc.bigasr.sauc.duration`) for live dictation via WebSocket
+- **Flash** (sync) for files ≤ 2 hours and ≤ 100 MB; auto-falls-back to async for longer files
+- Hot words and language hints for biasing recognition
+- Works through your own Volcengine credentials or via Enconvo Cloud Plan
+
+### AssemblyAI (Cloud)
+
+Industry-leading speaker diarization for multi-speaker recordings.
+
+- **Universal-Streaming v3** for real-time dictation
+- **Universal** for async file transcription with diarization, word-level timestamps, and confidence scores
+- Word boost (custom vocabulary) and content moderation
+- Available via Enconvo Cloud Plan or your own AssemblyAI key
+
+### ElevenLabs Scribe (Cloud)
+
+ElevenLabs' STT, strong on accented and noisy speech.
+
+- **Scribe v2 Realtime** for live dictation
+- **Scribe v2** for async file transcription with word-level timestamps
+- Automatic language detection across 29+ languages
+- Available via Enconvo Cloud Plan or your own ElevenLabs key
+
 ## Configuration
 
 <Steps>
@@ -129,7 +158,7 @@ The primary use of speech recognition in EnConvo is real-time dictation -- speak
 4. The transcribed text is inserted at your cursor position
 
 <Note>
-For real-time dictation, streaming providers like Microsoft Azure, Deepgram, and Soniox provide the lowest latency. Batch providers like Groq Whisper and OpenAI process after you finish speaking.
+For real-time dictation, streaming providers like Microsoft Azure, Soniox, AssemblyAI, ElevenLabs, and Volcengine provide the lowest latency. Batch providers like Groq Whisper and OpenAI process after you finish speaking.
 </Note>
 
 ### Dictation in SmartBar
@@ -251,8 +280,11 @@ The Enconvo Cloud Plan includes access to multiple STT providers:
 | OpenAI | gpt-4o-transcribe | 200 |
 | Google Gemini | Gemini 3.1 Flash Lite | 100 |
 | Mistral | Voxtral Mini | 100 |
-| Microsoft Azure | Azure Speech Services | Free |
-| AssemblyAI | Universal | Via Cloud |
+| Microsoft Azure | Azure Realtime / Fast Transcription | Free |
+| AssemblyAI | Universal, Universal-Streaming v3 | Via Cloud |
+| Soniox | STT Realtime v4, STT Async v4 | Via Cloud |
+| ElevenLabs | Scribe v2, Scribe v2 Realtime | Via Cloud |
+| Volcengine | BigASR Realtime, Flash, Async | Via Cloud |
 
 <Note>
 Microsoft Azure STT via the Enconvo Cloud Plan is free and does not consume points. It is the recommended default for most users.
@@ -281,7 +313,7 @@ Microsoft Azure STT via the Enconvo Cloud Plan is free and does not consume poin
     4. Check the console logs for download errors
   </Accordion>
   <Accordion title="Transcription is slow">
-    1. For real-time dictation, switch to a streaming provider (Azure, Deepgram, Soniox)
+    1. For real-time dictation, switch to a streaming provider (Azure, Soniox, AssemblyAI, Volcengine)
     2. For batch transcription, Groq Whisper offers the fastest cloud processing
     3. For local transcription, NVIDIA Parakeet is the fastest option
     4. Ensure your Mac is not thermally throttling (check Activity Monitor)
