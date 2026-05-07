@@ -24,7 +24,37 @@ In EnConvo, Hermes Agent is used through its OpenAI-compatible API server. After
 - The API server token from `API_SERVER_KEY` in `~/.hermes/.env`
 - EnConvo with the Hermes Agent AI model provider enabled
 
-Hermes exposes OpenAI-compatible endpoints such as `/v1/models` and `/v1/chat/completions`. EnConvo's Hermes provider uses the Chat Completions API.
+Hermes exposes OpenAI-compatible endpoints such as `/v1/models`, `/v1/chat/completions`, and `/v1/responses`. EnConvo's Hermes provider uses the Chat Completions API (`/v1/chat/completions`).
+
+<Note>
+  EnConvo does not use the Hermes Responses API for this provider. Configure Hermes as an OpenAI-compatible Chat Completions provider.
+</Note>
+
+## Automatic Setup in EnConvo
+
+Open EnConvo **Settings** -> **AI Model** -> **Hermes Agent**. The setup card can start, stop, and configure the local Hermes API server for you.
+
+Use **Auto Setup** when Hermes is installed on the same Mac as EnConvo. EnConvo will:
+
+<Steps>
+  <Step title="Find Hermes">
+    Check that the `hermes` CLI exists on this Mac.
+  </Step>
+  <Step title="Enable the API server">
+    Update `~/.hermes/.env` with `API_SERVER_ENABLED=true` and an `API_SERVER_KEY` if one is missing.
+  </Step>
+  <Step title="Start the gateway">
+    Start the Hermes gateway service.
+  </Step>
+  <Step title="Verify the API">
+    Probe the local API server with `/v1/health` and `/v1/models`.
+  </Step>
+  <Step title="Save credentials">
+    Save the base URL and API server key into EnConvo's Hermes credentials.
+  </Step>
+</Steps>
+
+The setup card shows a runtime badge such as **Running** or **Stopped**. While the card is visible, EnConvo refreshes this status periodically and stops refreshing when the card is no longer visible.
 
 ## Get Base URL and API Key
 
@@ -76,6 +106,20 @@ Open EnConvo **Settings** -> **AI Model** -> **Hermes Agent**, then configure th
 | **API Server Key** | `API_SERVER_KEY` from `~/.hermes/.env` |
 
 Click **Validate** after entering the base URL and token.
+
+## API Behavior and Attachments
+
+EnConvo sends Hermes requests through OpenAI-compatible Chat Completions:
+
+```http
+POST /v1/chat/completions
+```
+
+Use `hermes-agent` or the model name advertised by the Hermes `/v1/models` endpoint.
+
+<Warning>
+  Image attachments are not sent to Hermes by EnConvo. Treat the Hermes provider as a text/chat provider in EnConvo, even if your upstream Hermes API server advertises image input support. For image workflows, use a vision-capable model provider or run OCR/image analysis before sending text to Hermes.
+</Warning>
 
 ## Use Hermes as an AI Model
 
@@ -156,6 +200,12 @@ http://<hermes-host-lan-ip>:8642/v1
   </Accordion>
   <Accordion title="Connection fails">
     Confirm the API server is healthy with `curl http://127.0.0.1:8642/v1/health`. If EnConvo runs on another device, use the host's LAN IP and make sure Hermes is bound for network access.
+  </Accordion>
+  <Accordion title="Start succeeds but the status takes a moment to update">
+    Service managers can return before the API server is ready. Wait a few seconds and check the setup card's runtime badge again, or run `hermes gateway status` and test `curl http://127.0.0.1:8642/v1/health`.
+  </Accordion>
+  <Accordion title="Image attachments are ignored">
+    The Hermes provider in EnConvo is currently text-only. EnConvo will not send image attachments to Hermes; choose a vision-capable provider for direct image input.
   </Accordion>
   <Accordion title="Wrong base URL">
     Enter `http://<gateway-host>:8642/v1`. Do not include `/chat/completions` in the EnConvo base URL field.

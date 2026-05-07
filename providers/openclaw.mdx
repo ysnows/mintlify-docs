@@ -9,7 +9,11 @@ OpenClaw is a self-hosted AI agent platform for running assistants across chat, 
 
 OpenClaw can expose its agents through an OpenAI-compatible Gateway. After you enable the Gateway, EnConvo can use an OpenClaw agent like any other AI model, including inside chat, EnConvo agents, and model-powered features.
 
-OpenClaw's Gateway exposes OpenAI-compatible endpoints such as `/v1/models`, `/v1/chat/completions`, and `/v1/responses`. EnConvo's OpenClaw provider uses the Chat Completions API by default.
+OpenClaw's Gateway exposes OpenAI-compatible endpoints such as `/v1/models`, `/v1/chat/completions`, and `/v1/responses`. EnConvo's OpenClaw provider uses the Chat Completions API (`/v1/chat/completions`).
+
+<Note>
+  EnConvo does not use the OpenClaw Responses API for this provider. Configure OpenClaw through its OpenAI-compatible Chat Completions Gateway.
+</Note>
 
 <Tip>
   New to OpenClaw? Start with the [OpenClaw Getting Started guide](https://docs.openclaw.ai/start/getting-started), then return here to connect it to EnConvo.
@@ -23,8 +27,38 @@ OpenClaw's Gateway exposes OpenAI-compatible endpoints such as `/v1/models`, `/v
 
 - OpenClaw installed on the machine that will run the Gateway
 - The OpenClaw Gateway running on a reachable host and port
+- The Chat Completions Gateway endpoint enabled
 - The Gateway token from `~/.openclaw/openclaw.json`
 - EnConvo with the OpenClaw AI model provider enabled
+
+## Automatic Setup in EnConvo
+
+Open EnConvo **Settings** -> **AI Model** -> **OpenClaw**. The setup card can start, stop, and configure the local OpenClaw Gateway for you.
+
+Use **Auto Setup** when OpenClaw is installed on the same Mac as EnConvo. EnConvo will:
+
+<Steps>
+  <Step title="Find OpenClaw">
+    Check that the `openclaw` CLI exists on this Mac.
+  </Step>
+  <Step title="Enable Chat Completions">
+    Run `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`.
+  </Step>
+  <Step title="Prepare the Gateway token">
+    Read `gateway.auth.token` from `~/.openclaw/openclaw.json`, or create one if it is missing.
+  </Step>
+  <Step title="Start the Gateway">
+    Start or restart the OpenClaw Gateway service.
+  </Step>
+  <Step title="Verify the API">
+    Probe the Gateway with `/health` and `/v1/models`.
+  </Step>
+  <Step title="Save credentials">
+    Save the base URL and Gateway token into EnConvo's OpenClaw credentials.
+  </Step>
+</Steps>
+
+The setup card shows a runtime badge such as **Running** or **Stopped**. While the card is visible, EnConvo refreshes this status periodically and stops refreshing when the card is no longer visible.
 
 ## Enable OpenClaw Gateway
 
@@ -97,6 +131,20 @@ Authorization: Bearer <gateway-token>
 ```
 
 Click **Validate** after entering the base URL and token.
+
+## API Behavior and Attachments
+
+EnConvo sends OpenClaw requests through OpenAI-compatible Chat Completions:
+
+```http
+POST /v1/chat/completions
+```
+
+Use `openclaw:main` or another model name advertised by your OpenClaw agent list.
+
+<Warning>
+  Image attachments are not sent to OpenClaw by EnConvo. Treat the OpenClaw provider as a text/chat provider in EnConvo. For image workflows, use a vision-capable model provider or run OCR/image analysis before sending text to OpenClaw.
+</Warning>
 
 ## Use OpenClaw as an AI Model
 
@@ -171,6 +219,15 @@ You can also create an EnConvo agent that coordinates an OpenClaw agent. This is
   </Accordion>
   <Accordion title="Connection fails">
     Confirm the Gateway is running with `openclaw gateway status`. If EnConvo is on another device, set `gateway.bind` to `lan`, restart the Gateway, and use the host's LAN IP in the base URL.
+  </Accordion>
+  <Accordion title="Start succeeds but EnConvo briefly says it needs attention">
+    OpenClaw can report that the LaunchAgent restarted before the HTTP Gateway is ready. Wait a few seconds and check the setup card's runtime badge again. You can also verify directly with `openclaw gateway status` and `curl http://127.0.0.1:18789/health`.
+  </Accordion>
+  <Accordion title="The Gateway is running but `/v1/models` fails">
+    Make sure EnConvo is using the same token as `gateway.auth.token` in `~/.openclaw/openclaw.json`. The setup status can still detect a running Gateway through `/health`, but model validation requires the bearer token.
+  </Accordion>
+  <Accordion title="Image attachments are ignored">
+    The OpenClaw provider in EnConvo is currently text-only. EnConvo will not send image attachments to OpenClaw; choose a vision-capable provider for direct image input.
   </Accordion>
   <Accordion title="Wrong base URL">
     Enter `http://<gateway-host>:<port>/v1`. Do not include `/chat/completions` in the EnConvo base URL field.
