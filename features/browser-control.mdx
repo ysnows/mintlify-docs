@@ -94,15 +94,15 @@ Browser Control uses a lightweight companion extension installed in your browser
 By default, Browser Control uses your system's default browser. You can override this:
 
 1. Open **EnConvo Settings**
-2. Find the **Browser Control** extension
+2. Find the **Computer Use** extension
 3. Set **Default Browser** to your preferred browser
 
 ### Verify Connection
 
-To check if the extension is connected:
+To check if the extension is connected, use the `computer-use/browser/status` API route:
 
 ```
-enconvo browser_control status
+computer-use/browser/status
 ```
 
 This shows:
@@ -261,7 +261,7 @@ Browser Control works with any browser that has the companion extension installe
 
 When you don't specify a browser, EnConvo follows this order:
 
-1. **Your manual setting** — if you chose a default in Browser Control preferences
+1. **Your manual setting** — if you chose a default in Computer Use preferences
 2. **System default browser** — your macOS default (skips Safari since it doesn't support the extension)
 3. **Connected browsers** — whichever connected browser was used most recently
 
@@ -333,15 +333,15 @@ Interactive elements get `@eN` references that the AI can use directly:
   <Accordion title="Wrong browser is being controlled">
     Check which browser is active:
     ```
-    enconvo browser_control status
+    computer-use/browser/status
     ```
 
     You can specify a browser explicitly:
     ```
-    enconvo browser_control navigate --url "https://example.com" --browser "edge"
+    computer-use/browser/navigate { "url": "https://example.com", "browser": "edge" }
     ```
 
-    Or set a default in Browser Control preferences.
+    Or set a default in Computer Use preferences.
   </Accordion>
 
   <Accordion title="Screenshots are blank or wrong">
