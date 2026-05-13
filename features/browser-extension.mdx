@@ -1,0 +1,83 @@
+---
+title: "Enconvo Browser Extension"
+description: "Use Enconvo with your real browser session for signed-in websites, website approvals, and browser automation"
+---
+
+## Overview
+
+The Enconvo Browser Extension lets Enconvo control your real browser when a task needs your signed-in browser state. Use it for sites such as LinkedIn, Gmail, Salesforce, dashboards, or internal tools where your cookies and browser extensions matter.
+
+For public pages, local previews, or workflows that should not touch your personal browser profile, use isolated browser automation instead.
+
+## Set Up The Extension
+
+<Steps>
+  <Step title="Install the extension">
+    Install the Enconvo browser extension in Chrome, Edge, Brave, Arc, Vivaldi, Opera, or Firefox.
+  </Step>
+  <Step title="Open your browser">
+    Keep the browser running. The extension connects to Enconvo automatically over `ws://localhost:11225`.
+  </Step>
+  <Step title="Check the toolbar popup">
+    Click the extension icon. The popup should show **Connected Chrome**, **Connected Edge**, **Connected Firefox**, or the current browser name.
+  </Step>
+  <Step title="Start a browser task">
+    Ask Enconvo to read, click, type, take a screenshot, or manage tabs in the browser.
+  </Step>
+</Steps>
+
+## Popup Status
+
+The extension popup shows:
+
+- **Connection status**: whether the current browser extension instance is connected to Enconvo.
+- **Current browser**: the browser this extension instance is connected as, such as Chrome, Edge, Brave, or Firefox.
+- **Connected browsers**: other browser extension instances currently connected to Enconvo.
+- **Version**: the installed browser extension version.
+- **Learn more**: a link back to this documentation page.
+
+If the popup says disconnected, restart Enconvo and refresh the browser. If it still does not connect, disable and re-enable the extension.
+
+## Multiple Browsers
+
+Enconvo can connect to more than one browser at the same time. Browser actions use this priority order when no browser is specified:
+
+1. The default browser selected in Computer Use settings.
+2. Your macOS system default browser.
+3. The most recently focused connected browser.
+
+You can also target a browser explicitly in automation APIs:
+
+```json
+{
+  "browser": "edge"
+}
+```
+
+Common values include `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera`, and `firefox`.
+
+## Website Access And Safety
+
+Browser pages can contain untrusted instructions. Review the site and the requested action before allowing Enconvo to continue on sensitive pages.
+
+The extension uses browser permissions to read page content, click, type, capture screenshots, inspect tabs, and access cookies when a browser task requires it. Treat authenticated pages, browser history, and internal tools as sensitive data.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The popup says disconnected">
+    1. Make sure Enconvo is running.
+    2. Restart the browser.
+    3. Disable and re-enable the extension.
+    4. Confirm nothing is blocking `localhost:11225`.
+  </Accordion>
+  <Accordion title="The wrong browser is controlled">
+    Open Computer Use settings and set the default browser, or pass a browser value such as `edge`, `chrome`, or `firefox` in the browser action.
+  </Accordion>
+  <Accordion title="The extension is connected but a page cannot be controlled">
+    Browser internal pages such as `chrome://` cannot be controlled. Strict CSP pages, closed Shadow DOM, and browser permission prompts may also limit automation.
+  </Accordion>
+  <Accordion title="File upload does not work">
+    In the browser extension details page, enable file URL access if the task needs local file uploads or file-backed pages.
+  </Accordion>
+</AccordionGroup>
