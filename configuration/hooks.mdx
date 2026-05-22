@@ -1,21 +1,43 @@
 ---
 title: "Hooks"
-description: "Run shell commands or webhooks automatically when events happen in EnConvo"
+description: "Run commands or webhooks automatically when EnConvo events happen"
 ---
 
 ## Overview
 
-Hooks let you trigger shell commands or HTTP requests whenever something happens in EnConvo - like an agent starting, completing, or failing. No coding required - just create a JSON config file.
+Hooks let you run a shell command or send an HTTP request when something happens
+inside EnConvo, such as an agent starting, completing, failing, or using a tool.
+They are configured with a JSON file, so you can add notifications, logs, local
+automation, or integrations without building an extension.
 
 <Tip>
-Hooks are great for notifications, logging, CI/CD integration, or syncing with external tools like Slack, Discord, or your own APIs.
+Hooks are fire-and-forget. They run in the background and do not block EnConvo.
 </Tip>
+
+## Config File
+
+Create your hooks config at:
+
+```text
+~/.enconvo/hooks.json
+```
+
+EnConvo also reads the legacy file at `~/.config/enconvo/hooks.json` when the
+new file does not exist. If both files exist, `~/.enconvo/hooks.json` wins.
+
+The file is checked again whenever an event fires, so you can edit hooks while
+EnConvo is running. No restart is required.
 
 ## Quick Start
 
 <Steps>
-  <Step title="Create the config file">
-    Create `~/.config/enconvo/hooks.json`:
+  <Step title="Create the hooks folder">
+    ```bash
+    mkdir -p ~/.enconvo/hooks
+    ```
+  </Step>
+
+  <Step title="Create ~/.enconvo/hooks.json">
     ```json
     {
       "run_status_changed": [
@@ -23,7 +45,7 @@ Hooks are great for notifications, logging, CI/CD integration, or syncing with e
           "hooks": [
             {
               "type": "command",
-              "command": "echo 'Agent status changed!' >> /tmp/enconvo.log"
+              "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
             }
           ]
         }
@@ -31,14 +53,28 @@ Hooks are great for notifications, logging, CI/CD integration, or syncing with e
     }
     ```
   </Step>
-  <Step title="That's it">
-    The config is loaded automatically. Every time an agent's status changes, your command runs. No restart needed - the config is reloaded on each event.
+
+  <Step title="Trigger an agent">
+    Start any agent or chat command. When its status changes, EnConvo runs the
+    configured command and appends a line to `/tmp/enconvo-hooks.log`.
   </Step>
 </Steps>
 
-## Configuration
+## How Hooks Work
 
-The config file lives at `~/.config/enconvo/hooks.json`. The structure is:
+When an event fires, EnConvo:
+
+1. Loads `~/.enconvo/hooks.json`.
+2. Falls back to `~/.config/enconvo/hooks.json` only if the new file is absent.
+3. Finds entries whose top-level key matches the event name.
+4. Applies the optional `matcher` regex.
+5. Runs every configured hook concurrently.
+
+Both short event names and full internal names work as top-level keys. For
+example, `run_status_changed` and `event-run_status_changed` match the same
+event.
+
+## Configuration Reference
 
 ```json
 {
@@ -56,38 +92,38 @@ The config file lives at `~/.config/enconvo/hooks.json`. The structure is:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `event_name` | string | Yes | The event to listen for (top-level key) |
-| `matcher` | string | No | Regex to filter events. Empty = match all |
-| `hooks` | array | Yes | List of hooks to execute |
-
-## Hook Types
+| `event_name` | string | Yes | Event to listen for. Use this as the top-level key. |
+| `matcher` | string | No | Regex filter applied to the short event name. Omit it to match all events for that key. |
+| `hooks` | array | Yes | Command and HTTP hooks to execute. |
 
 ### Command Hook
 
-Runs a shell command. Event data is sent to **stdin** as JSON.
+A command hook runs a shell command. EnConvo writes the event payload to the
+command's stdin as JSON.
 
 ```json
 {
   "type": "command",
-  "command": "/path/to/script.sh",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
   "timeout": 30000
 }
 ```
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `type` | `"command"` | - | Required |
-| `command` | string | - | Shell command to execute |
-| `timeout` | number | `30000` | Timeout in milliseconds |
+| `type` | `"command"` | - | Required hook type. |
+| `command` | string | - | Shell command to execute. |
+| `timeout` | number | `30000` | Timeout in milliseconds. |
 
 ### HTTP Hook
 
-Sends a POST request with event data as the JSON body.
+An HTTP hook sends the event payload as the JSON request body.
 
 ```json
 {
   "type": "http",
   "url": "https://example.com/webhook",
+  "method": "POST",
   "headers": {
     "Authorization": "Bearer your-token"
   },
@@ -97,22 +133,23 @@ Sends a POST request with event data as the JSON body.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `type` | `"http"` | - | Required |
-| `url` | string | - | HTTP endpoint URL |
-| `method` | string | `"POST"` | HTTP method |
-| `headers` | object | `{}` | Additional headers |
-| `timeout` | number | `30000` | Timeout in milliseconds |
+| `type` | `"http"` | - | Required hook type. |
+| `url` | string | - | HTTP endpoint URL. |
+| `method` | string | `"POST"` | HTTP method. |
+| `headers` | object | `{}` | Additional request headers. |
+| `timeout` | number | `30000` | Timeout in milliseconds. |
 
-## Event Data Format
+## Event Payload
 
-Both command hooks (stdin) and HTTP hooks (request body) receive the same JSON:
+Command hooks receive this JSON on stdin. HTTP hooks receive the same JSON as
+the request body.
 
 ```json
 {
   "event": "run_status_changed",
   "fullEvent": "event-run_status_changed",
   "params": {
-    "commandKey": "chat_with_ai|chat",
+    "commandKey": "agent|main",
     "runStatus": "running"
   },
   "timestamp": 1742313600000
@@ -121,30 +158,47 @@ Both command hooks (stdin) and HTTP hooks (request body) receive the same JSON:
 
 | Field | Description |
 |-------|-------------|
-| `event` | Short event name |
-| `fullEvent` | Full internal event name |
-| `params` | Event-specific payload |
-| `timestamp` | Unix timestamp in milliseconds |
+| `event` | Short event name. |
+| `fullEvent` | Internal event name with the `event-` prefix. |
+| `params` | Event-specific payload. |
+| `timestamp` | Unix timestamp in milliseconds. |
 
 ## Available Events
 
 | Event | Params | When |
 |-------|--------|------|
-| `run_status_changed` | `{ commandKey, runStatus }` | Agent/chat/bot changes to `running`, `completed`, or `failed` |
-| `recent_chat_list_changed` | `{ command, commandKey }` | Recent chat list is updated |
-| `audio_progress_<hash>` | `{ currentTime, duration, progress }` | Audio playback progress |
-| `audio_played_<hash>` | `{}` | Audio playback completed |
-| `audio_state_<hash>` | `{ state }` | Audio player state changed |
+| `run_status_changed` | `{ commandKey, runStatus, status?, sessionId? }` | Agent, chat, or bot run changes to `running`, `completed`, `failed`, or `stopped`. |
+| `agent_tool_step_changed` | `{ toolCallId, toolName, status, sessionId?, commandKey? }` | Agent tool call starts, succeeds, fails, or is denied. |
+| `recent_chat_list_changed` | `{ command, commandKey }` | Recent chat list is updated. |
+| `audio_progress_<hash>` | `{ currentTime, duration, progress }` | Audio playback progress changes. |
+| `audio_played_<hash>` | `{}` | Audio playback completes. |
+| `audio_state_<hash>` | `{ state }` | Audio player state changes. |
 
 <Note>
-Extensions can fire custom events. Any event name used by an extension can be used as a hook trigger.
+Extensions can fire custom events. Any event name emitted by an extension can be
+used as a hook trigger.
 </Note>
 
-## Examples
+## Recipes
 
 ### macOS Notification on Agent Failure
 
-Get a native notification when any agent fails:
+```json
+{
+  "run_status_changed": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Log Agent Status Changes
 
 ```json
 {
@@ -153,7 +207,7 @@ Get a native notification when any agent fails:
       "hooks": [
         {
           "type": "command",
-          "command": "STATUS=$(cat | jq -r '.params.runStatus') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
         }
       ]
     }
@@ -161,18 +215,16 @@ Get a native notification when any agent fails:
 }
 ```
 
-### Log All Status Changes
-
-Write a timestamped log of every agent status change:
+### Log Agent Tool Calls
 
 ```json
 {
-  "run_status_changed": [
+  "agent_tool_step_changed": [
     {
       "hooks": [
         {
           "type": "command",
-          "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: .params.runStatus}' >> ~/.config/enconvo/agent-status.log"
+          "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
         }
       ]
     }
@@ -180,9 +232,7 @@ Write a timestamped log of every agent status change:
 }
 ```
 
-### Slack Webhook
-
-Send a message to Slack when an agent completes:
+### Send to Slack
 
 ```json
 {
@@ -201,23 +251,23 @@ Send a message to Slack when an agent completes:
 
 ### Custom Script
 
-Create a script that reads event data from stdin and takes action:
+Create a script that reads the event payload from stdin:
 
 ```bash
 #!/bin/bash
-# ~/.config/enconvo/hooks/on-status-change.sh
+# ~/.enconvo/hooks/on-status-change.sh
 INPUT=$(cat)
-STATUS=$(echo "$INPUT" | jq -r '.params.runStatus')
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
 AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
 
 echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
 
 if [ "$STATUS" = "failed" ]; then
-    osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
 fi
 ```
 
-Reference it in your config:
+Reference it from `~/.enconvo/hooks.json`:
 
 ```json
 {
@@ -226,7 +276,7 @@ Reference it in your config:
       "hooks": [
         {
           "type": "command",
-          "command": "bash ~/.config/enconvo/hooks/on-status-change.sh"
+          "command": "bash ~/.enconvo/hooks/on-status-change.sh"
         }
       ]
     }
@@ -234,53 +284,46 @@ Reference it in your config:
 }
 ```
 
-<Warning>
-Make sure your scripts are executable: `chmod +x ~/.config/enconvo/hooks/on-status-change.sh`
-</Warning>
+Make the script executable:
 
-### Multiple Hooks on One Event
-
-You can run multiple hooks for the same event. They all execute concurrently:
-
-```json
-{
-  "run_status_changed": [
-    {
-      "hooks": [
-        { "type": "command", "command": "echo 'log' >> /tmp/hooks.log" },
-        { "type": "http", "url": "http://localhost:8080/webhook" },
-        { "type": "command", "command": "bash ~/.config/enconvo/hooks/notify.sh" }
-      ]
-    }
-  ]
-}
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
 ```
 
-## Important Notes
+## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Hooks are fire-and-forget">
-    Hooks run in the background and do not block EnConvo. If a hook fails or times out, it is logged to the server console but does not affect the event flow.
+  <Accordion title="My hook did not run">
+    Confirm that `~/.enconvo/hooks.json` is valid JSON, the top-level key matches
+    the event name, and the command works when run manually. If you still have
+    `~/.config/enconvo/hooks.json`, remember that it is ignored when the new file
+    exists.
   </Accordion>
-  <Accordion title="Config reloads automatically">
-    The `hooks.json` file is checked for changes (by modification time) each time an event fires. You can edit the file while EnConvo is running - no restart needed.
-  </Accordion>
-  <Accordion title="Use absolute paths">
-    Shell commands run with the server's environment. Use absolute paths for scripts, or prefix with `bash` to enable `~` expansion.
-  </Accordion>
-  <Accordion title="Debugging hooks">
-    To test your hook script manually, pipe sample JSON to it:
+
+  <Accordion title="How do I test a script manually?">
+    Pipe a sample payload into the script:
     ```bash
-    echo '{"event":"run_status_changed","params":{"commandKey":"my_agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.config/enconvo/hooks/on-status-change.sh
+    echo '{"event":"run_status_changed","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
     ```
+  </Accordion>
+
+  <Accordion title="Do hooks block EnConvo?">
+    No. Hooks are fire-and-forget. If a hook fails or times out, EnConvo logs the
+    failure and continues processing the original event.
+  </Accordion>
+
+  <Accordion title="Should commands use absolute paths?">
+    Prefer absolute paths for scripts and binaries. Shell `~` expansion works
+    when the command is executed through a shell, but absolute paths are easier
+    to debug.
   </Accordion>
 </AccordionGroup>
 
 <CardGroup cols={2}>
-  <Card title="Event System for Developers" icon="code" href="/extensions/hooks">
-    Build extensions that listen and react to events programmatically
-  </Card>
   <Card title="Agents" icon="robot" href="/ai/agents">
     Learn about EnConvo agents and custom bots
+  </Card>
+  <Card title="Extension API Reference" icon="code" href="/extensions/extension-api-reference">
+    Build extensions that emit or listen to events
   </Card>
 </CardGroup>
