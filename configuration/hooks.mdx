@@ -49,7 +49,7 @@ definition.
     ```json
     {
       "hooks": {
-        "run_status_changed": [
+        "UserPromptSubmit": [
           {
             "hooks": [
               {
@@ -81,10 +81,10 @@ When an event fires, EnConvo:
 5. Skips entries where `enabled` is `false`.
 6. Runs every configured hook concurrently.
 
-Both short event names and full internal names work as keys inside `hooks`. For
-example, `run_status_changed` and `event-run_status_changed` match the same event.
-The old flat JSON shape is still readable for existing installs, but new writes
-use the wrapped format.
+Hook event names follow the Codex lifecycle set: `SessionStart`,
+`UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, and
+`Stop`. The old EnConvo event names and old flat JSON shape are still readable
+for existing installs, but new writes use the wrapped Codex-style format.
 
 ## Configuration Reference
 
@@ -109,7 +109,7 @@ use the wrapped format.
 |-------|------|----------|-------------|
 | `hooks` | object | Yes | Event map keyed by event name. |
 | `event_name` | string | Yes | Event to listen for. Use this as a key inside `hooks`. |
-| `matcher` | string | No | Regex filter applied to the short event name. Omit it to match all events for that key. |
+| `matcher` | string | No | Regex filter. For tool events, it matches `toolName`, `toolTitle`, or `path`; for other events, it matches the hook event name. |
 | `enabled` | boolean | No | Set to `false` to keep the entry in config but skip execution. Defaults to `true`. |
 | `hooks` | array | Yes | Command and HTTP hooks to execute. |
 
@@ -163,8 +163,10 @@ the request body.
 
 ```json
 {
-  "event": "run_status_changed",
-  "fullEvent": "event-run_status_changed",
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
   "params": {
     "commandKey": "agent|main",
     "runStatus": "running"
@@ -177,6 +179,8 @@ the request body.
 |-------|-------------|
 | `event` | Short event name. |
 | `fullEvent` | Internal event name with the `event-` prefix. |
+| `sourceEvent` | Original EnConvo event that produced this hook event, when the event is mapped for Codex compatibility. |
+| `sourceFullEvent` | Original internal event name with the `event-` prefix. |
 | `params` | Event-specific payload. |
 | `timestamp` | Unix timestamp in milliseconds. |
 
@@ -184,16 +188,17 @@ the request body.
 
 | Event | Params | When |
 |-------|--------|------|
-| `run_status_changed` | `{ commandKey, runStatus, status?, sessionId? }` | Agent, chat, or bot run changes to `running`, `completed`, `failed`, or `stopped`. |
-| `agent_tool_step_changed` | `{ toolCallId, toolName, status, sessionId?, commandKey? }` | Agent tool call starts, succeeds, fails, or is denied. |
-| `recent_chat_list_changed` | `{ command, commandKey }` | Recent chat list is updated. |
-| `audio_progress_<hash>` | `{ currentTime, duration, progress }` | Audio playback progress changes. |
-| `audio_played_<hash>` | `{}` | Audio playback completes. |
-| `audio_state_<hash>` | `{ state }` | Audio player state changes. |
+| `SessionStart` | `{ command, commandKey }` | A new chat session is created. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run starts from user input. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call starts. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call reaches a permission or denied state. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call succeeds, fails, completes, or is denied. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run reaches a terminal status. |
 
 <Note>
-Extensions can fire custom events. Any event name emitted by an extension can be
-used as a hook trigger.
+Legacy EnConvo names such as `run_status_changed` and
+`agent_tool_step_changed` still work, so existing hook files do not need to be
+migrated immediately.
 </Note>
 
 ## Recipes
@@ -203,7 +208,7 @@ used as a hook trigger.
 ```json
 {
   "hooks": {
-    "run_status_changed": [
+    "Stop": [
       {
         "hooks": [
           {
@@ -222,7 +227,7 @@ used as a hook trigger.
 ```json
 {
   "hooks": {
-    "run_status_changed": [
+    "Stop": [
       {
         "hooks": [
           {
@@ -241,7 +246,7 @@ used as a hook trigger.
 ```json
 {
   "hooks": {
-    "agent_tool_step_changed": [
+    "PostToolUse": [
       {
         "hooks": [
           {
@@ -260,7 +265,7 @@ used as a hook trigger.
 ```json
 {
   "hooks": {
-    "run_status_changed": [
+    "Stop": [
       {
         "hooks": [
           {
@@ -297,7 +302,7 @@ Reference it from `~/.enconvo/hooks.json`:
 ```json
 {
   "hooks": {
-    "run_status_changed": [
+    "Stop": [
       {
         "hooks": [
           {
@@ -330,7 +335,7 @@ chmod +x ~/.enconvo/hooks/on-status-change.sh
   <Accordion title="How do I test a script manually?">
     Pipe a sample payload into the script:
     ```bash
-    echo '{"event":"run_status_changed","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+    echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
     ```
   </Accordion>
 
