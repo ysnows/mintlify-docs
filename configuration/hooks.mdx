@@ -28,28 +28,38 @@ new file does not exist. If both files exist, `~/.enconvo/hooks.json` wins.
 The file is checked again whenever an event fires, so you can edit hooks while
 EnConvo is running. No restart is required.
 
+## Manage Hooks in Settings
+
+Open **Settings → Hooks** to inspect hooks from `~/.enconvo/hooks.json`.
+The settings panel groups entries by event, lets you toggle an entry on or off,
+and can open the JSON file for editing. Toggling writes `enabled: false` or
+`enabled: true` on that hook entry without changing the command or webhook
+definition.
+
 ## Quick Start
 
 <Steps>
   <Step title="Create the hooks folder">
     ```bash
-    mkdir -p ~/.enconvo/hooks
+    mkdir -p ~/.enconvo
     ```
   </Step>
 
   <Step title="Create ~/.enconvo/hooks.json">
     ```json
     {
-      "run_status_changed": [
-        {
-          "hooks": [
-            {
-              "type": "command",
-              "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
-            }
-          ]
-        }
-      ]
+      "hooks": {
+        "run_status_changed": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
     }
     ```
   </Step>
@@ -66,34 +76,41 @@ When an event fires, EnConvo:
 
 1. Loads `~/.enconvo/hooks.json`.
 2. Falls back to `~/.config/enconvo/hooks.json` only if the new file is absent.
-3. Finds entries whose top-level key matches the event name.
+3. Finds entries inside the top-level `hooks` object whose key matches the event name.
 4. Applies the optional `matcher` regex.
-5. Runs every configured hook concurrently.
+5. Skips entries where `enabled` is `false`.
+6. Runs every configured hook concurrently.
 
-Both short event names and full internal names work as top-level keys. For
-example, `run_status_changed` and `event-run_status_changed` match the same
-event.
+Both short event names and full internal names work as keys inside `hooks`. For
+example, `run_status_changed` and `event-run_status_changed` match the same event.
+The old flat JSON shape is still readable for existing installs, but new writes
+use the wrapped format.
 
 ## Configuration Reference
 
 ```json
 {
-  "event_name": [
-    {
-      "matcher": "optional_regex_filter",
-      "hooks": [
-        { "type": "command", "command": "..." },
-        { "type": "http", "url": "..." }
-      ]
-    }
-  ]
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `event_name` | string | Yes | Event to listen for. Use this as the top-level key. |
+| `hooks` | object | Yes | Event map keyed by event name. |
+| `event_name` | string | Yes | Event to listen for. Use this as a key inside `hooks`. |
 | `matcher` | string | No | Regex filter applied to the short event name. Omit it to match all events for that key. |
+| `enabled` | boolean | No | Set to `false` to keep the entry in config but skip execution. Defaults to `true`. |
 | `hooks` | array | Yes | Command and HTTP hooks to execute. |
 
 ### Command Hook
@@ -185,16 +202,18 @@ used as a hook trigger.
 
 ```json
 {
-  "run_status_changed": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "run_status_changed": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -202,16 +221,18 @@ used as a hook trigger.
 
 ```json
 {
-  "run_status_changed": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "run_status_changed": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -219,16 +240,18 @@ used as a hook trigger.
 
 ```json
 {
-  "agent_tool_step_changed": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "agent_tool_step_changed": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -236,16 +259,18 @@ used as a hook trigger.
 
 ```json
 {
-  "run_status_changed": [
-    {
-      "hooks": [
-        {
-          "type": "http",
-          "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "run_status_changed": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -271,16 +296,18 @@ Reference it from `~/.enconvo/hooks.json`:
 
 ```json
 {
-  "run_status_changed": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bash ~/.enconvo/hooks/on-status-change.sh"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "run_status_changed": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
