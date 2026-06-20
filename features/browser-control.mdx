@@ -14,6 +14,12 @@ This means the AI can:
 - **Read page content** from any tab
 - **Click buttons, manage tabs, and automate workflows** — all in your real browser
 
+<Tip>
+Use Browser Control for websites and browser tabs. Use
+[Computer Use](/features/computer-use) for native macOS apps, file pickers,
+system dialogs, and desktop app workflows.
+</Tip>
+
 <CardGroup cols={2}>
   <Card title="Real Browser, Real Sessions" icon="cookie-bite">
     Works with your existing login sessions — no re-authentication needed
@@ -269,6 +275,25 @@ When you don't specify a browser, EnConvo follows this order:
 
 If the target browser isn't running, EnConvo will automatically launch it and wait for the extension to connect (up to 10 seconds).
 
+## Reliability Improvements
+
+Browser Control is designed to recover from common real-world page behavior:
+
+- **Exact tab targeting** keeps actions attached to the intended tab.
+- **Fresh page snapshots** are taken after navigation, loading, clicking, and
+  DOM changes so element references stay current.
+- **Cross-origin iframe handling** improves interaction with embedded forms and
+  dashboards.
+- **Drag-safe clicks and coordinate actions** help with canvases, custom UI
+  widgets, and controls that do not expose clean accessibility labels.
+- **Clipboard proxy support** preserves formatted text when pasting into rich
+  editors.
+- **Cleaner page-state output** makes it easier for agents to choose the right
+  link, button, textbox, or table row.
+
+If a task still fails, ask EnConvo to take a new snapshot or describe the
+visible page before trying the next action.
+
 ## Snapshot & Element References
 
 The **snapshot** is one of the most powerful features. It produces an accessibility tree of the page:
@@ -358,6 +383,9 @@ Interactive elements get `@eN` references that the AI can use directly:
 <CardGroup cols={2}>
   <Card title="AI Agents" icon="robot" href="/ai/agents">
     Use Browser Control as a tool within AI agent workflows
+  </Card>
+  <Card title="Computer Use" icon="display" href="/features/computer-use">
+    Control native macOS apps, dialogs, and file pickers
   </Card>
   <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
     EnConvo can automatically read your current browser tab as context

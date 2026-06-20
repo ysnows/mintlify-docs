@@ -1,0 +1,153 @@
+---
+title: "Computer Use"
+description: "Let EnConvo interact with macOS apps by clicking, typing, scrolling, dragging, and reading app state"
+---
+
+## Overview
+
+Computer Use lets EnConvo operate native macOS apps when a task needs more than
+text generation. It can inspect the active app, find visible controls, click or
+type into fields, scroll lists, drag items, choose files, use app menus, and
+wait for the app state to change before continuing.
+
+Use Computer Use for desktop workflows such as:
+
+- Filling a form in a native app
+- Selecting a file in a macOS file picker
+- Navigating a settings window
+- Clicking a toolbar button or menu item
+- Moving through a multi-step app workflow
+- Reading what is visible in the current window
+
+<Note>
+For websites and browser tabs, use [Browser Control](/features/browser-control)
+or the [Enconvo Browser Extension](/features/browser-extension). Computer Use is
+best for native macOS apps and system windows.
+</Note>
+
+## Permissions
+
+Computer Use relies on macOS Accessibility and, for visual screenshots, Screen
+Recording permission.
+
+<Steps>
+  <Step title="Open macOS Privacy settings">
+    Open **System Settings → Privacy & Security**.
+  </Step>
+  <Step title="Enable Accessibility">
+    Add and enable EnConvo under **Accessibility**. This allows EnConvo to read
+    app controls and perform clicks, typing, and keyboard shortcuts.
+  </Step>
+  <Step title="Enable Screen Recording when needed">
+    Add and enable EnConvo under **Screen Recording** if a workflow needs
+    screenshots or visual state.
+  </Step>
+  <Step title="Restart EnConvo">
+    Quit and reopen EnConvo after changing macOS permissions.
+  </Step>
+</Steps>
+
+## What Computer Use Can Do
+
+| Action | Examples |
+|--------|----------|
+| **Inspect app state** | Read the current window, controls, menu items, selected text, and visible fields |
+| **Click and double-click** | Click buttons, sidebar rows, toolbar items, menu commands, and coordinates |
+| **Type and press keys** | Fill inputs, submit forms, use shortcuts like `Cmd + S` |
+| **Scroll** | Move through lists, tables, settings panes, or long documents |
+| **Drag** | Drag files, rows, sliders, or selection handles when the app supports it |
+| **Use file pickers** | Select files and folders in native open/save dialogs |
+| **Wait after actions** | Re-check app state after a click, navigation, or loading step |
+
+## Running A Computer Use Task
+
+Ask EnConvo for the outcome you want, not the low-level action list.
+
+<Steps>
+  <Step title="Open the target app">
+    Bring the app or window you want EnConvo to control to the foreground.
+  </Step>
+  <Step title="Describe the task">
+    For example: "Open the settings panel and turn off launch at login" or
+    "Choose the latest PDF from Downloads in this file picker."
+  </Step>
+  <Step title="Review sensitive actions">
+    For destructive, financial, account, or permission-changing actions,
+    confirm the step before EnConvo continues.
+  </Step>
+  <Step title="Let EnConvo continue">
+    EnConvo will inspect the app, act, wait for the result, and continue until
+    the workflow is complete or needs your confirmation.
+  </Step>
+</Steps>
+
+## Examples
+
+### Choose A File In A Native File Picker
+
+> "In this file picker, select the newest screenshot from my Desktop."
+
+EnConvo can inspect the native file picker, navigate folders, select the file,
+and confirm the dialog.
+
+### Change A Setting In Another App
+
+> "Open this app's preferences and disable notifications."
+
+EnConvo can use app menus, search visible settings, toggle controls, and verify
+the result.
+
+### Work Across Multiple Windows
+
+> "Copy the confirmation code from Mail and paste it into the login window."
+
+EnConvo can read visible windows, switch focus, copy text, and paste into the
+target field.
+
+## Safety Guidance
+
+<Warning>
+Computer Use can interact with real apps and real data. Review the screen before
+allowing EnConvo to submit forms, change account settings, delete files, make
+purchases, or send messages.
+</Warning>
+
+Best practices:
+
+- Keep the target window visible when possible.
+- Give specific goals and constraints.
+- Avoid asking EnConvo to act on private or financial pages without review.
+- Stop the task if the visible app state no longer matches your intent.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="EnConvo cannot see app controls">
+    Confirm EnConvo has Accessibility permission, then restart EnConvo and the
+    target app. Some apps expose fewer controls than others; screenshots and
+    coordinate actions may still help.
+  </Accordion>
+  <Accordion title="Clicks go to the wrong app">
+    Bring the target app to the foreground before starting. If multiple windows
+    are open, mention the app or window name in your request.
+  </Accordion>
+  <Accordion title="File picker selection fails">
+    Make sure the file exists and the picker allows that file type. If the file
+    is in iCloud or a network location, wait for it to finish downloading first.
+  </Accordion>
+  <Accordion title="A workflow continues too quickly">
+    Ask EnConvo to wait for a specific visible result, such as "wait until the
+    Save button is enabled" or "continue after the table reloads."
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Browser Control" icon="window-restore" href="/features/browser-control">
+    Control real browser tabs and signed-in websites.
+  </Card>
+  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
+    Learn how EnConvo understands your current screen and app context.
+  </Card>
+</CardGroup>
