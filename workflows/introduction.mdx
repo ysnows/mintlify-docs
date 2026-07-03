@@ -1,154 +1,144 @@
 ---
 title: "Workflows Introduction"
-description: "Automate complex tasks by combining plugins into powerful workflows"
+description: "Automate multi-step tasks with declarative YAML workflows that chain shell commands, LLM prompts, agents, and plugin APIs"
 ---
 
 ## Overview
 
-Workflows in EnConvo allow you to chain multiple plugins and actions together, automating complex tasks with a single command. Instead of running individual actions separately, create workflows that handle entire processes automatically.
+A workflow is a small YAML file that describes a multi-step task as a DAG of
+tasks. Each task runs one thing — a shell command, an LLM prompt, an agent, a
+plugin API call, a data transform, or another workflow — and the engine handles
+ordering, parallelism, branching, loops, retries, and run history for you.
 
-## What Are Workflows?
+Workflows are ideal when you do the same sequence of steps repeatedly: research
+and summarize a topic, process a batch of files, route work based on a
+condition, or poll something until it's ready. You author the workflow once,
+then run it on demand from SmartBar, from the Workflows settings page, or by
+mentioning it inside a chat.
 
-A workflow is a sequence of actions that execute in order:
-
+```yaml
+version: agent-workflow/v1
+title: Daily Digest
+description: Fetch today's headlines and summarize them into three bullets.
+inputs:
+  topic: AI news          # a default; callers can override it per run
+tasks:
+  fetch:
+    command: curl -s "https://news.example.com/today?q={{ inputs.topic }}"
+  summarize:              # no `needs` → runs after `fetch` automatically
+    prompt: "Summarize in exactly 3 bullets: {{ tasks.fetch.output.stdout }}"
 ```
-Input → Action 1 → Action 2 → Action 3 → Output
-```
 
-For example, a "Research & Report" workflow might:
-1. Search the web for a topic
-2. Summarize the findings
-3. Format as a report
-4. Save to your Knowledge Base
+<Note>
+Workflows are plain files at `~/.enconvo/workflows/<id>.yaml`. The file name
+(kebab-case) **is** the workflow id, and the engine picks up new, edited, or
+deleted files immediately — there is no registration or build step.
+</Note>
 
-## Why Use Workflows?
+## Why use workflows?
 
 <CardGroup cols={2}>
-  <Card title="Save Time" icon="clock">
-    Automate repetitive multi-step processes
+  <Card title="Repeatable" icon="repeat">
+    Capture a multi-step task once and run it identically every time.
   </Card>
-  <Card title="Consistency" icon="check-double">
-    Ensure the same steps every time
+  <Card title="Composable" icon="diagram-project">
+    Mix shell, LLMs, agents, and any installed plugin's API in one flow.
   </Card>
-  <Card title="Complexity Made Simple" icon="wand-magic-sparkles">
-    Handle complex tasks with one command
+  <Card title="Parameterized" icon="sliders">
+    Define `inputs` with defaults and override them per run.
   </Card>
-  <Card title="Customization" icon="sliders">
-    Tailor workflows to your exact needs
+  <Card title="Debuggable" icon="clock-rotate-left">
+    Every run records per-task status, output, and errors in run history.
   </Card>
 </CardGroup>
 
-## Built-in Workflows
+## The task model
 
-EnConvo includes several pre-built workflows:
+Every task uses **exactly one** executor:
 
-| Workflow | Description |
-|----------|-------------|
-| **Research Summary** | Web search → Analyze → Summarize → Format |
-| **Content Review** | OCR/Input → Grammar → Style → Improve |
-| **Code Analysis** | Read code → Explain → Review → Document |
-| **Translation Pipeline** | Detect language → Translate → Proofread |
-| **Meeting Notes** | Transcribe → Summarize → Action items → Save |
+| Executor | Syntax | What it does |
+|---|---|---|
+| **Shell** | `run:` (or `command:`) | Runs a command in your shell. Output is an object: `{ stdout, stderr, exitCode, text }`. |
+| **Prompt** | `prompt:` | One-shot LLM call. Output is the reply text — or parsed JSON when you attach an `output_schema`. |
+| **Agent** | `agent:` + `message:` | Delegates to a full agent (tools, files, browsing), e.g. `agent: agent/main`. Output is its final reply. |
+| **Tool** | `tool:` + `params:` | Calls any plugin's Local API endpoint by its slash path, e.g. `tool: web_search/web_search`. |
+| **Transform** | `uses: transform` + `value:` | Pure template evaluation — reshape data with no side effects. |
+| **Subworkflow** | `uses: workflow` + `workflowId:` or inline `workflow:` | Runs another workflow as a step. |
 
-## Workflow Components
+<Tip>
+Prefer `prompt` for plain text or JSON generation — it's fast and cheap. Reach
+for `agent` only when a step genuinely needs tools (files, browser, apps): every
+agent call carries the full agent context and costs far more tokens.
+</Tip>
 
-### Triggers
+## How tasks are ordered
 
-How a workflow starts:
-- **Manual**: Run from SmartBar with `/workflow name`
-- **Hotkey**: Assign a keyboard shortcut
-- **Automatic**: Triggered by events (e.g., file added)
-- **Scheduled**: Run at specific times
+Tasks run **sequentially in document order by default**. A task that omits
+`needs` implicitly depends on the task above it, so a straight-line pipeline
+needs no wiring at all. Declare `needs` only for non-linear shapes:
 
-### Actions
-
-The steps in your workflow:
-- AI prompts
-- Plugin calls
-- File operations
-- Data transformations
-- Conditional logic
-
-### Outputs
-
-Where results go:
-- Display in chat
-- Copy to clipboard
-- Save to file
-- Add to Knowledge Base
-- Send notification
-
-## Running Workflows
-
-### From SmartBar
-
-```
-/workflow [workflow-name]
-/workflow Research Summary "AI in healthcare"
+```yaml
+tasks:
+  a:
+    command: printf a
+  b:
+    needs: []          # explicit parallel root — runs alongside `a`
+    command: printf b
+  join:
+    needs: [a, b]      # waits for both `a` and `b`
+    uses: transform
+    value: "{{ tasks.a.output.stdout }}{{ tasks.b.output.stdout }}"
 ```
 
-### From Companion Orb
+## Control flow at a glance
 
-Click the Workflows icon and select a workflow to run.
+The engine supports branching and loops directly on tasks:
 
-### With Keyboard Shortcuts
+- `if:` — run a task only when a condition is true (dependents cascade-skip when it's false).
+- `else_of:` — run a task only when another task was condition-skipped (the "else" branch).
+- `run_when: always` — a join/cleanup task that runs even if upstream tasks skipped or failed.
+- `foreach:` — fan a task out across a list, one instance per item.
+- `loop:` — repeat a task until a condition holds or `maxRounds` is reached.
+- `retries:` / `required: false` — retry on failure, or let a failure not abort the run.
+- `output_schema:` — enforce a JSON shape on a prompt/agent reply.
 
-Assign hotkeys in Settings → Workflows → [Workflow] → Shortcut
+See [Advanced Workflows](/workflows/advanced-workflows) for each of these with
+complete examples.
 
-## Quick Start
+## Where workflows live and how to run them
 
-<Steps>
-  <Step title="Explore Built-in Workflows">
-    Try the pre-built workflows to understand how they work
-  </Step>
-  <Step title="Identify Repetitive Tasks">
-    Notice tasks you do repeatedly that involve multiple steps
-  </Step>
-  <Step title="Create Your First Workflow">
-    Follow the [Creating Workflows guide](/workflows/creating-workflows)
-  </Step>
-  <Step title="Refine and Optimize">
-    Test, adjust, and improve your workflows over time
-  </Step>
-</Steps>
+Workflows are managed in **Settings → Workflows**, which provides a YAML editor
+with a live flow-graph preview, a run panel, and per-run history. There are
+three ways to run a workflow:
 
-## Example Workflows
-
-<AccordionGroup>
-  <Accordion title="Daily News Digest">
-    1. Search news for specified topics
-    2. Summarize each article
-    3. Compile into digest format
-    4. Save to Notes app
-  </Accordion>
-  <Accordion title="Code Documentation">
-    1. Read selected code file
-    2. Generate JSDoc/docstring comments
-    3. Create README section
-    4. Save documentation
-  </Accordion>
-  <Accordion title="Email Response">
-    1. Read email content
-    2. Analyze tone and intent
-    3. Draft appropriate response
-    4. Review and copy to clipboard
-  </Accordion>
-  <Accordion title="Content Localization">
-    1. Extract text content
-    2. Translate to target language
-    3. Adapt cultural references
-    4. Format for target audience
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Create Workflows" icon="plus" href="/workflows/creating-workflows">
-    Learn to build custom workflows
+<CardGroup cols={3}>
+  <Card title="SmartBar" icon="magnifying-glass">
+    Search a workflow by title, then **Run** it. The text you type is passed in
+    as `inputs.input_text`, so a workflow can be parameterized straight from the
+    launcher.
   </Card>
-  <Card title="Extensions" icon="puzzle-piece" href="/extensions/overview">
-    Explore available plugins
+  <Card title="Manage UI" icon="table-list">
+    Open a workflow in Settings → Workflows and click **Run** to execute it with
+    custom inputs and watch each task's output live.
+  </Card>
+  <Card title="In chat" icon="at">
+    Mention a workflow with `@` to drop it into a conversation as an inline
+    workflow the agent can run as part of the task.
   </Card>
 </CardGroup>
 
+<Note>
+Because SmartBar and the Workflows list surface a workflow by its `title` and
+`description`, keep both human-friendly and specific.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create a workflow" icon="plus" href="/workflows/creating-workflows">
+    Author the DSL in the editor, with help from the editing assistant.
+  </Card>
+  <Card title="Advanced workflows" icon="wand-magic-sparkles" href="/workflows/advanced-workflows">
+    Branching, loops, output contracts, subworkflows, and per-task models.
+  </Card>
+</CardGroup>

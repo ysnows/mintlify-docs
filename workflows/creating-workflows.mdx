@@ -1,297 +1,236 @@
 ---
 title: "Creating Workflows"
-description: "Build custom workflows to automate your tasks"
+description: "Author agent-workflow/v1 YAML in the editor, with help from the built-in editing assistant"
 ---
 
 ## Overview
 
-Create custom workflows that automate your specific needs. This guide walks you through building workflows from scratch.
+You build a workflow by writing an `agent-workflow/v1` YAML document. This guide
+covers the editor, the editing assistant, the anatomy of the DSL, and each
+executor with a working snippet. For branching, loops, and end-to-end examples,
+continue to [Advanced Workflows](/workflows/advanced-workflows).
 
-## Workflow Editor
+## The workflow editor
 
-### Opening the Editor
+Open **Settings → Workflows** and click **New workflow** to create one — it opens
+immediately in the editor with a starter template you can shape. The editor has:
 
-1. Go to Settings → Workflows
-2. Click "Create New Workflow"
-3. Or edit existing: Click workflow → "Edit"
+- **YAML source** on the left, with live validation. A **Valid / Invalid** badge
+  and inline error messages tell you the moment something is off.
+- **Flow preview** on the right — a read-only graph of your tasks and their
+  dependencies, updated as you type.
+- **Inputs** panel — provide values for a test run.
+- **Run** — execute the workflow and watch each task's status and output. Click a
+  node in the graph to inspect that step's output; the result pane shows the
+  final output by default.
+- **Runs** — recent run history for the workflow, so you can reopen a past run's
+  output when debugging.
 
-### Editor Interface
+<Note>
+Saving writes the file to `~/.enconvo/workflows/<id>.yaml`. Keep the id (file
+name) stable — run history is keyed to it, so renaming orphans past runs.
+</Note>
 
-The workflow editor has three main areas:
+## The editing assistant
 
-- **Canvas**: Visual workflow designer
-- **Actions Panel**: Available actions to add
-- **Properties**: Configure selected action
+Below the YAML source is an **editing assistant**. Describe the change you want
+in plain language — "add a step that searches the web for the topic and feed it
+into the summary", "switch the summary to Claude Haiku", "wrap the last step in a
+retry" — and the assistant edits the document for you.
 
-### YAML Management Editor
+The assistant knows the full DSL and can discover the APIs of your installed
+plugins, so it wires up the right `tool:` paths and parameters. Its edits update
+the YAML and flow graph live, leaving the changes **unsaved** so you can review
+them before clicking **Save**.
 
-Advanced users can edit workflow definitions in YAML when a workflow is easier
-to manage as structured text than on the visual canvas.
+<Tip>
+The assistant is the fastest way to learn the DSL: ask it to build the first
+version, then read the YAML it produced and tweak from there.
+</Tip>
 
-Use the YAML editor to:
+## Anatomy of a workflow
 
-- Review the full workflow definition in one place
-- Copy a workflow into version control
-- Make precise edits to inputs, actions, references, and conditions
-- Compare workflow changes during debugging
+Every workflow has a small metadata header and a `tasks` map:
+
+```yaml
+version: agent-workflow/v1     # required — must be exactly this
+title: Quick Summary           # required — shown in SmartBar and the list
+description: Summarize the given text into three bullet points.  # required
+inputs:                        # optional — defaults, overridable per run
+  text: ""
+tasks:
+  summarize:
+    prompt: "Summarize into 3 bullets:\n{{ inputs.text }}"
+```
 
 <Warning>
-YAML edits can change how a workflow runs. Test the workflow after saving, and
-keep a backup before making large manual changes.
+`version`, `title`, and `description` are all required and `title`/`description`
+must be non-empty. Each task must define **exactly one** executor.
 </Warning>
 
-## Creating Your First Workflow
+### Inputs
 
-Let's create a simple "Summarize & Save" workflow:
+Declare `inputs` with default values. Callers override them per run — the run
+merges provided inputs over the file's defaults. When a workflow is launched from
+SmartBar, the typed text arrives as `inputs.input_text`:
+
+```yaml
+inputs:
+  topic: AI news
+  input_text: ""     # populated by SmartBar's typed query
+tasks:
+  research:
+    prompt: "Give me 3 facts about {{ inputs.input_text or inputs.topic }}"
+```
+
+## Executors
+
+### Shell — `run` / `command`
+
+Runs a command in your login shell. `command:` is an alias of `run:`. The output
+is an object, so reference `.stdout`, `.stderr`, `.exitCode`, or `.text`:
+
+```yaml
+tasks:
+  files:
+    run: "ls -1 ~/Downloads | head -5"
+  count:
+    uses: transform
+    value: "{{ tasks.files.output.stdout | trim }}"
+```
+
+Optional shell settings: `cwd`, `shell`, `timeoutMs`, and `env` (a map of
+string/number/boolean values).
+
+<Warning>
+Shell tasks run with your real shell and permissions. Prefer idempotent
+commands, and never write secrets into a workflow file.
+</Warning>
+
+### Prompt — one-shot LLM
+
+A single LLM call. The output is the reply text (or parsed JSON when you attach
+an `output_schema`, covered in [Advanced Workflows](/workflows/advanced-workflows)):
+
+```yaml
+tasks:
+  tagline:
+    prompt: "Write a punchy one-line tagline for: {{ inputs.product }}"
+```
+
+### Agent — full agent delegation
+
+Delegates to an agent that can use tools, read files, and browse. Provide the
+agent command key and a `message`:
+
+```yaml
+tasks:
+  investigate:
+    agent: agent/main
+    message: "Find the current weather in {{ inputs.city }} and report it."
+```
+
+### Tool — call a plugin API
+
+Calls any installed plugin's Local API endpoint by its slash path, with `params`.
+You can discover the exact path and parameters for any plugin under
+**Settings → Plugins** (open a plugin and copy an endpoint's path), or ask the
+editing assistant:
+
+```yaml
+tasks:
+  search:
+    tool: web_search/web_search
+    params:
+      search_query: "{{ inputs.topic }} latest news"
+      limit: 5
+```
+
+### Transform — reshape data
+
+Pure template evaluation with no side effects — useful for assembling a final
+result from earlier task outputs:
+
+```yaml
+tasks:
+  report:
+    uses: transform
+    value: |
+      # {{ inputs.topic }}
+      {{ tasks.search.output.content }}
+```
+
+### Subworkflow — compose workflows
+
+Run another workflow as a step, either by id or inline. Its output is the child
+run result; reference the child's task outputs via `output.outputs.<taskId>`:
+
+```yaml
+tasks:
+  slugify:
+    uses: workflow
+    inputs:
+      text: "{{ inputs.title }}"
+    workflow:
+      tasks:
+        slug:
+          run: "printf '%s' '{{ inputs.text }}' | tr ' A-Z' '-a-z'"
+  use:
+    uses: transform
+    value: "slug is {{ tasks.slugify.output.outputs.slug.stdout }}"
+```
+
+## Referencing data with templates
+
+Workflows use Nunjucks templates. The values available in any task:
+
+| Reference | Available |
+|---|---|
+| `{{ inputs.x }}` | Workflow inputs |
+| `{{ tasks.<id>.output }}` | An upstream task's output |
+| `{{ item }}` / `{{ index }}` | The current item/index inside a `foreach` |
+| `{{ round }}` / `{{ last }}` | The round number / previous round's output inside a `loop` |
+| `{{ now }}` | Current timestamp |
+| `{{ env.HOME }}` | Process environment variables |
+
+<Note>
+Shell output is an object — use `tasks.x.output.stdout`, not the bare
+`tasks.x.output`. Plugin tool tasks often return an assistant-message object; run
+the workflow once and inspect the real output shape before referencing nested
+fields.
+</Note>
+
+## Run, inspect, and save
 
 <Steps>
-  <Step title="Create New Workflow">
-    Settings → Workflows → Create New Workflow
+  <Step title="Validate">
+    The editor validates continuously. Fix any inline errors until the badge
+    reads **Valid**.
   </Step>
-  <Step title="Name Your Workflow">
-    Give it a descriptive name: "Quick Summary to Notes"
+  <Step title="Set inputs">
+    Open the **Inputs** panel and provide test values.
   </Step>
-  <Step title="Add Input Action">
-    Drag "Text Input" to the canvas - this accepts your input
+  <Step title="Run">
+    Click **Run**. Watch each task's status in the flow graph, and click a node
+    to see that step's output.
   </Step>
-  <Step title="Add AI Action">
-    Drag "AI Prompt" and configure:
-    ```
-    Summarize the following in 3 bullet points:
-    {{input}}
-    ```
+  <Step title="Debug from history">
+    If a run fails, open **Runs** and reopen it — the failing task's `error`,
+    `stdout`, and `stderr` are recorded. Read them before editing.
   </Step>
-  <Step title="Add Output Action">
-    Drag "Save to File" and configure save location
-  </Step>
-  <Step title="Connect Actions">
-    Click and drag from output port to input port
-  </Step>
-  <Step title="Test & Save">
-    Click "Test" to verify, then "Save"
+  <Step title="Save">
+    Click **Save** to write the file. It's now runnable from SmartBar and
+    available as an `@` mention in chat.
   </Step>
 </Steps>
 
-## Actions Reference
-
-### Input Actions
-
-| Action | Description |
-|--------|-------------|
-| **Text Input** | Manual text entry |
-| **Selected Text** | Current text selection |
-| **Clipboard** | Clipboard contents |
-| **File Input** | Read from file |
-| **Screen Capture** | Capture screen region |
-| **Dictation** | Speech-to-text input |
-
-### Processing Actions
-
-| Action | Description |
-|--------|-------------|
-| **AI Prompt** | Send to AI with custom prompt |
-| **Translate** | Translate between languages |
-| **Summarize** | Create summary |
-| **Format** | Apply text formatting |
-| **Transform** | Text transformations |
-| **OCR** | Extract text from image |
-
-### Logic Actions
-
-| Action | Description |
-|--------|-------------|
-| **Condition** | If/else branching |
-| **Loop** | Repeat for multiple items |
-| **Split** | Divide text by delimiter |
-| **Merge** | Combine multiple inputs |
-| **Filter** | Filter items by criteria |
-
-### Output Actions
-
-| Action | Description |
-|--------|-------------|
-| **Display** | Show in chat/popup |
-| **Clipboard** | Copy to clipboard |
-| **Save File** | Write to file |
-| **Knowledge Base** | Add to KB |
-| **Notification** | System notification |
-
-## Variables & Data Flow
-
-### Using Variables
-
-Reference data between actions with `{{variable}}`:
-
-```
-{{input}}          - Original input
-{{step1.output}}   - Output from step 1
-{{clipboard}}      - Current clipboard
-{{date}}          - Current date
-{{selection}}      - Selected text
-```
-
-### Custom Variables
-
-Define custom variables in workflow settings:
-
-```json
-{
-  "language": "Spanish",
-  "max_length": 500,
-  "style": "professional"
-}
-```
-
-Use in prompts: `Translate to {{language}}`
-
-## Advanced Features
-
-### Conditional Logic
-
-Add conditions to control flow:
-
-```yaml
-condition:
-  if: "{{input.length}} > 1000"
-  then: use_summary_action
-  else: use_full_text
-```
-
-### Loops
-
-Process multiple items:
-
-```yaml
-loop:
-  for_each: "{{items}}"
-  action: translate_action
-  collect: translated_items
-```
-
-### Error Handling
-
-Define fallbacks for errors:
-
-```yaml
-action:
-  name: web_search
-  on_error:
-    - retry: 3
-    - fallback: use_cached_result
-```
-
-## Workflow Templates
-
-### Research Template
-
-```yaml
-name: Research Topic
-inputs:
-  - topic: string
-actions:
-  - search_web:
-      query: "{{topic}} research papers 2024"
-  - summarize:
-      content: "{{search_results}}"
-      format: "bullet_points"
-  - save_to_kb:
-      collection: "Research"
-```
-
-### Content Processing Template
-
-```yaml
-name: Process Content
-inputs:
-  - content: text
-  - target_language: string
-actions:
-  - grammar_check:
-      text: "{{content}}"
-  - translate:
-      text: "{{grammar_checked}}"
-      to: "{{target_language}}"
-  - output:
-      display: true
-      clipboard: true
-```
-
-## Sharing Workflows
-
-### Export
-
-Export workflows to share:
-1. Right-click workflow → Export
-2. Choose format (JSON or .enconvo)
-3. Share the file
-
-### Import
-
-Import shared workflows:
-1. Settings → Workflows → Import
-2. Select workflow file
-3. Review and confirm
-
-### Reference Checkout
-
-When a workflow uses shared references, templates, or reusable workflow parts,
-use reference checkout to pull the referenced content into the workflow before
-editing or testing. This helps avoid editing a stale copy when a workflow
-depends on another source.
-
-### Community Workflows
-
-Browse community workflows:
-1. Settings → Workflows → Browse Community
-2. Preview and install
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Start simple">
-    Begin with 2-3 actions. Add complexity only when needed.
-  </Accordion>
-  <Accordion title="Test incrementally">
-    Test each action as you add it, not just the final workflow.
-  </Accordion>
-  <Accordion title="Use descriptive names">
-    Name workflows and actions clearly so their purpose is obvious.
-  </Accordion>
-  <Accordion title="Document your workflows">
-    Add descriptions explaining what each workflow does and when to use it.
-  </Accordion>
-  <Accordion title="Handle errors">
-    Add error handling for critical workflows that must complete.
-  </Accordion>
-</AccordionGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Workflow doesn't run">
-    - Check all connections are complete
-    - Verify required inputs are provided
-    - Look for error indicators on actions
-  </Accordion>
-  <Accordion title="Wrong output">
-    - Check variable references are correct
-    - Verify action order is logical
-    - Test individual actions to isolate issues
-  </Accordion>
-  <Accordion title="Slow performance">
-    - Reduce unnecessary actions
-    - Use parallel actions where possible
-    - Consider caching frequent operations
-  </Accordion>
-</AccordionGroup>
-
-## Related Features
+## Related
 
 <CardGroup cols={2}>
-  <Card title="Extensions" icon="puzzle-piece" href="/extensions/overview">
-    Use plugins in workflows
+  <Card title="Advanced workflows" icon="wand-magic-sparkles" href="/workflows/advanced-workflows">
+    Branching, loops, output schemas, subworkflows, and per-task models.
   </Card>
-  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
-    Run workflows from SmartBar
+  <Card title="Plugins" icon="puzzle-piece" href="/extensions/overview">
+    The plugins whose APIs you call from `tool:` tasks.
   </Card>
 </CardGroup>
