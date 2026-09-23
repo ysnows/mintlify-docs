@@ -1,182 +1,57 @@
 ---
 title: "SmartBar"
-description: "Access AI assistance instantly with the Spotlight-like SmartBar"
+description: "Ask, launch commands, and attach context from anywhere on your Mac."
 ---
 
-import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+SmartBar is a compact launcher for conversations and commands. Open it with your configured shortcut, commonly **Shift + Command + D**.
 
-## Overview
+## Make a request
 
-SmartBar is EnConvo's flagship feature - a Spotlight-like interface that gives you instant access to AI assistance from anywhere on your Mac. It understands the context of your current work and provides intelligent suggestions.
+1. Open SmartBar and type a question.
+2. Select an Agent or model when needed.
+3. Attach the relevant context rather than assuming the Agent sees every open app.
+4. Submit and follow the response or tool progress.
+5. Copy the result or continue the conversation.
 
-<YouTubePlayer videoId="CZ9Oash0rMk" title="SmartBar Overview & Demo" />
+## Commands, context, and recent tasks
 
-## Opening SmartBar
+The trigger characters are configurable under **Settings → Primary Function Area → SmartBar**. The default fields are:
 
-Press `⇧⌘D` (Shift + Command + D) anywhere on your Mac to open SmartBar.
+| Input | Purpose |
+| --- | --- |
+| `@` | Search commands |
+| `#` | Pick context sources |
+| `>` | Find recent tasks |
+| `/` | Open actions such as model and reasoning selection |
 
-<Tip>
-You can customize this shortcut in Settings → SmartBar.
-</Tip>
+Choose from the picker rather than typing an assumed tool identifier. Installed commands and available contexts can vary. See [Writing Toolkit](/features/writing-tools), [Quick Links](/features/quick-links), and [Context Awareness](/features/context-awareness).
 
-## Key Features
+## Choose a layout
 
-### Context-Aware Responses
+<Frame caption="SmartBar's three opening layouts. The highlighted layout is an example setting.">
+  <img src="/images/guides/smartbar-layout.jpg" alt="Input Only, Input and Toolbar, and Full Panel SmartBar layout choices" />
+</Frame>
 
-> SmartBar automatically detects:
-- **Active application**: Knows if you're in a browser, text editor, or other app
-- **Browser tabs**: Can read and understand the content of your current webpage
-- **Finder selections**: Recognizes selected files and folders
-- **Clipboard content**: Can process recently copied text or images
+| Layout | Initial appearance |
+| --- | --- |
+| Input Only | Just the input field |
+| Input and Toolbar | Input, quick actions, model picker, and voice controls |
+| Full Panel | Also show the command list when opened |
 
-> Manual context can be added with the `#` prefix:
-- **#xcode**: Include the current Xcode project context
-- **#safari**: Include the current Safari tab context
-- **#screen**: Include the current screen content context
-- **#browser**: Include the current browser content context
+These settings control how SmartBar opens. Command lists and results still appear when you type or run a command.
 
+## Useful settings
 
-### Quick Commands
+Choose the **Default Agent**, initial state, context behavior, navigation bindings, and conversation-clearing behavior on the SmartBar settings page. **Shake to Dynamic Island** lets you hand off the floating interaction using the supported gesture when enabled.
 
-Type natural language commands to get instant results:
+Per-chat model and reasoning behavior is described in [Model Selection](/ai/model-selection-guide). Changing a default is not the same as changing every existing chat.
 
-| Command | Example |
-|---------|---------|
-| Ask questions | "What is the capital of France?" |
-| Summarize content | "Summarize this page" |
-| Write content | "Write a professional email about..." |
-| Translate text | "Translate to Spanish: Hello world" |
-| Calculate | "Calculate 15% tip on $85" |
-| Search | "Search for React documentation" |
+## Voice and calculations
 
+Use the microphone for [Dictation](/features/dictation). Use Live Talk for [Live Voice](/features/live-voice); current builds hand SmartBar calls to the Dynamic Island.
 
-### Plugin Integration
+Type a simple arithmetic expression such as `2+3*4` to use the calculator result. Check the displayed result and action before copying it.
 
-SmartBar integrates with 1000+ plugins. Type `@` to see available plugins:
+## Troubleshooting
 
-```
-@translate - Translate text to any language
-@image - Generate images with AI
-@ocr - Extract text from images and screen content
-@fix-spelling - Fix spelling and grammar errors
-@summarize - Summarize documents or webpages
-```
-
-### Voice Input
-
-Use the microphone button or your dictation hotkey to speak directly into
-SmartBar. This is useful for short agent commands, quick follow-up questions,
-or hands-free prompts while you are working in another app.
-
-Voice input uses the dictation provider selected in **Settings → Dictation**.
-For provider selection and troubleshooting, see [Dictation](/features/dictation).
-
-### Update Button
-
-When EnConvo detects a newer version for your selected update channel, SmartBar
-can show an **Update** button in the titlebar. Click it to open the update flow.
-
-<Note>
-Update checks run in the background when SmartBar is shown and are throttled so
-the same check is not repeated more than once within 10 minutes.
-</Note>
-
-For channel setup, see [Updates](/configuration/updates).
-
-
-## Using SmartBar
-
-<Steps>
-  <Step title="Open SmartBar">
-    Press `⇧⌘D` to open the SmartBar overlay
-  </Step>
-  <Step title="Enter your query">
-    Type your question, command, or use a plugin prefix
-  </Step>
-  <Step title="Add context (optional)">
-    - Press `#` to add available context
-    - Press `@` to add tools as context
-  </Step>
-  <Step title="Execute">
-    Press `Enter` to submit your query and receive a response
-  </Step>
-</Steps>
-
-## Context Modifiers
-
-Enhance your queries with context modifiers:
-
-| Modifier | Usage | Description |
-|----------|-------|-------------|
-| `#screen` | Include current screen | Adds screenshot context |
-| `#finder` | Include current Finder selection | Adds selected files and folders |
-| `#clipboard` | Include clipboard content | Adds copied content |
-| `#browser` | Include current browser tab | Adds webpage content |
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `⇧⌘D` | Open/Close SmartBar |
-| `⌘ N` | New conversation |
-| `⌘ P` | Pin/Unpin SmartBar |
-| `↑ / ↓` | Navigate history |
-
-## Mentions And Model Switching
-
-SmartBar supports quick routing while you type:
-
-| Input | Use it for |
-|-------|------------|
-| `@` | Mention plugins, apps, websites, Knowledge Base content, or other context sources |
-| `/` | Open command and model shortcuts |
-| `Return` | Submit the current request or confirm the selected mention/command |
-
-If you mention a command or model, SmartBar keeps the routing attached to the
-current prompt so the response uses the intended tool or provider.
-
-## Built-in Calculator
-
-SmartBar includes an inline calculator. Type any math expression directly into the SmartBar input:
-
-```
-2+3*4       → 14
-sqrt(144)   → 12
-sin(45)     → 0.7071...
-100/3       → 33.333...
-```
-
-When a math expression is detected, SmartBar shows a calculator result card with:
-- The expression and computed result
-- An operation label describing the calculation
-- Press **Enter** to copy the result to your clipboard
-
-<Tip>
-The calculator uses JavaScriptCore for safe expression evaluation, supporting standard arithmetic, trigonometric functions, and more.
-</Tip>
-
-## Tips & Tricks
-
-<AccordionGroup>
-  <Accordion title="Use natural language">
-    SmartBar understands natural language. Instead of keywords, ask complete questions like "How do I center a div in CSS?" or "What's the weather like today?"
-  </Accordion>
-  <Accordion title="Chain commands">
-    You can chain multiple actions: "Translate this to French, then summarize it in 3 bullet points"
-  </Accordion>
-  <Accordion title="Quick copy">
-    Press `⌘⇧ C` to copy the AI response, or click the copy button
-  </Accordion>
-</AccordionGroup>
-
-
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="PopBar" icon="window-restore" href="/features/popbar">
-    Context menu for selected text
-  </Card>
-  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
-    Learn how EnConvo understands your screen
-  </Card>
-</CardGroup>
+If SmartBar does not open, check its hotkey and competing shortcuts. If an app or selected text is missing from context, check [Permissions](/configuration/permissions). If results fail, inspect the selected provider and the reported error. See [Updates](/configuration/updates) when a documented control is missing from your build.

@@ -1,129 +1,36 @@
 ---
-title: "Fireworks AI"
-description: "Configure Fireworks AI high-speed inference in EnConvo"
+title: "Fireworks"
+description: "Connect Fireworks and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **Fireworks** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-Fireworks AI is a high-performance inference platform optimized for speed. It serves open-source models with extremely low latency and high throughput, making it an excellent choice for real-time applications and production workloads.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **Fireworks**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **Llama 3.1 405B** | Largest open model | Complex reasoning |
-| **Llama 3.1 70B** | Strong general model | Analysis, coding |
-| **Llama 3.1 8B** | Fast lightweight model | Quick responses |
-| **Mixtral 8x22B** | Mistral MoE | Balanced workloads |
-| **Qwen 2.5 72B** | Alibaba's model | Multilingual tasks |
-| **FireFunction V2** | Function calling model | Tool use, agents |
+## Provider options
 
-## Setup
+The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [Fireworks AI](https://fireworks.ai)
-    2. Sign in or create an account
-    3. Navigate to **Account** → **API Keys**
-    4. Create a new API key
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **Fireworks AI**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose your preferred model from the dropdown
-  </Step>
-</Steps>
+## Use it in a conversation
 
-## Configuration
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Model to use | Llama 3.1 70B |
-| **Temperature** | Creativity (0-2) | Medium (1) |
-
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the Fireworks credential settings. If validation fails, confirm the API key is active and the account has available credits or quota.
-  </Step>
-  <Step title="Use exact model paths">
-    Prefer selecting from the model dropdown. If you type a model manually, use the exact Fireworks model path from the Fireworks model catalog.
-  </Step>
-  <Step title="Test latency">
-    Fireworks is optimized for fast inference. If a model is slow, test a smaller model or a different hosted variant.
-  </Step>
-</Steps>
-
-## Pricing
-
-Check [Fireworks AI Pricing](https://fireworks.ai/pricing) for current rates.
-
-| Model | Input | Output |
-|-------|-------|--------|
-| Llama 3.1 405B | $3.00/1M | $3.00/1M |
-| Llama 3.1 70B | $0.90/1M | $0.90/1M |
-| Llama 3.1 8B | $0.20/1M | $0.20/1M |
-| Mixtral 8x22B | $1.20/1M | $1.20/1M |
-
-<Note>
-Fireworks AI offers a free tier with rate limits, so you can test models before adding payment.
-</Note>
-
-## Why Fireworks?
-
-<CardGroup cols={2}>
-  <Card title="Ultra-Fast Inference" icon="bolt">
-    Optimized for lowest possible latency
-  </Card>
-  <Card title="Function Calling" icon="wrench">
-    FireFunction models excel at tool use
-  </Card>
-  <Card title="OpenAI Compatible" icon="plug">
-    Drop-in replacement for OpenAI API format
-  </Card>
-  <Card title="Scalable" icon="chart-line">
-    Handles high-throughput production workloads
-  </Card>
-</CardGroup>
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Model Selection">
-    - **Llama 3.1 70B**: Best default for most tasks -- fast and capable
-    - **Llama 3.1 405B**: When you need the highest quality open-source output
-    - **Llama 3.1 8B**: Real-time chat, high-volume processing
-    - **FireFunction V2**: Agent workflows that require reliable function calling
-  </Accordion>
-  <Accordion title="Performance Tips">
-    - Fireworks excels at low-latency responses -- ideal for interactive use cases
-    - Use smaller models for streaming chat to minimize time-to-first-token
-    - Monitor your usage in the Fireworks dashboard
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify the key is copied correctly from [fireworks.ai/account/api-keys](https://fireworks.ai/account/api-keys)
-    - Check if your account has sufficient credits
-    - Ensure the key has not been revoked
-  </Accordion>
-  <Accordion title="Rate limits">
-    - Free tier has rate limits per minute
-    - Upgrade to a paid plan for higher throughput
-    - Use smaller models to reduce token consumption
-  </Accordion>
-  <Accordion title="Model not found">
-    - Model identifiers may change -- check the Fireworks model catalog
-    - Ensure you are using the full model path (e.g., `accounts/fireworks/models/llama-v3p1-70b-instruct`)
-    - Try selecting the model from the EnConvo dropdown instead of typing manually
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

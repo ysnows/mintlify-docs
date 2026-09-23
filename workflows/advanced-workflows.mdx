@@ -6,7 +6,7 @@ description: "Branching, loops, output contracts, subworkflows, per-task models,
 ## Overview
 
 This page covers the control-flow and reliability features of the
-`agent-workflow/v1` DSL, plus several complete, runnable example workflows. If
+`agent-workflow/v1` DSL, plus complete examples. Shell paths and tool/provider availability must match your Mac before running them. If
 you're new to the DSL, start with [Creating Workflows](/workflows/creating-workflows).
 
 ## Branching
@@ -17,14 +17,16 @@ Attach `if:` to run a task only when a condition is true. When the condition is
 false, the task **and everything downstream of it** cascade-skip:
 
 ```yaml
-tasks:
-  deploy:
-    if: inputs.ready          # false → deploy and its dependents skip
-    command: ./deploy.sh
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
 ```
 
 Conditions are template expressions evaluated for truthiness — for example
-`inputs.score >= 60`, `tasks.check.output.exitCode == 0`, or a plain boolean
+`inputs.score >= 60`, `steps.check.output.exitCode == 0`, or a plain boolean
 input.
 
 ### `else_of` — the else branch
@@ -33,13 +35,15 @@ input.
 the "else" side of an `if`:
 
 ```yaml
-tasks:
-  deploy:
-    if: inputs.ready
-    command: ./deploy.sh
-  notify_skip:
-    else_of: deploy           # runs only when `deploy` was skipped by its `if`
-    command: osascript -e 'display notification "deploy skipped"'
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
 ```
 
 ### `run_when: always` — join and cleanup
@@ -50,13 +54,17 @@ as long as its dependencies have finished, whether they succeeded, skipped, or
 failed. Use it for joins and cleanup:
 
 ```yaml
-tasks:
-  build:
-    command: ./build.sh
-  cleanup:
-    needs: [build]
-    run_when: always          # runs even if `build` failed
-    command: rm -rf ./.tmp
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
 ```
 
 ## Loops
@@ -69,14 +77,22 @@ array of outputs:
 
 ```yaml
 inputs:
-  questions: ["What is it?", "Why does it matter?"]
-tasks:
-  answer:
-    foreach: "{{ inputs.questions }}"
-    prompt: "Answer in one sentence: {{ item }}"
-  digest:
-    uses: transform
-    value: "{% for a in tasks.answer.output %}- {{ a }}\n{% endfor %}"
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
 ```
 
 `foreach` also accepts an inline array, and it composes with the other executors
@@ -91,22 +107,26 @@ previous round's output. Exhausting `maxRounds` without satisfying `until` fails
 the task.
 
 ```yaml
-tasks:
-  poll:
-    run: "curl -s -o /dev/null -w '%{http_code}' https://example.com/status"
-    loop:
-      until: "output.stdout | trim == '200'"
-      maxRounds: 10
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
 ```
 
 Omit `until` to loop a fixed number of times:
 
 ```yaml
-tasks:
-  retry_build:
-    command: ./build.sh
-    loop:
-      maxRounds: 3
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
 ```
 
 ## Reliability
@@ -118,39 +138,51 @@ tasks:
 - **`timeoutMs`** — kill a shell task that runs too long.
 
 ```yaml
-tasks:
-  flaky_fetch:
-    tool: web_fetch/web_fetch
-    params: { link_url: "{{ inputs.url }}" }
-    retries: { maxAttempts: 3, delayMs: 1000 }
-  optional_enrich:
-    run: "./enrich.sh || exit 1"
-    required: false           # failure here won't stop the run
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
 ```
 
-## Output contracts — `output_schema`
+## Output contracts
 
 Attach an `output_schema` (a JSON Schema object) to a `prompt` or `agent` task to
 enforce the shape of the reply. You do **not** need to describe the JSON format in
-the prompt text — the schema is enforced by the model provider and injected as an
-instruction, and the reply is parsed (with repair) into an object you can index
-into downstream. If the output doesn't conform, the task retries; if it never
-conforms, the task fails.
+the prompt text — the requested shape is provided to the generation step, and the reply is parsed
+and validated before downstream steps use it. Configure `retries` to retry a
+failed step; a reply that still fails validation fails the step.
 
 ```yaml
-tasks:
-  extract:
-    prompt: "Extract the invoice details from: {{ inputs.text }}"
-    output_schema:
-      type: object
-      required: [payer, amount, date]
-      properties:
-        payer:  { type: string }
-        amount: { type: number }
-        date:   { type: string }
-  record:
-    uses: transform
-    value: "{{ tasks.extract.output.payer }} paid {{ tasks.extract.output.amount }}"
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
 ```
 
 ## Per-task model overrides
@@ -160,17 +192,12 @@ LLM for that task only. This is a **run-scoped** override — your saved model
 configuration is untouched. Use a cheap model for bulk steps and a stronger one
 where it matters:
 
-```yaml
-tasks:
-  draft:
-    prompt: "Draft a blog outline for: {{ inputs.topic }}"
-    provider: enconvo_ai
-    model: anthropic/claude-haiku-4-5-20251001
-  polish:
-    prompt: "Polish this outline into final copy:\n{{ tasks.draft.output }}"
-    provider: enconvo_ai
-    model: anthropic/claude-sonnet-5
-```
+Set `provider` to the installed provider command name and `model` to a model ID
+shown by that provider in your current build. For example, copy both values from
+your working provider configuration into the prompt step. Model availability
+and permissions are account-specific; the examples on this page use your
+configured default model.
+
 
 <Note>
 `provider` is a provider command (e.g. `enconvo_ai`, `open_ai`, `ollama`) and
@@ -182,24 +209,31 @@ tasks.
 
 Compose workflows with `uses: workflow`, either by `workflowId:` (a saved
 workflow) or an inline `workflow:` block. The task's output is the child run
-result — reference the child's task outputs via `output.outputs.<taskId>`:
+result — reference the child's task outputs via `output.outputs['job.step']`:
 
 ```yaml
-tasks:
-  build_each:
-    foreach: "{{ inputs.targets }}"
-    uses: workflow
-    inputs:
-      target: "{{ item }}"
-    workflow:
-      tasks:
-        compile:
-          run: "make {{ inputs.target }}"
-        package:
-          run: "tar czf {{ inputs.target }}.tgz build/"
-  summary:
-    uses: transform
-    value: "{% for r in tasks.build_each.output %}{{ r.status }} {% endfor %}"
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
 ```
 
 ## Templates reference
@@ -207,7 +241,8 @@ tasks:
 | Reference | Where |
 |---|---|
 | `{{ inputs.x }}` | Anywhere — workflow inputs |
-| `{{ tasks.<id>.output }}` | Anywhere — an upstream task's output |
+| `{{ steps.<id>.output }}` | Anywhere — a previous step in the same job |
+| `{{ jobs.<job>.<step>.output }}` | A completed step in a dependency job |
 | `{{ item }}` / `{{ index }}` | Inside a `foreach` task |
 | `{{ round }}` / `{{ last }}` | Inside a `loop` task |
 | `{{ now }}` | Current timestamp |
@@ -221,31 +256,33 @@ Templates support Nunjucks filters (`| trim`, `| int`, `| dump`, `| default(...)
 ### Research → summarize → report
 
 Search the web, summarize the findings, and assemble a Markdown report. Note the
-sequential-by-default chaining — no `needs` wiring required:
+sequential steps within one job — no `needs` wiring required:
 
 ```yaml
 version: agent-workflow/v1
 title: Research Brief
 description: Search the web on a topic and produce a short Markdown brief.
 inputs:
-  topic: coffee brewing
-tasks:
-  search:
-    tool: web_search/web_search
-    params:
-      search_query: "{{ inputs.topic }} latest"
-      limit: 5
-  summarize:
-    prompt: |
-      Summarize the key points from these results in 4 bullets.
-      Results: {{ tasks.search.output }}
-    provider: enconvo_ai
-    model: anthropic/claude-haiku-4-5-20251001
-  report:
-    uses: transform
-    value: |
-      # {{ inputs.topic }} — brief ({{ now }})
-      {{ tasks.summarize.output }}
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
 ```
 
 ### Conditional routing
@@ -257,21 +294,28 @@ version: agent-workflow/v1
 title: Lead Router
 description: Route a lead by score, reporting the outcome either way.
 inputs:
-  score: 42
-tasks:
-  approve:
-    if: "inputs.score >= 60"
-    uses: transform
-    value: "approved"
-  reject:
-    else_of: approve
-    uses: transform
-    value: "rejected"
-  report:
-    needs: [approve, reject]
-    run_when: always
-    uses: transform
-    value: "outcome: {{ tasks.approve.output | default('') }}{{ tasks.reject.output | default('') }}"
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
 ```
 
 ### Loop until converged
@@ -283,26 +327,34 @@ version: agent-workflow/v1
 title: Refine Until Good
 description: Improve a draft until a self-check approves it.
 inputs:
-  brief: A tweet announcing our new feature.
-tasks:
-  refine:
-    prompt: |
-      Improve this draft. Return the improved draft and whether it is ready.
-      Previous attempt: {{ last | default(inputs.brief) }}
-    provider: enconvo_ai
-    model: anthropic/claude-haiku-4-5-20251001
-    output_schema:
-      type: object
-      required: [draft, approved]
-      properties:
-        draft:    { type: string }
-        approved: { type: boolean }
-    loop:
-      until: "output.approved == true"
-      maxRounds: 4
-  publish:
-    uses: transform
-    value: "{{ tasks.refine.output.draft }}"
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
 ```
 
 ## Related

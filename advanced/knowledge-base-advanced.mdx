@@ -96,38 +96,9 @@ Embedded chunks are stored in LanceDB with the following schema:
 
 ## Embedding Model Selection
 
-The choice of embedding model significantly impacts search quality. EnConvo supports multiple embedding providers.
+Choose an embedding provider available in the [Provider Catalog](/providers/catalog#embeddings) and the knowledge base's settings. Keep the same model and dimensions for indexing and query embeddings. Changing the model can require re-embedding the stored content; a new model selection alone does not convert existing vectors.
 
-### Cloud Embedding Models
-
-| Provider | Model | Dimensions | Best For |
-|----------|-------|------------|----------|
-| **OpenAI** | text-embedding-3-small | 1,536 | General purpose, good balance of quality and cost |
-| **OpenAI** | text-embedding-3-large | 3,072 | Highest quality, best for critical applications |
-| **Voyage AI** | voyage-3 | 1,024 | Code and technical documentation |
-| **Cohere** | embed-english-v3.0 | 1,024 | English text, good multilingual support |
-
-### Local Embedding Models
-
-| Provider | Model | Description |
-|----------|-------|-------------|
-| **Ollama** | nomic-embed-text | Good general-purpose local model |
-| **Ollama** | mxbai-embed-large | Higher quality, more resource intensive |
-| **LM Studio** | Various | Any GGUF embedding model |
-
-<Warning>
-Once a knowledge base is created with a specific embedding model, you cannot change the model without re-indexing all content. The embedding dimensions must match.
-</Warning>
-
-### Choosing an Embedding Model
-
-Consider these factors:
-
-1. **Quality**: Larger models generally produce better embeddings but are slower and more expensive
-2. **Privacy**: Local models keep all data on your Mac; cloud models send text chunks to the provider
-3. **Cost**: Cloud models charge per token; local models use your hardware
-4. **Speed**: Cloud models are typically faster for large batches; local models avoid network latency
-5. **Language**: Some models handle multilingual content better than others
+Test a representative document and query before importing a large collection. Consider language support, local resource use, cloud processing, and the provider's current limits.
 
 ## Search and Retrieval
 
@@ -167,11 +138,7 @@ For best results, EnConvo combines both approaches:
 
 Reranking models re-score search results for improved relevance. After the initial retrieval, a reranker evaluates each result against the query and reorders them.
 
-| Provider | Model | Description |
-|----------|-------|-------------|
-| **Cohere** | rerank-english-v3.0 | High-quality English reranking |
-| **Cohere** | rerank-multilingual-v3.0 | Multilingual reranking |
-| **SiliconFlow** | Various | Alternative reranking provider |
+Use the rerankers offered by your installed build; see [Provider Catalog](/providers/catalog#reranking). Reranking may involve a separate local model or cloud request.
 
 <Tip>
 Reranking is especially useful when you have large knowledge bases. The initial search retrieves a broad set of candidates, and the reranker narrows them down to the most relevant results.
@@ -194,11 +161,7 @@ Indexes are created automatically when needed. For very large knowledge bases, y
 
 ### Storage Considerations
 
-| Knowledge Base Size | Expected Storage | Notes |
-|-------------------|-----------------|-------|
-| 100 documents | ~50-200 MB | Depends on document size and embedding dimensions |
-| 1,000 documents | ~500 MB - 2 GB | Consider using a dedicated storage location |
-| 10,000+ documents | 2+ GB | Recommend SSD storage for best performance |
+Storage depends on the original assets, extracted text, chunk count, and embedding dimensions. Monitor actual disk use for your collection instead of estimating it only from the number of documents. Keep source files and backups independently of the search index.
 
 ## Multi-Knowledge Base Management
 
@@ -220,7 +183,7 @@ You can create multiple knowledge bases for different purposes. Each operates in
 
 ### Querying Multiple Knowledge Bases
 
-You can search across multiple knowledge bases simultaneously by referencing them with the `@kb` modifier or by configuring auto-reference to include specific collections.
+Attach the intended knowledge bases with the context picker, or configure the Agent's attached knowledge bases. Available choices depend on the installed build and Agent settings.
 
 ## Knowledge Base API
 
@@ -253,16 +216,9 @@ Trigger: New file in ~/Documents/research/
 
 ## Advanced Configuration
 
-### Custom Chunk Sizes
+### Chunking
 
-While the default 6,000-character chunk size works well for most content, specific use cases may benefit from adjustments:
-
-| Content Type | Recommended Chunk Size | Reason |
-|-------------|----------------------|--------|
-| Short Q&A pairs | 1,000-2,000 | Each pair should be a single chunk |
-| Technical docs | 4,000-6,000 | Balance detail with context |
-| Legal documents | 6,000-8,000 | Preserve clause context |
-| Code files | 2,000-4,000 | Function-level granularity |
+The current text loader uses 6,000-character chunks with a 100-character overlap. These are implementation defaults, not a universal user-facing settings control. Parsing and indexing changes should be tested on a small collection before a rebuild.
 
 ### Monitoring and Maintenance
 
@@ -310,3 +266,11 @@ While the default 6,000-character chunk size works well for most content, specif
     Configure embedding and reranking providers
   </Card>
 </CardGroup>
+
+## Linked-folder and indexing checks
+
+For a missing item, inspect the source folder's import and synchronization status first. Then inspect the item's content-extraction status and embedding status separately: readable extracted text does not guarantee that vector indexing has finished. Retry the failed stage after fixing its provider or file-access error.
+
+The source folder remains the authority for linked files. Keep offline-drive recovery separate from file deletion, and review skipped-file counts before treating an import as complete.
+
+For client access, use [Knowledge Base MCP](/advanced/knowledge-base-mcp). It exposes selected knowledge bases through a local, read-only service; it does not export Agent Memory or recordings.

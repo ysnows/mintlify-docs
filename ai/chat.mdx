@@ -1,222 +1,40 @@
 ---
-title: "AI Chat"
-description: "Chat with AI models to get help with any task"
+title: "Chat"
+description: "Manage conversations, projects, context, and model choices."
 ---
 
-## Overview
+The Chat Window is Enconvo's main space for ongoing conversations. Choose an Agent, add the material it needs, and keep related work together.
 
-EnConvo provides powerful AI chat capabilities that let you converse with various AI models for assistance with any task. Whether you need help writing, coding, researching, or problem-solving, AI Chat has you covered.
+## Start a conversation
 
-## Supported AI Models
+1. Open **Chat Window** from Enconvo.
+2. Select an Agent and create a **New chat**.
+3. Type your request and attach any relevant files, app context, or knowledge-base material.
+4. Check the model and reasoning selection.
+5. Send the request and follow tool progress if the Agent is using tools.
 
-EnConvo supports a wide range of AI providers and models:
+Use a complete request: “Summarize the attached proposal in five bullets and list open questions” gives the Agent both input and an expected result.
 
-### Cloud Models
+## Organize work
 
-| Provider | Models |
-|----------|--------|
-| **OpenAI** | GPT-4o, GPT-4, GPT-3.5 Turbo |
-| **Anthropic** | Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku |
-| **Google** | Gemini Pro, Gemini Ultra |
-| **Mistral** | Mistral Large, Mistral Medium |
+Use the sidebar to return to recent conversations and organize related conversations in projects where available. Check a conversation's menu for renaming, moving, archiving, or deletion actions supported by your build. Read the confirmation before deleting history.
 
-### Local Models (Privacy-First)
+### Model choices
 
-| Platform | Models |
-|----------|--------|
-| **Ollama** | Llama 3, Mistral, CodeLlama, and more |
-| **LM Studio** | Any GGUF model |
+A top-level **New chat** can set the Agent's model default. A new conversation inside a project uses that project's model preference. Each created chat can keep its own model and reasoning override. See [Model Selection](/ai/model-selection-guide) before changing defaults used elsewhere.
 
-## Chat Features
+## Context and attachments
 
-### Multi-Turn Conversations
-Maintain context across multiple messages for natural, flowing conversations.
+Use only the sources relevant to the request. A file attachment, screen capture, knowledge-base lookup, and browser page provide different kinds of context. See [Context Awareness](/features/context-awareness) for source selection and [Files and Folders](/ai/file-tools) for Agent file access.
 
-### Context Integration
-Automatically include:
-- Screen content
-- Selected text
-- Clipboard data
-- Knowledge base references
-- File attachments
+The Agent's [Memory](/ai/memory) and a [Knowledge Base](/ai/knowledge-base) have different purposes: memory holds reusable facts; a knowledge base stores material for retrieval.
 
-### Response Handling
-- **Copy**: Copy response to clipboard
-- **Regenerate**: Get a different response
-- **Edit & Resend**: Modify your prompt
-- **Continue**: Ask for more details
-- **TTS**: Listen to response (Text-to-Speech)
+## Read and reuse responses
 
-### Voice Input In Chat Window
+Expand work details to inspect tool calls and their results. The reply action row offers **Copy**, **Read Aloud**, and **More** in current builds. [Visual Answers](/features/visual-answers) can embed diagrams or interactive content directly in a reply.
 
-Use the microphone button in the Chat Window prompt to dictate a message instead
-of typing. This uses the same dictation provider configured under
-**Settings → Dictation**, so you can choose a real-time cloud provider, a
-subscription provider, or an offline local model.
+Use [Dictation](/features/dictation) to compose with speech, or [Live Voice](/features/live-voice) for a two-way spoken conversation.
 
-<Tip>
-Voice input is best for natural follow-up prompts such as "summarize this in
-three bullets" or "turn that into a shorter email."
-</Tip>
+## Troubleshooting
 
-### Conversation Navigation
-
-The Chat Window keeps conversation history in sync with the sidebar and titlebar
-controls:
-
-- Use the titlebar back and forward buttons to move through recent chat views.
-- Use the history sidebar to switch conversations.
-- Use row actions to manage individual history items when available.
-- Use prompt mentions to add tools, apps, websites, files, or Knowledge Base
-  context before sending.
-
-### Update Button
-
-When EnConvo detects a newer version for your selected update channel, the Chat
-Window can show an **Update** button in the titlebar. Click it to open the
-update flow.
-
-For update channels and manual checks, see [Updates](/configuration/updates).
-
-## Chat with Documents
-
-Upload documents directly into chat for AI analysis:
-
-<Steps>
-  <Step title="Attach Document">
-    Drag & drop a file into chat, or click the attachment icon
-  </Step>
-  <Step title="Supported Formats">
-    PDF, Word (.docx), Text (.txt), Markdown (.md), Code files
-  </Step>
-  <Step title="Ask Questions">
-    "Summarize this document"
-    "What are the key points?"
-    "Find information about X"
-  </Step>
-</Steps>
-
-## Chat with Webpages
-
-Analyze and discuss webpage content:
-
-<Steps>
-  <Step title="Include Webpage">
-    Use `@webpage` or paste a URL in your chat
-  </Step>
-  <Step title="Ask Questions">
-    "Summarize this article"
-    "What is this page about?"
-    "Extract the main arguments"
-  </Step>
-</Steps>
-
-## Text-to-Speech (TTS)
-
-Have AI responses read aloud:
-
-### Enabling TTS
-1. Click the speaker icon on any AI response
-2. Or enable auto-TTS in Settings → Chat → Text-to-Speech
-
-### Voice Options
-- Multiple voice options
-- Adjustable speed (0.5x - 2x)
-- Different languages
-- Male/Female voices
-
-## Model Selection
-
-### Switching Models
-Click the model name in the chat header to switch between configured models.
-
-The model picker keeps spacing compact and applies your selection to the current
-conversation. If a model requires a provider login or API key, configure that
-provider first under **Settings → AI Provider**.
-
-### Model-Specific Features
-
-| Model | Best For |
-|-------|----------|
-| **GPT-4o** | Complex reasoning, analysis |
-| **Claude 3.5 Sonnet** | Writing, nuanced tasks |
-| **Gemini Pro** | Multimodal, long context |
-| **Local LLMs** | Privacy, offline use |
-
-### Custom Model Settings
-Configure per-model settings:
-- Temperature (creativity level)
-- Max tokens (response length)
-- System prompt
-- Top-p sampling
-
-## Chat Commands
-
-Use these commands in chat for quick actions:
-
-| Command | Action |
-|---------|--------|
-| `/new` | Start new conversation |
-| `/clear` | Clear current conversation |
-| `/model [name]` | Switch AI model |
-| `/context` | Show current context |
-| `/export` | Export conversation |
-| `/help` | Show available commands |
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `⌘ Enter` | Send message |
-| `⇧ Enter` | New line |
-| `⌘ N` | New conversation |
-| `⌘ L` | Clear conversation |
-| `↑` | Edit last message |
-| `⌘ C` | Copy last response |
-
-## Message Rendering
-
-Chat messages support Markdown, code blocks, tables, images, files, and tool
-results. Long tables are scrollable so they do not break the conversation
-layout, and text selection is optimized for copying only the content you need.
-
-## Configuration
-
-### Settings → Chat
-
-| Setting | Description |
-|---------|-------------|
-| **Default Model** | Model used for new chats |
-| **Temperature** | Response creativity (0-1) |
-| **Stream Responses** | Show text as it generates |
-| **Auto-TTS** | Read responses aloud |
-| **History Length** | Messages to keep in context |
-| **System Prompt** | Custom instructions for AI |
-
-## Tips for Better Responses
-
-<AccordionGroup>
-  <Accordion title="Be specific">
-    Instead of "Write about AI", try "Write a 500-word blog post about how AI is transforming healthcare in 2024, focusing on diagnosis and treatment planning."
-  </Accordion>
-  <Accordion title="Provide context">
-    Share relevant background: "I'm a software developer working on a React app. How do I..."
-  </Accordion>
-  <Accordion title="Use examples">
-    Show the AI what you want: "Format the response like this: [example]"
-  </Accordion>
-  <Accordion title="Break complex tasks">
-    Divide large requests: "First, outline the structure. Then, write section 1..."
-  </Accordion>
-</AccordionGroup>
-
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="Knowledge Base" icon="database" href="/ai/knowledge-base">
-    Chat with your documents
-  </Card>
-  <Card title="Local LLM" icon="shield-halved" href="/ai/local-llm">
-    Privacy-first local models
-  </Card>
-</CardGroup>
+If a response uses the wrong model, inspect this conversation's selection as well as the Agent default. If the Agent cannot see a file or screen, review its attachments and permissions. If a tool is unavailable, check the Agent's enabled tools instead of repeatedly rephrasing the same request.

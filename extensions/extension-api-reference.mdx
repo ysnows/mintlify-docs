@@ -1,6 +1,6 @@
 ---
 title: "Extension API Reference"
-description: "Complete API reference for developing Enconvo extensions"
+description: "SDK patterns and API entry points for developing Enconvo extensions"
 ---
 
 ## Overview
@@ -17,10 +17,10 @@ The `Commander` namespace handles all communication between extension Worker thr
 
 ### Commander.addClickListener
 
-Registers the main entry point handler for a command. This is the primary way to define what happens when a command is invoked.
+Registers the main entry point handler for a command. The build/runtime adapter uses this registration mechanism. For ordinary plugin command files, use the default-exported handler shown in [Developing Extensions](/extensions/developing), rather than registering the same handler twice.
 
 ```typescript
-import { Commander } from "@enconvo/api";
+import { Commander, EnconvoResponse } from "@enconvo/api";
 
 Commander.addClickListener(async (req: Request) => {
   const options = await req.json();
@@ -33,7 +33,7 @@ The `req` parameter is a standard `Request` object. Use `req.json()` to access t
 
 ### Commander.send
 
-Fire-and-forget message to the native macOS app. Returns a Promise that resolves when the host acknowledges.
+Send a request to the native macOS app. Returns a Promise for the matching response. Use `sendAsync` only when the operation does not need a result.
 
 ```typescript
 // Send a custom method with payloads
@@ -620,19 +620,16 @@ export default async function main(request: Request) {
 
 ```bash
 # Build for production
-npx enconvo build
+npx enconvo plugin build
 
 # Dev mode with hot reload
-npx enconvo build --dev
+npx enconvo plugin build --dev
 
 # Generate API schema
-npx enconvo generate-schema
-
-# Generate API docs + schema
-npx enconvo generate-docs
+npx enconvo plugin generate-schema
 
 # Publish to store
-npx enconvo publish
+npx enconvo plugin publish
 ```
 
 ## Next Steps

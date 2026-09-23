@@ -1,0 +1,35 @@
+---
+title: "Files and Folders"
+description: "Let an Agent find, read, and edit local files."
+---
+
+Enconvo's file tools help an Agent work with files in its allowed directories. Enable only the tools needed for the task in the Agent's settings and give the Agent an explicit folder or file to work with.
+
+## Start with a read-only task
+
+1. Open the Agent's settings and review its file tools and directory access.
+2. In the conversation, identify a folder or attach the file you want to use.
+3. Ask a bounded question, such as “Find Markdown files in this project and summarize the README.”
+4. Review the files and tool output the Agent used before asking it to make changes.
+
+| Tool | Purpose |
+| --- | --- |
+| Glob | Find files by path pattern, such as `**/*.md` |
+| Grep | Search text inside files, with file patterns and line numbers |
+| Read File | Read text or extract supported document/media content |
+| Edit File | Replace matching text and return a diff |
+| Write File | Create a file or replace its complete contents |
+
+<Warning>
+Write File can overwrite an existing file. Use a copy or version control for important documents, and review the destination and requested changes before approving an action.
+</Warning>
+
+## Documents and media
+
+Reading a PDF, Office document, image, audio file, or video can invoke parsing, OCR, or transcription rather than returning raw bytes. Supported formats and processing depend on the installed tools and configured providers. See [OCR](/ai/ocr), [Transcription](/features/transcription), and [Knowledge Base](/ai/knowledge-base).
+
+## Troubleshooting
+
+For an access error, check the Agent's allowed directories and macOS permissions. For an empty extraction, confirm the file type and parser support. A scanned PDF may need OCR. For an edit that cannot match the requested text, have the Agent read the current file again before editing.
+
+[Code Runner](/ai/code-runner) executes code and shell commands; file tools can inspect and edit without requiring a shell for every operation.

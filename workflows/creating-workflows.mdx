@@ -1,236 +1,129 @@
 ---
 title: "Creating Workflows"
-description: "Author agent-workflow/v1 YAML in the editor, with help from the built-in editing assistant"
+description: "Create and inspect workflows in the Visual editor or YAML, with an editing assistant."
 ---
 
-## Overview
+Open **Settings → Workflows → Manage** and select **New workflow**, or open an existing workflow with **Edit**.
 
-You build a workflow by writing an `agent-workflow/v1` YAML document. This guide
-covers the editor, the editing assistant, the anatomy of the DSL, and each
-executor with a working snippet. For branching, loops, and end-to-end examples,
-continue to [Advanced Workflows](/workflows/advanced-workflows).
+<Frame caption="The Visual editor shows parallel jobs, sequential steps, and the selected step's configuration.">
+  <img src="/images/guides/workflow-visual.jpg" alt="Actual Enconvo workflow graph with two parallel jobs and a step inspector" />
+</Frame>
 
-## The workflow editor
+## Build with the Visual editor
 
-Open **Settings → Workflows** and click **New workflow** to create one — it opens
-immediately in the editor with a starter template you can shape. The editor has:
+1. Select **Visual** in the editor toolbar.
+2. Use **Add step here** between nodes to insert a step, or **Add parallel job** for a separate branch.
+3. Select a step to open its inspector. Edit its ID, title, executor settings, and any advanced options.
+4. Select the **Inputs** node to configure the workflow's declared inputs.
+5. Review the graph and use **Undo** or **Redo** while editing.
+6. Select **Save** after reviewing your changes.
 
-- **YAML source** on the left, with live validation. A **Valid / Invalid** badge
-  and inline error messages tell you the moment something is off.
-- **Flow preview** on the right — a read-only graph of your tasks and their
-  dependencies, updated as you type.
-- **Inputs** panel — provide values for a test run.
-- **Run** — execute the workflow and watch each task's status and output. Click a
-  node in the graph to inspect that step's output; the result pane shows the
-  final output by default.
-- **Runs** — recent run history for the workflow, so you can reopen a past run's
-  output when debugging.
+The inspector provides **Config** and **Output** tabs. **Run step** executes the selected step; it can perform real tool calls or shell commands. Check that required upstream values exist before running an individual step.
 
-<Note>
-Saving writes the file to `~/.enconvo/workflows/<id>.yaml`. Keep the id (file
-name) stable — run history is keyed to it, so renaming orphans past runs.
-</Note>
+## Edit YAML
 
-## The editing assistant
-
-Below the YAML source is an **editing assistant**. Describe the change you want
-in plain language — "add a step that searches the web for the topic and feed it
-into the summary", "switch the summary to Claude Haiku", "wrap the last step in a
-retry" — and the assistant edits the document for you.
-
-The assistant knows the full DSL and can discover the APIs of your installed
-plugins, so it wires up the right `tool:` paths and parameters. Its edits update
-the YAML and flow graph live, leaving the changes **unsaved** so you can review
-them before clicking **Save**.
-
-<Tip>
-The assistant is the fastest way to learn the DSL: ask it to build the first
-version, then read the YAML it produced and tweak from there.
-</Tip>
-
-## Anatomy of a workflow
-
-Every workflow has a small metadata header and a `tasks` map:
+Select **YAML** to work with the same document as source. The **Valid / Invalid** badge and **Validate** action help find malformed definitions. Use letters, digits, and underscores for job and step IDs; start with a letter or underscore.
 
 ```yaml
-version: agent-workflow/v1     # required — must be exactly this
-title: Quick Summary           # required — shown in SmartBar and the list
-description: Summarize the given text into three bullet points.  # required
-inputs:                        # optional — defaults, overridable per run
-  text: ""
-tasks:
-  summarize:
-    prompt: "Summarize into 3 bullets:\n{{ inputs.text }}"
-```
-
-<Warning>
-`version`, `title`, and `description` are all required and `title`/`description`
-must be non-empty. Each task must define **exactly one** executor.
-</Warning>
-
-### Inputs
-
-Declare `inputs` with default values. Callers override them per run — the run
-merges provided inputs over the file's defaults. When a workflow is launched from
-SmartBar, the typed text arrives as `inputs.input_text`:
-
-```yaml
+version: agent-workflow/v1
+title: Greeting
+description: Produce a greeting and a formatted result without calling a model.
 inputs:
-  topic: AI news
-  input_text: ""     # populated by SmartBar's typed query
-tasks:
-  research:
-    prompt: "Give me 3 facts about {{ inputs.input_text or inputs.topic }}"
+  name:
+    type: string
+    default: world
+jobs:
+  main:
+    steps:
+      - id: greeting
+        uses: transform
+        value: "Hello, {{ inputs.name }}!"
+      - id: result
+        uses: transform
+        value: "Result: {{ steps.greeting.output }}"
 ```
 
-## Executors
+Run this example with `{"name":"Ada"}` in **Inputs**. The final step produces `Result: Hello, Ada!`.
 
-### Shell — `run` / `command`
+## Choose an executor
 
-Runs a command in your login shell. `command:` is an alias of `run:`. The output
-is an object, so reference `.stdout`, `.stderr`, `.exitCode`, or `.text`:
+The following snippets are step entries: place them inside a job's `steps` list.
+
+### Shell
 
 ```yaml
-tasks:
-  files:
-    run: "ls -1 ~/Downloads | head -5"
-  count:
-    uses: transform
-    value: "{{ tasks.files.output.stdout | trim }}"
+- id: today
+  command: 'date "+%Y-%m-%d"'
 ```
 
-Optional shell settings: `cwd`, `shell`, `timeoutMs`, and `env` (a map of
-string/number/boolean values).
+Read the result with `steps.today.output.stdout`. Optional settings include `cwd`, `shell`, `timeoutMs`, and `env`. Commands use the permissions of your Mac account; review commands before running them.
 
-<Warning>
-Shell tasks run with your real shell and permissions. Prefer idempotent
-commands, and never write secrets into a workflow file.
-</Warning>
-
-### Prompt — one-shot LLM
-
-A single LLM call. The output is the reply text (or parsed JSON when you attach
-an `output_schema`, covered in [Advanced Workflows](/workflows/advanced-workflows)):
+### Prompt
 
 ```yaml
-tasks:
-  tagline:
-    prompt: "Write a punchy one-line tagline for: {{ inputs.product }}"
+- id: summarize
+  prompt: "Summarize this text: {{ inputs.text }}"
 ```
 
-### Agent — full agent delegation
+This calls a model once. Use [output schemas](/workflows/advanced-workflows#output-contracts) when later steps need structured fields.
 
-Delegates to an agent that can use tools, read files, and browse. Provide the
-agent command key and a `message`:
+### Agent
 
 ```yaml
-tasks:
-  investigate:
-    agent: agent/main
-    message: "Find the current weather in {{ inputs.city }} and report it."
+- id: plan
+  agent: agent/main
+  message: "Propose a three-step plan for {{ inputs.topic }}."
 ```
 
-### Tool — call a plugin API
+Use a command key for an installed Agent. Its enabled tools and provider settings determine what it can do.
 
-Calls any installed plugin's Local API endpoint by its slash path, with `params`.
-You can discover the exact path and parameters for any plugin under
-**Settings → Plugins** (open a plugin and copy an endpoint's path), or ask the
-editing assistant:
+### Tool
 
 ```yaml
-tasks:
-  search:
-    tool: web_search/web_search
-    params:
-      search_query: "{{ inputs.topic }} latest news"
-      limit: 5
+- id: saved
+  tool: workflow/list
+  with:
+    limit: 5
 ```
 
-### Transform — reshape data
+`tool` is a Local API route in slash form. `with` supplies parameters (`params` is an alias). Discover available routes in **Settings → Developer → APIs**, or ask the editing assistant to inspect installed tools.
 
-Pure template evaluation with no side effects — useful for assembling a final
-result from earlier task outputs:
+### Transform and subworkflow
 
-```yaml
-tasks:
-  report:
-    uses: transform
-    value: |
-      # {{ inputs.topic }}
-      {{ tasks.search.output.content }}
-```
+Use `uses: transform` with a `value` to combine inputs or previous outputs without calling a model. Use `uses: workflow` with a saved `workflowId`, or an inline `workflow` document, to run a reusable child process. See [Advanced Workflows](/workflows/advanced-workflows#subworkflows).
 
-### Subworkflow — compose workflows
+## Reference earlier results
 
-Run another workflow as a step, either by id or inline. Its output is the child
-run result; reference the child's task outputs via `output.outputs.<taskId>`:
+| Expression | Value |
+| --- | --- |
+| `{{ inputs.name }}` | An input value |
+| `{{ steps.greeting.output }}` | A previous step in the same job |
+| `{{ jobs.research.search.output }}` | A completed step in another job |
+| `{{ item }}` and `{{ index }}` | Current item and index in `foreach` |
+| `{{ round }}` and `{{ last }}` | Round and previous output in a loop |
 
-```yaml
-tasks:
-  slugify:
-    uses: workflow
-    inputs:
-      text: "{{ inputs.title }}"
-    workflow:
-      tasks:
-        slug:
-          run: "printf '%s' '{{ inputs.text }}' | tr ' A-Z' '-a-z'"
-  use:
-    uses: transform
-    value: "slug is {{ tasks.slugify.output.outputs.slug.stdout }}"
-```
+Add job-level `needs` before reading another job's output. Inspect tool results in **Output** rather than assuming every tool returns the same fields.
 
-## Referencing data with templates
+## Use the editing assistant
 
-Workflows use Nunjucks templates. The values available in any task:
+Describe the change in the assistant composer, for example: “Add a prompt step that summarizes the previous result.” Choose its model, submit, and review the resulting graph and YAML. Assistant edits remain unsaved until you select **Save**.
 
-| Reference | Available |
-|---|---|
-| `{{ inputs.x }}` | Workflow inputs |
-| `{{ tasks.<id>.output }}` | An upstream task's output |
-| `{{ item }}` / `{{ index }}` | The current item/index inside a `foreach` |
-| `{{ round }}` / `{{ last }}` | The round number / previous round's output inside a `loop` |
-| `{{ now }}` | Current timestamp |
-| `{{ env.HOME }}` | Process environment variables |
+## Run and inspect
 
-<Note>
-Shell output is an object — use `tasks.x.output.stdout`, not the bare
-`tasks.x.output`. Plugin tool tasks often return an assistant-message object; run
-the workflow once and inspect the real output shape before referencing nested
-fields.
-</Note>
+1. Select **Inputs** and supply run values as JSON.
+2. Validate the definition and inspect any commands or tool calls.
+3. Choose **Run** and watch step status in the graph.
+4. Select a step's **Output** tab to inspect its result or error.
+5. Open **Runs** to inspect previous runs.
+6. Save the workflow when you are satisfied with its definition.
 
-## Run, inspect, and save
+Saving writes `~/.enconvo/workflows/<id>.yaml`. Editing a definition and running it are separate actions. A run can consume provider credits or change external data depending on its steps.
 
-<Steps>
-  <Step title="Validate">
-    The editor validates continuously. Fix any inline errors until the badge
-    reads **Valid**.
-  </Step>
-  <Step title="Set inputs">
-    Open the **Inputs** panel and provide test values.
-  </Step>
-  <Step title="Run">
-    Click **Run**. Watch each task's status in the flow graph, and click a node
-    to see that step's output.
-  </Step>
-  <Step title="Debug from history">
-    If a run fails, open **Runs** and reopen it — the failing task's `error`,
-    `stdout`, and `stderr` are recorded. Read them before editing.
-  </Step>
-  <Step title="Save">
-    Click **Save** to write the file. It's now runnable from SmartBar and
-    available as an `@` mention in chat.
-  </Step>
-</Steps>
+## Watch the steps
 
-## Related
+<video controls playsInline preload="none" poster="/images/guides/workflow-visual.jpg" aria-label="Explore the workflow editor" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/workflow-editor.mp4" type="video/mp4" />
+  [Download the walkthrough](/videos/guides/workflow-editor.mp4).
+</video>
 
-<CardGroup cols={2}>
-  <Card title="Advanced workflows" icon="wand-magic-sparkles" href="/workflows/advanced-workflows">
-    Branching, loops, output schemas, subworkflows, and per-task models.
-  </Card>
-  <Card title="Plugins" icon="puzzle-piece" href="/extensions/overview">
-    The plugins whose APIs you call from `tool:` tasks.
-  </Card>
-</CardGroup>
+Switch between Visual and YAML, inspect run inputs, and open a step inspector. The workflow is neither changed nor executed. This silent walkthrough uses real interface captures with pauses added for reading. The written steps above provide the same instructions.

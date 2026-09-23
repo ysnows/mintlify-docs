@@ -1,131 +1,38 @@
 ---
-title: "Anthropic (Claude)"
-description: "Configure Claude models in EnConvo"
+title: "Anthropic"
+description: "Connect Anthropic and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **Anthropic** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-Anthropic's Claude models are known for their helpfulness, safety, and strong reasoning capabilities.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **Anthropic**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **Claude Opus 4.8** | Most capable | Complex tasks |
-| **Claude Opus 4.5** | Previous Opus generation | Complex tasks |
-| **Claude 4 Sonnet** | Balanced | General use |
-| **Claude 3.7 Sonnet** | Previous gen balanced | Writing, coding |
-| **Claude 3.5 Sonnet** | Fast and capable | Daily tasks |
-| **Claude 3 Haiku** | Fastest | Quick responses |
+## Provider options
 
-## Setup
+Choose **API Key** or **Claude Subscription** in Authentication. See [Claude Subscription](/providers/anthropic_subscription) for connecting an account. Reasoning controls depend on the selected model.
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [Anthropic Console](https://console.anthropic.com)
-    2. Sign in or create an account
-    3. Navigate to **API Keys**
-    4. Create a new API key
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **Anthropic**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose your preferred model from the dropdown
-  </Step>
-</Steps>
+The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
 
-## Configuration
+## Use it in a conversation
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Model to use | Claude Sonnet 4.5 |
-| **Temperature** | Creativity (0-1) | Medium (1) |
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the Anthropic credential settings. If validation fails, confirm the API key belongs to an active Anthropic Console account with billing enabled.
-  </Step>
-  <Step title="Refresh models">
-    Reopen the model dropdown after validation. Some Claude models require account access or may only appear after your account is approved.
-  </Step>
-  <Step title="Send a short test">
-    Test with a simple prompt before using Claude in long-running agents, document workflows, or coding tasks.
-  </Step>
-</Steps>
-
-<Note>
-  Anthropic API billing is separate from a Claude Pro or Max subscription. Use the Claude subscription provider if you want to connect an existing Claude plan instead.
-</Note>
-
-## Extended Thinking
-
-For Claude 3.7+ and Claude 4 models, enable extended thinking for complex reasoning:
-
-| Level | Tokens | Description |
-|-------|--------|-------------|
-| **Disabled** | 0 | Standard response |
-| **Minimal** | 1,024 | Quick thinking |
-| **Low** | 2,048 | Basic reasoning |
-| **Medium** | 5,120 | Balanced |
-| **High** | 10,240 | Deep reasoning |
-
-<Tip>
-Extended thinking is great for math, coding, and complex analysis tasks.
-</Tip>
-
-## Supported Models for Extended Thinking
-
-- Claude Opus 4.1
-- Claude Opus 4.8
-- Claude Sonnet 4.5
-- Claude Haiku 4.5
-- Claude Opus 4.5
-- Claude Opus 4
-- Claude Sonnet 4
-- Claude 3.7 Sonnet
-
-## Pricing
-
-Check [Anthropic Pricing](https://anthropic.com/pricing) for current rates.
-
-| Model | Input | Output |
-|-------|-------|--------|
-| Claude 3.5 Sonnet | $3/1M | $15/1M |
-| Claude 3 Opus | $15/1M | $75/1M |
-| Claude 3 Haiku | $0.25/1M | $1.25/1M |
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Model Selection">
-    - **Claude Opus 4.8**: Research, complex analysis
-    - **Claude 4/3.5 Sonnet**: Daily work, coding, writing
-    - **Claude 3 Haiku**: Quick tasks, chat
-  </Accordion>
-  <Accordion title="Using Extended Thinking">
-    - Enable for math and logic problems
-    - Use higher levels for complex code
-    - Keep disabled for simple conversations
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify key is copied correctly
-    - Check if key has expired
-    - Ensure billing is configured
-  </Accordion>
-  <Accordion title="Model not available">
-    - Some models require account approval
-    - Check Anthropic console for access
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

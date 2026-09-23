@@ -1,0 +1,56 @@
+---
+title: "Connect AI Clients to Knowledge Base"
+description: "Let local AI clients search selected Enconvo knowledge bases."
+---
+
+Enconvo can serve your knowledge bases to MCP-compatible AI clients on the same Mac. This is separate from **Settings → Plugins → MCP Servers**, which adds external tools to Enconvo's Agents.
+
+<Note>
+This feature is available in builds that include **Connect AI Clients (MCP)**. If it is absent, check your [update channel](/configuration/updates).
+</Note>
+
+## Connect a client
+
+1. Open the **Knowledge Base** window.
+2. Open its **Settings → Connect AI Clients (MCP)** dialog.
+3. Enable the Knowledge Base MCP server.
+4. Review **MCP visible** for every knowledge base you want the client to access. Dictation History is hidden by default.
+5. Copy the setup instructions for your client from the dialog. Use **Streamable HTTP** for clients that support it.
+6. Ask the client to list knowledge bases, then search one and read a matching item.
+
+The local endpoint is:
+
+```text
+http://localhost:54535/knowledge_base/mcp
+```
+
+Keep Enconvo running while the client uses the endpoint. Clients that require a stdio bridge should use the client-specific instructions shown in the dialog.
+
+## Available tools
+
+| Tool | Purpose |
+| --- | --- |
+| `kb_list` | List visible knowledge bases |
+| `kb_search` | Search a visible knowledge base |
+| `item_list` | List items in a visible knowledge base |
+| `item_read` | Read indexed item text in pages |
+
+The tools are read-only. This endpoint does not expose general Memory or Recordings tools. Reading an item can return its source path or URL as metadata.
+
+## Access and processing
+
+The server accepts loopback connections only and does not require a token. Enabling it allows local processes to access the knowledge bases you make visible. A connected AI client can send returned content to its own model provider; review that client's configuration as well.
+
+Search uses the knowledge base's configured embedding provider and can incur that provider's normal usage. “Local endpoint” does not mean every part of retrieval and answering runs offline.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| Connection refused | Enconvo and its local API must be running |
+| Forbidden / 403 | Server switch, local connection, and supported client configuration |
+| Knowledge base not found | Its **MCP visible** setting; hidden and missing bases look the same to clients |
+| Opening the URL in a browser shows 405 | A browser GET is not an MCP initialization request; connect with an MCP client |
+| Incomplete long document | Ask the client to request further pages with `item_read` |
+
+Disable the server to stop access, or hide individual knowledge bases to narrow what clients can retrieve.

@@ -1,148 +1,38 @@
 ---
-title: "Google Gemini"
-description: "Configure Google Gemini models in EnConvo"
+title: "Google Gemini AI"
+description: "Connect Google Gemini AI and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **Google Gemini AI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-Google's Gemini models offer multimodal capabilities, long context windows, and advanced reasoning features.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **Google Gemini AI**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-| Model | Description | Context |
-|-------|-------------|---------|
-| **Gemini 3 Pro Preview** | Latest generation | 1M+ |
-| **Gemini 2.5 Pro** | Advanced reasoning | 1M+ |
-| **Gemini 2.5 Flash** | Fast and capable | 1M+ |
-| **Gemini 2.5 Flash Lite** | Lightweight | 1M+ |
-| **Gemini Pro** | Balanced | 32K |
+## Provider options
 
-## Setup
+The AI Model page offers **API Key** and **Google Account** authentication. Other Gemini capabilities share the profile’s API key. **Google Search Tool**, **URL Context Tool**, and **Show thoughts** appear where supported. See [Google Account](/providers/google_subscription).
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [Google AI Studio](https://aistudio.google.com)
-    2. Sign in with your Google account
-    3. Navigate to **API Keys**
-    4. Create a new API key
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **Google Gemini AI**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose your preferred model from the dropdown
-  </Step>
-</Steps>
+The provider definition includes: **Model Name**, **Temperature**, **Google Search Tool**, **URL Context Tool**, **Show thoughts**. Some controls appear only for models or authentication methods that support them.
 
-## Configuration
+## Use it in a conversation
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Model to use | Gemini 3 Pro Preview |
-| **Temperature** | Creativity (0-2) | None (0) |
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the Google Gemini credential settings. If validation fails, confirm the API key was created in Google AI Studio and that the Google AI API is available for your account and region.
-  </Step>
-  <Step title="Refresh models">
-    Reopen the model dropdown after validation. Model availability can vary by region, account, and preview access.
-  </Step>
-  <Step title="Test multimodal behavior">
-    Send a short text prompt first. Then test image or long-context workflows only after the basic chat request succeeds.
-  </Step>
-</Steps>
-
-<Note>
-  Google AI API billing is separate from a Google One AI Premium or Gemini subscription. Use the Gemini subscription provider if you want to connect an existing consumer subscription.
-</Note>
-
-## Advanced Features
-
-### Google Search Tool
-
-Available for Gemini 2.5 models. Grounds responses with real-time web content.
-
-<Note>
-Works with all languages and provides verifiable source citations.
-</Note>
-
-### URL Context Tool
-
-Allows including URLs in requests for additional context. The model will access page content to inform responses.
-
-### Show Thoughts
-
-Enable to see the model's thinking process (available for Gemini 2.5+ and Gemini 3).
-
-### Thinking Configuration
-
-#### Gemini 3 Pro Preview
-
-| Level | Description |
-|-------|-------------|
-| **Low** | Basic thinking |
-| **High** | Deep thinking |
-
-#### Gemini 2.5 Pro
-
-| Level | Tokens | Description |
-|-------|--------|-------------|
-| **Auto** | - | Model decides |
-| **Minimal** | 128 | Quick thinking |
-| **Low** | 1,024 | Basic |
-| **Medium** | 10,000 | Balanced |
-| **High** | 30,000 | Deep reasoning |
-
-#### Gemini 2.5 Flash / Flash Lite
-
-| Level | Tokens | Description |
-|-------|--------|-------------|
-| **Disabled** | 0 | No thinking |
-| **Auto** | - | Model decides |
-| **Minimal** | 512 | Quick |
-| **Low** | 1,024 | Basic |
-| **Medium** | 10,000 | Balanced |
-| **High** | 20,000 | Deep |
-
-## Pricing
-
-Google offers generous free tiers. Check [Google AI Pricing](https://ai.google.dev/pricing).
-
-| Model | Input | Output |
-|-------|-------|--------|
-| Gemini 1.5 Pro | $1.25/1M | $5/1M |
-| Gemini 1.5 Flash | $0.075/1M | $0.30/1M |
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Leverage long context">
-    Gemini's 1M+ token context is perfect for large documents
-  </Accordion>
-  <Accordion title="Use search grounding">
-    Enable Google Search for up-to-date information
-  </Accordion>
-  <Accordion title="Multimodal tasks">
-    Gemini excels at image analysis and visual reasoning
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify key in Google AI Studio
-    - Check API is enabled
-  </Accordion>
-  <Accordion title="Region restrictions">
-    - Some features may be limited by region
-    - Check Google's availability docs
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

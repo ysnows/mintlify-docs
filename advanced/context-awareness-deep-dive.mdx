@@ -29,7 +29,7 @@ This is a read-only, event-driven system. EnConvo listens for focus changes and 
 
 ### Context Detection Pipeline
 
-When you invoke EnConvo (via SmartBar, Companion Orb, App Sidebar, or keyboard shortcut), the system collects context through this pipeline:
+When you invoke EnConvo (via SmartBar, Dynamic Island, App Sidebar, or keyboard shortcut), the system collects context through this pipeline:
 
 ```
 User triggers EnConvo
@@ -148,7 +148,7 @@ When multiple context sources are available, they are prioritized:
 
 1. **Explicitly requested context** (`#screen`, `#browser`, etc.) -- highest priority
 2. **Selected text** -- included when present
-3. **Active application context** -- always included
+3. **Active application context** -- when enabled and available
 4. **Clipboard** -- only when explicitly requested or auto-enabled
 
 ### Token Usage
@@ -163,37 +163,11 @@ Context data consumes tokens from the AI model's context window. Larger context 
 For long conversations, use specific context modifiers rather than including everything. Asking `#browser summarize this page` is more efficient than including full page content with every message.
 </Tip>
 
-## Privacy and Security
+## Privacy and data flow
 
-<Warning>
-Context data is never collected, stored, or transmitted without your explicit action. All context processing happens at the moment you submit a query.
-</Warning>
+Captured context can become part of a saved conversation or knowledge base item. Model requests and selected OCR, embedding, transcription, or other tool providers may receive relevant content. Review [Privacy & Security](/configuration/privacy-security) for the distinction between local storage and provider processing.
 
-### What Is Read
-
-- Context is captured only when you actively invoke EnConvo
-- No background monitoring or continuous screen recording
-- Context is held in memory for the duration of the query processing
-- Context is sent to your configured AI provider (along with your query) only when you submit
-
-### What Is Never Read
-
-- Passwords in secure input fields (macOS Accessibility API does not expose these)
-- Content in excluded applications
-- Content when EnConvo is not actively invoked
-- Content from other user accounts on the same Mac
-
-### Data Flow
-
-```
-Screen context → EnConvo (local) → Your AI provider (when you submit a query)
-```
-
-If you use a local AI model (Ollama, LM Studio, MLX), context never leaves your Mac. If you use a cloud provider, context is sent encrypted over HTTPS as part of the prompt.
-
-### Audit
-
-There is no persistent log of captured context. Once a query is processed, the context object is discarded from memory.
+A local chat model alone does not make every tool offline. Check the whole flow, including browser access, captures, and provider-based processing. App exclusions and macOS permissions reduce available context; they are not a promise that every third-party app field can be classified as sensitive.
 
 ## Troubleshooting
 

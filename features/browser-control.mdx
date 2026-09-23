@@ -1,399 +1,54 @@
 ---
 title: "Browser Control"
-description: "Control your browser with AI — navigate, click, type, screenshot, and read page content with all your login sessions intact"
+description: "Read and operate real browser tabs through the Enconvo Companion extension."
 ---
 
-## Overview
+Browser Control lets an Agent work with browser tabs that have the Enconvo Companion extension connected. It can read a page, click controls, fill fields, inspect results, and manage tabs using the browser's existing sign-in state.
 
-Browser Control lets EnConvo's AI interact with your real browser — the same one where you're logged into all your accounts. Unlike headless browser tools that start fresh with no cookies or sessions, Browser Control works with your existing browser instance, including all your login sessions, cookies, bookmarks, and extensions.
+## Set up
 
-This means the AI can:
-- **Navigate to your dashboard** without needing your credentials
-- **Fill forms** on sites where you're already authenticated
-- **Take screenshots** of exactly what you see
-- **Read page content** from any tab
-- **Click buttons, manage tabs, and automate workflows** — all in your real browser
+1. Install [Enconvo Companion from the Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in a supported Chromium browser, or use the appropriate extension package for your browser.
+2. Keep Enconvo and the browser running.
+3. Open the extension popup and confirm its **Connected** status.
+4. Check the Agent's browser tool access and any website approval requested by the extension.
+5. Start with a read-only task, such as “Read this page and summarize the main points.”
 
-<Tip>
-Use Browser Control for websites and browser tabs. Use
-[Computer Use](/features/computer-use) for native macOS apps, file pickers,
-system dialogs, and desktop app workflows.
-</Tip>
+See [Browser Extension](/features/browser-extension) for connected-browser status, targeting, and approval behavior. Safari does not use the Chromium companion extension; use the supported route for your browser rather than assuming every browser has identical capabilities.
 
-<CardGroup cols={2}>
-  <Card title="Real Browser, Real Sessions" icon="cookie-bite">
-    Works with your existing login sessions — no re-authentication needed
-  </Card>
-  <Card title="Multi-Browser Support" icon="window-restore">
-    Chrome, Edge, Brave, Arc, Vivaldi, Opera, Firefox, and more
-  </Card>
-  <Card title="86+ Actions" icon="wand-magic-sparkles">
-    Navigate, click, type, screenshot, snapshot, eval, tab management, cookies, and much more
-  </Card>
-  <Card title="Background Mode" icon="eye-slash">
-    Automate without bringing the browser to the foreground
-  </Card>
-</CardGroup>
+## Manual Chromium installation
 
-## How It Works
+If your build provides the unpacked extension, open `chrome://extensions` (or your browser's equivalent), enable Developer mode, choose **Load unpacked**, and select `~/.enconvo/chrome_extension/`. Restart Enconvo if its bundled extension folder has not yet been prepared.
 
-Browser Control uses a lightweight companion extension installed in your browser. The extension communicates with EnConvo via WebSocket, allowing the AI to send commands and receive results.
+## Work with a specific tab
 
-<Steps>
-  <Step title="Install the Companion Extension">
-    Install the Enconvo Companion extension in your browser
-  </Step>
-  <Step title="Extension Connects Automatically">
-    The extension connects to EnConvo via WebSocket when your browser is running
-  </Step>
-  <Step title="AI Sends Commands">
-    When you ask the AI to interact with a webpage, it sends commands through the extension
-  </Step>
-  <Step title="Extension Executes & Returns Results">
-    The extension performs the action in your browser and returns the result to the AI
-  </Step>
-</Steps>
+Name the browser and intended page in your request. For example:
 
-## Installing the Companion Extension
+> In Edge, read the current documentation tab and list the three setup steps. Keep the page open.
 
-<Tabs>
-  <Tab title="Chrome Web Store (Recommended)">
-    1. Open the [Enconvo Companion extension page](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in Chrome Web Store
-    2. Click **Add to Chrome**
-    3. Click **Add extension** in the confirmation popup
+The Agent inspects page state, chooses an element, acts, and checks the resulting state. Page references can change after navigation or dynamic updates; a fresh snapshot helps recover when an element is no longer available.
 
-    <Tip>
-    This also works for Edge, Brave, Vivaldi, Opera, and other Chromium-based browsers — they all support Chrome Web Store extensions.
-    </Tip>
-  </Tab>
-  <Tab title="Manual Installation">
-    If the extension isn't available on the Chrome Web Store yet, you can install it manually:
+## Available operations
 
-    <Steps>
-      <Step title="Open Extensions Page">
-        Open your browser and navigate to `chrome://extensions` (or `edge://extensions`, `brave://extensions`, etc.)
-      </Step>
-      <Step title="Enable Developer Mode">
-        Toggle on **Developer mode** using the switch in the top-right corner
-      </Step>
-      <Step title="Load the Extension">
-        Click **Load unpacked** and select the folder:
-        ```
-        ~/.enconvo/chrome_extension/
-        ```
-      </Step>
-      <Step title="Verify">
-        You should see "Enconvo Companion" in your extensions list. The extension icon will appear in your browser toolbar.
-      </Step>
-    </Steps>
+| Area | Examples |
+| --- | --- |
+| Navigation | Open a URL, go back or forward, reload, wait for a condition |
+| Reading | Page state, visible text, attributes, screenshots, selected content |
+| Interaction | Click, type, fill, select, press keys, scroll, drag |
+| Browser organization | Inspect and manage tabs, windows, and connected sessions |
+| Advanced tools | Page evaluation, cookies, storage, history, and browser-specific inspection |
 
-    <Note>
-    EnConvo automatically copies the extension files to `~/.enconvo/chrome_extension/` when the app starts. If the folder doesn't exist, restart EnConvo first.
-    </Note>
-  </Tab>
-</Tabs>
+Capabilities and website access vary by browser, page, extension version, and enabled tools. Browser-internal pages and restricted content may not be accessible. Browser control can act on your real account; specify whether a task should only prepare a draft or also submit it.
 
-## Setting Up
+## Configuration and diagnostics
 
-### Choose Your Default Browser
-
-By default, Browser Control uses your system's default browser. You can override this:
-
-1. Open **EnConvo Settings**
-2. Find the **Browser Use** extension
-3. Set **Default Browser** to your preferred browser
-
-### Verify Connection
-
-To check if the extension is connected, use the `browser-use/status` API route:
-
-```
-browser-use/status
-```
-
-This shows:
-- Which browsers are connected
-- Which browser is currently active
-- Whether the extension is running
-
-## Core Workflow
-
-The typical pattern for AI browser automation:
-
-<Steps>
-  <Step title="Navigate to a page">
-    Tell the AI to open a URL — it uses the `navigate` action
-  </Step>
-  <Step title="Take a snapshot">
-    The AI takes a snapshot of the page, getting an accessibility tree with element references like `@e1`, `@e2`
-  </Step>
-  <Step title="Interact with elements">
-    Using the references, the AI can click buttons (`@e3`), fill inputs (`@e5`), select dropdowns, etc.
-  </Step>
-  <Step title="Re-snapshot after changes">
-    After any navigation or DOM change, the AI takes a fresh snapshot to get updated references
-  </Step>
-</Steps>
-
-<Tip>
-Since Browser Control uses your real browser sessions, you don't need to handle login flows. Just navigate directly to authenticated pages — you're already logged in.
-</Tip>
-
-## What Can It Do?
-
-### Page Interaction
-
-| Action | Description |
-|--------|-------------|
-| **Navigate** | Open URLs, go back/forward in history |
-| **Click / Double-click** | Click any element by reference, CSS selector, or text |
-| **Fill / Type** | Enter text into inputs (React/Vue compatible) |
-| **Select** | Choose dropdown options |
-| **Check / Uncheck** | Toggle checkboxes and radio buttons |
-| **Press** | Keyboard shortcuts like `Enter`, `Ctrl+A`, `Cmd+C` |
-| **Scroll** | Scroll page or specific elements into view |
-| **Drag** | Drag and drop between elements |
-| **Focus / Hover** | Focus inputs or hover over elements |
-| **Submit Form** | Submit form elements |
-
-### Content Reading
-
-| Action | Description |
-|--------|-------------|
-| **Screenshot** | Capture the visible tab as an image |
-| **Annotated Screenshot** | Screenshot with numbered labels on interactive elements |
-| **Snapshot** | Accessibility tree with `@eN` element references |
-| **Get Content** | Extract page text and optionally HTML |
-| **Get Text / HTML / Value** | Read specific element content |
-| **Get All Links** | Extract all links from the page |
-| **Get Table Data** | Extract HTML tables as structured JSON |
-| **Get Form Data** | Read all form field values |
-| **Get Meta Tags** | Extract SEO and OpenGraph metadata |
-| **Get Images** | List all images with src, alt, and dimensions |
-| **Eval** | Execute custom JavaScript in the page |
-
-### Browser Management
-
-| Action | Description |
-|--------|-------------|
-| **Tab Management** | Open, close, switch, and list tabs |
-| **Cookie Management** | Get, set, remove, and clear cookies |
-| **Storage** | Read/write localStorage and sessionStorage |
-| **State Save/Load** | Save and restore browser state (cookies + storage) |
-| **Window Management** | Open new windows |
-| **Zoom** | Get, set, zoom in/out, reset zoom |
-| **Clear Cache** | Clear the browser cache |
-
-### Inspection & Debugging
-
-| Action | Description |
-|--------|-------------|
-| **Get Element Info** | Bounding box, visibility, enabled state, ARIA info |
-| **Is Visible / Enabled / Checked** | Quick boolean state checks |
-| **Is In Viewport** | Check if element is visible without scrolling |
-| **Highlight** | Visually highlight an element with colored outline |
-| **Console Messages** | Capture console.log output |
-| **Page Errors** | Capture JavaScript errors |
-| **Get Performance** | Page load timing and resource metrics |
-| **Network Monitor** | Track XHR and fetch requests |
-
-### Advanced
-
-| Action | Description |
-|--------|-------------|
-| **Batch** | Execute multiple actions in one request |
-| **Inject CSS** | Add custom styles to the page |
-| **Remove Element** | Remove elements from the DOM |
-| **Set Attribute** | Modify HTML attributes |
-| **Toggle Class** | Add/remove CSS classes |
-| **Emulate Device** | Set viewport and user agent for mobile testing |
-| **Set Media** | Emulate dark/light mode |
-| **Block Resources** | Block images, scripts, or ads |
-| **Frame** | Switch between iframes |
-
-## Examples
-
-### Reading the Current Page
-
-Simply ask:
-
-> "What's on the current page in my browser?"
-
-The AI will use `get_frontmost_browser_active_tab_content` to read whatever page is currently in the foreground, regardless of which browser you're using.
-
-### Filling a Form
-
-> "Go to example.com/signup and fill in the form with my name John Doe and email john@example.com"
-
-The AI will:
-1. Navigate to the URL
-2. Snapshot the page to find form fields
-3. Fill in each field using the `@eN` references
-4. Submit the form
-
-### Taking a Screenshot
-
-> "Take a screenshot of my GitHub dashboard"
-
-The AI navigates to GitHub (you're already logged in), waits for the page to load, and captures a screenshot that displays directly in the chat.
-
-### Extracting Data
-
-> "Get all the links from the Hacker News front page"
-
-The AI navigates to Hacker News and uses `get_all_links` to extract every link with its text and URL.
-
-### Background Automation
-
-> "In the background, check the price of AAPL on Google Finance"
-
-With `background: true`, the browser stays minimized while the AI navigates, reads the price, and reports back.
-
-## Multi-Browser Support
-
-Browser Control works with any browser that has the companion extension installed:
-
-| Browser | Detection Method | Name in Commands |
-|---------|-----------------|------------------|
-| Google Chrome | AppleScript | `google_chrome` |
-| Microsoft Edge | Extension (userAgent) | `edge` |
-| Brave | AppleScript | `brave_browser` |
-| Arc | AppleScript | `arc` |
-| Vivaldi | AppleScript | `vivaldi` |
-| Opera | Extension (userAgent) | `opera` |
-| Firefox | Extension (URL scheme) | `firefox` |
-
-### Browser Selection Priority
-
-When you don't specify a browser, EnConvo follows this order:
-
-1. **Your manual setting** — if you chose a default in Computer Use preferences
-2. **System default browser** — your macOS default (skips Safari since it doesn't support the extension)
-3. **Connected browsers** — whichever connected browser was used most recently
-
-### Auto-Launch
-
-If the target browser isn't running, EnConvo will automatically launch it and wait for the extension to connect (up to 10 seconds).
-
-## Reliability Improvements
-
-Browser Control is designed to recover from common real-world page behavior:
-
-- **Exact tab targeting** keeps actions attached to the intended tab.
-- **Fresh page snapshots** are taken after navigation, loading, clicking, and
-  DOM changes so element references stay current.
-- **Cross-origin iframe handling** improves interaction with embedded forms and
-  dashboards.
-- **Drag-safe clicks and coordinate actions** help with canvases, custom UI
-  widgets, and controls that do not expose clean accessibility labels.
-- **Clipboard proxy support** preserves formatted text when pasting into rich
-  editors.
-- **Cleaner page-state output** makes it easier for agents to choose the right
-  link, button, textbox, or table row.
-
-If a task still fails, ask EnConvo to take a new snapshot or describe the
-visible page before trying the next action.
-
-## Snapshot & Element References
-
-The **snapshot** is one of the most powerful features. It produces an accessibility tree of the page:
-
-```
-[page] My Dashboard
-  [navigation] Main Nav
-    [link @e1] Home
-    [link @e2] Projects
-    [link @e3] Settings
-  [main]
-    [heading @e4] Welcome back, John
-    [textbox @e5] "Search..." (placeholder)
-    [button @e6] New Project
-    [list]
-      [listitem @e7] Project Alpha
-      [listitem @e8] Project Beta
-```
-
-Interactive elements get `@eN` references that the AI can use directly:
-
-- `click @e6` → clicks "New Project"
-- `fill @e5 "my search term"` → types in the search box
-- `get_text @e4` → reads "Welcome back, John"
-
-<Note>
-**Important:** Element references (`@e1`, `@e2`, etc.) are invalidated when the page changes. The AI always takes a fresh snapshot after navigation or DOM changes.
-</Note>
+Choose the default browser in Computer Use preferences, or name a browser in the task. The `browser-use/status` Local API route reports connection state. Developers can inspect the installed route schemas under **Settings → Developer → APIs** rather than relying on a fixed list of action names.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="'No browser extension connected' error">
-    The companion extension isn't installed or the browser isn't running.
+- **Not connected:** verify that the extension is enabled and Enconvo is running; inspect the popup status. The companion connects locally on port 11225.
+- **Wrong browser or tab:** explicitly name the target and request a fresh page state.
+- **Click or fill fails:** inspect the updated page; a dialog, navigation, or embedded frame may have changed the target.
+- **Blank screenshot:** make the target tab visible and wait for page content to load.
+- **Website asks to sign in:** complete the site's normal login flow; an existing browser profile does not guarantee a valid session for every site.
 
-    **Solutions:**
-    1. Make sure your browser is running
-    2. Install the extension from [Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd)
-    3. Or install manually from `~/.enconvo/chrome_extension/` (see [Manual Installation](#installing-the-companion-extension) above)
-    4. Check `chrome://extensions` and make sure the extension is enabled
-  </Accordion>
-
-  <Accordion title="Extension installed but not connecting">
-    The extension connects via WebSocket to `localhost:11225`. Ensure:
-
-    1. EnConvo is running
-    2. No firewall is blocking port 11225
-    3. Try disabling and re-enabling the extension
-    4. Check the extension's service worker for errors in `chrome://extensions`
-  </Accordion>
-
-  <Accordion title="Actions fail on certain pages">
-    Some pages restrict extension access:
-
-    - `chrome://` and browser internal pages cannot be controlled
-    - Pages with strict Content Security Policy (CSP) may block injected scripts
-    - Closed Shadow DOM elements cannot be accessed
-
-    **Workaround:** Use `eval` with caution, or try a different approach like keyboard shortcuts (`press`).
-  </Accordion>
-
-  <Accordion title="Wrong browser is being controlled">
-    Check which browser is active:
-    ```
-    browser-use/status
-    ```
-
-    You can specify a browser explicitly:
-    ```
-    browser-use/navigate { "url": "https://example.com", "browser": "edge" }
-    ```
-
-    Or set a default in Computer Use preferences.
-  </Accordion>
-
-  <Accordion title="Screenshots are blank or wrong">
-    `captureVisibleTab` only captures the visible viewport. Make sure:
-
-    1. The browser window is not minimized
-    2. The target tab is the active tab
-    3. The page has finished loading (use `wait_for` first)
-  </Accordion>
-</AccordionGroup>
-
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="AI Agents" icon="robot" href="/ai/agents">
-    Use Browser Control as a tool within AI agent workflows
-  </Card>
-  <Card title="Computer Use" icon="display" href="/features/computer-use">
-    Control native macOS apps, dialogs, and file pickers
-  </Card>
-  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
-    EnConvo can automatically read your current browser tab as context
-  </Card>
-  <Card title="MCP Servers" icon="plug" href="/features/mcp">
-    Extend browser capabilities with MCP-based web tools
-  </Card>
-  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
-    Automate multi-step browser tasks with visual workflows
-  </Card>
-</CardGroup>
+Use [Computer Use](/features/computer-use) for native macOS apps, file dialogs, and desktop controls.

@@ -1,201 +1,28 @@
 ---
-title: "AI Providers Overview"
-description: "Configure AI providers in EnConvo"
+title: "Providers"
+description: "Choose access and configure each AI capability."
 ---
 
-## Overview
+A provider connects an Enconvo feature to a model, voice, search service, or local runtime. Start with the capability you need, then choose its access method.
 
-EnConvo supports a wide range of AI providers, giving you the flexibility to choose the best model for your needs. You can use cloud-based APIs or run models locally for complete privacy.
+## Choose access
 
-## Setup Steps
+| Access | Guide |
+| --- | --- |
+| Enconvo account and Cloud usage | [Enconvo Cloud Plan](/providers/enconvo) |
+| Your own provider API key | [Credentials and Provider Profiles](/configuration/credentials) |
+| Supported subscription/account sign-in | [ChatGPT](/providers/openai_subscription), [Claude](/providers/anthropic_subscription), [Google Account](/providers/google_subscription) |
+| Local inference | [MLX](/providers/mlx), [Ollama](/providers/ollama), [LM Studio](/providers/lm-studio) |
+| External Agent gateway | [OpenClaw](/providers/openclaw), [Hermes](/providers/hermes) |
 
-<Steps>
-  <Step title="Open Settings">
-    Go to **Settings** → **AI Model**
-  </Step>
-  <Step title="Choose a provider">
-    Select a provider such as OpenAI, Anthropic, Gemini, EnConvo Cloud, OpenRouter, Ollama, or LM Studio.
-  </Step>
-  <Step title="Configure Credentials">
-    Open the provider's credential settings and enter the required API key, base URL, OAuth account, or local server endpoint.
-  </Step>
-  <Step title="Validate the connection">
-    Click **Validate** when available. For local providers, make sure the local server is running before validating.
-  </Step>
-  <Step title="Select Model">
-    Choose a model from the dropdown. If the list is empty, fix credentials first, then refresh or reopen the provider settings.
-  </Step>
-  <Step title="Test with a short prompt">
-    Send a short message before using the provider in long workflows, agents, or automations.
-  </Step>
-</Steps>
+## Configure the feature you use
 
-## Supported Providers
+Open **Settings → Global Providers Settings** for AI Model, Text-to-Speech, Web Search, Image Generation, Video Generation, Web Fetch, and OCR. Speech recognition has separate provider settings for Dictation, Recording, Transcription, and Captioning. Embedding and reranking choices belong to knowledge-base configuration.
 
-### Subscription Plans
+The [Provider Capability Catalog](/providers/catalog) lists every declared provider in these categories. Selecting a chat model does not automatically configure your speech, image, or retrieval provider.
 
-Use these when you want EnConvo to connect through an existing consumer subscription instead of a token-billed developer API.
+## Profiles and defaults
 
-| Provider | Description | Link |
-|----------|-------------|------|
-| **OpenAI Plus/Pro Subscription** | Use your ChatGPT Plus or Pro account | [docs](/providers/openai_subscription) |
-| **Claude Pro/Max Subscription** | Use your Claude Pro or Max account | [docs](/providers/anthropic_subscription) |
-| **Gemini Pro/Ultra Subscription** | Use your Google Gemini subscription | [docs](/providers/google_subscription) |
+Create additional profiles when you need separate keys or accounts for the same provider. A profile shares credentials across supported feature categories, so changing it can affect more than one feature. Model choices remain specific to the capability and conversation.
 
-### Cloud API Providers
-
-Use these when you want direct API billing, provider dashboards, and explicit API keys.
-
-| Provider | Description | Link |
-|----------|-------------|------|
-| **EnConvo Cloud** | Built-in LLM service with points system | [docs](/providers/enconvo) |
-| **OpenAI** | GPT-4o, GPT-4, o1, o3 models | [docs](/providers/openai) |
-| **Anthropic** | Claude 4, Claude 3.5 Sonnet | [docs](/providers/anthropic) |
-| **Google** | Gemini 2.5, Gemini 3 Pro | [docs](/providers/google) |
-| **DeepSeek** | DeepSeek Chat, DeepSeek Reasoner | [docs](/providers/deepseek) |
-| **Groq** | Ultra-fast inference | [docs](/providers/groq) |
-| **xAI** | Grok models | [docs](/providers/xai) |
-| **Mistral** | Mistral Large, Mistral Small | [docs](/providers/mistral) |
-| **Qwen** | Alibaba's Qwen models | [docs](/providers/qwen) |
-| **Cohere** | Command R models | [docs](/providers/cohere) |
-| **Perplexity** | Sonar search models | [docs](/providers/perplexity) |
-
-### Aggregators & Gateways
-
-| Provider | Description | Link |
-|----------|-------------|------|
-| **Hermes Agent** | Local or self-hosted agent runtime through Chat Completions | [docs](/providers/hermes) |
-| **OpenClaw** | Self-hosted agent Gateway through Chat Completions | [docs](/providers/openclaw) |
-| **OpenRouter** | Access 100+ models via one API | [docs](/providers/openrouter) |
-| **Together AI** | Open-source model hosting | [docs](/providers/together-ai) |
-| **Fireworks** | Fast inference platform | [docs](/providers/fireworks) |
-
-### Enterprise
-
-| Provider | Description | Link |
-|----------|-------------|------|
-| **Azure OpenAI** | Microsoft's OpenAI service with deployment-based endpoints | [docs](/providers/azure-openai) |
-
-### Speech Providers
-
-| Provider | Description | Link |
-|----------|-------------|------|
-| **Soniox** | Speech-to-text for dictation and transcription | [docs](/providers/soniox) |
-
-### Local Models
-
-| Provider | Description | Link |
-|----------|-------------|------|
-| **Ollama** | Run local LLMs easily | [docs](/providers/ollama) |
-| **LM Studio** | GUI for local GGUF models with an OpenAI-compatible server | [docs](/providers/lm-studio) |
-
-## Common Settings
-
-All providers share these configuration options:
-
-| Setting | Description |
-|---------|-------------|
-| **Credentials** | API key, OAuth account, subscription login, local token, or provider account connection |
-| **Base URL / Endpoint** | Required for local servers, gateways, Azure OpenAI, and OpenAI-compatible providers |
-| **Model Name** | The specific model to use |
-| **Temperature** | Creativity level (0-2) |
-| **Reasoning / Thinking** | Optional reasoning controls for models that support it |
-
-<Note>
-  Provider model lists and capabilities can change. EnConvo fetches model data dynamically when a provider supports it, and falls back to a known default when the provider cannot be reached.
-</Note>
-
-### Temperature Settings
-
-| Level | Value | Use Case |
-|-------|-------|----------|
-| None | 0 | Deterministic, factual responses |
-| Low | 0.5 | Balanced, slightly creative |
-| Medium | 1 | Default, good balance |
-| High | 1.5 | More creative |
-| Maximum | 2 | Most creative, experimental |
-
-## Advanced Features
-
-### Extended Thinking (Claude)
-
-For Claude models with reasoning capabilities:
-- **Disabled**: Standard response
-- **Minimal**: 1,024 thinking tokens
-- **Low**: 2,048 thinking tokens
-- **Medium**: 5,120 thinking tokens
-- **High**: 10,240 thinking tokens
-
-### Reasoning Effort (OpenAI o-series)
-
-For OpenAI reasoning models (o1, o3, o4):
-- **Low**: Fast, economical
-- **Medium**: Balanced
-- **High**: More thorough reasoning
-
-### Gemini Thinking
-
-For Google Gemini 2.5+ models:
-- **Disabled**: No thinking
-- **Auto**: Model decides
-- **Custom budgets**: 512 to 30,000 tokens
-
-### Google Search Tool
-
-Available for Gemini 2.5 models - grounds responses with real-time web content.
-
-### URL Context Tool
-
-Available for Gemini 2.5 models - allows including URLs for additional context.
-
-## Validation Checklist
-
-Use this checklist when any provider fails to respond:
-
-<AccordionGroup>
-  <Accordion title="Credentials">
-    Confirm the API key, OAuth login, subscription connection, or local bearer token is current. Revoke and replace exposed API keys.
-  </Accordion>
-  <Accordion title="Billing and quota">
-    Cloud providers may reject requests when billing is not configured, credits are exhausted, or rate limits are reached.
-  </Accordion>
-  <Accordion title="Base URL">
-    Use the provider base URL, not a full endpoint path. For OpenAI-compatible services, the base URL usually ends in `/v1`.
-  </Accordion>
-  <Accordion title="Model access">
-    Some models require account approval, region availability, paid billing, or a specific deployment name.
-  </Accordion>
-  <Accordion title="Local services">
-    For Ollama, LM Studio, Hermes, and OpenClaw, make sure the local server is running and reachable from the same machine or LAN address used in EnConvo.
-  </Accordion>
-</AccordionGroup>
-
-## Choosing a Provider
-
-<AccordionGroup>
-  <Accordion title="Best for general use">
-    - **OpenAI GPT-4o**: Excellent all-around performance
-    - **Anthropic Claude 3.5 Sonnet**: Great for writing and analysis
-    - **Google Gemini 2.5 Pro**: Long context, multimodal
-  </Accordion>
-  <Accordion title="Best for coding">
-    - **Anthropic Claude 3.5 Sonnet**: Excellent code understanding
-    - **Mistral Codestral**: Code-specialized model
-    - **DeepSeek Reasoner**: Strong for code analysis and debugging
-    - **OpenAI GPT-4o**: Strong coding abilities
-  </Accordion>
-  <Accordion title="Best for speed">
-    - **Groq**: Ultra-fast inference
-    - **Fireworks AI**: Low-latency hosted open models
-    - **Gemini Flash**: Fast cloud model for lightweight tasks
-  </Accordion>
-  <Accordion title="Best for privacy">
-    - **Ollama**: Completely local
-    - **LM Studio**: Local with GUI
-  </Accordion>
-  <Accordion title="Best for budget">
-    - **EnConvo Cloud**: Pay with points
-    - **DeepSeek**: Very affordable
-    - **Groq Free Tier**: Free usage available
-  </Accordion>
-</AccordionGroup>
+See [Model Selection](/ai/model-selection-guide) for Agent, project, and per-chat defaults. Test a short request after setup before moving to a large document or generation task.

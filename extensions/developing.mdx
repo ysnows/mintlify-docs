@@ -1,307 +1,128 @@
 ---
 title: "Developing Extensions"
-description: "Create custom extensions for EnConvo"
+description: "Create a TypeScript command or Local API route with the Enconvo SDK."
 ---
 
-## Overview
+An Enconvo plugin is an ESM package with metadata in `package.json`, commands under `src/`, and optional API routes under `src/api/`. Commands run through Enconvo's extension runtime; a plugin command is a default-exported function, not a class implementing a `Command` interface.
 
-EnConvo's extension system is fully open source, allowing you to create custom extensions tailored to your needs. Extensions are built with TypeScript/JavaScript and can access EnConvo's powerful APIs.
+## Minimal project
 
-<Card title="Extension Repository" icon="github" href="https://github.com/enconvo">
-  All official extensions are open source on GitHub
-</Card>
+Use Node.js compatible with your installed `@enconvo/api` package (the current SDK declares Node.js 18 or later), a package manager, and Enconvo on your Mac.
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ installed
-- Basic TypeScript/JavaScript knowledge
-- EnConvo installed on your Mac
-
-### Extension Structure
-
-```
-my-extension/
-├── package.json       # Extension metadata
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
 ├── src/
-│   ├── index.ts      # Entry point
-│   └── commands/     # Command handlers
-├── assets/           # Icons and images
-└── README.md         # Documentation
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
 ```
 
-## Creating Your First Extension
+Create `package.json`:
 
-<Steps>
-  <Step title="Initialize Project">
-    ```bash
-    npx create-enconvo-extension my-extension
-    cd my-extension
-    npm install
-    ```
-  </Step>
-  <Step title="Configure Metadata">
-    Edit `package.json`:
-    ```json
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "1.0.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "type": "module",
+  "categories": ["Tools"],
+  "commands": [
     {
-      "name": "my-extension",
-      "displayName": "My Extension",
-      "description": "My custom EnConvo extension",
-      "version": "1.0.0",
-      "enconvo": {
-        "commands": [
-          {
-            "name": "hello",
-            "title": "Say Hello",
-            "description": "A simple hello command"
-          }
-        ]
-      }
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
     }
-    ```
-  </Step>
-  <Step title="Write Command Handler">
-    Edit `src/index.ts`:
-    ```typescript
-    import { Command, showToast } from '@enconvo/api';
-    
-    export default class HelloCommand implements Command {
-      async run(input: string): Promise<string> {
-        showToast({ title: 'Hello!', message: input });
-        return `Hello, ${input || 'World'}!`;
-      }
-    }
-    ```
-  </Step>
-  <Step title="Build and Test">
-    ```bash
-    npm run build
-    npm run dev  # Hot reload during development
-    ```
-  </Step>
-  <Step title="Install Locally">
-    Settings → Extensions → Install from Folder → Select your extension
-  </Step>
-</Steps>
-
-## Extension API
-
-### Core APIs
-
-```typescript
-import {
-  Command,          // Base command class
-  showToast,        // Show notification
-  showHUD,          // Show heads-up display
-  getInput,         // Get user input
-  getSelection,     // Get selected text
-  setClipboard,     // Set clipboard content
-  getClipboard,     // Get clipboard content
-  openURL,          // Open URL in browser
-  runAppleScript,   // Run AppleScript
-} from '@enconvo/api';
-```
-
-### AI APIs
-
-```typescript
-import {
-  chat,             // Send chat message to AI
-  complete,         // Get completion
-  embed,            // Get text embeddings
-  generateImage,    // Generate image
-} from '@enconvo/ai';
-```
-
-### Storage APIs
-
-```typescript
-import {
-  LocalStorage,     // Persistent local storage
-  SecureStorage,    // Encrypted storage for API keys
-} from '@enconvo/storage';
-```
-
-### UI APIs
-
-```typescript
-import {
-  Form,             // Form UI components
-  List,             // List UI components
-  Detail,           // Detail view
-  Action,           // Actions/buttons
-} from '@enconvo/ui';
-```
-
-## Command Types
-
-### Simple Command
-
-Returns text output:
-
-```typescript
-export default class SimpleCommand implements Command {
-  async run(input: string): Promise<string> {
-    // Process input and return result
-    return `Processed: ${input}`;
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev"
   }
 }
 ```
 
-### Form Command
+Install the SDK and TypeScript:
 
-Shows a form for input:
+```sh
+npm install @enconvo/api
+npm install --save-dev typescript
+```
 
-```typescript
-import { Form, FormCommand } from '@enconvo/api';
+Create `tsconfig.json`:
 
-export default class FormCommand implements FormCommand {
-  async getForm(): Promise<Form> {
-    return {
-      fields: [
-        { name: 'topic', type: 'text', label: 'Topic' },
-        { name: 'length', type: 'dropdown', options: ['short', 'medium', 'long'] }
-      ]
-    };
-  }
-  
-  async run(values: Record<string, any>): Promise<string> {
-    return `Writing about ${values.topic} (${values.length})`;
-  }
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src"]
 }
 ```
 
-### List Command
+## Add the command
 
-Shows a selectable list:
+`commands[].name` matches the source filename. Put this in `src/hello.ts`:
 
 ```typescript
-import { List, ListCommand } from '@enconvo/api';
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
 
-export default class ListCommand implements ListCommand {
-  async getItems(query: string): Promise<ListItem[]> {
-    return [
-      { title: 'Item 1', subtitle: 'Description', value: '1' },
-      { title: 'Item 2', subtitle: 'Description', value: '2' }
-    ];
-  }
-  
-  async onSelect(item: ListItem): Promise<string> {
-    return `Selected: ${item.value}`;
-  }
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "World");
+  return EnconvoResponse.text(`Hello, ${name}!`);
 }
 ```
 
-## Using AI in Extensions
+The command key is `hello_enconvo|hello`. Runtime preferences and request parameters are merged into the request body.
+
+## Add a Local API route
+
+Files in `src/api/` are discovered during the build and need no `commands[]` entry. Put this in `src/api/echo.ts`:
 
 ```typescript
-import { chat, ChatMessage } from '@enconvo/ai';
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
 
-export default class AICommand implements Command {
-  async run(input: string): Promise<string> {
-    const messages: ChatMessage[] = [
-      { role: 'system', content: 'You are a helpful assistant.' },
-      { role: 'user', content: input }
-    ];
-    
-    const response = await chat({
-      messages,
-      model: 'gpt-4',
-      temperature: 0.7
-    });
-    
-    return response.content;
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
   }
+  return Response.json({ text: params.text });
 }
 ```
 
-## Best Practices
+This becomes `hello_enconvo/echo`. A directory such as `src/api/items/list.ts` becomes `hello_enconvo/items/list`. Use the installed [Local API schemas](/advanced/cli-local-api) for exact request shapes.
 
-<AccordionGroup>
-  <Accordion title="Handle errors gracefully">
-    ```typescript
-    try {
-      const result = await riskyOperation();
-      return result;
-    } catch (error) {
-      showToast({ title: 'Error', message: error.message, style: 'failure' });
-      return 'An error occurred';
-    }
-    ```
-  </Accordion>
-  <Accordion title="Show progress for long operations">
-    ```typescript
-    import { showLoading, hideLoading } from '@enconvo/api';
-    
-    showLoading('Processing...');
-    const result = await longOperation();
-    hideLoading();
-    ```
-  </Accordion>
-  <Accordion title="Use secure storage for API keys">
-    ```typescript
-    import { SecureStorage } from '@enconvo/storage';
-    
-    const apiKey = await SecureStorage.get('api-key');
-    ```
-  </Accordion>
-  <Accordion title="Provide good documentation">
-    Include clear README with usage examples and configuration instructions.
-  </Accordion>
-</AccordionGroup>
+## Build and inspect
 
-## Publishing Extensions
-
-### Prepare for Publication
-
-1. Update version in `package.json`
-2. Write comprehensive README
-3. Add screenshots/GIFs
-4. Test thoroughly
-
-### Submit to Store
-
-1. Create GitHub repository
-2. Open issue in [enconvo/extensions](https://github.com/enconvo/extensions)
-3. Follow submission template
-4. Wait for review
-
-### Share Directly
-
-Share your extension via:
-- GitHub repository link
-- Direct .zip file
-- npm package
-
-## Debugging
-
-### Development Mode
-
-Run with hot reload:
-```bash
+```sh
+npm run build
 npm run dev
+npx enconvo plugin generate-schema
 ```
 
-### Console Logging
+Build from the plugin directory. Review the build output and then find **Say Hello** in Enconvo. Development mode watches files for rebuilds. API schemas are generated into the plugin's `skills/` directory.
 
-```typescript
-console.log('Debug info:', data);
-// View in EnConvo → Debug → Console
-```
+Test a greeting and invalid API input before sharing the plugin. A successful build alone does not test native operations or every provider call.
 
-### Extension Logs
+## Package and publish
 
-View logs: Settings → Extensions → [Extension] → View Logs
+Add an icon and the metadata required by the current package schema, document prerequisites, and check that no credentials or private assets are bundled. Inspect `npx enconvo plugin publish --help` before publishing; the command performs authentication and publishes to the store.
 
-## Resources
-
-<CardGroup cols={2}>
-  <Card title="API Reference" icon="book" href="https://github.com/enconvo/api">
-    Complete API documentation
-  </Card>
-  <Card title="Example Extensions" icon="code" href="https://github.com/enconvo">
-    Browse official extensions for examples
-  </Card>
-</CardGroup>
-
+For SDK building blocks, see [Extension API Reference](/extensions/extension-api-reference). For reusable multi-step processes that do not need a plugin, use [Workflows](/workflows/introduction).

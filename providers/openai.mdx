@@ -1,132 +1,38 @@
 ---
 title: "OpenAI"
-description: "Configure OpenAI models in EnConvo"
+description: "Connect OpenAI and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **OpenAI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-OpenAI provides powerful language models including GPT-4o, GPT-4, and the o-series reasoning models.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **OpenAI**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **GPT-4o** | Most capable multimodal | General use |
-| **GPT-4o mini** | Fast and affordable | Daily tasks |
-| **o1** | Advanced reasoning | Complex problems |
-| **o1-mini** | Fast reasoning | Quick analysis |
-| **o1-pro** | Professional reasoning | Deep analysis |
-| **o3** | Latest reasoning | Complex reasoning |
-| **o3-mini** | Fast o3 variant | Quick reasoning |
-| **o4-mini** | Newest mini model | Efficient tasks |
-| **GPT-5** | Next generation | Coming soon |
-| **GPT-5-mini** | Mini variant | Coming soon |
-| **GPT-5-codex** | Code specialized | Development |
+## Provider options
 
-## Setup
+Choose **API Key** or **ChatGPT Subscription** in Authentication. With an API key, **API Type** chooses Responses API or Completions API. Keep the default endpoint unless you intentionally use a compatible service. For account access, see [ChatGPT Subscription](/providers/openai_subscription).
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [OpenAI Platform](https://platform.openai.com)
-    2. Sign in or create an account
-    3. Navigate to **API Keys**
-    4. Create a new API key
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **OpenAI**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose your preferred model from the dropdown
-  </Step>
-</Steps>
+The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
 
-## Configuration
+## Use it in a conversation
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Model to use | GPT-4o |
-| **Temperature** | Creativity (0-2) | Medium (1) |
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the OpenAI credential settings. If validation fails, confirm the key is active and billing is enabled in the OpenAI Platform dashboard.
-  </Step>
-  <Step title="Refresh models">
-    Reopen the model dropdown after validation. EnConvo loads available OpenAI models from your account and falls back to defaults when the model API cannot be reached.
-  </Step>
-  <Step title="Send a short test">
-    Use a simple prompt such as `Say hello in one sentence` before running long chats, agents, or automation workflows.
-  </Step>
-</Steps>
-
-<Note>
-  OpenAI API billing is separate from a ChatGPT Plus or Pro subscription. Use the OpenAI subscription provider if you want to connect an existing ChatGPT plan instead.
-</Note>
-
-## Reasoning Models
-
-For o-series and GPT-5 models, configure reasoning effort:
-
-### o1, o3, o4 Series
-
-| Level | Description |
-|-------|-------------|
-| **Low** | Fast, economical token usage |
-| **Medium** | Balanced speed and accuracy |
-| **High** | Thorough reasoning, more tokens |
-
-### GPT-5 Series
-
-| Level | Description |
-|-------|-------------|
-| **Minimal** | Fastest, minimal reasoning |
-| **Low** | Quick reasoning |
-| **Medium** | Balanced |
-| **High** | Deep reasoning |
-
-## Pricing
-
-Check [OpenAI Pricing](https://openai.com/pricing) for current rates.
-
-| Model | Input | Output |
-|-------|-------|--------|
-| GPT-4o | $2.50/1M | $10/1M |
-| GPT-4o mini | $0.15/1M | $0.60/1M |
-| o1 | $15/1M | $60/1M |
-| o1-mini | $3/1M | $12/1M |
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Model Selection">
-    - **GPT-4o**: Complex tasks, analysis, coding
-    - **GPT-4o mini**: Quick tasks, chat
-    - **o1/o3**: Math, logic, complex reasoning
-  </Accordion>
-  <Accordion title="Cost Management">
-    - Use GPT-4o mini for simple tasks
-    - Set usage limits in OpenAI dashboard
-    - Monitor usage in EnConvo settings
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify key is copied correctly
-    - Check if key has expired
-    - Ensure billing is configured
-  </Accordion>
-  <Accordion title="Rate limits">
-    - Wait and retry
-    - Upgrade OpenAI plan
-    - Use different model temporarily
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

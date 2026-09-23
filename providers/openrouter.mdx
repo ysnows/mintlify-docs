@@ -1,125 +1,38 @@
 ---
 title: "OpenRouter"
-description: "Access 100+ AI models through a single API with OpenRouter in EnConvo"
+description: "Connect OpenRouter and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **OpenRouter** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-OpenRouter is a unified API gateway that gives you access to over 100 AI models from multiple providers (OpenAI, Anthropic, Google, Meta, Mistral, and more) through a single API key. It automatically routes requests to the best available provider, handles failover, and simplifies billing across models.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **OpenRouter**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-OpenRouter provides access to models from all major providers:
+## Provider options
 
-| Provider | Example Models |
-|----------|---------------|
-| **OpenAI** | GPT-4o, GPT-4o mini, o1, o3 |
-| **Anthropic** | Claude 4, Claude 3.5 Sonnet |
-| **Google** | Gemini 2.5 Pro, Gemini Flash |
-| **Meta** | Llama 3.1 70B, Llama 3.1 405B |
-| **Mistral** | Mistral Large, Mixtral |
-| **And more** | DeepSeek, Cohere, Qwen, etc. |
+The model picker lists models available through OpenRouter. Image and video generation have their own OpenRouter providers in their respective settings categories. Features such as tool use and image input depend on the selected model.
 
-<Tip>
-OpenRouter is ideal if you want to experiment with many models without managing separate API keys for each provider.
-</Tip>
+The provider definition includes: **Model Name**, **Temperature**, **Google Search Tool**, **URL Context Tool**. Some controls appear only for models or authentication methods that support them.
 
-## Setup
+## Use it in a conversation
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [OpenRouter Keys](https://openrouter.ai/keys)
-    2. Sign in or create an account
-    3. Create a new API key
-    4. Add credits to your account
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **OpenRouter**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose any available model from the dropdown -- OpenRouter provides a comprehensive list of all supported models
-  </Step>
-</Steps>
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-## Configuration
-
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Any model from OpenRouter catalog | GPT-4o |
-| **Temperature** | Creativity (0-2) | Medium (1) |
-
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the OpenRouter credential settings. If validation fails, confirm your API key is active and the account has credits or access to free models.
-  </Step>
-  <Step title="Choose a model identifier">
-    Prefer selecting from the EnConvo dropdown. If you type a model manually, use the exact OpenRouter model ID from the OpenRouter catalog.
-  </Step>
-  <Step title="Check provider routing">
-    If a specific upstream provider is slow or unavailable, try another model or review OpenRouter routing and provider settings in your OpenRouter dashboard.
-  </Step>
-</Steps>
-
-## Pricing
-
-OpenRouter uses a pass-through pricing model -- you pay the original provider's price plus a small markup. Check [OpenRouter Models](https://openrouter.ai/models) for real-time pricing on every model.
-
-<Note>
-Some models on OpenRouter are free (rate-limited). Look for models tagged "Free" in the model list for zero-cost experimentation.
-</Note>
-
-## Why OpenRouter?
-
-<CardGroup cols={2}>
-  <Card title="One API Key" icon="key">
-    Access 100+ models from one account
-  </Card>
-  <Card title="Automatic Failover" icon="rotate">
-    Routes to backup providers if one is down
-  </Card>
-  <Card title="Free Models" icon="gift">
-    Some models available at no cost
-  </Card>
-  <Card title="Unified Billing" icon="receipt">
-    Single bill for all providers
-  </Card>
-</CardGroup>
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Model Discovery">
-    Browse [openrouter.ai/models](https://openrouter.ai/models) to compare pricing, speed, and context length across all available models before selecting one.
-  </Accordion>
-  <Accordion title="Cost Management">
-    - Set spending limits in your OpenRouter dashboard
-    - Use free models for testing and prototyping
-    - Monitor usage per model to optimize costs
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify the key is copied correctly from [openrouter.ai/keys](https://openrouter.ai/keys)
-    - Check that your account has sufficient credits
-    - Ensure the key has not been revoked
-  </Accordion>
-  <Accordion title="Model unavailable">
-    - The specific model may be temporarily down at its source provider
-    - OpenRouter will attempt failover automatically
-    - Try a different model or wait a few minutes
-  </Accordion>
-  <Accordion title="Unexpected charges">
-    - Review per-model pricing at [openrouter.ai/models](https://openrouter.ai/models)
-    - Set spending limits in your account settings
-    - Check your usage dashboard for detailed breakdowns
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

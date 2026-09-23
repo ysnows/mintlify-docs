@@ -1,43 +1,36 @@
-# Mintlify Starter Kit
+# Enconvo documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+User documentation for Enconvo, built with Mintlify. The site keeps existing page URLs and organizes navigation into **Guides**, **Providers**, and **Developers**.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Preview and verify
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+Run these commands from this repository:
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```sh
+python3 scripts/check-docs.py
+npx --yes mint@4.2.922 validate
+npx --yes mint@4.2.922 broken-links --check-anchors
+npx --yes mint@4.2.922 dev --port 3335
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+The preview uses port 3335 to avoid the Enconvo webapp on port 3000. Local Mintlify search may require `mint login`; this does not prevent checking page rendering and navigation.
 
+Within the multi-repository Enconvo workspace, also run:
+
+```sh
+python3 scripts/check-docs.py --sources
+npx --yes tsx@4.20.6 scripts/check-workflow-examples.ts
 ```
-mint dev
-```
 
-View your local preview at `http://localhost:3000`.
+The workflow check imports the adjacent workflow module's real validator and its installed YAML dependency. It checks documented syntax without executing shell commands, models, tools, or saved user workflows.
 
-## Publishing changes
+## Content organization
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+- `reference/feature-directory.mdx`: task-oriented index.
+- `configuration/settings-reference.mdx`: settings entry points.
+- `providers/catalog.mdx`: declared providers grouped by capability.
+- `extensions/built-in-extensions.mdx`: commands and module coverage.
+- `reference/video-walkthroughs.mdx`: locally hosted demonstrations.
+- `.maintenance/`: coverage inventory, source fingerprints, media provenance, and maintenance guidance.
 
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+See [.maintenance/README.md](.maintenance/README.md) before adding or refreshing a guide. Deployment remains controlled by the repository's existing Mintlify integration; previewing locally does not publish changes.

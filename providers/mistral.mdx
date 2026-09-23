@@ -1,108 +1,36 @@
 ---
 title: "Mistral AI"
-description: "Configure Mistral AI models in EnConvo"
+description: "Connect Mistral AI and choose an AI model in Enconvo."
 ---
 
-## Overview
+Use **Mistral AI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
 
-Mistral AI is a French AI company building high-performance open and commercial language models. Their models are known for strong multilingual capabilities, efficient inference, and competitive pricing.
+## Connect
 
-## Supported Models
+1. Open **Settings → Global Providers Settings → AI Model**.
+2. Select **Mistral AI**, or use **Add New Provider** to create another profile.
+3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
+4. Validate the credential if a validation action is offered.
+5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
 
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **Mistral Large** | Most capable flagship model | Complex reasoning, analysis |
-| **Mistral Small** | Fast and cost-efficient | Daily tasks, chat |
-| **Mistral Nemo** | Lightweight open model | Quick responses, low latency |
-| **Codestral** | Code-specialized model | Programming, code generation |
+## Provider options
 
-## Setup
+The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
 
-<Steps>
-  <Step title="Get API Key">
-    1. Go to [Mistral Console](https://console.mistral.ai)
-    2. Sign in or create an account
-    3. Navigate to **API Keys**
-    4. Create a new API key
-  </Step>
-  <Step title="Configure in EnConvo">
-    1. Open **Settings** → **AI Provider**
-    2. Select **Mistral AI**
-    3. Go to **Credentials** module
-    4. Enter your API key
-  </Step>
-  <Step title="Select Model">
-    Choose your preferred model from the dropdown
-  </Step>
-</Steps>
+## Use it in a conversation
 
-## Configuration
+Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Credentials** | API key configuration | Required |
-| **Model Name** | Model to use | Mistral Large |
-| **Temperature** | Creativity (0-2) | Medium (1) |
-
-## Validate and Use
-
-<Steps>
-  <Step title="Validate credentials">
-    Click **Validate** in the Mistral credential settings. If validation fails, confirm the API key is active and billing or free-tier quota is available.
-  </Step>
-  <Step title="Choose for the workload">
-    Use Mistral Large for higher-quality analysis, Mistral Small for everyday work, and Codestral for code-heavy tasks.
-  </Step>
-  <Step title="Test multilingual prompts">
-    If you work across languages, send a short bilingual prompt first to confirm the selected model handles your language pair well.
-  </Step>
-</Steps>
-
-## Pricing
-
-Check [Mistral Pricing](https://mistral.ai/pricing) for current rates.
-
-| Model | Input | Output |
-|-------|-------|--------|
-| Mistral Large | $2/1M | $6/1M |
-| Mistral Small | $0.2/1M | $0.6/1M |
-| Mistral Nemo | $0.15/1M | $0.15/1M |
-| Codestral | $0.3/1M | $0.9/1M |
-
-<Note>
-Mistral offers a free tier with rate limits, making it easy to get started.
-</Note>
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Model Selection">
-    - **Mistral Large**: Complex analysis, long documents, multilingual tasks
-    - **Mistral Small**: Everyday chat, quick translations, summaries
-    - **Mistral Nemo**: Low-latency tasks, lightweight workloads
-    - **Codestral**: Code completion, debugging, refactoring
-  </Accordion>
-  <Accordion title="Multilingual Usage">
-    Mistral models excel at European languages (French, German, Spanish, Italian) in addition to English. Use them for translation and multilingual content creation.
-  </Accordion>
-</AccordionGroup>
+Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Invalid API key">
-    - Verify the key is copied correctly from [console.mistral.ai](https://console.mistral.ai)
-    - Check if the key has been revoked or expired
-    - Ensure billing is configured on your Mistral account
-  </Accordion>
-  <Accordion title="Rate limits">
-    - Free tier has strict rate limits
-    - Upgrade to a paid plan for higher throughput
-    - Use Mistral Small or Nemo for lower-priority tasks to conserve quota
-  </Accordion>
-  <Accordion title="Model not responding">
-    - Check [Mistral Status](https://status.mistral.ai) for service outages
-    - Try a different model temporarily
-    - Verify your network connection
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| Authentication failure | Correct profile, authentication method, and account access |
+| Model unavailable | Current model picker and access granted to your account |
+| Tool or image request fails | Selected model capabilities and enabled Agent tools |
+| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
+| Slow response | Input size, selected model, reasoning setting, and provider availability |
+
+See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.

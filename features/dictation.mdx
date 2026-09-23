@@ -1,187 +1,50 @@
 ---
-title: "Dictation"
-description: "Dictate text with your voice — anywhere on macOS"
+title: "Dictation and Voice Trigger"
+description: "Insert speech as text or send it to an Agent."
 ---
 
-## Overview
+Dictation turns speech into text in the app you are using. **Voice Trigger / Voice Command** sends a spoken request to an Agent. [Live Voice](/features/live-voice) is a separate two-way conversation feature.
 
-Dictation turns your voice into text in real time, anywhere a cursor blinks on macOS. Use it for hands-free writing, voice commands, AI prompts, and accessibility. Audio is captured locally with built-in voice-activity detection and routed to the speech-to-text provider you choose — cloud or fully on-device.
+## Dictate into an app
 
-For transcribing pre-recorded audio or video files, see [Transcription](/features/transcription).
+1. Open **Settings → Dictation → Dictation Models** and configure a provider.
+2. Open **Dictation** settings and check the hotkey and gesture mode.
+3. Place the cursor in a text field in another app.
+4. Use the configured gesture to start recording, speak, and stop according to that gesture's mode.
+5. Review the inserted text, especially names, dates, and numbers.
 
-## Activation Modes
+Microphone permission is needed to capture audio. Inserting text into another app can require Accessibility permission.
 
-| Mode | How to trigger | Best for |
-|------|---------------|----------|
-| **Toggle Dictation** | Press the dictation hotkey (default `⌥ V`) to start, press again to finish | Long-form dictation, multi-sentence input |
-| **Push to Dictation** | Hold `Fn` to start, release to finish | Short utterances, chat-style replies |
-| **Dictation in SmartBar** | Open SmartBar, press the mic icon or hotkey | Voice-driven Agent commands and AI prompts |
-| **Voice input in Chat Window** | Click the microphone button in the Chat Window prompt | Dictating normal chat messages and follow-up prompts |
-| **Dynamic Island voice command** | Trigger voice input from Dynamic Island when available | Quick commands while staying in your current app |
-| **Voice Commands** | Speak a registered voice command phrase | Triggering workflows, opening apps, running tools |
+## Post-actions
 
-<Tip>
-Push-to-talk on `Fn` is the fastest path for chat. Toggle mode (`⌥ V`) is better when you want to think between sentences without re-pressing a key.
-</Tip>
+Dictation can run configured commands after recognition, such as **Dictation Polish** or **Dictation Translate** from Writing Toolkit. Review the post-action selection when the inserted text differs from the raw transcript. A post-action using a cloud model can send recognized text to that provider even if recognition itself was local.
 
-## Using Dictation
+## Send speech to an Agent
 
-<Steps>
-  <Step title="Activate">
-    Use any of the activation modes above. A floating indicator confirms EnConvo is listening.
-  </Step>
-  <Step title="Speak">
-    Speak naturally at a normal pace. Built-in voice-activity detection (Silero VAD via FluidAudio) ignores silence and background noise.
-  </Step>
-  <Step title="Pause or cancel">
-    Press `Esc` to discard the current take. The indicator disappears and nothing is inserted.
-  </Step>
-  <Step title="Finish">
-    Press the hotkey again (toggle mode) or release the key (push mode). EnConvo finalizes the transcript and pastes it at the cursor.
-  </Step>
-</Steps>
+1. Open **Settings → Agents → Voice Trigger**.
+2. Configure **Triggered Agent**, its hotkey, and **Session Timeout**.
+3. Invoke the gesture and speak a complete instruction.
+4. End recording and review the Agent's progress and result.
 
-## Choosing a Dictation Provider
+Voice Command can reuse the latest triggered Agent session within the configured timeout. It does not work by matching only a fixed set of phrases; the selected Agent interprets the request with its available tools.
 
-The dictation provider is set under **Settings → Dictation → Dictation Model Provider**. EnConvo supports both real-time streaming providers (lowest latency, partials appear as you speak) and batch providers (transcript appears after you finish).
+## History and vocabulary
 
-<Tabs>
-  <Tab title="Real-time streaming">
-    Streaming providers send partial transcripts back as you speak. They are the best choice for live dictation because there is no wait at the end.
+Open **Dictation History** to revisit past recognized text. Use [Dictionary](/configuration/speech-assets) for custom vocabulary and provider language/hot-word settings when supported.
 
-    | Provider | Model | Notes |
-    |----------|-------|-------|
-    | **Microsoft Azure** | Azure Realtime | 100+ languages, free via Cloud Plan, recommended default |
-| **Soniox** | STT Realtime v5 | Strong multilingual code-switching, language hints |
-    | **AssemblyAI** | Universal-Streaming v3 | Best-in-class diarization, US English focus |
-    | **ElevenLabs** | Scribe v2 Realtime | High quality, automatic language detection |
-    | **Volcengine** | BigASR Realtime (`sauc.duration`) | Best for Mandarin and Chinese dialects |
-  </Tab>
-  <Tab title="Batch (post-utterance)">
-    Batch providers wait for you to finish, then return the full transcript. Slightly higher end-of-turn latency but often higher accuracy on tricky phrases.
+## Choose recognition separately
 
-    | Provider | Model | Notes |
-    |----------|-------|-------|
-| **Groq Whisper** | Large V3 Turbo | Fastest cloud Whisper, very cheap |
-| **OpenAI** | gpt-4o-transcribe | High accuracy with AI cleanup |
-| **OpenAI OAuth** | Transcribe | Uses your connected OpenAI subscription account when available |
-| **xAI** | Speech-to-text | Speech recognition through xAI provider support |
-| **Mistral Voxtral** | Voxtral Mini | Lightweight, fast |
-| **Google Gemini** | Gemini 3.1 Flash Lite | Multimodal-grade transcription |
-  </Tab>
-  <Tab title="Local (offline)">
-    Local providers run entirely on-device. No audio leaves your Mac.
-
-    | Provider | Model | Notes |
-    |----------|-------|-------|
-    | **NVIDIA Parakeet** | parakeet-tdt-0.6b-v3 | ~210x realtime, 25 European languages |
-    | **Qwen3 ASR** | 0.6B / 1.7B (4-bit / 8-bit) | 30 languages + 22 Chinese dialects |
-    | **Local Whisper** | base / small / large-v3 | Familiar Whisper accuracy, 57+ languages |
-  </Tab>
-</Tabs>
-
-<Note>
-You can pick a different provider for **Dictation** and for **Transcription** of audio/video files — for example, Azure Realtime for live dictation and AssemblyAI for meeting transcripts.
-</Note>
-
-## Language
-
-Set your primary language under **Settings → Dictation → Primary Language**. Most providers also support **Auto Detect**, but specifying the language usually improves both accuracy and speed because the model can skip language identification.
-
-For multilingual or code-switching speech (e.g. mixing Chinese and English), use providers that accept **language hints** — Soniox, Volcengine, and ElevenLabs all support biasing toward several languages at once.
-
-## Voice Commands
-
-Dictation in SmartBar can drive any EnConvo command. Common patterns:
-
-- **Conversational AI** — "Summarize the email I just opened"
-- **Workflow trigger** — "Create a reminder for tomorrow at 9am"
-- **System action** — "Open Cursor in this folder"
-
-Voice commands are matched against the registered command list, so you can build custom phrases through the Workflow editor.
-
-## Chat Window And Dynamic Island Voice Input
-
-Voice input is available from more than one EnConvo surface:
-
-- **Chat Window**: click the microphone button in the prompt and speak your
-  message. EnConvo inserts the transcript into the chat composer.
-- **SmartBar**: use dictation for quick agent commands and follow-up prompts.
-- **Dynamic Island**: use voice commands without leaving the app you are
-  currently working in.
-
-Voice command sessions are reused where possible, so follow-up commands can feel
-continuous instead of starting from a blank state every time.
-
-## Tips for Better Recognition
-
-<AccordionGroup>
-  <Accordion title="Speak clearly, but naturally">
-    Maintain a consistent pace and enunciate clearly — but don't over-articulate. Modern ASR is trained on natural speech.
-  </Accordion>
-  <Accordion title="Use a directional or close-talk microphone">
-    Built-in MacBook mics work well in quiet rooms; for noisy environments a USB headset or Lavalier dramatically improves WER.
-  </Accordion>
-  <Accordion title="Add domain terms to hot-words">
-    For Soniox, Volcengine, and AssemblyAI, drop product names, acronyms, and jargon into the provider's hot-words / context-terms field.
-  </Accordion>
-  <Accordion title="Use the prompt field for context">
-    Whisper-style providers (Groq, OpenAI, Local Whisper) accept a free-form prompt up to 224 tokens. Add a sentence describing the topic to bias the model.
-  </Accordion>
-  <Accordion title="Set the language explicitly">
-    Auto Detect is convenient, but specifying the language is faster and usually more accurate.
-  </Accordion>
-</AccordionGroup>
-
-## Privacy
-
-<Note>
-Audio is captured locally and sent to your selected provider. To keep audio fully on-device, use **NVIDIA Parakeet**, **Qwen3 ASR**, or **Local Whisper** — none of them require an internet connection after the model has been downloaded.
-</Note>
-
-For cloud providers, audio is processed under the provider's privacy policy. The Enconvo Cloud Plan adds an additional proxy layer so your provider API keys never need to leave your machine.
+Dictation, recording, file transcription, and live captions have separate model settings. A provider suited to batch files may not be the best choice for streaming input. The [Speech Recognition](/ai/speech-recognition) guide and [provider catalog](/providers/catalog#speech-recognition) explain those categories.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Microphone not detected">
-    1. Open **System Settings → Privacy & Security → Microphone**
-    2. Confirm EnConvo has microphone access
-    3. Make sure the right microphone is selected as the system input
-    4. Restart EnConvo after granting permissions
-  </Accordion>
-  <Accordion title="Dictation doesn't insert text">
-    1. Check that the active app accepts text input (some sandboxed inputs reject paste)
-    2. Open **System Settings → Privacy & Security → Accessibility** and confirm EnConvo is enabled — it needs Accessibility to paste
-    3. Try Push-to-Dictate (`Fn`) to rule out the toggle hotkey
-  </Accordion>
-  <Accordion title="High end-of-turn latency">
-    Switch to a streaming provider (Azure Realtime, Soniox Realtime, AssemblyAI Streaming). Batch providers like Groq Whisper only return the transcript after you stop speaking.
-  </Accordion>
-  <Accordion title="Poor transcription accuracy">
-    1. Reduce background noise or move closer to the mic
-    2. Set the language explicitly instead of Auto Detect
-    3. Add domain terms to hot-words / context terms
-    4. Try a higher-tier model — e.g. Whisper Large V3 over Turbo
-  </Accordion>
-  <Accordion title="Local model download fails">
-    Local Whisper, Parakeet, and Qwen ASR weights are downloaded on first use. Ensure stable internet, ~600 MB free disk, and check Activity Monitor for blocked network connections.
-  </Accordion>
-</AccordionGroup>
+| Symptom | Check |
+| --- | --- |
+| No microphone input | Microphone permission and selected input device |
+| Text appears but is not inserted | Accessibility, focused field, and whether the app accepts paste |
+| Wrong text after recognition | Post-actions, language hints, and vocabulary |
+| Slow result after stopping | Streaming versus batch model behavior |
+| Agent receives the wrong conversation | Triggered Agent and Session Timeout |
+| Another feature owns the microphone | Finish Live Voice or microphone recording first |
 
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="Transcription" icon="file-audio" href="/features/transcription">
-    Transcribe pre-recorded audio and video files
-  </Card>
-  <Card title="Speech Recognition" icon="waveform" href="/ai/speech-recognition">
-    Compare every supported STT provider and model
-  </Card>
-  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
-    Use voice input in SmartBar for AI commands
-  </Card>
-  <Card title="Meeting Recording" icon="video" href="/features/meeting-recording">
-    Record meetings with live transcription
-  </Card>
-</CardGroup>
+Use [Voice Notes](/features/voice-notes) to save speech directly into a knowledge base.

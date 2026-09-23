@@ -1,230 +1,34 @@
 ---
 title: "Image Generation"
-description: "Create images with AI using natural language descriptions"
+description: "Generate and edit images with a configured image provider."
 ---
 
-## Overview
+Configure image creation under **Settings → Global Providers Settings → Image Generation**. The image provider is separate from the model used for ordinary chat.
 
-EnConvo's Image Generation feature lets you create images directly from text descriptions. Generate artwork, illustrations, mockups, and visual content without leaving your workflow.
+## Generate an image
 
-## Supported Models
-
-| Model | Provider | Best For |
-|-------|----------|----------|
-| **GPT Image 2** | OpenAI / OpenAI Subscription | High quality image generation through API or OAuth account support |
-| **DALL-E 3** | OpenAI | High quality, accurate prompts |
-| **DALL-E 2** | OpenAI | Fast generation, variations |
-| **xAI Imagine** | xAI | Fast prompt-driven image generation through xAI |
-| **Stable Diffusion** | Local/API | Privacy, customization |
-| **Midjourney** | API | Artistic, stylized images |
-
-## Generating Images
-
-### From SmartBar
-
-1. Open SmartBar with `⇧⌘D`
-2. Type `/image` followed by your description
-3. Press Enter to generate
-
-### Example Prompts
-
-```
-/image A serene mountain lake at sunset with snow-capped peaks
-/image Minimalist logo for a tech startup, blue and white colors
-/image Cute cartoon cat sitting on a stack of books
-/image Professional headshot of a friendly robot in a business suit
-```
-
-### Advanced Prompts
-
-Include style and technical specifications:
-
-```
-/image [subject], [style], [details], [lighting], [mood]
+1. Choose a provider and model in Image Generation settings and configure its access.
+2. Use an Agent with image-generation tools, or the image-generation command available in your build.
+3. Describe the subject, composition, style, and intended use.
+4. Choose size, aspect ratio, or quality only from options supported by that model.
+5. Wait for completion, open the result, and save the output you need.
 
 Example:
-/image A cozy coffee shop interior, watercolor style, 
-warm lighting, vintage furniture, peaceful atmosphere
+
+```text
+Create a square illustration for a guide to organizing research.
+Show three labeled folders on a tidy desk, with a warm neutral palette.
+Leave the top third clear for a title.
 ```
 
-## Image Options
+## Edit an image
 
-### Size Options
+Attach the source image and describe the specific changes. Choose a model that supports image editing/reference input. State what should stay consistent, and review the result for unintended changes.
 
-| Size | Use Case |
-|------|----------|
-| **Square (1024×1024)** | Social media, general purpose |
-| **Landscape (1792×1024)** | Banners, presentations |
-| **Portrait (1024×1792)** | Mobile, Pinterest |
+The [image provider catalog](/providers/catalog#image-generation) includes OpenAI, Gemini, xAI, OpenRouter, Kie.ai, Topview, Azure, Together, Straico, and supported Cloud variants. Capabilities are model-specific; a provider name alone does not guarantee every editing mode.
 
-### Quality Settings
+## Troubleshooting
 
-| Quality | Description |
-|---------|-------------|
-| **Standard** | Fast generation, good quality |
-| **HD** | Higher detail, slower |
-| **Draft** | Quick preview, lower quality |
+Check access, model availability, supported input formats, and the provider error. Generation can take longer than a text reply. If an edit ignores the attachment, confirm that the chosen model accepts image input and that the file was attached to the request.
 
-### Style Presets
-
-| Preset | Description |
-|--------|-------------|
-| **Natural** | Photorealistic style |
-| **Vivid** | Enhanced colors and contrast |
-| **Artistic** | Creative, stylized |
-| **Anime** | Japanese animation style |
-
-## Working with Generated Images
-
-### After Generation
-
-- **Preview**: View full-size image
-- **Save**: Download to your Mac
-- **Copy**: Copy to clipboard
-- **Edit**: Modify with new prompt
-- **Variations**: Generate similar images
-
-### Edit & Refine
-
-Use follow-up prompts to refine:
-- "Make the background darker"
-- "Add more contrast"
-- "Change the style to watercolor"
-- "Remove the person on the left"
-
-### Variations
-
-Generate variations of an image you like:
-1. Click "Variations" on any generated image
-2. EnConvo creates similar images with subtle differences
-3. Choose your favorite
-
-## Choosing A Provider
-
-| Provider | Choose it when |
-|----------|----------------|
-| **OpenAI API** | You want direct API billing and access to OpenAI image models |
-| **OpenAI Subscription** | You want to use eligible image features through your connected OpenAI account |
-| **xAI** | You want to generate images with xAI Imagine |
-| **Local / Stable Diffusion** | You want local or self-hosted image generation |
-
-<Note>
-Model availability depends on your provider account and EnConvo version. If a
-new model does not appear, update EnConvo, validate the provider credential, and
-reopen the command settings.
-</Note>
-
-## Prompt Engineering
-
-### Effective Prompt Structure
-
-```
-[Subject] + [Style] + [Environment] + [Lighting] + [Technical]
-```
-
-### Style Keywords
-
-| Category | Keywords |
-|----------|----------|
-| **Art Styles** | oil painting, watercolor, digital art, sketch |
-| **Photography** | portrait, landscape, macro, aerial |
-| **Aesthetic** | minimalist, vintage, futuristic, retro |
-| **Mood** | dramatic, peaceful, energetic, mysterious |
-
-### Technical Modifiers
-
-| Modifier | Effect |
-|----------|--------|
-| `4K`, `8K` | Higher detail |
-| `cinematic` | Movie-like composition |
-| `studio lighting` | Professional lighting |
-| `bokeh` | Blurred background |
-| `rule of thirds` | Better composition |
-
-## Use Cases
-
-<AccordionGroup>
-  <Accordion title="Marketing & Social Media">
-    - Social media posts
-    - Blog illustrations
-    - Ad creatives
-    - Thumbnail images
-  </Accordion>
-  <Accordion title="Design & Mockups">
-    - Logo concepts
-    - UI mockups
-    - Product visualizations
-    - Presentation graphics
-  </Accordion>
-  <Accordion title="Creative Projects">
-    - Story illustrations
-    - Concept art
-    - Character designs
-    - Album artwork
-  </Accordion>
-  <Accordion title="Productivity">
-    - Presentation visuals
-    - Document illustrations
-    - Diagram concepts
-    - Avatar generation
-  </Accordion>
-</AccordionGroup>
-
-## Configuration
-
-### Settings → Image Generation
-
-| Setting | Description |
-|---------|-------------|
-| **Default Model** | Preferred generation model |
-| **Default Size** | Standard image dimensions |
-| **Quality** | Default quality setting |
-| **Save Location** | Where to save generated images |
-| **Auto-save** | Automatically save all images |
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Be descriptive">
-    More detail usually produces better results. Describe colors, lighting, mood, and style.
-  </Accordion>
-  <Accordion title="Use references">
-    "In the style of [artist/style]" can guide the aesthetic.
-  </Accordion>
-  <Accordion title="Iterate">
-    Start with a basic prompt and refine based on results.
-  </Accordion>
-  <Accordion title="Avoid prohibited content">
-    AI image generators have content policies. Avoid generating harmful or inappropriate content.
-  </Accordion>
-</AccordionGroup>
-
-## Limitations
-
-- Cannot generate photorealistic faces of real people
-- Text in images may be inaccurate
-- Complex scenes may have artifacts
-- Generation time varies by model and quality
-
-## Credits & Pricing
-
-| Model | Credit Cost |
-|-------|-------------|
-| DALL-E 3 | ~50 points/image |
-| DALL-E 2 | ~20 points/image |
-| Stable Diffusion | ~10 points/image |
-
-<Note>
-Point costs vary by resolution and quality settings. Check Settings → Usage for your current balance.
-</Note>
-
-## Related Features
-
-<CardGroup cols={2}>
-  <Card title="OCR" icon="text" href="/ai/ocr">
-    Extract text from images
-  </Card>
-  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
-    Quick image generation
-  </Card>
-</CardGroup>
+For an inline diagram or interactive explanation, see [Visual Answers](/features/visual-answers). For compression, see [Media Utilities](/features/media-tools).
