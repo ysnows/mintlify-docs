@@ -1,0 +1,131 @@
+---
+title: "Build Your First Workflow"
+description: "A narrated video tutorial: create, edit, extend, run, and inspect a workflow in eight steps."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Workflows chain prompts, agents, and tools into one repeatable run. This tutorial builds one from start to finish: create it from the starter template, add a step by hand, let the workflow assistant add another, then run it and read every step's output.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+The video is 2 minutes 24 seconds long. The written steps below follow the same order, with the matching timestamp for each step.
+
+## What you'll build
+
+The starter template already runs out of the box. Over the tutorial, it grows into a small content pipeline:
+
+| Step | Type | What it does |
+| --- | --- | --- |
+| Get today's date | Shell | Prints today's date |
+| List saved workflows | Tool | Lists your existing workflows (runs in parallel with the date) |
+| Ask the model for an idea | Prompt | Suggests one new automation about the `topic` input |
+| Let the agent expand it | Agent | Turns the idea into a three-step plan |
+| Write a tweet | Prompt | **Added by hand** — turns the plan into one punchy tweet |
+| Translate the tweet into Japanese | Prompt | **Added by the assistant** — translates the tweet |
+
+## Steps
+
+<Steps>
+  <Step title="Create a workflow (0:07)">
+    Open **Settings → Workflows → Manage** and select **New workflow**. You start from a working starter template, not a blank page, and the editor opens in **Visual** mode.
+  </Step>
+  <Step title="Read the graph (0:18)">
+    Read the graph from the top. The **Inputs** node declares what a run needs; here it is a single `topic`. The first two steps sit side by side because they belong to separate jobs, so they run in parallel. Each result then flows down into the steps below it, which run in order.
+  </Step>
+  <Step title="Edit a step (0:28)">
+    Select a step to open it in the inspector, where you can change its ID, title, and prompt. Double curly braces pull values into a step: `{{ inputs.topic }}` reads a run input, and `{{ steps.idea.output }}` reads an earlier step's result. That is how steps talk to each other.
+  </Step>
+  <Step title="Add a step (0:37)">
+    Select the **+** below the last step and pick a step type — Prompt, Agent, Shell, Tool, and more. Give the new Prompt step the ID `tweet`, the title "Write a tweet", and this prompt:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    After you rename a step ID, press Return before moving to the next field.
+    </Tip>
+  </Step>
+  <Step title="Or just ask the workflow assistant (0:57)">
+    Instead of editing by hand, describe the change in the assistant box at the bottom of the editor:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    The assistant edits the graph for you. In the video it adds a `translate_ja` step whose prompt reads `{{ steps.tweet.output }}`. Review the new step before you save — assistant edits stay unsaved until you select **Save**.
+  </Step>
+  <Step title="It's just YAML (1:16)">
+    Select **YAML** in the toolbar to see the same workflow as source. There is one plain file per workflow, saved at `~/.enconvo/workflows/<id>.yaml`, so it is easy to read, diff, and share. Select **Visual** to return to the graph. See [the full YAML](#the-finished-workflow) below.
+  </Step>
+  <Step title="Run it and check the output (1:28)">
+    Select **Inputs**, set the run values — the video uses `{"topic": "matcha"}` — and choose **Run**. Running steps glow blue and finished steps turn green. The Agent step takes longer than the others.
+
+    When the run finishes, select any step and open its **Output** tab to see exactly what it produced. The last step picked up the tweet and translated it, with no copy and paste.
+  </Step>
+  <Step title="Find past runs (2:05)">
+    Every run is kept under **Runs** in the toolbar, so you can come back to any result later.
+  </Step>
+</Steps>
+
+<Note>
+Running a workflow calls real models and tools. It can use provider credits, and Shell or Tool steps act with your Mac account's permissions. Review a workflow's steps before you run it.
+</Note>
+
+## The finished workflow
+
+Here is the workflow built in the video, written out as YAML. The **YAML** view may format it slightly differently.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+The `ideate` job waits for `date` and `catalog` through `needs`, so it can read their results with `jobs.<job>.<step>.output`. Within a job, later steps read earlier ones with `steps.<id>.output`.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workflows introduction" icon="diagram-project" href="/workflows/introduction">Jobs, steps, and every executor a step can use.</Card>
+  <Card title="Creating workflows" icon="pen-to-square" href="/workflows/creating-workflows">The Visual editor, YAML, and the editing assistant in detail.</Card>
+  <Card title="Advanced workflows" icon="code-branch" href="/workflows/advanced-workflows">Conditions, loops, retries, output schemas, and subworkflows.</Card>
+  <Card title="Scheduled jobs" icon="clock" href="/workflows/scheduled-jobs">Run an Agent instruction or script at a set time.</Card>
+</CardGroup>
