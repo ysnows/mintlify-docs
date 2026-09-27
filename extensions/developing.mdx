@@ -5,9 +5,28 @@ description: "Create a TypeScript command or Local API route with the Enconvo SD
 
 An Enconvo plugin is an ESM package with metadata in `package.json`, commands under `src/`, and optional API routes under `src/api/`. Commands run through Enconvo's extension runtime; a plugin command is a default-exported function, not a class implementing a `Command` interface.
 
-## Minimal project
+You need Node.js 18 or later, npm or another package manager, and Enconvo running on your Mac.
 
-Use Node.js compatible with your installed `@enconvo/api` package (the current SDK declares Node.js 18 or later), a package manager, and Enconvo on your Mac.
+## Quick start
+
+Create a plugin project in a new folder:
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+The project has one command (**Say Hello**), one Local API route, a placeholder icon, and a README. `npm run dev` builds the plugin into Enconvo and rebuilds it whenever you save. Search Enconvo for **Say Hello** to run it.
+
+The plugin name comes from the folder name. Pass `--name`, `--title`, `--description` or `--author` to set them yourself. Pick a name that no plugin installed in Enconvo already uses, because building replaces the installed plugin's files; `plugin create` refuses such names.
+
+<Note>
+`plugin create`, `plugin validate` and publishing for review need an `@enconvo/api` release newer than 0.1.173. If your version doesn't have them, set the project up by hand as described below.
+</Note>
+
+## Set up a project by hand
 
 ```text
 hello-enconvo/
@@ -18,6 +37,7 @@ hello-enconvo/
 │   └── api/
 │       └── echo.ts
 └── assets/
+    └── icon.png
 ```
 
 Create `package.json`:
@@ -26,10 +46,11 @@ Create `package.json`:
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "hello_enconvo",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "title": "Hello Enconvo",
   "description": "A small example command and API.",
   "author": "Your Name",
+  "icon": "icon.png",
   "type": "module",
   "categories": ["Tools"],
   "commands": [
@@ -43,17 +64,20 @@ Create `package.json`:
   ],
   "scripts": {
     "build": "enconvo plugin build",
-    "dev": "enconvo plugin build --dev"
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
   }
 }
 ```
 
-Install the SDK and TypeScript:
+Install the SDK, and the build tools as development dependencies:
 
 ```sh
 npm install @enconvo/api
-npm install --save-dev typescript
+npm install --save-dev tsup typescript @types/node
 ```
+
+`enconvo plugin build` compiles your code with the plugin's own `tsup`. Without it, the build has nothing to compile with; newer SDKs stop with an error, and older ones finish without building your commands.
 
 Create `tsconfig.json`:
 
@@ -63,15 +87,19 @@ Create `tsconfig.json`:
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM"]
+    "noEmit": true
   },
   "include": ["src"]
 }
 ```
 
-## Add the command
+Put a square PNG, JPEG, WebP or GIF icon of up to 5 MB at `assets/icon.png`.
+
+## Add a command
 
 `commands[].name` matches the source filename. Put this in `src/hello.ts`:
 
@@ -80,7 +108,7 @@ import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
 
 export default async function main(request: Request) {
   const options = await request.json() as RequestOptions;
-  const name = String(options.input_text || "World");
+  const name = String(options.input_text || "").trim() || "World";
   return EnconvoResponse.text(`Hello, ${name}!`);
 }
 ```
@@ -109,7 +137,7 @@ export default async function main(request: Request) {
 
 This becomes `hello_enconvo/echo`. A directory such as `src/api/items/list.ts` becomes `hello_enconvo/items/list`. Use the installed [Local API schemas](/advanced/cli-local-api) for exact request shapes.
 
-## Build and inspect
+## Build and test
 
 ```sh
 npm run build
@@ -117,12 +145,28 @@ npm run dev
 npx enconvo plugin generate-schema
 ```
 
-Build from the plugin directory. Review the build output and then find **Say Hello** in Enconvo. Development mode watches files for rebuilds. API schemas are generated into the plugin's `skills/` directory.
+Build from the plugin directory. A good build ends with `ready - built extension successfully`. If it prints an `error` line, fix what it names and build again. Development mode watches files for rebuilds. API schemas are generated into the plugin's `skills/` directory.
+
+Call the route while Enconvo is running:
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
 
 Test a greeting and invalid API input before sharing the plugin. A successful build alone does not test native operations or every provider call.
 
-## Package and publish
+## Publish to the plugin store
 
-Add an icon and the metadata required by the current package schema, document prerequisites, and check that no credentials or private assets are bundled. Inspect `npx enconvo plugin publish --help` before publishing; the command performs authentication and publishes to the store.
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+`plugin validate` checks the plugin against the store rules without uploading anything. After a build, it also shows how many files the package will contain and which files are left out. It checks that the name uses only letters, digits, dots, dashes and underscores, that `version` looks like `1.2.3`, that the plugin has a title, and that the icon is a PNG, JPEG, WebP or GIF of up to 5 MB. You can add up to 8 screenshots in a `metadata/` folder; the store shows them in file name order.
+
+`plugin publish` builds the plugin and uploads it with the Enconvo account you're signed in with, so Enconvo has to be running and signed in. Enconvo reviews every version before it appears in the store. Until a new plugin is approved, only you can see it; while an update is in review, the store keeps offering the previous version. Raise `version` in `package.json` for every update.
+
+The package is made from the built plugin. `.env` files, `node_modules`, version-control folders and `.zip` archives are left out, but check that no other credentials or private files end up in it.
 
 For SDK building blocks, see [Extension API Reference](/extensions/extension-api-reference). For reusable multi-step processes that do not need a plugin, use [Workflows](/workflows/introduction).
