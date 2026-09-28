@@ -1,0 +1,364 @@
+---
+title: "AI Model and Voice Plugins"
+description: "Add your own AI model or text-to-speech provider to Enconvo's pickers with a plugin."
+---
+
+A provider plugin adds a service Enconvo already has a picker for. Once it is installed, its AI model shows up in the model picker next to OpenAI, Anthropic and the rest, and its voice shows up in the text-to-speech voice list. Chats, agents, read-aloud and workflows then use it exactly like a built-in provider.
+
+This page builds one plugin, `acme_ai`, with both kinds: a chat model for an OpenAI-compatible API and a text-to-speech voice. It assumes you have read [Developing Extensions](/extensions/developing).
+
+<Note>
+Provider plugins need Enconvo 2.5.6 or later. Set `"minAppVersion": "2.5.6"` in `package.json`.
+</Note>
+
+## How a provider plugin fits in
+
+```text
+acme_ai/
+├── package.json         # two provider commands + the API key preference
+├── assets/icon.png
+└── src/
+    ├── chat.ts          # the AI model provider  → commandType "provider", provider_category "llm"
+    ├── say.ts           # the voice provider     → commandType "provider", provider_category "tts"
+    └── api/
+        ├── models.ts    # the model list the picker shows (route acme_ai/models)
+        └── voices.ts    # the voice list (route acme_ai/voices)
+```
+
+Start from the scaffold (`npx -p @enconvo/api enconvo plugin create acme_ai`), then replace its sample command with the files below.
+
+- Each provider is a command with `"commandType": "provider"` and a `provider_category`: `llm` for AI models, `tts` for voices.
+- Its source file exports `main(options)`, which returns an instance of the SDK base class (`LLMProvider` or `TTSProvider`). Enconvo creates the instance and calls it; the plugin never runs as a standalone command.
+- Enconvo names a plugin's provider by its full command key, `acme_ai|chat`, so it can never clash with a built-in one such as `llm|open_ai`.
+- Installing a plugin never makes its provider the default. Users choose it in the picker. If the plugin is uninstalled, anything that had it selected goes back to the default.
+
+## The manifest
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "acme_ai",
+  "version": "1.0.0",
+  "title": "Acme AI",
+  "description": "Acme AI chat models and voices in Enconvo.",
+  "icon": "icon.png",
+  "author": "your-name",
+  "type": "module",
+  "minAppVersion": "2.5.6",
+  "categories": ["Productivity"],
+  "preferences": [
+    {
+      "name": "api_key",
+      "title": "API Key",
+      "description": "Your Acme AI API key.",
+      "type": "password",
+      "required": true
+    }
+  ],
+  "commands": [
+    {
+      "name": "chat",
+      "title": "Acme AI",
+      "description": "Chat with Acme AI models.",
+      "icon": "icon.png",
+      "commandType": "provider",
+      "provider_category": "llm",
+      "mode": "no-view",
+      "private": true,
+      "preferences": [
+        {
+          "name": "modelName",
+          "title": "Model",
+          "type": "dropdown",
+          "dataProxy": "acme_ai/models",
+          "default": "acme-large"
+        }
+      ]
+    },
+    {
+      "name": "say",
+      "title": "Acme AI Voice",
+      "description": "Read text aloud with Acme AI voices.",
+      "icon": "icon.png",
+      "commandType": "provider",
+      "provider_category": "tts",
+      "private": true,
+      "preferences": [
+        {
+          "name": "voice",
+          "title": "Voice",
+          "type": "dropdown",
+          "dataProxy": "acme_ai/voices",
+          "default": "alloy"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Keep the `scripts`, `dependencies` and `devDependencies` that `enconvo plugin create` wrote. What matters here:
+
+- `"private": true` keeps the provider out of the command list; it is only reached through the pickers.
+- The preference names are fixed: an AI model provider reads its model from `modelName`, and a voice provider reads its voice from `voice`. The pickers write to those names.
+- `dataProxy` points at the plugin's own API route (`acme_ai/models`). The `default` is the `value` of one item in that list. At run time Enconvo hands the provider the whole item, so the code reads `this.options.modelName.value`.
+- A preference at the top level of the manifest, like `api_key`, is shared by every command and route in the plugin. Users fill it in on the plugin's page in Settings, and the provider reads it as `this.options.api_key`. Use `"type": "password"` for keys so they are stored encrypted.
+- `isDefault` and `sort` are removed when a plugin is installed; a plugin can't put its provider first or make it the default.
+- The routes in `src/api/` need no entry in `commands`; the build adds them.
+
+## The model and voice lists
+
+The picker calls the `dataProxy` route whenever it opens, so the route must answer fast. The simplest route returns a fixed list.
+
+`src/api/models.ts`:
+
+```typescript
+/**
+ * The models the Acme AI provider offers, for the model picker.
+ * @private
+ */
+export default async function main(_req: Request) {
+  return Response.json([
+    { type: "llm_model", title: "Acme Large", value: "acme-large", context: 128000, maxTokens: 8192, toolUse: false, visionEnable: false },
+    { type: "llm_model", title: "Acme Small", value: "acme-small", context: 32000, maxTokens: 4096, toolUse: false, visionEnable: false },
+  ])
+}
+```
+
+Each model item has:
+
+| Field | Meaning |
+|-------|---------|
+| `type` | Always `"llm_model"` |
+| `title` | The name shown in the picker |
+| `value` | The model id sent to your API |
+| `context` | The context window, in tokens. Enconvo trims long chats to fit it. |
+| `maxTokens` | The most tokens the model may write in one reply |
+| `toolUse` | Whether the model can call tools. With `false`, agents chat with it without tools. |
+| `visionEnable` | Whether the model accepts images |
+
+To list the models your API offers instead, fetch them inside `ListCache`. It keeps the list until the user refreshes it in the picker, and the plugin's preferences, such as `api_key`, arrive in the options:
+
+```typescript
+import { ListCache, type RequestOptions } from "@enconvo/api"
+
+async function fetchModels(options: RequestOptions): Promise<ListCache.ListItem[]> {
+  const resp = await fetch("https://api.acme.ai/v1/models", {
+    headers: { Authorization: `Bearer ${options.api_key}` },
+  })
+  if (!resp.ok) return []
+  const body = (await resp.json()) as { data: { id: string }[] }
+  return body.data.map((model) => ({
+    type: "llm_model",
+    title: model.id,
+    value: model.id,
+    context: 128000,
+    maxTokens: 8192,
+    toolUse: false,
+    visionEnable: false,
+  }))
+}
+
+/** @private */
+export default async function main(req: Request) {
+  const options = (await req.json().catch(() => ({}))) as RequestOptions
+  return Response.json(await new ListCache(fetchModels).getList(options))
+}
+```
+
+`src/api/voices.ts`:
+
+```typescript
+/**
+ * The voices the Acme AI provider offers, for the voice picker.
+ * @private
+ */
+export default async function main(_req: Request) {
+  return Response.json([
+    { title: "Alloy", value: "alloy" },
+    { title: "Nova", value: "nova" },
+  ])
+}
+```
+
+`@private` keeps these routes out of the plugin's generated API docs, since only the pickers call them.
+
+## An AI model provider
+
+Extend `LLMProvider` and implement two methods:
+
+- `_call(params)` returns the whole reply as an `AssistantMessage`.
+- `_stream(params)` returns a `Stream` of reply events as they arrive. Chats use this one.
+
+`src/chat.ts`, for an API that follows OpenAI's chat completions format:
+
+```typescript
+import {
+  AssistantMessage,
+  BaseChatMessage,
+  BaseChatMessageChunk,
+  BaseChatMessageLike,
+  LLMProvider,
+  Stream,
+} from "@enconvo/api"
+
+const BASE_URL = "https://api.acme.ai/v1"
+
+export default function main(options: any) {
+  return new AcmeChat(options)
+}
+
+class AcmeChat extends LLMProvider {
+  protected async _call(params: LLMProvider.ResolvedParams): Promise<BaseChatMessage> {
+    const resp = await this.complete(params, false)
+    const data = await resp.json()
+    return new AssistantMessage(data.choices?.[0]?.message?.content ?? "")
+  }
+
+  protected async _stream(params: LLMProvider.ResolvedParams): Promise<Stream<BaseChatMessageChunk>> {
+    const controller = new AbortController()
+    const resp = await this.complete(params, true, controller)
+    const chunks = Stream.fromSSEResponse<any>(resp, controller)
+
+    // Enconvo reads a stream of content blocks: start a text block, send its
+    // pieces as text deltas, then stop it.
+    async function* events(): AsyncGenerator<BaseChatMessageChunk> {
+      let open = false
+      for await (const chunk of chunks) {
+        const text = chunk.choices?.[0]?.delta?.content
+        if (!text) continue
+        if (!open) {
+          open = true
+          yield { type: "content_block_start", content_block: { type: "text", text: "" } }
+        }
+        yield { type: "content_block_delta", delta: { type: "text_delta", text } }
+      }
+      if (open) yield { type: "content_block_stop" }
+    }
+    return new Stream(events, controller)
+  }
+
+  private async complete(params: LLMProvider.ResolvedParams, stream: boolean, controller = new AbortController()) {
+    params.signal?.addEventListener("abort", () => controller.abort())
+    const resp = await fetch(`${BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.options.api_key}`,
+      },
+      body: JSON.stringify({
+        model: this.options.modelName?.value,
+        messages: toChatMessages(params.messages),
+        stream,
+      }),
+      signal: controller.signal,
+    })
+    if (!resp.ok) {
+      throw new Error(`Acme AI ${resp.status}: ${await resp.text()}`)
+    }
+    return resp
+  }
+}
+
+// Each Enconvo message holds a list of parts (text, images, files, tool steps).
+// This provider only sends the text.
+function toChatMessages(messages: BaseChatMessageLike[]) {
+  return messages
+    .filter((m) => m.role === "system" || m.role === "user" || m.role === "assistant")
+    .map((m) => ({
+      role: m.role,
+      content: m.content.map((part) => (part.type === "text" ? part.text : "")).join(""),
+    }))
+    .filter((m) => m.content.length > 0)
+}
+```
+
+### The stream events
+
+`_stream` does not pass your API's chunks through. It yields Enconvo's content-block events, which follow Anthropic's streaming format:
+
+| Event | When |
+|-------|------|
+| `{ type: "content_block_start", content_block: { type: "text", text: "" } }` | A text block begins |
+| `{ type: "content_block_delta", delta: { type: "text_delta", text } }` | More text for the open block |
+| `{ type: "content_block_start", content_block: { type: "thinking", thinking: "" } }` | A reasoning block begins |
+| `{ type: "content_block_delta", delta: { type: "thinking_delta", thinking } }` | More reasoning text |
+| `{ type: "content_block_stop" }` | The open block ends |
+
+Close each block before you start the next one. `Stream.fromSSEResponse` reads a server-sent events response and skips OpenAI's `[DONE]` line; for any other format, parse the response yourself inside the generator. Abort the controller when `params.signal` fires, so that the Stop button ends the request.
+
+### Messages
+
+`params.messages` is the conversation, already trimmed to the model's context window. Each message has a `role` (`system`, `user`, `assistant` or `tool`) and a `content` list of parts: `text`, `image_url`, `file`, and `flow_step` for earlier tool calls. The example keeps only the text, which is enough for a model with `toolUse: false` and `visionEnable: false`.
+
+To offer images, set `visionEnable: true` on the model and send the `image_url` parts in your API's image format.
+
+To offer tools, set `toolUse: true` and send `params.tools` to your API. Stream each call back as a `tool_use` block: `content_block_start` with `{ type: "tool_use", id, name, input: {} }`, then `content_block_delta` events with `{ type: "input_json_delta", partial_json }`. Turn the `flow_step` parts of earlier messages back into your API's tool call and tool result messages. Enconvo runs the tools and calls the model again with the results.
+
+## A text-to-speech provider
+
+Extend `TTSProvider` and implement `_toFile`. It gets the text and the path to write, and returns the path once the audio is there.
+
+`src/say.ts`:
+
+```typescript
+import fs from "node:fs"
+import { TTSProvider } from "@enconvo/api"
+
+const BASE_URL = "https://api.acme.ai/v1"
+
+export default function main(options: any) {
+  return new AcmeVoice({ options })
+}
+
+class AcmeVoice extends TTSProvider {
+  protected async _toFile({ text, audioFilePath, voice, speed, format }: TTSProvider._ToFileTTSParams): Promise<TTSProvider.TTSItem> {
+    const resp = await fetch(`${BASE_URL}/audio/speech`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.options.api_key}`,
+      },
+      body: JSON.stringify({ model: "acme-tts", input: text, voice, speed, response_format: format }),
+    })
+    if (!resp.ok) {
+      throw new Error(`Acme AI ${resp.status}: ${await resp.text()}`)
+    }
+    await fs.promises.writeFile(audioFilePath, Buffer.from(await resp.arrayBuffer()))
+    return { path: audioFilePath, text }
+  }
+}
+```
+
+The `TTSProvider` constructor takes `{ options }`, while `LLMProvider` takes the options themselves.
+
+- `voice` is the `value` of the voice the user picked.
+- `format` is the file type to write, `mp3` unless the caller asks for another. `audioFilePath` already ends in it.
+- `speed` is a number, 1 for normal speed. Send it on if your API supports it.
+- If your provider returns a path to an empty or missing file, Enconvo reports an error instead of playing silence.
+
+## Try it and publish it
+
+```sh
+npm install
+npm run dev
+```
+
+`npm run dev` builds the plugin into Enconvo and rebuilds it whenever you save.
+
+1. Open the plugin's page in Enconvo's Settings and enter the API key.
+2. Open the model picker in a chat. Acme AI is listed with the other providers; pick a model and send a message. The reply streams in as your `_stream` yields it.
+3. In the text-to-speech settings, pick Acme AI Voice and play a voice preview, or select some text and read it aloud.
+
+If something fails, the error your provider throws is shown in the chat or the preview, so put the API's status and message in it, as the examples do.
+
+When it works, publish it like any other plugin:
+
+```sh
+npm run validate
+npx enconvo plugin publish -m "First release"
+```
+
+<Tip>
+The **Plugin Development Guide** plugin in Enconvo's plugin store carries this guide as a skill, so an agent in Enconvo can help you build a provider plugin.
+</Tip>
