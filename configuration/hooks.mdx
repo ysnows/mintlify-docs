@@ -11,7 +11,10 @@ They are configured with a JSON file, so you can add notifications, logs, local
 automation, or integrations without building an extension.
 
 <Tip>
-Hooks are fire-and-forget. They run in the background and do not block EnConvo.
+Most hooks are fire-and-forget: they run in the background and do not block
+EnConvo. `PreToolUse`, `Stop`, and `SubagentStop` are the exception during
+agent runs — the agent waits for them, so they can block a tool call or send the
+agent back to work. See [Blocking Hooks](#blocking-hooks).
 </Tip>
 
 ## Config File
@@ -81,9 +84,9 @@ When an event fires, EnConvo:
 5. Skips entries where `enabled` is `false`.
 6. Runs every configured hook concurrently.
 
-Hook event names follow the Codex lifecycle set: `SessionStart`,
-`UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, and
-`Stop`. The old EnConvo event names and old flat JSON shape are still readable
+Hook event names follow the Claude Code and Codex lifecycle set:
+`SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`,
+`PostToolUse`, `Stop`, and `SubagentStop`. The old EnConvo event names and old flat JSON shape are still readable
 for existing installs, but new writes use the wrapped Codex-style format.
 
 ## Configuration Reference
@@ -156,6 +159,116 @@ An HTTP hook sends the event payload as the JSON request body.
 | `headers` | object | `{}` | Additional request headers. |
 | `timeout` | number | `30000` | Timeout in milliseconds. |
 
+## Blocking Hooks
+
+During an agent or bot run, three events run as blocking hooks. The agent waits
+for every matching hook (they run in parallel) before it continues, and reads
+their result the same way Claude Code and Codex do.
+
+| Event | When | What the hook can do |
+|-------|------|----------------------|
+| `PreToolUse` | Right before a tool call runs. The `matcher` is checked against the tool name, title, and route path. | Block the call, or rewrite its input. |
+| `Stop` | Right before the agent ends its turn with an answer. | Send the agent back to work with an instruction. |
+| `SubagentStop` | Right before a subagent finishes. | Send the subagent back to work with an instruction. |
+
+A hook decides in one of two ways:
+
+- **Exit code 2** blocks. The text the command writes to stderr is the reason.
+- **Exit code 0 with JSON on stdout.** Any other output, exit code, error, or
+  timeout decides nothing, and the run continues as if the hook were not there.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| JSON output | Effect |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: the call does not run. The model sees `permissionDecisionReason` as the tool result and can choose another way. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Treated as `deny`. EnConvo has no confirmation prompt for hooks yet. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: the call runs. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`: the call runs with this input instead of the model's. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: the agent keeps working, with `reason` as its next instruction. On `PreToolUse` it blocks the call. |
+| `{ "decision": "approve" }` | Same as `allow`. |
+
+HTTP hooks decide with a 2xx response whose body is the same JSON.
+
+When several hooks match, a deny wins over ask, which wins over allow; the
+reasons are joined, and the last `updatedInput` is used.
+
+A `Stop` hook can send the agent back at most 5 times in one turn. On the second
+and later checks, `stop_hook_active` is `true`, so a hook can let the agent stop
+once its instruction has been followed. `Stop` blocking only applies when the
+agent finishes normally; a failed or stopped run still fires `Stop` in the
+background.
+
+<Warning>
+The agent waits for blocking hooks, so a slow `PreToolUse` hook slows every tool
+call and a slow `Stop` hook delays the end of the turn. Keep them fast, set a
+short `timeout`, or run slow work in the background (`command &`).
+</Warning>
+
+Blocking hooks receive the regular [event payload](#event-payload) plus the
+Claude Code fields at the top level:
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` and `SubagentStop` receive `stop_hook_active` and
+`last_assistant_message` instead of the tool fields. Command hooks run in the
+agent's working directory.
+
+### Block a Dangerous Command
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### Make the Agent Run Tests Before Finishing
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
 ## Event Payload
 
 Command hooks receive this JSON on stdin. HTTP hooks receive the same JSON as
@@ -190,10 +303,11 @@ the request body.
 |-------|--------|------|
 | `SessionStart` | `{ command, commandKey }` | A new chat session is created. |
 | `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run starts from user input. |
-| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call starts. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call starts. Blocking during agent runs. |
 | `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call reaches a permission or denied state. |
 | `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | A tool call succeeds, fails, completes, or is denied. |
-| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run reaches a terminal status. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run reaches a terminal status. Blocking when an agent finishes normally. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | A subagent is about to finish. Blocking. Subagents do not fire `Stop`. |
 
 <Note>
 Legacy EnConvo names such as `run_status_changed` and
@@ -340,8 +454,10 @@ chmod +x ~/.enconvo/hooks/on-status-change.sh
   </Accordion>
 
   <Accordion title="Do hooks block EnConvo?">
-    No. Hooks are fire-and-forget. If a hook fails or times out, EnConvo logs the
-    failure and continues processing the original event.
+    Only `PreToolUse`, `Stop`, and `SubagentStop` during agent runs, which the
+    agent waits for. Every other hook is fire-and-forget. If any hook fails or
+    times out, EnConvo logs the failure and continues as if the hook were not
+    there.
   </Accordion>
 
   <Accordion title="Should commands use absolute paths?">
