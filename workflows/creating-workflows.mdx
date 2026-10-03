@@ -3,7 +3,16 @@ title: "Creating Workflows"
 description: "Create and inspect workflows in the Visual editor or YAML, with an editing assistant."
 ---
 
-Open **Settings → Workflows → Manage** and select **New workflow**, or open an existing workflow with **Edit**.
+Select **Workflows** under **Scheduled** in the Chat Window sidebar, or open **Settings → Workflows → Manage**, then select **New workflow**, or open an existing workflow with **Edit**. In the Chat Window, switching to a chat and back keeps the workflow you were editing open.
+
+The workflow list shows each workflow's number of steps, when it was last edited, and how its last run went. Select the last run to open the workflow with that run's results on the canvas. Select the copy button to duplicate a workflow under a new title, so you can change the copy without touching the original.
+
+## Start a new workflow
+
+Select **New workflow** to open a dialog with two ways to start:
+
+- **Describe it.** Write what the workflow should do, for example "Translate a text into Japanese and Spanish at the same time", and select **Build it** (or press ⌘Return). The workflow opens with the assistant already building it; review its steps and select **Save** when they look right.
+- **Start from a template.** Pick **Blank**, **Research a topic**, **Summarize a web page**, **Notes from a YouTube video**, **Write and read aloud**, or **Tour of step kinds** (a shell command, a tool, a prompt, and an agent, with two jobs running side by side). Every template is a complete workflow you can run right away.
 
 <Frame caption="The Visual editor shows parallel jobs, sequential steps, and the selected step's configuration.">
   <img src="/images/guides/workflow-visual.jpg" alt="Actual Enconvo workflow graph with two parallel jobs and a step inspector" />
@@ -13,12 +22,39 @@ Open **Settings → Workflows → Manage** and select **New workflow**, or open 
 
 1. Select **Visual** in the editor toolbar.
 2. Use **Add step here** between nodes to insert a step, or **Add parallel job** for a separate branch.
-3. Select a step to open its inspector. Edit its ID, title, executor settings, and any advanced options.
-4. Select the **Inputs** node to configure the workflow's declared inputs.
+3. Select a step to open its inspector. Edit its ID, title, and executor settings, and open **Behavior** to change how it runs.
+4. Select the **Inputs** node to configure the workflow's declared inputs: a name, a type (text, number, true/false, list, or object), a description, a default, and whether a run needs a value.
 5. Review the graph and use **Undo** or **Redo** while editing.
 6. Select **Save** after reviewing your changes.
 
+Each step card shows the step's name and, under it, what the step does: the tool or kind of step, then the start of its main setting, such as *Web Search · ‹topic› news* or the first words of a prompt. Values it reads from inputs and earlier steps appear in ‹ › by name. A step without a name shows its ID in words; hover a card to see its ID.
+
+A tool step's card shows its plugin's icon. Small marks on the card show how the step runs: only when a condition is true, once for each item in a list, repeating, retrying if it fails, running even after an earlier step fails, or letting the workflow continue if it fails. Hover a mark to read what it means; change it in the step's **Behavior** section.
+
+The step picker searches built-in steps, installed tools, and MCP tools. It leaves out tools that only open an Enconvo window or list a provider's models and voices; a workflow can still call them by name in its YAML. If you are not sure which one you need, type what the step should do, such as “summarize the article in three bullets”, and select **Ask the assistant to add** at the bottom of the picker (⌘Return). When nothing matches, Return does the same. The assistant adds the step exactly where you opened the picker, before or after the neighbouring step or as a new parallel job, and you can revert it like any other assistant reply.
+
 The inspector provides **Config** and **Output** tabs. **Run step** executes the selected step; it can perform real tool calls or shell commands. Check that required upstream values exist before running an individual step.
+
+The **Config** tab starts with the step's **Name**, which the step card shows, and its **Step ID**, which other steps use to read its result. **What it does** names the step's tool or kind. To make the step do something else, select **Change** and pick another tool or kind of step, or describe what it should do and select **Ask the assistant to change it**. The step keeps its ID, so steps that read its result still work, and keeps when and how it runs: its condition, repeat, retries, and what it waits for. The new tool's settings start empty. A prompt that becomes an agent, or an agent that becomes a prompt, keeps its text, model, and output schema. A name the editor gave the step follows the new tool; a name you wrote stays. Select **Undo** to go back.
+
+To reuse a step, select **Duplicate** in the inspector or on the step card when you hover it. The copy keeps all of the step's settings, appears right after the original, and gets the next free ID, such as `fetch_2`.
+
+Steps in a job run from top to bottom. To change the order, select a step and choose **Move up** or **Move down** in the inspector, or press ⌥↑ or ⌥↓. If a step ends up above a step whose result it reads, its card shows a warning until you move it back below.
+
+To leave a step out for now without deleting it, select it and choose **Turn off step**. Its card fades and shows **Off**, runs skip it, and the steps after it still run. Choose **Turn on step** to bring it back.
+
+### Step behavior
+
+The **Behavior** section of the inspector sets how a step runs without editing YAML. Its header lists what you changed, such as *Only if… · Retries 2×*, or shows **Default**.
+
+| Setting | Choices | YAML it writes |
+|---|---|---|
+| **Runs** | Every time; only if a condition is true; otherwise, when an earlier step's condition is false. **Run even if earlier steps fail or are skipped** keeps the step running after a failure upstream. | `if`, `else_of`, `run_when` |
+| **Repeats** | Once; once for each item in a list; in rounds until a condition is met, up to a maximum number of rounds | `foreach`, `loop` |
+| **If it fails** | Stop the workflow, or keep going so later steps still run. **Retries** runs the step again before it counts as failed, with an optional wait between tries. | `required: false`, `retries` |
+| **Waits for** | The previous step; nothing, so it starts right away; or the steps you tick from a list of earlier steps and steps in other jobs | `needs` |
+
+**Output schema** takes an optional JSON Schema for a structured result. Choosing a default again removes the setting from the YAML. The [Advanced workflows](/workflows/advanced-workflows) page explains each setting in detail.
 
 ## Edit YAML
 
@@ -43,7 +79,7 @@ jobs:
         value: "Result: {{ steps.greeting.output }}"
 ```
 
-Run this example with `{"name":"Ada"}` in **Inputs**. The final step produces `Result: Hello, Ada!`.
+Run this example with `Ada` in the **name** field under **Inputs**. The final step produces `Result: Hello, Ada!`.
 
 ## Choose an executor
 
@@ -104,18 +140,61 @@ Use `uses: transform` with a `value` to combine inputs or previous outputs witho
 
 Add job-level `needs` before reading another job's output. Inspect tool results in **Output** rather than assuming every tool returns the same fields.
 
+In the Visual editor you don't need to type these by hand. Select **Insert value** (the `{x}` button at the right of a step field, such as the prompt, command, a tool setting, or a condition) to list what that step can read: the workflow's inputs, the results of earlier steps in its job, the steps of jobs it waits for, and, for a repeated step, the current item or round. Search the list and pick one; it goes where your cursor was, or replaces the text you selected. A shell step offers its printed text as `{{ steps.<id>.stdout | trim }}`, and a step with an output schema or an earlier run also lists its result fields. Conditions, **Stop when**, and the list a step repeats over get the right form for that field, such as a bare `steps.check.output.ok` in a condition.
+
+A field that reads something it can't reach shows a warning underneath with what to change: an input the workflow doesn't declare, a step that runs later or is the step itself, a step that belongs to another job, or a job this one doesn't wait for. On the canvas, a step card with such a value shows a warning icon next to its title; hover it to see what to fix. Warnings don't stop you from saving.
+
 ## Use the editing assistant
 
-Describe the change in the assistant composer, for example: “Add a prompt step that summarizes the previous result.” Choose its model, submit, and review the resulting graph and YAML. Assistant edits remain unsaved until you select **Save**.
+Select **Assistant** in the editor toolbar to open the assistant panel beside the canvas, then describe what you want, for example: “Add a prompt step that summarizes the previous result.” For a new, empty workflow you can describe the whole process instead, such as “Every morning, fetch the top Hacker News stories and summarize them.” Press Return to send and Shift-Return for a new line, and choose the model under the composer.
+
+While the assistant works, the panel shows what it is doing, such as reading the workflow, checking a tool's parameters, or editing, and the canvas updates as it goes. The canvas is read-only until the reply finishes; select **Stop** to end it early.
+
+You don't have to wait for a reply to finish before asking for more. Press Return while the assistant is working and your message waits in a queue above the composer; queued messages are sent one at a time, in order, as each reply finishes. Drag a queued message to reorder it, or use its **⋯** menu to edit it, and select the trash icon to remove it. If you select **Stop** or a reply fails, the queue is marked **Parked** and nothing more is sent on its own; select **Send** on a queued message when you're ready.
+
+When a message can't wait, such as a correction to what the assistant is doing, press ⌘Return instead of Return, or select **Send now** on a queued message. The current reply stops, keeps the edits it already made, and is marked **Interrupted**, and your message is sent right away. The rest of the queue isn't parked; it's sent in order after that.
+
+Each reply that changes the workflow ends with a card that lists the steps it added, changed, or removed:
+
+- Select a step on the card to select it on the canvas and bring it into view. Step IDs the assistant names in its reply, such as `summarize`, work the same way.
+- Select **Revert** on the latest card to put the workflow back the way it was before that reply. **Undo** (⌘Z) also takes back a whole reply in one step.
+- To ask about one step, select it on the canvas and choose **Ask Assistant** in its inspector. The step is attached to your next message, so “make this more reliable” means that step.
+- When a step fails in a run, choose **Fix with Assistant** on the run summary or in the step's **Output** tab. Your message carries the step and its error, so you don't have to copy the error in.
+- To ask about part of a step's result, select text in its **Output** tab and choose **Ask Assistant** under the selection. The text appears as a quote above the message box and goes with your next message, so you can ask what it means or how to change the step that produced it.
+- Select **New chat** at the top of the panel to start over; the earlier chat stays in the list. Select the chat's name at the top of the panel to switch back to an earlier chat about the same workflow or to delete one. A saved workflow keeps its last ten chats in this browser.
+
+To set defaults the assistant should always follow, select **Settings** (the sliders icon) at the top of the panel and write them under **Instructions**, for example “Save files to ~/Downloads.”, “Use anthropic/claude-haiku-4-5 for prompt steps.”, or “Reply in Chinese.” Press ⌘Return or select **Save**. The instructions apply to every workflow the assistant builds or edits, and a dot on the Settings icon shows they are on. To stop using them, clear the box and save.
+
+To try the assistant's latest change, select **Run** on its reply card. It runs the workflow the same way as **Run** in the toolbar, asking for inputs first when it needs them. Select **Revert** instead to undo the change.
+
+If a reply leaves the workflow invalid, the editor switches to YAML and shows the errors. Fix them there, or ask the assistant to fix them. Assistant edits remain unsaved until you select **Save**.
 
 ## Run and inspect
 
-1. Select **Inputs** and supply run values as JSON.
+1. Select **Inputs** and fill in the values for this run.
 2. Validate the definition and inspect any commands or tool calls.
 3. Choose **Run** and watch step status in the graph.
-4. Select a step's **Output** tab to inspect its result or error.
+4. Select a step's **Output** tab to inspect its result or error. After a run, each step card also shows the first line of what the step returned, or why it failed, in place of its description; select that line to open the step's **Output** tab.
 5. Open **Runs** to inspect previous runs.
 6. Save the workflow when you are satisfied with its definition.
+
+### Run inputs
+
+**Inputs** in the toolbar opens a form with one field for each input the workflow declares, showing its type, its description, and its default:
+
+- Leave a field blank to use its default. Lists and objects take JSON, such as `["a", "b"]`.
+- An input marked **Required** that has no default needs a value. If it is empty, or a value has the wrong type, **Run** stops before saving or running anything and points at the field to fix.
+- Press ⌘Return in a field to run.
+- The form starts from the values the workflow last ran with in Enconvo.
+- In the Visual editor, select **Edit inputs** to change what the workflow asks for. Select **Edit as JSON** to type the inputs as one JSON object, including keys the workflow doesn't declare. **Use form** switches back.
+
+### When a run ends
+
+When a run ends, a summary appears at the bottom of the canvas:
+
+- If a step failed, the summary names it and shows the line of its error that says what went wrong, such as `command not found: datex` rather than only an exit code. Select **Show error** to open that step's **Output** tab and bring the step into view on the canvas.
+- Select **Fix with Assistant** to hand the failed step and its error to the assistant. It starts its reply with the cause, then fixes the step. If the cause is outside the workflow, such as a missing API key, a network error, or a missing file, it tells you what to change instead of editing. A failed step's **Output** tab has the same **Fix with Assistant** button.
+- After a clean run, select **Show output** to see the last step's result. The summary fades after a few seconds unless something needs your attention; select **×** to close it sooner.
 
 Saving writes `~/.enconvo/workflows/<id>.yaml`. Editing a definition and running it are separate actions. A run can consume provider credits or change external data depending on its steps.
 

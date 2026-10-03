@@ -9,6 +9,11 @@ This page covers the control-flow and reliability features of the
 `agent-workflow/v1` DSL, plus complete examples. Shell paths and tool/provider availability must match your Mac before running them. If
 you're new to the DSL, start with [Creating Workflows](/workflows/creating-workflows).
 
+In the Visual editor you don't need to write these by hand: the step inspector's
+[Behavior](/workflows/creating-workflows#step-behavior) section sets `if`,
+`else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs`, and the
+output schema from plain-language choices.
+
 ## Branching
 
 ### `if` — conditional tasks
@@ -65,6 +70,27 @@ jobs:
       run_when: always
       uses: transform
       value: Build finished; inspect its status in Runs.
+```
+
+### `enabled: false` — turn a step off
+
+`enabled: false` keeps a step in the workflow but skips it on every run. Unlike
+a skipped condition, a step that is off does not skip what comes after it: its
+dependents still run, and anything that reads its output gets an empty value.
+Its `else_of` step skips too. Remove the key (or set it to `true`) to turn the
+step back on. In the editor, use **Turn off step** in the inspector.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
 ```
 
 ## Loops

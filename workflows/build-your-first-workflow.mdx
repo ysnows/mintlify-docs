@@ -5,7 +5,7 @@ description: "A narrated video tutorial: create, edit, extend, run, and inspect 
 
 import { YouTubePlayer } from '/snippets/youtube-player.mdx';
 
-Workflows chain prompts, agents, and tools into one repeatable run. This tutorial builds one from start to finish: create it from the starter template, add a step by hand, let the workflow assistant add another, then run it and read every step's output.
+Workflows chain prompts, agents, and tools into one repeatable run. This tutorial builds one from start to finish: create it from the **Tour of step kinds** template, add a step by hand, let the workflow assistant add another, then run it and read every step's output.
 
 <YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
 
@@ -13,7 +13,7 @@ The video is 2 minutes 24 seconds long. The written steps below follow the same 
 
 ## What you'll build
 
-The starter template already runs out of the box. Over the tutorial, it grows into a small content pipeline:
+The **Tour of step kinds** template already runs out of the box. Over the tutorial, it grows into a small content pipeline:
 
 | Step | Type | What it does |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ The starter template already runs out of the box. Over the tutorial, it grows in
 
 <Steps>
   <Step title="Create a workflow (0:07)">
-    Open **Settings → Workflows → Manage** and select **New workflow**. You start from a working starter template, not a blank page, and the editor opens in **Visual** mode.
+    Open **Settings → Workflows → Manage** and select **New workflow**. Under **Or start from a template**, choose **Tour of step kinds**; the workflow is created and the editor opens in **Visual** mode. (In the video, which was recorded before the New workflow dialog, the starter is called *Starter Workflow*.)
   </Step>
   <Step title="Read the graph (0:18)">
     Read the graph from the top. The **Inputs** node declares what a run needs; here it is a single `topic`. The first two steps sit side by side because they belong to separate jobs, so they run in parallel. Each result then flows down into the steps below it, which run in order.
@@ -48,13 +48,13 @@ The starter template already runs out of the box. Over the tutorial, it grows in
     </Tip>
   </Step>
   <Step title="Or just ask the workflow assistant (0:57)">
-    Instead of editing by hand, describe the change in the assistant box at the bottom of the editor:
+    Instead of editing by hand, select **Assistant** in the toolbar and describe the change in the panel that opens beside the canvas:
 
     ```text wrap
     Add a final step that translates the tweet into Japanese
     ```
 
-    The assistant edits the graph for you. In the video it adds a `translate_ja` step whose prompt reads `{{ steps.tweet.output }}`. Review the new step before you save — assistant edits stay unsaved until you select **Save**.
+    The assistant edits the graph for you and lists the steps it changed; select **Revert** on its reply if you don't like the result. In the video it adds a `translate_ja` step whose prompt reads `{{ steps.tweet.output }}`. Review the new step before you save — assistant edits stay unsaved until you select **Save**.
   </Step>
   <Step title="It's just YAML (1:16)">
     Select **YAML** in the toolbar to see the same workflow as source. There is one plain file per workflow, saved at `~/.enconvo/workflows/<id>.yaml`, so it is easy to read, diff, and share. Select **Visual** to return to the graph. See [the full YAML](#the-finished-workflow) below.
