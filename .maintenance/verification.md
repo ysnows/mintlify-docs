@@ -36,12 +36,12 @@ All four videos decoded and played in the rendered guide pages:
 
 | Walkthrough | Duration | Decoded dimensions |
 | --- | --- | --- |
-| Scheduled job draft | 12 seconds | 800 × 1000 |
+| Scheduled tasks | 14 seconds | 1200 × 768 |
 | Avatar gallery | 18 seconds | 1100 × 1064 |
 | Dictionary draft | 13.5 seconds | 800 × 700 |
 | Workflow editor | 18 seconds | 2012 × 1066 |
 
-These videos are actual UI captures edited into steps with reading pauses, not continuous recordings. Their pages disclose this and include written instructions. Demonstration drafts were discarded; no job, dictionary entry, Agent assignment, download, or external message was created. The workflow demonstration only inspected views and controls.
+These videos are actual UI captures edited into steps with reading pauses, not continuous recordings. Their pages disclose this and include written instructions. Demonstration drafts were discarded; no dictionary entry, Agent assignment, download, or external message was created. The workflow demonstration only inspected views and controls. The scheduled-tasks demonstration never sent its starter draft or ran a task, and the example task it opened was deleted after capture.
 
 ## Impact and remaining limits
 

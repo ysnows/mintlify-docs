@@ -3,16 +3,25 @@ title: "Creating Workflows"
 description: "Create and inspect workflows in the Visual editor or YAML, with an editing assistant."
 ---
 
-Select **Workflows** under **Scheduled** in the Chat Window sidebar, or open **Settings → Workflows → Manage**, then select **New workflow**, or open an existing workflow with **Edit**. In the Chat Window, switching to a chat and back keeps the workflow you were editing open.
+Select **Workflows** under **Scheduled** in the Chat Window sidebar, or open **Settings → Workflows → Manage**, then select **New workflow**, or open an existing workflow with **Edit**. In the Chat Window, switching to a chat and back keeps the workflow you were editing open. To rename a workflow, select its name at the top of the editor, type the new name, and press Return; Esc keeps the old name. To find a workflow, type in **Search workflows**; the list updates as you type, and the clear button or Esc shows every workflow again. Press ↓ in **Search workflows** to go to the first workflow, ↑ and ↓ to move between workflows, Return to open one, and Delete to delete it. Deleting a workflow also deletes the scheduled tasks that run it; the confirmation says how many before you delete. If the workflow is running, its run is stopped first.
 
-The workflow list shows each workflow's number of steps, when it was last edited, and how its last run went. Select the last run to open the workflow with that run's results on the canvas. Select the copy button to duplicate a workflow under a new title, so you can change the copy without touching the original.
+The workflow list shows each workflow's number of steps, when it was last edited, and how its last run went. Select the last run to open the workflow with that run's results on the canvas. Select the play button on a row to open the workflow and run it right away; if it needs inputs you haven't filled in, the **Inputs** panel opens first. While a workflow is running, its play button becomes a stop button; select it to stop the run without opening the workflow. A workflow that runs on a schedule shows when its next run is, or **Schedule paused** when all of its scheduled tasks are off; select it to open the workflow with its schedules in the Runs panel. The list updates on its own when you come back to it and when a scheduled run starts. Use the sort menu above the list to order workflows by **Recently edited**, **Recently run**, or **Name**; your choice is remembered. Select the copy button to duplicate a workflow under a new title, so you can change the copy without touching the original; the list scrolls to the copy and highlights it. Press ⌘F or / to jump to **Search workflows**. Select a tag on a row to show only the workflows with that tag; it works together with **Search workflows**. A row shows up to four tags; select **+N** to see the rest. Select the tag again, the × next to it above the list, or press Esc in **Search workflows** to show every workflow again.
 
 ## Start a new workflow
 
-Select **New workflow** to open a dialog with two ways to start:
+Select **New workflow** to open a dialog with these ways to start. When you don't have any workflows yet, the workflow list offers the same starts right there: **Describe what it should do**, **Blank workflow**, and the templates.
 
 - **Describe it.** Write what the workflow should do, for example "Translate a text into Japanese and Spanish at the same time", and select **Build it** (or press ⌘Return). The workflow opens with the assistant already building it; review its steps and select **Save** when they look right.
 - **Start from a template.** Pick **Blank**, **Research a topic**, **Summarize a web page**, **Notes from a YouTube video**, **Write and read aloud**, or **Tour of step kinds** (a shell command, a tool, a prompt, and an agent, with two jobs running side by side). Every template is a complete workflow you can run right away.
+- **Import a file.** Select **Choose file…**, or drop a `.yaml`, `.yml`, or `.json` workflow file anywhere on the dialog, for example one a teammate shared. The workflow is saved as a new workflow, so it never replaces one you already have. If its title matches one in your list, it's named like a copy, such as "News copy". If the file isn't a valid workflow, the dialog stays open and tells you why.
+- **Paste it.** Paste a workflow's YAML or JSON, such as one shared in a chat, into the description box. **Build it** becomes **Import it**, and the workflow is created exactly as pasted.
+
+To share a workflow or keep a copy, select the share button (the download icon) on its row in the workflow list, or in the editor toolbar:
+
+- **Export as a YAML file…** saves a `.yaml` file where you choose. Import it with **New workflow** > **Choose file…** on any Mac.
+- **Copy YAML** copies the workflow, ready to paste into a chat or into the **New workflow** description box, which imports it.
+
+Both include changes you haven't saved yet when you use them from the editor.
 
 <Frame caption="The Visual editor shows parallel jobs, sequential steps, and the selected step's configuration.">
   <img src="/images/guides/workflow-visual.jpg" alt="Actual Enconvo workflow graph with two parallel jobs and a step inspector" />
@@ -21,9 +30,9 @@ Select **New workflow** to open a dialog with two ways to start:
 ## Build with the Visual editor
 
 1. Select **Visual** in the editor toolbar.
-2. Use **Add step here** between nodes to insert a step, or **Add parallel job** for a separate branch.
+2. Use **Add step here** between nodes to insert a step, or **Add parallel job** for a separate branch. The step list opens with **Recently used**, the last few steps and tools you picked, so the ones you add often are one click away. A plugin with many tools lists its first eight; select **Show N more** to see the rest, or type to search.
 3. Select a step to open its inspector. Edit its ID, title, and executor settings, and open **Behavior** to change how it runs.
-4. Select the **Inputs** node to configure the workflow's declared inputs: a name, a type (text, number, true/false, list, or object), a description, a default, and whether a run needs a value.
+4. Select the **Inputs** node to configure the workflow's declared inputs: a name, a type (text, number, true/false, list, or object), a description, a default, and whether a run needs a value. Under each name, the panel shows how steps read the input, such as `{{ inputs.topic }}`, and how many steps do. Renaming an input updates those steps to the new name. A name can use letters, digits, and underscores, can't start with a digit, and must not match another input.
 5. Review the graph and use **Undo** or **Redo** while editing.
 6. Select **Save** after reviewing your changes.
 
@@ -39,9 +48,15 @@ The **Config** tab starts with the step's **Name**, which the step card shows, a
 
 To reuse a step, select **Duplicate** in the inspector or on the step card when you hover it. The copy keeps all of the step's settings, appears right after the original, and gets the next free ID, such as `fetch_2`.
 
-Steps in a job run from top to bottom. To change the order, select a step and choose **Move up** or **Move down** in the inspector, or press ⌥↑ or ⌥↓. If a step ends up above a step whose result it reads, its card shows a warning until you move it back below.
+Steps in a job run from top to bottom. To change the order, drag a step's card up or down within its job; the other cards move aside to show where it will land. You can also select a step and choose **Move up** or **Move down** in the inspector, or press ⌥↑ or ⌥↓. Press ⌘Z to undo a move. If a step ends up above a step whose result it reads, its card shows a warning until you move it back below.
 
 To leave a step out for now without deleting it, select it and choose **Turn off step**. Its card fades and shows **Off**, runs skip it, and the steps after it still run. Choose **Turn on step** to bring it back.
+
+To change several steps at once, hold ⌘ or Shift and click their cards. A bar at the top of the canvas shows how many steps are picked, with **Turn off** (or **Turn on**) and **Delete** for all of them. If the delete would break other steps, or empty a job, Enconvo asks first. The confirmation lists each step that depends on the ones you're deleting and why, such as **Uses its output** or **Waits for it to finish**; select one to call off the delete and open that step so you can fix it first. The same happens when you delete a single step. Press Esc or click an empty spot on the canvas to clear the pick, and ⌘Z to undo.
+
+To copy steps, select one (or pick several) and press ⌘C, or select **Copy** in the bar; ⌘X cuts them. Then select the step they should follow and press ⌘V. The copies land right after it, or at the end of the job when a job is selected, and they keep their settings. A copy whose ID is already taken gets a new one, such as `fetch_2`, and pasted steps that read from each other follow the new names. Steps paste into another workflow the same way, and ⌘V also accepts a YAML or JSON step list copied from a workflow file. Press ⌘A to pick every step, and ⌫ to delete the selected or picked steps.
+
+To jump to a step in a large workflow, press ⌘F or select the search button on the canvas, type part of the step's name, ID, tool, or text, and pick it; the step is selected and brought into view. When you delete or paste steps, a notice says what changed; select Undo in it to take that change back. Use the zoom controls in the bottom-right corner of the canvas, or press ⌘= and ⌘- to zoom in and out and ⌘0 to fit the whole workflow in view; select the zoom level to return to 100%. Press ⌘S to save from anywhere in the editor, in Visual or YAML, even while typing in a step's settings. Press ⌘Return to run the workflow; it is saved first if it has changes. In the YAML editor, the assistant, and other multi-line fields, select **Run** instead. If the workflow has a problem, such as a step with an empty prompt or a missing description, Save and Run stop and say what to fix; select **Show** to open the step or the workflow's title and description. Steps with problems have a red mark on their card; hover over it to read what's wrong. In YAML, select **Validate** to check the whole document. While a run is in progress, **Run** becomes **Stop**; after you select it, it shows **Stopping…** until the run has stopped. While a workflow has unsaved changes, the editor header shows **Unsaved**; select it to see the YAML lines added and removed since the last save, and select **Discard changes** to go back to the saved version; in the Visual editor, ⌘Z brings your changes back. If you go back to the workflow list with unsaved changes, choose **Save and leave**, **Discard**, or **Keep editing**. Unsaved changes are also kept on this Mac while you edit: if the window closes or reloads before you save, reopening the workflow shows a bar at the top with **Restore**, which puts your changes back as one step you can undo, or **Discard**. Changes are offered back only if the saved workflow hasn't changed since. In the workflow list, such a workflow shows an **Unsaved changes** tag, and deleting it discards those changes too. To see every canvas shortcut, select the keyboard button next to **Add parallel job**, or press ?.
 
 ### Step behavior
 
@@ -58,7 +73,7 @@ The **Behavior** section of the inspector sets how a step runs without editing Y
 
 ## Edit YAML
 
-Select **YAML** to work with the same document as source. The **Valid / Invalid** badge and **Validate** action help find malformed definitions. Use letters, digits, and underscores for job and step IDs; start with a letter or underscore.
+Select **YAML** to work with the same document as source. The **Valid / Invalid** badge and **Validate** action help find malformed definitions. Use letters, digits, and underscores for job and step IDs; start with a letter or underscore. When you switch back to **Visual**, ⌘Z takes back your YAML edits in one step.
 
 ```yaml
 version: agent-workflow/v1
@@ -165,6 +180,8 @@ Each reply that changes the workflow ends with a card that lists the steps it ad
 
 To set defaults the assistant should always follow, select **Settings** (the sliders icon) at the top of the panel and write them under **Instructions**, for example “Save files to ~/Downloads.”, “Use anthropic/claude-haiku-4-5 for prompt steps.”, or “Reply in Chinese.” Press ⌘Return or select **Save**. The instructions apply to every workflow the assistant builds or edits, and a dot on the Settings icon shows they are on. To stop using them, clear the box and save.
 
+When a reply finishes, the steps it added are tagged **Added** on the canvas and the steps it changed are tagged **Edited**, so you can see what to review. The tags stay until you save, undo, or revert the reply.
+
 To try the assistant's latest change, select **Run** on its reply card. It runs the workflow the same way as **Run** in the toolbar, asking for inputs first when it needs them. Select **Revert** instead to undo the change.
 
 If a reply leaves the workflow invalid, the editor switches to YAML and shows the errors. Fix them there, or ask the assistant to fix them. Assistant edits remain unsaved until you select **Save**.
@@ -174,7 +191,7 @@ If a reply leaves the workflow invalid, the editor switches to YAML and shows th
 1. Select **Inputs** and fill in the values for this run.
 2. Validate the definition and inspect any commands or tool calls.
 3. Choose **Run** and watch step status in the graph.
-4. Select a step's **Output** tab to inspect its result or error. After a run, each step card also shows the first line of what the step returned, or why it failed, in place of its description; select that line to open the step's **Output** tab.
+4. Select a step's **Output** tab to inspect its result or error. After a run, each step card also shows the first line of what the step returned, or why it failed, in place of its description; select that line to open the step's **Output** tab. Select **Copy** in the **Output** tab to copy the step's result, or its error when it returned nothing, for example to paste into a chat or a document.
 5. Open **Runs** to inspect previous runs.
 6. Save the workflow when you are satisfied with its definition.
 
@@ -185,8 +202,9 @@ If a reply leaves the workflow invalid, the editor switches to YAML and shows th
 - Leave a field blank to use its default. Lists and objects take JSON, such as `["a", "b"]`.
 - An input marked **Required** that has no default needs a value. If it is empty, or a value has the wrong type, **Run** stops before saving or running anything and points at the field to fix.
 - Press ⌘Return in a field to run.
-- The form starts from the values the workflow last ran with in Enconvo.
-- In the Visual editor, select **Edit inputs** to change what the workflow asks for. Select **Edit as JSON** to type the inputs as one JSON object, including keys the workflow doesn't declare. **Use form** switches back.
+- The form starts from the values the workflow last ran with in Enconvo. Select **Clear** to empty every field at once, so the next run uses the defaults again. Renaming an input keeps the value you typed for it.
+- While a past run from **Recent runs** is on the canvas, select **Use that run’s values** to fill the form with the inputs it ran with, then run it again as it was or with a change.
+- In the Visual editor, select **Edit inputs** to change what the workflow asks for. If steps still read an input you remove, Enconvo names them and asks before removing it. Select **Edit as JSON** to type the inputs as one JSON object, including keys the workflow doesn't declare. **Use form** switches back.
 
 ### When a run ends
 
@@ -194,7 +212,12 @@ When a run ends, a summary appears at the bottom of the canvas:
 
 - If a step failed, the summary names it and shows the line of its error that says what went wrong, such as `command not found: datex` rather than only an exit code. Select **Show error** to open that step's **Output** tab and bring the step into view on the canvas.
 - Select **Fix with Assistant** to hand the failed step and its error to the assistant. It starts its reply with the cause, then fixes the step. If the cause is outside the workflow, such as a missing API key, a network error, or a missing file, it tells you what to change instead of editing. A failed step's **Output** tab has the same **Fix with Assistant** button.
+- Select **Resume** to continue a failed or stopped run. Steps that already finished keep their results; the failed step and everything after it run again. If you edited a step after the run, that step and the steps after it run again too. If you change the run inputs, the whole workflow runs from the start. **Resume** also appears next to **Run** in the toolbar until you start another run.
 - After a clean run, select **Show output** to see the last step's result. The summary fades after a few seconds unless something needs your attention; select **×** to close it sooner.
+
+**Recent runs** lists the workflow's earlier runs, newest first. Each row shows whether the run succeeded, failed, or is still running, when it started, how long it took, the inputs it ran with (hover to see them all), and the error if it failed; the run shown on the canvas is marked **Showing**. Select a row to show that run's step results on the canvas. When some runs failed and others didn't, select **Failed** above the list to see only the failed runs, and **All runs** to see every run again.
+
+**Schedule**, at the top of the Runs panel, lists the scheduled tasks that run this workflow with when each runs next and the inputs it runs with. When a task's last run failed, hover **Last run failed** to see why. Turn a task off or on with its switch, select the pencil to change its schedule, or choose **Add schedule** to create a task with this workflow already picked and its inputs filled in from **Run inputs**. Scheduled runs use the saved workflow, so save your changes before the next run. All scheduled tasks are also in **Scheduled**.
 
 Saving writes `~/.enconvo/workflows/<id>.yaml`. Editing a definition and running it are separate actions. A run can consume provider credits or change external data depending on its steps.
 

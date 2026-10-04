@@ -1,67 +1,114 @@
 ---
-title: "Scheduled Jobs"
-description: "Run Agents and shell commands once or on a repeating schedule."
+title: "Scheduled Tasks"
+description: "Have an Agent do something for you on a schedule, set up by describing it in a chat."
 ---
 
-Scheduled Jobs runs a task at a chosen time and keeps a history of its results. A job can ask an Agent to carry out an instruction or run a shell command on your Mac.
+A scheduled task asks an Agent to do something at a time you choose, once or again and again: a morning news brief, a weekly plan, a price check. Each run starts its own conversation, and the result shows up in the task. You can also have Enconvo notify you on your Mac or send the result to an IM chat.
 
-<Frame caption="Unsaved scheduled Agent job with a weekly schedule.">
-  <img src="/images/guides/scheduled-job-editor.jpg" alt="Unsaved scheduled Agent job with a weekly schedule" />
+<Frame caption="The Scheduled view: tasks on the left, a task's details on the right.">
+  <img src="/images/guides/scheduled-tasks-view.jpg" alt="The Scheduled view with a weekday morning task: its schedule and next runs, instruction, results, and notifications in one panel" />
 </Frame>
 
-## Create a job
+## Set up a task by chatting
 
 <Steps>
-  <Step title="Open Scheduled Jobs">
-    Go to **Settings → Agents → Scheduled Jobs** and select **Create a job**. You can also ask an Agent to schedule a task when its scheduling tools are available.
+  <Step title="Open Scheduled">
+    In the **Chat Window** sidebar, select **Scheduled**, then **New task**.
   </Step>
-  <Step title="Choose what to run">
-    Name the job. Choose **Ask an agent**, select an Agent, and write a complete instruction. Each run starts a fresh conversation. For a script, choose **Run a shell command** and supply the command and any working-directory options shown.
+  <Step title="Say what to do and when">
+    Describe the task and its timing in the composer, for example “Every weekday at 8:00, brief me on the most important AI news in five bullets with links.” Or pick a starter such as **Morning briefing** or **Plan my week**, which fills the composer for you to adjust before sending. If you have saved workflows, a few of them appear under the starters; pick one to fill in a request that runs that workflow every day at 9:00, then change the time or add input values before sending.
   </Step>
-  <Step title="Set the schedule">
-    Choose **Once**, **Every day**, **Weekly**, **Monthly**, **Interval**, or **Cron**. Check the **Next runs (local time)** preview before saving.
-  </Step>
-  <Step title="Choose where results go">
-    Leave **Send each result to a chat** off to keep results in run history. Turn it on to select a connected IM channel and chat. You may need to talk to the Agent in that chat first so it appears in the picker.
-  </Step>
-  <Step title="Test and save">
-    Use **Test run** to save and execute the job immediately, or **Create job** to save it for its scheduled time. Test run really executes the instruction or script; use a harmless example while learning.
+  <Step title="Check the confirmation">
+    Enconvo creates the task right away, shows it as a card in the chat, and replies with when it will run, in plain words and your local time. If you leave out the time, it picks a sensible one and says so; it asks a question only when the task can't work without the answer, such as which product to watch. The task appears under **Set up in this chat** above the conversation and in the task list. Keep chatting to change, pause, or resume it.
   </Step>
 </Steps>
 
-<Frame caption="A weekly Agent job with an example instruction; this draft has not been saved.">
-  <img src="/images/guides/scheduled-job-editor.jpg" alt="Scheduled job editor with a complete Agent instruction and weekday schedule" />
+<Frame caption="A new task starts from a sentence or a starter.">
+  <img src="/images/guides/scheduled-tasks-new.jpg" alt="The Schedule a task screen with a composer and six starter tasks" />
 </Frame>
 
-## Read the run history
+Scheduling chats are kept, but they don't appear under **Chats** in the sidebar. To return to one, such as a chat where Enconvo is waiting for your answer, select the chat's name above the conversation and choose it under **Scheduling chats**. You can delete a chat there too; tasks set up in it keep running.
 
-Open a job's history to see whether execution succeeded, the output, and any delivery error. **Open conversation** opens the Agent run; **Copy** copies its output. **Send again** attempts delivery again and sends a real message to the configured destination.
+You can also ask in any chat, such as “Remind me tomorrow at 9 to send the invoice” or “Every Monday morning, list my week's deadlines.” The Agent sets up the same kind of task, shows its card, and confirms when it will run. Select **Open** on the card to see it in **Scheduled**. A card in an older chat shows whether the task was paused, finished, or deleted since.
+
+Write the task as a complete instruction. Each run starts a fresh conversation that doesn't see the chat you set it up in, so “Summarize today's top AI news in five bullets with links” works better than “Do that again tomorrow.”
+
+## Manage a task
+
+Select a task in the list to see its details: whether it's active, paused, or needs attention, then one panel with its schedule, instruction, where results go, and notifications. When the last run failed or its result wasn't sent, a note under the name says why and offers a fix: **Fix with chat** (an Agent task) opens the task's chat with a request to fix it that names the error, and **Run again** runs it once more; **Send again** retries sending the result, and **Change where results go** opens the results picker. Choosing **Only Enconvo** there also clears a note about a result that wasn't sent.
+
+| Control | What it does |
+| --- | --- |
+| **Run now** | Runs the task once right away. It really runs, so the Agent may use tools or points. |
+| **Change with chat** | Reopens the chat the task was set up in (or starts a new one if there isn't one) so you can describe a change, such as “move it to 7:30” or “add weather.” |
+| **Task name** | Select the name to rename the task. Press Return to save or Esc to cancel. |
+| **Schedule** | Shows when the task runs and its next run. Schedules read in plain words, such as **Every day at 09:00 and 18:00** or **Every year on Jan 1 at 03:00**, the same in the list, Settings, and the chat card. Select it to change the time in place: pick **Once**, **Every day**, **Weekly**, **Monthly**, **Interval**, or **Cron**, check the next runs, and select **Save**. The switch next to it pauses future runs without deleting the task. |
+| **Instruction → Edit** | Changes what the Agent is asked to do (or the command, for a shell-command task) in place. Press ⌘↩ or select **Save**; Esc cancels. |
+| **Results** | Shows where each run's result goes. Select it and pick a chat you've talked to an Agent in through an IM channel, or **Only Enconvo** to keep results in each run's conversation; the change saves right away. **Another chat…** opens the editor to enter a chat ID. |
+| **Notify me when it runs** | Posts a Mac notification when a run finishes, with the first line of the result. Click it to open the task. |
+| **… → Edit details** | Opens the form editor for every field at once, including the Agent, the description, and a maximum number of runs. |
+| **… → All runs** | Opens the full run history with filters. |
+| **… → Delete** | Deletes the task and its run history. |
+
+**Recent runs** lists each run's time with the first line of its result, all collapsed; select a run to read the whole result or error. Under an expanded run, select **Ask follow-ups** to continue from it in its conversation, for example to ask for more detail on one item, **Copy** to copy the result or error, or **Send again** when its result wasn't sent.
+
+Search with **Search tasks** by name or instruction. The list groups tasks as **Needs attention** (the last run failed or its result was not sent), **Upcoming**, **Paused**, and **Finished** (a one-time task that has run).
+
+To act on a task without opening it, point to it in the list and select **…**, or Control-click it, then choose **Run now**, **Pause** or **Resume**, **Edit details**, or **Delete**. Press ↓ in **Search tasks** to go to the first task, then ↑ and ↓ to move between tasks.
+
+## Use the form editor
+
+Select **Set up a task with the form instead** on the new-task screen, or **Edit details** on a task, to fill in every field yourself.
+
+<Frame caption="The task editor with an Agent instruction and a weekday schedule.">
+  <img src="/images/guides/scheduled-task-editor.jpg" alt="Edit scheduled task dialog with an Agent, an instruction, and a weekly Monday to Friday schedule at 09:00" />
+</Frame>
+
+1. Name the task and choose **Ask an agent** with an Agent and instruction, **Run a workflow** to run one of your saved [workflows](/workflows/introduction), or **Run a shell command** for a script on your Mac. For a workflow, fill in any inputs it should get; inputs left empty use the workflow's defaults.
+2. Under **When**, choose **Once**, **Every day**, **Weekly**, **Monthly**, **Interval**, or **Cron**, and check the **Next runs (local time)** preview. In **Cron**, the line under the expression says what it means as you type, such as `0 9-17 * * 1-5` reading **Every hour from 09:00 to 17:00 on weekdays**.
+3. Under **Send the result**, turn on **Send each result to a chat** to deliver results to an IM chat. You may need to talk to the Agent in that chat first so it appears in the picker.
+4. **More options** adds a description and a maximum number of runs.
+5. Select **Save** (or **Create task**). **Test run** saves the task and runs it immediately.
+
+Shell-command tasks, and sending results to a chat by its ID, are set up only in this editor; the scheduling chat handles Agent and workflow tasks. A shell-command task notifies you only when a run fails (**Notify me if it fails**), since such tasks often run every few minutes.
+
+## Schedule a workflow
+
+A workflow task runs a saved workflow at the times you choose, the same as selecting **Run** in the workflow editor. Pick **Run a workflow** in the editor, or ask the scheduling chat, for example "Run my Content Pipeline every weekday at 9 with the topic AI news": it finds the workflow by name, fills the inputs you mention, and leaves the rest at their defaults. Each run's result is the output of the workflow's last step, so it can be sent to a chat or shown in a notification like any other result. If a step fails, the run is marked failed with that step's error.
+
+- The task's details show the workflow and its inputs. Select **Open** to see the workflow, or **Change** to pick another workflow or change the inputs.
+- Under an expanded run, select **Open run** to see each step of that run in **Workflows**. When the last run failed, the note under the task's name offers **Open the failed run**.
+- A run stops after 29 minutes. If the workflow is deleted, its runs fail with a note to choose another workflow.
+
+## Manage many tasks in Settings
+
+**Settings → Agents → Scheduled Tasks** lists every task in a table, including shell-command tasks. Filter by **Active**, **Paused**, or **Needs attention**, search, and select several tasks to pause, resume, or delete them together. A task's history shows each run's status:
 
 | Status | What to check |
 | --- | --- |
-| Failed | The instruction, Agent tools, shell exit status, or error details |
-| Succeeded / Not delivered | The job ran, but its IM destination or channel needs attention |
-| Done / no more runs | A one-time job has finished and has no next scheduled run |
-| Paused | Resume it if you want future runs |
+| Failed | The instruction, the Agent's tools, the shell exit status, or the error details |
+| Succeeded / Not delivered | The task ran, but its IM channel or chat needs attention |
+| Done · no more runs | A one-time task has finished |
+| Paused | Turn it back on if you want future runs |
 
-Use **Needs attention** to find failed runs or failed deliveries. Search, status filters, and batch pause/resume help manage a larger list.
+In the history, **Open conversation** opens an Agent run, **Copy result** copies its output, and **Send again** sends the result to the configured chat again, as a real message.
 
 ## Scheduling details
 
-- Enconvo must be running and your Mac available for local jobs to execute. Do not treat a sleeping or offline Mac as an always-on scheduler.
-- One-time jobs require a future date. After running, they have no next run.
-- Monthly dates 29–31 are skipped in months without that date.
-- Check the displayed local-time preview, especially after travel or a time-zone change.
-- **More options** includes a description and a maximum run count.
-- Run history is bounded; copy important outputs elsewhere before clearing history or deleting a job.
+- Tasks run on your Mac, so Enconvo must be running and your Mac awake. A sleeping or offline Mac doesn't run tasks; don't rely on it as an always-on scheduler.
+- Times are in your Mac's local time zone. Check the next-run times after travel or a time-zone change.
+- A one-time task needs a future time and moves to **Finished** after it runs.
+- Monthly tasks on the 29th to 31st skip months without that date.
+- Mac notifications also follow **Send a system notification** in [Notifications](/configuration/notifications) and macOS Focus. A notification is skipped when you're already looking at that run.
+- Run history keeps recent runs only. Copy anything important before deleting a task.
 
-Related: [IM Channels](/integrations/messaging), [Agents](/ai/agents), [Workflows](/workflows/introduction).
+Related: [IM Channels](/integrations/messaging), [Agents](/ai/agents), [Notifications](/configuration/notifications), [Workflows](/workflows/introduction).
 
 ## Watch the steps
 
-<video controls playsInline preload="none" poster="/images/guides/scheduled-job-editor.jpg" aria-label="Draft a scheduled Agent job" style={{width: "100%", maxHeight: "640px"}}>
-  <source src="/videos/guides/scheduled-jobs.mp4" type="video/mp4" />
-  [Download the walkthrough](/videos/guides/scheduled-jobs.mp4).
+<video controls playsInline preload="none" poster="/images/guides/scheduled-tasks-walkthrough.jpg" aria-label="Schedule a task" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/scheduled-tasks.mp4" type="video/mp4" />
+  [Download the walkthrough](/videos/guides/scheduled-tasks.mp4).
 </video>
 
-Fill the name and instruction, switch to Weekly, choose weekdays, and compare Monthly. The draft is discarded; no job is created. This silent walkthrough uses real interface captures with pauses added for reading. The written steps above provide the same instructions.
+Open Scheduled, pick the Morning briefing starter, open a task's details, and open Edit details. The starter draft is not sent, nothing runs, and the example task was deleted after capture. This silent walkthrough uses real interface captures with pauses added for reading. The written steps above provide the same instructions.
