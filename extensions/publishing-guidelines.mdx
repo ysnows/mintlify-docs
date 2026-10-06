@@ -48,7 +48,7 @@ Enconvo relies on these annotations. A tool marked `readOnlyHint: true` runs wit
 
 `enconvo plugin scan` starts the plugin's MCP server, lists its tools with their annotations, and names each tool that leaves one out ([`annotations_required`](/extensions/validation-codes#mcp-server-scan)).
 
-A tool that shows its own interface names its view, a `ui://` resource, in `_meta.ui.resourceUri`, and the view declares the domains it reaches in `_meta.ui.csp` (`connectDomains`, `resourceDomains`, `frameDomains`). Enconvo reads these MCP Apps keys, not OpenAI's older `_meta["openai/outputTemplate"]` and `_meta["openai/widgetCSP"]`; set both when the plugin also goes to ChatGPT. `scan` reads each view as Enconvo does and says when one is set only the OpenAI way.
+A tool that shows its own interface names its view, a `ui://` resource, in `_meta.ui.resourceUri`, and the view declares the domains it reaches in `_meta.ui.csp` (`connectDomains`, `resourceDomains`, `frameDomains`). These are the MCP Apps keys every host reads. Enconvo also reads ChatGPT's `_meta["openai/outputTemplate"]` and `_meta["openai/widgetCSP"]`, and gives a view written for ChatGPT (`text/html+skybridge`, or a tool named only by `openai/outputTemplate`) the `window.openai` API it calls, so a plugin built for ChatGPT shows its interface in Enconvo unchanged. Set the MCP Apps keys as well, so other hosts show it too. `scan` reads each view as Enconvo does and says when one is set only the OpenAI way.
 
 ## Data and privacy
 
