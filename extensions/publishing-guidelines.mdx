@@ -175,3 +175,11 @@ npx -p @enconvo/api enconvo plugin pack --openai
 `pack --openai` writes the zip the portal takes. Credentials for OpenAI's reviewers go in the portal's submission form, never in the package.
 
 OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
+
+OpenAI's final submission asks more of the listing than its upload does, and `validate --openai` warns about each gap:
+
+- `interface.longDescription`, and an `interface.category`; without one, the directory lists the plugin under Other.
+- For a plugin with an MCP server, `websiteURL`, `supportURL`, `privacyPolicyURL` and `termsOfServiceURL`, each an `https://` address of up to 1,024 characters.
+- Screenshots only when the MCP server has its own interface: one PNG or JPEG for each starter prompt, exactly 706 pixels wide and 400 to 860 pixels tall.
+
+The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. See [OpenAI's final submission](/extensions/validation-codes#openais-final-submission) for the codes.

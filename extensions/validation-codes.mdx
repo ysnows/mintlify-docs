@@ -28,7 +28,7 @@ error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md de
 | `warning` | The plugin works, but something is ignored or may not work in another app. |
 | `warning … (OpenAI's plugin portal)` | Only OpenAI's portal applies the rule. With `--openai`, and in `pack --openai`, it is an error. |
 
-The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers.
+The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers. The [final submission's listing rules](#openais-final-submission) are reported only with `--openai`, as warnings.
 
 ## Text fields
 
@@ -52,7 +52,7 @@ Most text fields are checked the same way, and their codes start with the field'
 | `plugin_display_name` | `interface.displayName` (missing: `plugin_display_name_empty`) | 30 |
 | `plugin_short_description` | `interface.shortDescription` | 30 |
 | `plugin_long_description` | `interface.longDescription` | 4,000 |
-| `plugin_developer_name` | `interface.developerName` | 80 |
+| `plugin_developer_name` | `interface.developerName` | 120 |
 | `plugin_category` | `interface.category` | |
 | `plugin_capability` | each of `interface.capabilities` | 120 |
 | `plugin_default_prompt` | each of `interface.defaultPrompt` | 128 |
@@ -70,6 +70,8 @@ Addresses have to be `https://` addresses without a user name or password. The s
 | `<stem>_has_credentials` | portal | The address holds a user name or password. |
 | `plugin_brand_color_format`, `plugin_brand_color_dark_format`, `skill_agent_brand_color_format` | portal | Not a six-digit hex color such as `#1A73E8`. |
 | `plugin_brand_color_contrast`, `plugin_brand_color_dark_contrast` | portal | Less than 2:1 contrast against the light (`#FFFFFF`) or dark (`#212121`) background. |
+
+The listing's four addresses (`websiteURL`, `supportURL`, `privacyPolicyURL`, `termsOfServiceURL`) take up to 2,048 characters in the upload, so a longer one is `<stem>_too_long` (portal). Final submission takes up to 1,024, so one between the two limits is a `<stem>_too_long` warning, only with `--openai`.
 
 ## Manifests
 
@@ -229,6 +231,21 @@ These check the `review` object (in `package.json`, or `extensions["com.openai"]
 | `publication_country_unknown` | warning | A country isn't an ISO 3166 code. The United Kingdom is `GB`, not `UK`. |
 | `review_test_case_tools_triggered_missing` | warning | A positive case doesn't name the tools it should call. |
 | `review_commerce_description_missing` | warning | `commerce` is `true` but nothing says what is sold. |
+
+## OpenAI's final submission
+
+OpenAI's portal takes the uploaded plugin without these, then asks for them when you submit it to the directory. `validate --openai` and `pack --openai` report them as warnings, and plain `validate` leaves them out. They check the listing in `.codex-plugin/plugin.json`, `plugin.json` or `.claude-plugin/plugin.json`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `submission_description_required` | warning, only with `--openai` | `interface.longDescription` isn't set. The directory shows it on the plugin's page; it takes up to 4,000 characters and may have line breaks. |
+| `plugin_category_defaulted` | warning, only with `--openai` | `interface.category` isn't set, so the directory lists the plugin under Other. |
+| `plugin_listing_urls_missing` | warning, only with `--openai` | A plugin with an MCP server needs `websiteURL`, `supportURL`, `privacyPolicyURL` and `termsOfServiceURL` in `interface`. A plugin with only skills doesn't. |
+| `screenshot_count_mismatch` | warning, only with `--openai` | A plugin with an MCP server takes one screenshot for each starter prompt (`interface.defaultPrompt`). |
+| `screenshot_format_unsupported` | warning, only with `--openai` | A screenshot isn't a PNG or JPEG image. |
+| `screenshot_dimensions_unsupported` | warning, only with `--openai` | A screenshot isn't exactly 706 pixels wide and 400 to 860 pixels tall. |
+
+The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded`.
 
 ## Packing and publishing
 
