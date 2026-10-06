@@ -206,7 +206,7 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 
 ## Review materials
 
-These check the `review` object (in `package.json`, or `extensions["com.openai"].review` in `plugin.json`) and, in `plugin.json`, `extensions["com.openai"].publication`. See [Review materials](/extensions/publishing-guidelines#review-materials). A field set to `null` counts as left out, as it does in OpenAI's import, which keeps the value saved there.
+These check the `review` object (in `package.json`, or `extensions["com.openai"].review` in the `plugin.json` OpenAI's portal imports; see [where they go](/extensions/publishing-guidelines#review-materials)) and, in that `plugin.json`, `extensions["com.openai"].publication`. See [Review materials](/extensions/publishing-guidelines#review-materials). A field set to `null` counts as left out, as it does in OpenAI's import, which keeps the value saved there.
 
 | Code | Severity | Meaning |
 |---|---|---|
@@ -225,7 +225,8 @@ These check the `review` object (in `package.json`, or `extensions["com.openai"]
 | `publication_country_format` | portal | A country isn't a two-letter uppercase code like `US`. `[]` makes the plugin available everywhere. |
 | `publication_translation_locale_empty` | portal | A translation's locale is empty. |
 | `publication_translation_subtitle_*`, `publication_translation_description_*` (`_wrong_type`, `_empty`, `_character_unsupported`, `_too_long`) | portal | A translated subtitle is one line of up to 30 characters; a description is up to 4,000 characters and may have line breaks. Neither may be only spaces or hold tabs or other control characters. The limits count spaces at either end. |
-| `review_test_cases_missing` | warning, only with `--openai` | A plugin with an MCP server or app has no review materials. |
+| `review_test_cases_missing` | warning, only with `--openai` | A plugin with an MCP server or app has no review materials. The warning names the manifest they go in. |
+| `review_manifest_ignored` | warning, only with `--openai` | The review materials are in a manifest OpenAI's portal doesn't import, such as `.claude-plugin/plugin.json` beside a `.codex-plugin/plugin.json`. The Enconvo store still takes them from there. |
 | `review_positive_test_cases_count`, `review_negative_test_cases_count` | warning | OpenAI's final submission takes exactly 5 positive and 3 negative cases. Checked in `plugin.json` only. |
 | `review_demo_recording_missing`, `publication_release_notes_missing` | warning | OpenAI's final submission needs a demo video and release notes. Checked in `plugin.json` only; a plugin with only skills needs no demo. |
 | `publication_country_unknown` | warning | A country isn't an ISO 3166 code. The United Kingdom is `GB`, not `UK`. |

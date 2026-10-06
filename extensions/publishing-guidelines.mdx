@@ -82,7 +82,7 @@ OpenAI's portal is stricter. It takes plugins that sell physical goods only, and
 
 Review materials tell reviewers what to try: prompts the plugin should handle, prompts it should leave alone, and a short demo video. They are stored with each version and shown only to reviewers.
 
-In a Codex, Claude Code or portable plugin, they go where OpenAI's portal reads them, in `plugin.json`:
+In a Codex, Claude Code or portable plugin, they go where OpenAI's portal reads them, under `extensions["com.openai"]` of one `plugin.json`. OpenAI imports them from `.codex-plugin/plugin.json` when the plugin has one, as `enconvo plugin create` makes it; from the root `plugin.json` when that one has `extensions["com.openai"]` of its own or there is no Codex manifest; and from `.claude-plugin/plugin.json` in a plugin made only for Claude Code. Don't add `extensions["com.openai"]` to the root `plugin.json` just for them: Codex then ignores the listing in `.codex-plugin/plugin.json`. `enconvo plugin validate --openai` names the manifest they belong in.
 
 ```json
 {
