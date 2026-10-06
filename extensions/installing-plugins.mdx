@@ -1,0 +1,104 @@
+---
+title: "Installing Plugins"
+description: "Install Enconvo, Codex, Claude Code and portable plugins from the store, an archive, GitHub, git, npm, a folder or a plugin marketplace, and keep them up to date."
+---
+
+Most people install plugins from the plugin store on Enconvo's **Plugins** page. Enconvo also installs plugins from other places, including the Codex and Claude Code plugins their developers publish on GitHub and in plugin marketplaces. See [Plugin Formats](/extensions/plugin-formats) for the packages Enconvo reads.
+
+<Warning>
+Only plugins in the Enconvo store are reviewed by Enconvo. A plugin from anywhere else can run programs on your Mac through its MCP servers, so install it only from a source you trust.
+</Warning>
+
+## From the Plugins page
+
+Click **Add** on the **Plugins** page:
+
+| Option | What it does |
+|---|---|
+| **Create plugin** | Starts a chat in which Enconvo's agent builds a plugin with you. |
+| **Upload plugin archive…** | Installs a file: an `.enconvo` package, a `.dxt` desktop extension, or a `.zip` of a Claude Code or Codex plugin. |
+| **Add from GitHub…** | Installs a plugin, or one from a plugin marketplace, from GitHub, git, npm or a folder (see below). |
+| **Add MCP server…** | Opens MCP settings, to connect one server without a plugin around it. |
+| **New skill…** | Opens Skills settings, to write a skill of your own. |
+| **Developer guide** | Opens [Developing Extensions](/extensions/developing). |
+
+### Add from GitHub
+
+Paste where the plugin is and press **Preview**:
+
+- `owner/repo`, or a GitHub link, including one to a folder (`/tree/<branch>/<folder>`)
+- `owner/repo/folder` for a plugin inside a repository, with `@branch` or `@tag` to pin a version
+- any https git address
+- `npm:<package>`, with `@version` to pin one
+- a folder on your Mac
+
+Enconvo shows the plugin before installing anything: its format (Codex, Claude Code, portable, desktop extension or Enconvo), version, developer, skills, MCP servers and hooks, and any ChatGPT apps it includes, which Enconvo doesn't load. A plugin's hooks run commands on your Mac, so they stay off unless you check **Allow its hooks to run**. Click **Install**. Installing again from the same place updates the plugin. If a plugin of the same name is already installed from somewhere else, uninstall it first.
+
+When the address is a plugin marketplace, the dialog lists its plugins with an **Install** button on each. Installing one adds the marketplace, which then shows under **Your marketplaces** the next time you open the dialog.
+
+An Enconvo plugin's source code has to be built before it works, so the dialog gives you the `enconvo plugin install` command to run in Terminal instead.
+
+## From the command line
+
+`plugin install` takes a plugin from GitHub, git, npm, a folder or a marketplace. Enconvo 2.5.6 or later has to be running.
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+| Source | Example |
+|---|---|
+| A GitHub repository, optionally a folder in it and a branch, tag or commit | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| A GitHub address | `https://github.com/acme/plugins/tree/main/notes` |
+| Any other git repository (needs git) | `https://git.example.com/notes.git`, `git@example.com:acme/notes.git` |
+| An npm package | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| A folder on your Mac | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| A plugin in an added marketplace | `notes@acme-plugins` |
+
+<Note>
+`plugin install` and `plugin marketplace` need an `@enconvo/api` release newer than 0.1.174. Inside a project that depends on `@enconvo/api`, `npx enconvo …` is enough.
+</Note>
+
+Add `--preview` to see what would be installed, and from where, without installing it.
+
+When the source is a plugin marketplace rather than a plugin, `plugin install` lists its plugins. Pick one with `--plugin`, which also adds the marketplace:
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+### What happens on install
+
+- **Settings**: a plugin with required settings, such as an API key, installs and then asks for them. `plugin install` names them; fill them in on the plugin's page.
+- **Enconvo plugins from source**: when a GitHub repository or folder holds an Enconvo plugin that hasn't been built, `plugin install` builds it first. A folder is built in place, after `npm install`.
+- **Onboarding**: when a plugin names an onboarding skill, Enconvo offers to run it after the first install.
+- **Hooks**: a plugin's [hooks](/extensions/plugin-formats#hooks) install turned off, because they run commands. `--preview` lists them; allow them with the **Allow hooks** switch on the plugin's page. Hooks you allowed stay on through updates that don't change them.
+- **Same name**: installing again from the same source updates the plugin. If a plugin with the same name is already installed from somewhere else, such as the store, Enconvo leaves it alone and asks you to uninstall it first.
+
+When Enconvo isn't running, `plugin install` can still install an Enconvo plugin from GitHub by building it. For anything else, open Enconvo and try again.
+
+## Plugin marketplaces
+
+A marketplace is a catalog of plugins in a repository or folder. Enconvo reads both kinds: Codex's `.agents/plugins/marketplace.json` and Claude Code's `.claude-plugin/marketplace.json`.
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, a git address or a folder
+npx -p @enconvo/api enconvo plugin marketplace list               # added marketplaces and their plugins
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # install one of them
+npx -p @enconvo/api enconvo plugin marketplace refresh            # fetch them again for new plugins
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+A marketplace's plugins can come from a folder in the marketplace, another GitHub repository, a git address, a folder in a git repository, or npm. A plugin a Codex marketplace marks `NOT_AVAILABLE` can't be installed.
+
+On the Plugins page, open **Add → Add from GitHub…** and paste the marketplace's address, or pick one you've added under **Your marketplaces**.
+
+Enconvo keeps a copy of a marketplace from GitHub or git, and reads a folder marketplace where it is. Removing a marketplace keeps the plugins you installed from it.
+
+## Updates
+
+Enconvo's plugin update check also covers plugins installed from GitHub, git, npm, folders and marketplaces, and lists their updates with the store's. It reads a repository's latest commit without downloading it, asks npm for the latest version, and notices when an installed folder has changed. Updating installs the plugin again from the same source.
+
+## Publish your own
+
+To list a plugin in the Enconvo store, see [Plugin Store Guidelines](/extensions/publishing-guidelines). To share it without the store, push it to GitHub or a marketplace, and people can install it with **Add from GitHub…** or the commands above.

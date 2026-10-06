@@ -1,0 +1,242 @@
+---
+title: "Validation Codes"
+description: "What each problem `enconvo plugin validate`, `pack` and `publish` report means, how severe it is, and how to fix it."
+---
+
+`plugin validate` checks a plugin folder or `.zip` without uploading anything. `plugin pack` and `plugin publish` run the same checks first. Each problem has a code; OpenAI's plugin portal uses the same codes for the rules it shares with Enconvo.
+
+```sh
+npx -p @enconvo/api enconvo plugin validate [path]            # the folder, or a .zip
+npx -p @enconvo/api enconvo plugin validate [path] --openai   # OpenAI's portal rules become errors
+npx -p @enconvo/api enconvo plugin validate [path] --json     # the result as JSON
+```
+
+Each problem is one line: its severity, its code, the file it is in, and what is wrong.
+
+```text
+warning[plugin_short_description_too_long] .codex-plugin/plugin.json: interface.shortDescription is 42 characters; the limit is 30. (OpenAI's plugin portal)
+error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md description is required.
+```
+
+`validate` exits with status 1 when there is an error, so you can run it in CI.
+
+## Severity
+
+| Severity | Meaning |
+|---|---|
+| `error` | Enconvo, Codex or Claude Code can't use the plugin as it is. `pack` and `publish` stop. |
+| `warning` | The plugin works, but something is ignored or may not work in another app. |
+| `warning … (OpenAI's plugin portal)` | Only OpenAI's portal applies the rule. With `--openai`, and in `pack --openai`, it is an error. |
+
+The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers.
+
+## Text fields
+
+Most text fields are checked the same way, and their codes start with the field's stem, such as `plugin_display_name`:
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `<stem>_missing` | error when the field is required, otherwise portal | The field isn't set. |
+| `<stem>_wrong_type` | error | The value isn't text. |
+| `<stem>_empty` | error | The value is empty or only spaces. |
+| `<stem>_character_unsupported` | portal | The value has control characters, or line breaks in a one-line field. |
+| `<stem>_too_long` | portal | The value is longer than the portal's limit below. |
+
+| Stem | Field | Limit |
+|---|---|---|
+| `plugin_name` | `name` (required) | 64 |
+| `plugin_id` | `id` | |
+| `plugin_version` | `version` | 64 |
+| `plugin_description` | `description` | 1,024 |
+| `plugin_author_name`, `plugin_author_email` | `author.name`, `author.email` | 120, 320 |
+| `plugin_display_name` | `interface.displayName` (missing: `plugin_display_name_empty`) | 30 |
+| `plugin_short_description` | `interface.shortDescription` | 30 |
+| `plugin_long_description` | `interface.longDescription` | 4,000 |
+| `plugin_developer_name` | `interface.developerName` | 80 |
+| `plugin_category` | `interface.category` | |
+| `plugin_capability` | each of `interface.capabilities` | 120 |
+| `plugin_default_prompt` | each of `interface.defaultPrompt` | 128 |
+| `skill_name` | `name` in `SKILL.md` (required) | |
+| `skill_description` | `description` in `SKILL.md` (required) | 1,024 |
+| `skill_agent_display_name`, `skill_agent_short_description`, `skill_agent_default_prompt`, `skill_agent_brand_color`, `skill_agent_icon_small`, `skill_agent_icon_large` | `interface` fields in `agents/openai.yaml` | |
+
+## Addresses and colors
+
+Addresses have to be `https://` addresses without a user name or password. The stems are `plugin_homepage`, `plugin_author_url`, `plugin_website_url`, `plugin_privacy_policy_url`, `plugin_terms_of_service_url` and `plugin_support_url`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `<stem>_format` (`plugin_author_url_not_https`) | portal | Not an `https://` address. |
+| `<stem>_has_credentials` | portal | The address holds a user name or password. |
+| `plugin_brand_color_format`, `plugin_brand_color_dark_format`, `skill_agent_brand_color_format` | portal | Not a six-digit hex color such as `#1A73E8`. |
+| `plugin_brand_color_contrast`, `plugin_brand_color_dark_contrast` | portal | Less than 2:1 contrast against the light (`#FFFFFF`) or dark (`#212121`) background. |
+
+## Manifests
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_manifest_missing` | error | The folder has no `package.json`, `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `manifest.json` or `SKILL.md`. |
+| `plugin_manifest_not_file`, `plugin_manifest_unreadable`, `plugin_manifest_json_malformed`, `plugin_manifest_root_not_object` | error | The manifest isn't a readable UTF-8 file holding a JSON object. |
+| `codex_manifest_parent_not_directory`, `codex_manifest_path_not_file` | error | `.codex-plugin` isn't a folder, or `.codex-plugin/plugin.json` in it isn't a file. |
+| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. |
+| `plugin_version_not_semver` | error | `version` isn't a version number like `1.2.0`. |
+| `plugin_author_wrong_type` | error | `author` in `plugin.json` has to be an object like `{"name": "…"}`. |
+| `plugin_extensions_wrong_type` | error | `extensions` or `extensions["com.openai"]` isn't an object. |
+| `plugin_manifest_field_unsupported` | warning | A portable `plugin.json` has a field the Agent Plugins schema doesn't define. Put app data under `extensions`. |
+| `codex_overlay_ignored` | warning | `plugin.json` has `extensions["com.openai"]`, so Codex ignores `.codex-plugin/plugin.json`. Keep the listing in one of them. |
+| `plugin_manifest_name_mismatch`, `plugin_manifest_version_mismatch` | warning (error in `publish`) | The manifests for different apps give different names or versions. |
+| `plugin_interface_missing` | portal | There is no listing (`interface`). |
+| `plugin_developer_missing` | portal | Neither `author.name` nor `interface.developerName` says who made the plugin. |
+| `plugin_interface_wrong_type` | error | `interface` isn't an object. |
+| `plugin_capabilities_wrong_type`, `plugin_capabilities_too_many` | error, portal | `interface.capabilities` isn't a list of text, or has more than 20 entries. |
+| `plugin_default_prompt_wrong_type`, `plugin_default_prompt_entry_wrong_type` | error | `interface.defaultPrompt` isn't text or a list of text. |
+| `plugin_default_prompt_too_many`, `plugin_default_prompt_duplicate` | portal | More than 3 example prompts, or the same prompt twice. |
+| `plugin_default_prompt_mention` | portal | An example prompt @mentions an MCP server, which OpenAI's starter prompts can't. |
+| `plugin_category_unknown` | portal | `interface.category` isn't one of OpenAI's categories: Productivity, Creativity, Developer Tools, Business & Operations, Data & Analytics, Communication, Education & Research, Security, Finance, Healthcare, Travel, Entertainment or Other. Without a category, OpenAI lists the plugin under Other. |
+| `plugin_onboarding_skill_wrong_type` | error | `extensions["com.openai"].onboardingSkill` isn't a path. |
+| `plugin_onboarding_skill_missing`, `plugin_onboarding_skill_not_skill_file`, `plugin_onboarding_skill_not_included` | portal | `onboardingSkill` has to point at the `SKILL.md` of one of the plugin's skills, like `./skills/get-started/SKILL.md`. Enconvo also takes the skill's folder. |
+| `plugin_logo_path_missing`, `plugin_composer_icon_path_missing` | portal | `interface.logo` or `interface.composerIcon` isn't set. |
+| `plugin_runtime_surface_missing` | error | The plugin has nothing to run: no skill, MCP server or app. |
+| `dxt_version_missing` | warning | A desktop extension's `manifest_version` isn't set. |
+| `dxt_server_missing` | error | A desktop extension's `server` doesn't say how to start its MCP server. |
+
+### Paths to skills, MCP servers and apps
+
+The stems are `plugin_skills` (`skills`), `plugin_mcp` (`mcpServers`) and `plugin_apps` (`apps`).
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_skills_directory_missing`, `plugin_mcp_file_missing`, `plugin_apps_file_missing` | error | The path points at nothing. |
+| `<stem>_path_wrong_type`, `<stem>_path_empty` | error | The value isn't a path, or is empty. |
+| `<stem>_path_not_directory`, `<stem>_path_not_file` | error | The path points at a file where a folder belongs, or the other way round. |
+| `<stem>_path_unsupported` | portal | Codex takes only `./skills/`, `./.mcp.json` and `./.app.json`. |
+| `undeclared_mcp_manifest_ignored` | warning | A Codex plugin has `.mcp.json` but `mcpServers` doesn't point at it, so OpenAI's portal leaves it out. |
+| `undeclared_app_manifest_ignored` | warning | A Codex plugin has `.app.json` but `apps` doesn't point at it. Point at it if the plugin uses the app, or remove the file. |
+
+## Images and other files
+
+These apply to the listing's images (`logo`, `composerIcon`, `logoDark`, `composerIconDark`, `screenshots`), the skill icons in `agents/openai.yaml` (`icon_small`, `icon_large`) and an Enconvo plugin's `icon`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `declared_asset_path_wrong_type`, `declared_asset_path_empty`, `declared_asset_path_has_outer_whitespace`, `declared_asset_path_has_control_character` | error | The path isn't usable text. |
+| `declared_asset_path_unsafe`, `declared_asset_path_outside_package` | error | The path is absolute or leaves the plugin's folder. |
+| `declared_asset_file_missing`, `declared_asset_not_regular_file` | error (warning for an Enconvo icon) | The file doesn't exist or isn't a regular file. |
+| `branding_asset_path_missing_root_prefix` | portal | The path has to start with `./`. |
+| `image_file_format_unsupported`, `image_file_too_large` | portal (error for an Enconvo icon) | Not a PNG, JPEG, WebP or SVG (an Enconvo icon may also be a GIF), or larger than 5 MB. |
+| `image_file_unreadable` | portal | The image can't be read. |
+| `svg_xml_malformed` | portal | The SVG isn't UTF-8 text or well-formed XML: every tag has to close, inside one root element. |
+| `svg_root_element_invalid` | portal | The file isn't an SVG image. |
+| `svg_dimensions_missing`, `svg_dimensions_not_numeric`, `svg_dimensions_not_positive` | portal | The SVG needs a `viewBox` or a `width` and `height`. |
+| `svg_dimensions_not_square`, `svg_dimensions_too_small` | portal | The SVG has to be square and at least 48 pixels. |
+| `raster_image_decode_failed`, `raster_image_extension_content_mismatch` | portal | The image can't be read, or its contents don't match its extension. |
+| `raster_image_not_square`, `raster_image_dimensions_too_small`, `raster_image_dimensions_too_large` | portal | The image has to be square, from 48 to 4,096 pixels. |
+
+## Skills
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `skill_manifest_not_regular_file`, `skill_manifest_unreadable`, `skill_manifest_invalid_utf8` | error | `SKILL.md` isn't a readable UTF-8 text file. |
+| `skill_frontmatter_missing`, `skill_frontmatter_unclosed`, `skill_frontmatter_yaml_malformed`, `skill_frontmatter_wrong_type` | error | `SKILL.md` has to start with front matter: a `---` line, `name` and `description` as YAML, and another `---` line. |
+| `skill_identity_duplicate` | error | Two skills have the same `name`. |
+| `skill_identity_too_long` | portal | `<plugin>:<skill>` is longer than 64 characters. |
+| `skill_body_empty` | portal | `SKILL.md` has no instructions after its front matter. |
+| `skill_directory_hidden` | portal | A skill's folder name starts with a dot. |
+| `skill_manifest_nested`, `skill_manifest_missing` | portal | Each skill has to be a folder right inside `skills/`, with a `SKILL.md`. |
+| `skill_file_ignored`, `skill_symlink_ignored` | warning | A file outside a skill folder, or a symbolic link, is left out. |
+| `skill_metadata_ignored` | warning | `SKILL.md` sets its listing in `metadata`; put it in `agents/openai.yaml`. |
+| `skill_agent_not_regular_file`, `skill_agent_unreadable`, `skill_agent_invalid_utf8`, `skill_agent_yaml_malformed`, `skill_agent_top_level_wrong_type` | portal | `agents/openai.yaml` isn't a readable UTF-8 YAML object. |
+| `skill_agent_interface_missing`, `skill_agent_interface_wrong_type` | portal | `agents/openai.yaml` needs an `interface` section. |
+| `skill_agent_policy_wrong_type`, `skill_agent_allow_implicit_invocation_wrong_type` | portal | `policy` isn't an object, or `allow_implicit_invocation` isn't `true` or `false`. |
+| `skill_agent_dependencies_wrong_type`, `skill_agent_dependency_unsupported` | portal | `dependencies` takes only `tools`. |
+
+## MCP servers and apps
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `mcp_manifest_unreadable`, `mcp_manifest_json_malformed`, `mcp_manifest_wrong_type`, `plugin_mcp_path_not_file` | error | The MCP file isn't a readable UTF-8 JSON object. |
+| `mcp_servers_wrong_type` | error | The server list isn't an object keyed by server name. |
+| `mcp_server_name_empty`, `mcp_server_wrong_type` | error | A server has an empty name, or isn't an object. |
+| `mcp_server_transport_missing` | error | A server needs a `command` to run or a `url` to connect to. |
+| `mcp_servers_missing` | warning | The servers aren't under `mcpServers`. Enconvo reads them, but Codex, Claude Code and OpenAI's portal don't. |
+| `mcp_server_type_missing` | warning | A server in a portable `mcp.json` needs `"type"`: `stdio`, `streamable-http` or `sse`. |
+| `mcp_server_cwd_outside` | warning | A portable server's `cwd` has to start with `./`, `${PLUGIN_ROOT}` or `${PLUGIN_DATA}`. |
+| `mcp_servers_multiple` | warning | The plugin has more than one MCP server. OpenAI's portal connects only one of them per plugin to scan and review it. A server declared in both `mcp.json` and `.mcp.json` under the same name counts once. |
+| `app_manifest_unreadable`, `app_manifest_json_malformed`, `app_manifest_wrong_type`, `plugin_apps_path_not_file` | error | `.app.json` isn't a readable UTF-8 JSON object. |
+| `app_entries_missing`, `app_entries_wrong_type`, `app_entry_wrong_type` | error | `.app.json` needs an `apps` object of app entries. |
+| `app_id_missing`, `app_id_wrong_type` | error | An app entry needs an `id`. |
+| `app_id_format` | portal | An app's `id` has to be the ID OpenAI gave it, starting with `asdk_app_`, `connector_` or `templated_apps_`. |
+| `app_entry_required_wrong_type`, `app_entry_optional_wrong_type` | portal | An app's `required` or `optional` has to be `true` or `false`. An app is needed unless it says `"required": false` or `"optional": true`. |
+| `duplicate_app_reference` | warning | Two app entries have the same `id`. Codex and OpenAI's portal keep only the first. |
+| `app_configuration_excluded` | portal | OpenAI's portal can't take a plugin with app references (`apps` or `.app.json`) yet. Put the MCP server's address in `.mcp.json` and finish the app's setup in OpenAI's dashboard. Enconvo, Codex and Claude Code still install the plugin. |
+| `hooks_configuration_excluded` | portal | OpenAI's portal can't take a plugin with lifecycle hooks (the manifest's `hooks`, `hooks/hooks.json` or `hooks.json`) yet. Leave them out of the package you upload there; Enconvo's store takes them. |
+| `screenshot_configuration_excluded` | portal | `interface.screenshots` is for a plugin with an MCP server and its own interface; OpenAI's portal refuses it in a plugin that has only skills. |
+
+## Archives
+
+When you validate a `.zip`, these are errors. When you validate a folder, `validate` checks the archive `plugin pack` would make from it, and reports the file rules as portal rules; the `plugin_root_*` rules apply only to a `.zip`.
+
+| Code | Meaning |
+|---|---|
+| `archive_format_not_zip`, `archive_empty`, `archive_member_unreadable` | The file isn't a readable, non-empty zip. |
+| `archive_too_large`, `archive_uncompressed_too_large`, `archive_too_many_entries` | Over 100 MB, over 512 MB unpacked, or over 5,000 entries. |
+| `archive_member_too_large` | One file is over 100 MB. |
+| `archive_member_type_unsupported` | A link or special file; an archive holds only files and folders. |
+| `archive_member_path_empty`, `archive_member_path_has_outer_whitespace`, `archive_member_path_has_backslash`, `archive_member_path_absolute`, `archive_member_path_has_empty_segment`, `archive_member_path_has_parent_segment` | A file's path is empty, absolute, uses `\` or `..`, or has stray spaces or empty parts. |
+| `archive_member_path_too_deep` | A path is more than 20 folders deep. |
+| `archive_member_path_duplicate`, `archive_member_path_normalization_collision`, `archive_member_path_type_conflict` | Two paths are the same, differ only in letter case or Unicode form, or one is both a file and a folder. |
+| `plugin_root_missing`, `plugin_root_ambiguous`, `plugin_root_has_siblings` | The archive has to hold one plugin, at its top or in one folder there, with nothing next to it. |
+| `archive_metadata_ignored` (warning) | macOS Finder data (`__MACOSX`, `.DS_Store`) is left out. Make the archive with `plugin pack`. |
+
+## Enconvo `package.json`
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_name_format` | error | `name` uses only letters, digits, dots, dashes and underscores. |
+| `plugin_version_not_semver`, `plugin_min_app_version_not_semver` | error | `version` or `minAppVersion` isn't a version number like `1.2.0`. |
+| `plugin_title_missing` | error | `title` isn't set. |
+| `plugin_description_missing` | warning | `description` isn't set. |
+| `screenshots_too_many` | error | More than 8 images in `metadata/`. |
+| `screenshot_file_ignored` | warning | A file in `metadata/` isn't an image and is left out. |
+| `store_link_not_https` | warning | A link in `interface` (`websiteURL`, `supportURL`, `privacyPolicyURL`, `termsOfServiceURL`) isn't an `https://` address without a user name or password, of up to 2,048 characters, so the store page leaves it out. |
+
+## Review materials
+
+These check the `review` object (in `package.json`, or `extensions["com.openai"].review` in `plugin.json`) and, in `plugin.json`, `extensions["com.openai"].publication`. See [Review materials](/extensions/publishing-guidelines#review-materials). A field set to `null` counts as left out, as it does in OpenAI's import, which keeps the value saved there.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `review_wrong_type`, `review_test_cases_wrong_type`, `review_test_case_wrong_type` | error | `review`, `test_cases` or a case isn't an object. |
+| `review_test_cases_too_many` | error | A list has more than 20 cases. |
+| `review_test_case_description_missing`, `review_test_case_prompt_missing`, `review_test_case_expected_behavior_missing` | error | A case needs a `description` and `prompt`; a positive case also needs `expected_behavior`. |
+| `review_test_case_text_wrong_type`, `review_test_case_text_empty`, `review_test_case_text_too_long` | error | A case's text isn't text, is empty, or is over 4,000 characters. |
+| `review_test_case_file_attachment_urls_wrong_type`, `review_test_case_file_attachments_too_many` | error | `file_attachment_urls` isn't a list of addresses, or has more than 10. |
+| `review_test_case_url_format`, `review_demo_recording_url_format` | error | An address isn't `https://`. |
+| `review_commerce_wrong_type` | error | `commerce` isn't `true` or `false`. |
+| `review_commerce_description_wrong_type`, `review_commerce_description_empty`, `review_commerce_description_too_long` | error | `commerce_description` isn't usable text of up to 4,000 characters. |
+| `publication_release_notes_wrong_type` | error | `publication.release_notes` isn't text. |
+| `review_test_credentials_in_package`, `review_reviewer_instructions_in_package` | error | Sign-in details would ship inside the package, which anyone can download. Pass them with `plugin publish --review-notes`, or in the Review details form of OpenAI's dashboard. |
+| `review_test_cases_server_count` | portal | `review.test_cases` in `plugin.json` are for a plugin with exactly one MCP server. A server declared in both `mcp.json` and `.mcp.json` under the same name counts once. |
+| `publication_wrong_type`, `publication_countries_wrong_type`, `publication_translations_wrong_type`, `publication_translation_wrong_type` | portal | `publication`, `countries`, `translations` or a translation isn't the right shape: `countries` is a list, `translations` an object keyed by locale such as `fr-FR`. |
+| `publication_country_format` | portal | A country isn't a two-letter uppercase code like `US`. `[]` makes the plugin available everywhere. |
+| `publication_translation_locale_empty` | portal | A translation's locale is empty. |
+| `publication_translation_subtitle_*`, `publication_translation_description_*` (`_wrong_type`, `_empty`, `_character_unsupported`, `_too_long`) | portal | A translated subtitle is one line of up to 30 characters; a description is up to 4,000 characters and may have line breaks. Neither may be only spaces or hold tabs or other control characters. The limits count spaces at either end. |
+| `review_test_cases_missing` | warning, only with `--openai` | A plugin with an MCP server or app has no review materials. |
+| `review_positive_test_cases_count`, `review_negative_test_cases_count` | warning | OpenAI's final submission takes exactly 5 positive and 3 negative cases. Checked in `plugin.json` only. |
+| `review_demo_recording_missing`, `publication_release_notes_missing` | warning | OpenAI's final submission needs a demo video and release notes. Checked in `plugin.json` only; a plugin with only skills needs no demo. |
+| `publication_country_unknown` | warning | A country isn't an ISO 3166 code. The United Kingdom is `GB`, not `UK`. |
+| `review_test_case_tools_triggered_missing` | warning | A positive case doesn't name the tools it should call. |
+| `review_commerce_description_missing` | warning | `commerce` is `true` but nothing says what is sold. |
+
+## Packing and publishing
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_path_missing` | error | The folder doesn't exist. |
+| `plugin_build_missing` | error | Build the Enconvo plugin first (`npm run build`). |
+| `plugin_format_not_packable` | error | A desktop extension is packed with `npx @anthropic-ai/mcpb pack`. |
+| `plugin_format_not_publishable` | error | The store takes Enconvo, Codex, Claude Code and portable plugins; share a desktop extension's `.mcpb` file instead. |
+| `plugin_version_missing` | error | The store needs a version. |
+| `plugin_package_too_large` | error | The package is over 50 MB. |
+| `plugin_readme_too_large` | warning | The README is over 64 KB, so the store page leaves it out. |
+| `store_icon_missing` | warning | The plugin has no icon the store can show (PNG, JPEG, WebP or GIF up to 5 MB), so it shows a default icon. |

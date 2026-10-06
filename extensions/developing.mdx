@@ -22,6 +22,8 @@ The project has one command (**Say Hello**), one Local API route, a placeholder 
 
 The plugin name comes from the folder name. Pass `--name`, `--title`, `--description` or `--author` to set them yourself. Pick a name that no plugin installed in Enconvo already uses, because building replaces the installed plugin's files; `plugin create` refuses such names.
 
+To make a plugin that also installs in Codex and Claude Code, start from `--template skills` (a skill) or `--template mcp` (an MCP server) instead. See [Plugin Formats](/extensions/plugin-formats) for those packages, and [Installing Plugins](/extensions/installing-plugins) to try any plugin from a folder, GitHub or a marketplace.
+
 <Note>
 `plugin create`, `plugin validate` and publishing for review need an `@enconvo/api` release newer than 0.1.173. If your version doesn't have them, set the project up by hand as described below.
 </Note>
@@ -165,10 +167,12 @@ npm run validate
 npx enconvo plugin publish
 ```
 
-`plugin validate` checks the plugin against the store rules without uploading anything. After a build, it also shows how many files the package will contain and which files are left out. It checks that the name uses only letters, digits, dots, dashes and underscores, that `version` looks like `1.2.3`, that the plugin has a title, and that the icon is a PNG, JPEG, WebP or GIF of up to 5 MB. You can add up to 8 screenshots in a `metadata/` folder; the store shows them in file name order.
+`plugin validate` checks the plugin against the store rules without uploading anything; [Validation Codes](/extensions/validation-codes) explains each problem it reports. After a build, it also shows how many files the package will contain and which files are left out. It checks that the name uses only letters, digits, dots, dashes and underscores, that `version` looks like `1.2.3`, that the plugin has a title, and that the icon is a PNG, JPEG, WebP or GIF of up to 5 MB. You can add up to 8 screenshots in a `metadata/` folder; the store shows them in file name order.
 
-`plugin publish` builds the plugin and uploads it with the Enconvo account you're signed in with, so Enconvo has to be running and signed in. Enconvo reviews every version before it appears in the store. Until a new plugin is approved, only you can see it; while an update is in review, the store keeps offering the previous version. Raise `version` in `package.json` for every update.
+`plugin publish` builds the plugin and uploads it with the Enconvo account you're signed in with, so Enconvo has to be running and signed in. Enconvo reviews every version before it appears in the store. Until a new plugin is approved, only you can see it; while an update is in review, the store keeps offering the previous version. Raise `version` in `package.json` for every update. Before it builds anything, `plugin publish` asks the store which version it released, and stops with the next version to use when yours isn't higher. A version that is in review, or was turned down, can be submitted again as it is; the new upload replaces it.
 
 The package is made from the built plugin. `.env` files, `node_modules`, version-control folders and `.zip` archives are left out, but check that no other credentials or private files end up in it.
+
+Reviewers follow the [Plugin Store Guidelines](/extensions/publishing-guidelines). Add a `review` object to `package.json` with the prompts they should try, and pass sign-in details for a demo account with `--review-notes`; only reviewers see them.
 
 To add your own AI model or text-to-speech voice to Enconvo's pickers, see [AI Model and Voice Plugins](/extensions/provider-plugins). For SDK building blocks, see [Extension API Reference](/extensions/extension-api-reference). For reusable multi-step processes that do not need a plugin, use [Workflows](/workflows/introduction).
