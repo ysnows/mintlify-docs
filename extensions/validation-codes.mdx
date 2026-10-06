@@ -137,6 +137,7 @@ These apply to the listing's images (`logo`, `composerIcon`, `logoDark`, `compos
 | Code | Severity | Meaning |
 |---|---|---|
 | `skill_manifest_not_regular_file`, `skill_manifest_unreadable`, `skill_manifest_invalid_utf8` | error | `SKILL.md` isn't a readable UTF-8 text file. |
+| `skills_path_unreadable` | error | You don't have permission to open the skills folder or a skill's folder (Enconvo's code). |
 | `skill_frontmatter_missing`, `skill_frontmatter_unclosed`, `skill_frontmatter_yaml_malformed`, `skill_frontmatter_wrong_type` | error | `SKILL.md` has to start with front matter: a `---` line, `name` and `description` as YAML, and another `---` line. |
 | `skill_identity_duplicate` | error | Two skills have the same `name`. |
 | `skill_identity_too_long` | portal | `<plugin>:<skill>` is longer than 64 characters. |
@@ -174,7 +175,7 @@ These apply to the listing's images (`logo`, `composerIcon`, `logoDark`, `compos
 
 ## Archives
 
-When you validate a `.zip`, these are errors. When you validate a folder, `validate` checks the archive `plugin pack` would make from it, and reports the file rules as portal rules; the `plugin_root_*` rules apply only to a `.zip`.
+When you validate a `.zip`, these are errors. When you validate a folder, `validate` checks the archive `plugin pack` would make from it, and reports the file rules as portal rules; the `plugin_root_*` rules apply only to a `.zip`. A file or folder in it that you don't have permission to read is an `archive_member_unreadable` error for a folder too, because `pack` and `publish` can't zip it: run `chmod u+r` on it (`u+rx` for a folder), or move it out of the plugin.
 
 | Code | Meaning |
 |---|---|
@@ -198,6 +199,7 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | `plugin_description_missing` | warning | `description` isn't set. |
 | `screenshots_too_many` | error | More than 8 images in `metadata/`. |
 | `screenshot_file_ignored` | warning | A file in `metadata/` isn't an image and is left out. |
+| `image_file_unreadable` | error | You don't have permission to read `metadata/` or an image in it. |
 | `store_link_not_https` | warning | A link in `interface` (`websiteURL`, `supportURL`, `privacyPolicyURL`, `termsOfServiceURL`) isn't an `https://` address without a user name or password, of up to 2,048 characters, so the store page leaves it out. |
 
 ## Review materials
