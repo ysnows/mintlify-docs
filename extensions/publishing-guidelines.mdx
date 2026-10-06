@@ -40,13 +40,15 @@ When the plugin brings an MCP server, reviewers read its tools as the AI model w
 
 | Annotation | `true` when the tool | `false` when it |
 |---|---|---|
-| `readOnlyHint` | only reads or computes | changes anything: writes, sends, queues |
-| `destructiveHint` | deletes, overwrites, cancels or sends something that can't be taken back | only adds |
-| `openWorldHint` | reaches public or open content, such as the web | stays inside the user's own account or workspace |
+| `readOnlyHint` | only reads, computes or previews | changes anything: writes, saves a file, sends, posts, uploads, queues work or starts a job |
+| `destructiveHint` | deletes, overwrites, cancels or sends something that can't be taken back, even if the user could undo it | only adds |
+| `openWorldHint` | reaches public or open-ended content, such as a web search, or sends to any address | stays inside a bounded account, workspace or catalog, even one hosted elsewhere |
 
 Enconvo relies on these annotations. A tool marked `readOnlyHint: true` runs without asking the user and alongside other reads. A tool marked `destructiveHint: true` asks the user first unless they have given the agent full access. A tool that changes something but claims to be read-only is turned down.
 
 `enconvo plugin scan` starts the plugin's MCP server, lists its tools with their annotations, and names each tool that leaves one out ([`annotations_required`](/extensions/validation-codes#mcp-server-scan)).
+
+A tool that shows its own interface names its view, a `ui://` resource, in `_meta.ui.resourceUri`, and the view declares the domains it reaches in `_meta.ui.csp` (`connectDomains`, `resourceDomains`, `frameDomains`). Enconvo reads these MCP Apps keys, not OpenAI's older `_meta["openai/outputTemplate"]` and `_meta["openai/widgetCSP"]`; set both when the plugin also goes to ChatGPT. `scan` reads each view as Enconvo does and says when one is set only the OpenAI way.
 
 ## Data and privacy
 
@@ -178,7 +180,7 @@ npx -p @enconvo/api enconvo plugin pack --openai
 
 `pack --openai` writes the zip the portal takes. Credentials for OpenAI's reviewers go in the portal's submission form, never in the package.
 
-After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool, and for a short justification of each, which you write in its form.
+After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool. It no longer asks you to justify them; if its automated review flags one, you can appeal with an explanation. A plugin whose views embed pages still needs a justification for each embedded page: what it does, why the plugin embeds it, and who controls its domain. Pages from the MCP server's own registrable domain are allowed, and separate tenants on a shared host count as different domains. `scan --openai` lists the domains your views embed (`frame_domain_explanation_required`).
 
 OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
 
@@ -186,6 +188,6 @@ OpenAI's final submission asks more of the listing than its upload does, and `va
 
 - `interface.longDescription`, and an `interface.category`; without one, the directory lists the plugin under Other.
 - For a plugin with an MCP server, `websiteURL`, `supportURL`, `privacyPolicyURL` and `termsOfServiceURL`, each an `https://` address of up to 1,024 characters.
-- Screenshots only when the MCP server has its own interface: one PNG or JPEG for each starter prompt, exactly 706 pixels wide and 400 to 860 pixels tall.
+- Screenshots only when the MCP server has its own interface: one PNG or JPEG for each starter prompt, exactly 706 pixels wide and 400 to 860 pixels tall. The portal decides from its scan, so `scan --openai` refuses screenshots when no tool shows an interface (`screenshots_not_allowed`). OpenAI's directory no longer shows screenshots and introduces a plugin by its starter prompts, so write those with care.
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. See [OpenAI's final submission](/extensions/validation-codes#openais-final-submission) for the codes.
