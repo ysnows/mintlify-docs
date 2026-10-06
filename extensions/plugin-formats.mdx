@@ -156,6 +156,34 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 
 Claude Code starts a local server from the current project, so its `.mcp.json` names files through `${CLAUDE_PLUGIN_ROOT}`. Codex and Enconvo start it from the plugin's folder. When a plugin has both files, keep them in step.
 
+### Signing in to a remote server
+
+A remote server that asks for OAuth gets a **Sign in** button, and Enconvo registers itself with the server's authorization server. Limit what it asks for with `scopes` (Codex, a list) or `oauth.scopes` (Claude Code, one space-separated string).
+
+When the authorization server doesn't register clients, ship the OAuth app people sign in through, in either tool's fields:
+
+```json
+{
+  "mcpServers": {
+    "tracker": {
+      "type": "http",
+      "url": "https://mcp.example.com/mcp",
+      "oauth": {
+        "client_id": "your-app-id",
+        "callback_port": 3118,
+        "callback_url": "http://127.0.0.1:3118/callback"
+      }
+    }
+  }
+}
+```
+
+- Claude Code writes `clientId` and `callbackPort`, and the sign-in comes back to `http://localhost:<callbackPort>/callback`.
+- Codex writes `client_id`, `callback_port`, `callback_url` and, for a confidential app, `client_secret`.
+- Register the app's redirect as written: Enconvo listens on that port while someone signs in, then finishes the sign-in itself. If another app is using the port, the sign-in asks the person to close it and try again.
+- The redirect has to be an `http` address on the same computer (`127.0.0.1`, `localhost` or `[::1]`).
+- While the app's fields still hold placeholders such as `<CLIENT_ID>` or an unset `${VAR}`, Enconvo ignores the app and signs in the usual way.
+
 ## Skills
 
 Enconvo loads every `skills/<name>/SKILL.md`, the skill folders named by the manifest's `skills` field, and a `SKILL.md` at the plugin's root. A skill's `SKILL.md` starts with its `name` and a `description` of when to use it:
