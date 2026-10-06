@@ -153,6 +153,7 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 | `${CLAUDE_PLUGIN_ROOT}`, `${CODEX_PLUGIN_ROOT}`, `${PLUGIN_ROOT}` | The plugin's installed folder |
 | `${CLAUDE_PLUGIN_DATA}`, `${PLUGIN_DATA}` | A folder for the plugin's own data, kept across updates |
 | `${NAME}`, `${NAME:-default}` | An environment variable, or the default when it isn't set |
+| `${user_config.KEY}` | The plugin's setting `KEY` (see [Settings](#settings)) |
 
 Claude Code starts a local server from the current project, so its `.mcp.json` names files through `${CLAUDE_PLUGIN_ROOT}`. Codex and Enconvo start it from the plugin's folder. When a plugin has both files, keep them in step.
 
@@ -248,6 +249,31 @@ Enconvo's store takes a plugin with hooks, but OpenAI's portal can't take one ye
 ## Settings
 
 Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `user_config`, into the plugin's settings. Until required settings are filled in, the plugin shows **Need configure** on the Plugins page, and `plugin install` says which settings it needs.
+
+```json .claude-plugin/plugin.json
+{
+  "name": "my-database",
+  "userConfig": {
+    "region": { "type": "string", "title": "Region", "options": ["us-east1", "europe-west1"], "default": "us-east1" },
+    "password": { "type": "string", "title": "Password", "sensitive": true, "required": true }
+  },
+  "mcpServers": {
+    "db": {
+      "command": "npx",
+      "args": ["-y", "my-database-mcp", "--region", "${user_config.region}"],
+      "env": { "DB_PASSWORD": "${user_config.password}" }
+    }
+  }
+}
+```
+
+- **Types**: `string` becomes a text field, or a password field when `sensitive`; a `string` with `options` becomes a dropdown. `number`, `boolean`, `file` and `directory` keep their types, and `required`, `default` and `multiple` carry over.
+- **In MCP servers**: `${user_config.KEY}` in a server's `command`, `args`, `env`, `cwd`, `url` or `headers` becomes the setting's value. A setting with several values is joined with commas, or, when it's the whole argument, becomes one argument per value.
+- **Sensitive settings** are filled in only as the server starts, so they never appear in Enconvo's saved server settings.
+- **Missing settings**: a server that needs a required setting you haven't filled in doesn't start, and says which setting to fill in. An optional setting left empty becomes an empty value.
+- **Changes**: saving a setting on the plugin's page restarts the servers that use it, with the new value.
+
+Skills, commands and hooks don't receive `${user_config.KEY}` or `CLAUDE_PLUGIN_OPTION_<KEY>` in Enconvo yet.
 
 ## What Enconvo doesn't load
 
