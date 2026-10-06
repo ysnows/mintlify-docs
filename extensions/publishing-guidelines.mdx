@@ -10,9 +10,10 @@ Before you submit, run:
 ```sh
 npx -p @enconvo/api enconvo plugin validate            # the store's rules
 npx -p @enconvo/api enconvo plugin validate --openai   # also OpenAI's portal rules
+npx -p @enconvo/api enconvo plugin scan                # starts the MCP server and checks its tools
 ```
 
-`validate` catches what can be checked automatically; [Validation Codes](/extensions/validation-codes) explains each problem it reports. Reviewers check the rest by hand, as described below.
+`validate` catches what can be checked automatically, and `scan` checks the tools of a plugin with an MCP server; [Validation Codes](/extensions/validation-codes) explains each problem they report. Reviewers check the rest by hand, as described below.
 
 ## Purpose and quality
 
@@ -44,6 +45,8 @@ When the plugin brings an MCP server, reviewers read its tools as the AI model w
 | `openWorldHint` | reaches public or open content, such as the web | stays inside the user's own account or workspace |
 
 Enconvo relies on these annotations. A tool marked `readOnlyHint: true` runs without asking the user and alongside other reads. A tool marked `destructiveHint: true` asks the user first unless they have given the agent full access. A tool that changes something but claims to be read-only is turned down.
+
+`enconvo plugin scan` starts the plugin's MCP server, lists its tools with their annotations, and names each tool that leaves one out ([`annotations_required`](/extensions/validation-codes#mcp-server-scan)).
 
 ## Data and privacy
 
@@ -148,7 +151,7 @@ Before you run `plugin publish`:
 - `version` is higher than the last version you published, and every manifest in the package gives the same name and version.
 - The title, description and icon say what the plugin does, and the screenshots show it working.
 - A homepage or support address is set, and a privacy policy is linked if the plugin sends data anywhere.
-- Every MCP tool has a clear name and description and sets `readOnlyHint`, `destructiveHint` and `openWorldHint`.
+- Every MCP tool has a clear name and description and sets `readOnlyHint`, `destructiveHint` and `openWorldHint`, and `plugin scan` lists them without problems.
 - Skills say in their `description` when to use them.
 - Required settings, such as an API key, are declared as settings, not asked for in chat.
 - No keys, tokens or private files are in the folder.
@@ -169,10 +172,13 @@ The same folder can go to OpenAI's plugin portal:
 
 ```sh
 npx -p @enconvo/api enconvo plugin validate --openai
+npx -p @enconvo/api enconvo plugin scan --openai
 npx -p @enconvo/api enconvo plugin pack --openai
 ```
 
 `pack --openai` writes the zip the portal takes. Credentials for OpenAI's reviewers go in the portal's submission form, never in the package.
+
+After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool, and for a short justification of each, which you write in its form.
 
 OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
 

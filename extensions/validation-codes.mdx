@@ -1,6 +1,6 @@
 ---
 title: "Validation Codes"
-description: "What each problem `enconvo plugin validate`, `pack` and `publish` report means, how severe it is, and how to fix it."
+description: "What each problem `enconvo plugin validate`, `scan`, `pack` and `publish` report means, how severe it is, and how to fix it."
 ---
 
 `plugin validate` checks a plugin folder or `.zip` without uploading anything. `plugin pack` and `plugin publish` run the same checks first. Each problem has a code; OpenAI's plugin portal uses the same codes for the rules it shares with Enconvo.
@@ -247,6 +247,45 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 | `screenshot_dimensions_unsupported` | warning, only with `--openai` | A screenshot isn't exactly 706 pixels wide and 400 to 860 pixels tall. |
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded`.
+
+## MCP server scan
+
+`validate` reads the plugin's files; `plugin scan` starts its MCP servers. It connects to each server the plugin declares, lists the server's tools and checks them, as OpenAI's portal does when you connect the plugin's server. Scanning runs the plugin's code, so scan only plugins you trust.
+
+```sh
+npx -p @enconvo/api enconvo plugin scan [path]                # the plugin's folder
+npx -p @enconvo/api enconvo plugin scan [path] --openai       # also what OpenAI's portal needs
+npx -p @enconvo/api enconvo plugin scan [path] --timeout 60   # seconds to wait for each server; the default is 30
+npx -p @enconvo/api enconvo plugin scan [path] --json         # the result as JSON
+```
+
+```text
+notes (mcp.json, stdio: node ./mcp/server.mjs): 2 tools
+  search_notes  readOnlyHint=true destructiveHint=false openWorldHint=false
+  delete_note  readOnlyHint=false destructiveHint=? openWorldHint=?
+warning[annotations_required] mcp.json: MCP server "notes": 1 of 2 tools doesn't set every annotation: delete_note (destructiveHint, openWorldHint). OpenAI's final submission asks for readOnlyHint, destructiveHint and openWorldHint as true or false on every tool, and Enconvo uses them to decide which tools run without asking. (OpenAI's plugin portal)
+notes@1.2.0: 1 MCP server, 2 tools, 1 warning.
+```
+
+With `--openai`, `annotations_required` is an error. `scan` finds servers where Enconvo does, in the manifests' `mcpServers`, `mcp.json` and `.mcp.json`, and starts them as Enconvo, Codex and Claude Code do: a command starts in no particular folder unless it sets `cwd`, and gets only basic variables from your shell (`HOME`, `PATH`, `SHELL`, `USER` and a few more) plus the ones it names in `env_vars` and its own `env`. A server at a URL is reached over Streamable HTTP, with the headers it declares and the token in `bearer_token_env_var`. `scan` exits with status 1 when there is an error, and doesn't take a `.zip`: unzip it and scan the folder.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `annotations_required` | portal | A tool doesn't set `readOnlyHint`, `destructiveHint` and `openWorldHint` to `true` or `false`. OpenAI's final submission asks for all three on every tool, and Enconvo uses them to decide which tools run without asking. See [MCP tools](/extensions/publishing-guidelines#mcp-tools) for which value fits. |
+| `annotations_conflicting` | warning | A tool is marked both `readOnlyHint: true` and `destructiveHint: true`. A read-only tool changes nothing, so one of them is wrong. |
+| `tool_description_missing` | warning | A tool has no description. The model picks tools by what their descriptions say. |
+| `tool_name_duplicate` | warning | The server lists two tools with the same name. |
+| `tools_missing` | warning, only with `--openai` | The server lists no tools, so OpenAI's portal has nothing to scan or review. |
+| `mcp_server_not_remote` | warning, only with `--openai` | The server runs on the user's computer, or its URL isn't a public `https://` address. OpenAI's portal connects to a server at a public `https://` URL to scan and review it, so deploy the server and declare its URL before you submit there. Enconvo, Codex and Claude Code run a local server as it is. |
+| `scan_server_failed` | error | The server couldn't start, exited, or didn't answer in time. The message quotes the end of what it printed on stderr. When a command uses paths like `./server.js`, start it from the plugin's folder: `${CLAUDE_PLUGIN_ROOT}/server.js` in `.mcp.json`, or `"cwd": "./"` in `mcp.json`. |
+| `scan_sign_in_required` | warning | The server asked for sign-in (HTTP 401 or 403), so its tools weren't listed. Enconvo signs in when the plugin is installed. To scan it here, give the server a token through `bearer_token_env_var` or its `headers`. |
+| `scan_stdout_not_jsonrpc` | warning | A command server printed something on stdout that isn't an MCP message. Enconvo, Codex and Claude Code read only JSON-RPC there, so log to stderr. |
+| `scan_variable_unset` | warning | The server's settings use a variable, such as `${API_KEY}`, that isn't set in your shell. Set it to scan the server as it will run. |
+| `scan_transport_unsupported` | warning | The server uses the older `sse` transport, or another one the scan doesn't speak, so it wasn't scanned. Enconvo still runs an `sse` server. |
+| `scan_servers_missing` | error | The plugin declares no MCP server. |
+| `scan_archive_unsupported` | error | `scan` was given a `.zip`. |
+
+OpenAI's portal also asks you to justify each tool's annotations when you submit; write those in its form. A server you have to sign in to is scanned there with the reviewer account you give in the Review details form.
 
 ## Packing and publishing
 
