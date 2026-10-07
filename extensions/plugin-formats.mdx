@@ -171,6 +171,7 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 ```
 
 - **Transports**: `stdio`, `http` (also written `streamable-http` or `streamable_http`) and `sse`. Servers of other types, such as `ws`, are skipped.
+- **Claude Code reads strictly**: it drops a server with a `url` but no `type`, an unknown `type`, or a field of the wrong shape, such as an empty `command` or a `timeout` that isn't a positive whole number. Its `tools` is a list of `{"name", "permission_policy"}`, while Codex's is an object of tool settings by tool name, so a server with either form fails in the other app: give each its own MCP file, or leave `tools` out. `enconvo plugin validate` reports all of these (see [MCP servers and apps](/extensions/validation-codes#mcp-servers-and-apps)).
 - **Working folder**: a relative `cwd` starts at the plugin's folder.
 - **Remote servers**: use `https://` (or `wss://`) for anything but this computer, and never commit a token or key in `headers`: everyone who installs the plugin can read it. Reference a sensitive setting or an environment variable instead, such as `"Authorization": "Bearer ${user_config.api_token}"`. `enconvo plugin validate` warns about both, as `claude plugin validate` does (see [MCP servers and apps](/extensions/validation-codes#mcp-servers-and-apps)).
 - **Variables** in `command`, `args`, `env`, `cwd`, `url` and `headers`:
