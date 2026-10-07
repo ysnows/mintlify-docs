@@ -92,7 +92,7 @@ The listing's four addresses (`websiteURL`, `supportURL`, `privacyPolicyURL`, `t
 | `plugin_interface_wrong_type` | error | `interface` isn't an object. |
 | `plugin_capabilities_wrong_type`, `plugin_capabilities_too_many` | error, portal | `interface.capabilities` isn't a list of text, or has more than 20 entries. |
 | `plugin_default_prompt_wrong_type`, `plugin_default_prompt_entry_wrong_type` | error | `interface.defaultPrompt` isn't text or a list of text. |
-| `plugin_default_prompt_too_many`, `plugin_default_prompt_duplicate` | portal | More than 3 example prompts, or the same prompt twice. |
+| `plugin_default_prompt_too_many`, `plugin_default_prompt_duplicate` | portal | More than 3 example prompts, or the same prompt twice, ignoring letter case, spacing and Unicode form. |
 | `plugin_default_prompt_mention` | portal | An example prompt @mentions an MCP server, which OpenAI's starter prompts can't. |
 | `plugin_category_unknown` | portal | `interface.category` isn't one of OpenAI's categories: Productivity, Creativity, Developer Tools, Business & Operations, Data & Analytics, Communication, Education & Research, Security, Finance, Healthcare, Travel, Entertainment or Other. Without a category, OpenAI lists the plugin under Other. |
 | `plugin_onboarding_skill_wrong_type` | error | `extensions["com.openai"].onboardingSkill` isn't a path. |
@@ -207,6 +207,7 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | `archive_member_path_duplicate`, `archive_member_path_normalization_collision`, `archive_member_path_type_conflict` | Two paths are the same, differ only in letter case or Unicode form, or one is both a file and a folder. |
 | `plugin_root_missing`, `plugin_root_ambiguous`, `plugin_root_has_siblings` | The archive has to hold one plugin, at its top or in one folder there, with nothing next to it. |
 | `archive_metadata_ignored` (warning) | macOS Finder data (`__MACOSX`, `.DS_Store`) is left out. Make the archive with `plugin pack`. |
+| `archive_member_secret` (warning) | A file looks like a private key or a login: an SSH key (`id_rsa`, `id_ed25519`), a `.p12` or `.pfx` file, a `.pem` or `.key` file with a private key in it, or a `.netrc`, `.npmrc` or `.pypirc` with a password or token. Everyone who installs the plugin gets a copy, so move it out of the plugin folder and have the plugin ask for it in a setting or an environment variable. `pack` and `publish` always leave out `.env` files. |
 
 ## Marketplaces
 
@@ -282,6 +283,7 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 
 | Code | Severity | Meaning |
 |---|---|---|
+| `claude_format_normalized` | warning, only with `--openai` | The plugin has only `.claude-plugin/plugin.json`. The portal converts it to `.codex-plugin/plugin.json` and fills in the listing, such as the display name and short description, with its own defaults. To write the listing yourself, add a `.codex-plugin/plugin.json` with an `interface`. |
 | `submission_description_required` | warning, only with `--openai` | `interface.longDescription` isn't set. The directory shows it on the plugin's page; it takes up to 4,000 characters and may have line breaks. |
 | `plugin_category_defaulted` | warning, only with `--openai` | `interface.category` isn't set, so the directory lists the plugin under Other. |
 | `plugin_listing_urls_missing` | warning, only with `--openai` | A plugin with an MCP server needs `websiteURL`, `supportURL`, `privacyPolicyURL` and `termsOfServiceURL` in `interface`. A plugin with only skills doesn't. |
@@ -290,6 +292,25 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 | `screenshot_dimensions_unsupported` | warning, only with `--openai` | A screenshot isn't exactly 706 pixels wide and 400 to 860 pixels tall. |
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded` and, from `plugin scan --openai`, `screenshots_not_allowed`.
+
+## Codes only OpenAI's portal reports
+
+OpenAI's portal has a few codes that `validate` doesn't report, because they repeat a rule `validate` already checks under another code, or because only OpenAI can check them.
+
+| Code | Meaning |
+|---|---|
+| `submission_display_name_*`, `submission_subtitle_*`, `submission_description_too_long`, `submission_description_character_unsupported`, `plugin_capability_invalid` | The listing you edit at final submission breaks the same limits as `interface.displayName`, `interface.shortDescription`, `interface.longDescription` and `interface.capabilities`; see [Text fields](#text-fields). |
+| `submission_developer_name_*`, `developer_name_defaulted` | The developer name comes from your verified OpenAI identity. |
+| `manifest_normalized` | The portal saves the manifest it read as `.codex-plugin/plugin.json`, and asks you to confirm any field it changed. |
+| `skill_frontmatter_adjusted` | The portal trimmed the spaces around a skill's `name` and `description` and collapsed the spaces inside them. Nothing to fix. |
+| `plugin_name_mismatch`, `plugin_version_unchanged` | An update to a plugin already on the portal has a different `name`, or the same `version`; the portal asks you to confirm a reused version. Enconvo's store refuses a version it already has when you publish. |
+| `mcp_configuration_excluded` | The portal took an MCP configuration out of a skills-only upload. |
+| `archive_member_path_too_long`, `skill_bundle_too_large` | A path, or a skill's compressed files, are over a limit OpenAI doesn't publish; the portal's message gives the limit. |
+| `archive_plugin_files_missing` | A skills-only ZIP has no plugin manifest or no valid skill. `validate` reports these as `plugin_manifest_missing` and the `skill_*` codes. |
+| `scan_required` | The portal needs a successful, current scan of the production MCP server; rescan after the server changes. `plugin scan --openai` checks the tools beforehand. |
+| `domain_verification_required` | Host the token the portal gives you at `/.well-known/openai-apps-challenge` on the MCP server's host or an allowed parent host, then select **Verify Domain**. |
+| `app_not_eligible` | A local or workspace package refers to an MCP server that isn't eligible or available. To list the plugin in the directory, submit it **With MCP** and give the MCP server directly. |
+| `justification_required` | A tool annotation has no justification of its read-only, open-world or destructive behavior. The portal's error list still has this code, though its submission page no longer asks for one; if the portal reports it, give the justification there. |
 
 ## MCP server scan
 
