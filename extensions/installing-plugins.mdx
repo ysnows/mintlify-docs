@@ -154,3 +154,14 @@ Enconvo's plugin update check also covers plugins installed from GitHub, git, np
 ## Publish your own
 
 To list a plugin in the Enconvo store, see [Plugin Store Guidelines](/extensions/publishing-guidelines). To share it without the store, push it to GitHub or a marketplace, and people can install it with **Add from GitHub…** or the commands above.
+
+### Tag a release
+
+`plugin tag` marks the commit you're releasing with a git tag named `<plugin>--v<version>`, as `claude plugin tag` does. Claude Code picks among these tags when another plugin's dependency asks for a version range, and anyone can install that release with Enconvo, for example `acme/plugins/notes@notes--v1.2.0`.
+
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # tag HEAD and push the tag to origin
+```
+
+The version comes from the plugin's manifest, or from its marketplace entry when the manifest has none, and has to be semver (`1.2.0`). Before tagging, `plugin tag` checks the plugin as `plugin validate` does, and stops when the marketplace entry names a different version, when files in the plugin's folder aren't committed, or when the tag exists. Bump the version for a new release; `--force` moves an existing tag instead. It tags Codex, Claude Code, portable and Enconvo plugins alike, so every manifest the package carries has to name the same version. `-m` sets the tag's message (`%s` is the version), and `--remote` the remote `--push` pushes to. Like `plugin install`, it needs an `@enconvo/api` release newer than 0.1.174.
