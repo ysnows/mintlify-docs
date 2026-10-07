@@ -28,7 +28,7 @@ error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md de
 | `warning` | The plugin works, but something is ignored or may not work in another app. |
 | `warning … (OpenAI's plugin portal)` | Only OpenAI's portal applies the rule. With `--openai`, and in `pack --openai`, it is an error. |
 
-The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers. The [final submission's listing rules](#openais-final-submission) are reported only with `--openai`, as warnings.
+The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers. So do `undeclared_mcp_manifest_ignored` and `undeclared_app_manifest_ignored`: the upload leaves the file out, but Codex still loads it. The [final submission's listing rules](#openais-final-submission) are reported only with `--openai`, as warnings.
 
 ## Text fields
 
@@ -112,8 +112,8 @@ The stems are `plugin_skills` (`skills`), `plugin_mcp` (`mcpServers`) and `plugi
 | `<stem>_path_wrong_type`, `<stem>_path_empty` | error | The value isn't a path, or is empty. |
 | `<stem>_path_not_directory`, `<stem>_path_not_file` | error | The path points at a file where a folder belongs, or the other way round. |
 | `<stem>_path_unsupported` | portal | Codex takes only `./skills/`, `./.mcp.json` and `./.app.json`. |
-| `undeclared_mcp_manifest_ignored` | warning | A Codex plugin has `.mcp.json` but `mcpServers` doesn't point at it, so OpenAI's portal leaves it out. |
-| `undeclared_app_manifest_ignored` | warning | A Codex plugin has `.app.json` but `apps` doesn't point at it. Point at it if the plugin uses the app, or remove the file. |
+| `undeclared_mcp_manifest_ignored` | warning | A Codex plugin has `.mcp.json` but `mcpServers` doesn't point at it. Codex and Enconvo load it anyway, but OpenAI's portal leaves it out of the upload. |
+| `undeclared_app_manifest_ignored` | warning | A Codex plugin has `.app.json` but `apps` doesn't point at it. Codex loads it anyway, but OpenAI's portal leaves it out. Point at it if the plugin uses the app, or remove the file. |
 
 ## Images and other files
 
