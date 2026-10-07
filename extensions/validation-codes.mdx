@@ -3,10 +3,10 @@ title: "Validation Codes"
 description: "What each problem `enconvo plugin validate`, `scan`, `pack` and `publish` report means, how severe it is, and how to fix it."
 ---
 
-`plugin validate` checks a plugin folder or `.zip` without uploading anything. `plugin pack` and `plugin publish` run the same checks first. Each problem has a code; OpenAI's plugin portal uses the same codes for the rules it shares with Enconvo.
+`plugin validate` checks a plugin folder or `.zip`, or a [marketplace](#marketplaces) and the plugins in it, without uploading anything. `plugin pack` and `plugin publish` run the same checks first. Each problem has a code; OpenAI's plugin portal uses the same codes for the rules it shares with Enconvo.
 
 ```sh
-npx -p @enconvo/api enconvo plugin validate [path]            # the folder, or a .zip
+npx -p @enconvo/api enconvo plugin validate [path]            # the folder, a .zip or a marketplace
 npx -p @enconvo/api enconvo plugin validate [path] --openai   # OpenAI's portal rules become errors
 npx -p @enconvo/api enconvo plugin validate [path] --json     # the result as JSON
 ```
@@ -176,7 +176,7 @@ A Claude Code plugin's `agents` and `commands` fields are checked as Claude Code
 | `mcp_servers_wrong_type` | error | The server list isn't an object keyed by server name. |
 | `mcp_server_name_empty`, `mcp_server_wrong_type` | error | A server has an empty name, or isn't an object. |
 | `mcp_server_transport_missing` | error | A server needs a `command` to run or a `url` to connect to. |
-| `mcp_servers_missing` | warning | The servers aren't under `mcpServers`. Enconvo reads them, but Codex, Claude Code and OpenAI's portal don't. |
+| `mcp_servers_missing` | warning | The servers aren't under `mcpServers`. Servers listed at the top work in Enconvo, Codex and Claude Code, but the Agent Plugins schema puts them under `mcpServers`. Servers under `mcp_servers` work only in Enconvo. |
 | `mcp_server_type_missing` | warning | A server in a portable `mcp.json` needs `"type"`: `stdio`, `streamable-http` or `sse`. |
 | `mcp_server_cwd_outside` | warning | A portable server's `cwd` has to start with `./`, `${PLUGIN_ROOT}` or `${PLUGIN_DATA}`. |
 | `mcp_servers_multiple` | warning | The plugin has more than one MCP server. OpenAI's portal connects only one of them per plugin to scan and review it. A server declared in both `mcp.json` and `.mcp.json` under the same name counts once. |
@@ -205,6 +205,32 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | `archive_member_path_duplicate`, `archive_member_path_normalization_collision`, `archive_member_path_type_conflict` | Two paths are the same, differ only in letter case or Unicode form, or one is both a file and a folder. |
 | `plugin_root_missing`, `plugin_root_ambiguous`, `plugin_root_has_siblings` | The archive has to hold one plugin, at its top or in one folder there, with nothing next to it. |
 | `archive_metadata_ignored` (warning) | macOS Finder data (`__MACOSX`, `.DS_Store`) is left out. Make the archive with `plugin pack`. |
+
+## Marketplaces
+
+`validate` checks a folder with a Claude Code `.claude-plugin/marketplace.json` or a Codex `.agents/plugins/marketplace.json`, or the catalog file itself. A Claude Code catalog gets the rules `claude plugin validate` applies. Each plugin in the marketplace's folders is then checked as a plugin, and its problems start with `plugins[N] (name):`, with file paths from the top of the marketplace. A plugin that is also its own marketplace is checked once.
+
+| Code | Meaning |
+|---|---|
+| `marketplace_json_invalid` | The catalog isn't a JSON object. |
+| `marketplace_name_missing`, `marketplace_name_invalid` | The marketplace needs a name of letters, digits, `.`, `_` and `-`, starting with a letter or digit, with no spaces, `..` or non-ASCII letters. |
+| `marketplace_name_reserved` | Claude Code keeps names such as `inline`, `npm` and `github`, and names that start with `claudeai-` (error). The official Anthropic names are a warning, because Claude Code takes them only from Anthropic's repositories. |
+| `marketplace_owner_missing` | A Claude Code catalog needs `owner.name`. |
+| `marketplace_description_missing`, `marketplace_display_name_missing` (warning) | Claude Code shows the description; Codex shows `interface.displayName`. |
+| `marketplace_field_unknown` (warning) | Claude Code ignores this top-level field. |
+| `marketplace_plugins_missing`, `marketplace_plugins_empty` | `plugins` isn't a list, or it is empty (a warning). |
+| `marketplace_plugin_root_invalid` | `metadata.pluginRoot` has to be a relative path inside the marketplace. |
+| `marketplace_plugin_invalid`, `marketplace_plugin_name_missing`, `marketplace_plugin_name_invalid`, `marketplace_plugin_duplicate` | An entry isn't an object, has no usable name, or repeats another's. |
+| `marketplace_plugin_source_missing`, `marketplace_plugin_source_invalid` | The source is missing or can't be fetched: a path with `..` or outside the marketplace, a bare name without `metadata.pluginRoot`, a `sha` that isn't a full commit, an `archive` that isn't a public https zip or has a `sha256` that isn't 64 hex digits, or a git address Enconvo can't clone. |
+| `marketplace_plugin_source_unsupported` (warning) | Enconvo can't install a `command` source. |
+| `marketplace_plugin_folder_missing`, `marketplace_plugin_empty` | The plugin's folder isn't there, or it has no `plugin.json` and the entry gives it nothing to load. |
+| `marketplace_plugin_manifest_conflict` | `"strict": false` with components, over a plugin that has its own `plugin.json`. Claude Code doesn't load it and Enconvo refuses to install it. |
+| `marketplace_plugin_name_mismatch`, `marketplace_plugin_version_mismatch` (warning) | The entry's name or version differs from the plugin's `plugin.json`. |
+| `marketplace_plugin_hooks_not_inline` (warning) | Only hooks written in the entry are applied. |
+| `marketplace_plugin_headers_helper_not_strict` | `headersHelper` needs `"strict": false`. |
+| `marketplace_plugin_headers_ignored` (warning) | Enconvo doesn't send `headers` or run `headersHelper`. |
+| `marketplace_plugin_manifest_missing` (warning) | A Codex marketplace plugin without `.codex-plugin/plugin.json`. |
+| `marketplace_policy_missing`, `marketplace_policy_invalid`, `marketplace_category_missing` | A Codex entry needs `policy.installation` (`AVAILABLE`, `INSTALLED_BY_DEFAULT` or `NOT_AVAILABLE`), `policy.authentication` (`ON_INSTALL` or `ON_USE`) and a `category`. A missing one is a warning; a wrong value is an error. |
 
 ## Enconvo `package.json`
 
