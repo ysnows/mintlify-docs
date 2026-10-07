@@ -157,6 +157,8 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 
 Claude Code starts a local server from the current project, so its `.mcp.json` names files through `${CLAUDE_PLUGIN_ROOT}`. Codex and Enconvo start it from the plugin's folder. When a plugin has both files, keep them in step.
 
+When the plugin also has `.codex-plugin/plugin.json`, Codex still reads the servers it declares (or `.mcp.json`) for their `env_vars`, and Enconvo does too: a local server in `mcp.json` gets the variables its namesake there lists, except those with `"source": "remote"`. An `env` entry that only forwards one of them, such as `"API_TOKEN": "${API_TOKEN}"`, is dropped, so the server gets the variable when it's set and doesn't get a literal `${API_TOKEN}` when it isn't. `enconvo plugin scan` starts servers the same way.
+
 ### Signing in to a remote server
 
 A remote server that asks for OAuth gets a **Sign in** button, and Enconvo registers itself with the server's authorization server. Limit what it asks for with `scopes` (Codex, a list) or `oauth.scopes` (Claude Code, one space-separated string).
