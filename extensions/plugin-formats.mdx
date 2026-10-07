@@ -470,7 +470,7 @@ A channel's setting can share its key with one of the plugin's own settings or a
 | Part | What happens |
 |---|---|
 | ChatGPT apps (`.app.json`) | The plugin's page says it needs a ChatGPT app, and Enconvo installs the rest of the plugin. An app counts as needed unless its entry says `"required": false` or `"optional": true`, as OpenAI's own plugins mark the apps they can do without. |
-| LSP servers and output styles | Not loaded. |
+| Claude Code LSP servers, monitors, output styles, workflows and themes (`lspServers`, `.lsp.json`, `experimental.monitors`, `outputStyles`, `workflows`, `experimental.themes`) | Not loaded; Enconvo installs the rest of the plugin. `plugin validate` still checks them as Claude Code does, so the plugin keeps loading there, and warns that Enconvo skips them (`plugin_component_not_loaded`). Declare themes and monitors under `experimental`, and keep `${user_config.*}` out of a monitor's command: Claude Code won't start it. |
 
 ## Check a package
 

@@ -269,6 +269,28 @@ These apply to `hooks/hooks.json`, the files the manifest's `hooks` names, and h
 
 An error here means the plugin's own app loses hooks: Claude Code applies none of a file's hooks when it can't read one under `PreToolUse` or `PermissionRequest`, since that hook may be what guards the plugin, and Codex skips a whole file it can't parse. When only the other app is affected, such as Codex reading a Claude Code plugin, or Claude Code ignoring one entry under another event, it is a warning.
 
+## Claude Code components
+
+These apply to the LSP servers, monitors, output styles, workflows and themes in a Claude Code plugin's `.claude-plugin/plugin.json`, checked as `claude plugin validate` checks them. Enconvo doesn't load any of them, so they matter only for the plugin in Claude Code, but an error here means Claude Code doesn't load the plugin at all. Like `claude plugin validate`, `validate` doesn't open `.lsp.json` or a monitors file the manifest names.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_component_not_loaded` | warning | The plugin has LSP servers, monitors, output styles, workflows or themes, which only Claude Code runs. Enconvo installs the rest of the plugin. |
+| `plugin_component_path_invalid` | error | A path in `lspServers`, `outputStyles`, `workflows`, `experimental.themes` or `experimental.monitors` doesn't start with `./`, or, for LSP servers and monitors, doesn't end in `.json`. |
+| `plugin_component_path_missing` | error | A path points at nothing, which Claude Code reports as a load failure. A path with `..` or `\` is `declared_asset_path_unsafe`. |
+| `plugin_component_wrong_type` | error | A component isn't a path, inline LSP servers or monitors, or a list of them, or `experimental.evals` isn't a path or a list of paths. |
+| `plugin_component_not_experimental` | warning | `themes` or `monitors` is at the top of the manifest. Claude Code still loads it there for now, but asks for `experimental.themes` and `experimental.monitors`. |
+| `plugin_experimental_wrong_type`, `plugin_experimental_field_unsupported` | warning | `experimental` isn't an object, or holds a key other than `themes`, `monitors` and `evals`. Claude Code ignores it. |
+| `lsp_server_wrong_type`, `lsp_server_field_unsupported` | error | An inline LSP server isn't an object, or has a key Claude Code doesn't take. It takes `command`, `extensionToLanguage`, `args`, `transport`, `env`, `initializationOptions`, `settings`, `workspaceFolder`, `startupTimeout`, `shutdownTimeout`, `requestTimeout`, `restartOnCrash`, `maxRestarts` and `diagnostics`. |
+| `lsp_server_command_missing`, `lsp_server_command_has_spaces` | error | An LSP server has no `command`, or its `command` has a space and isn't an absolute path. Put arguments in `args`: `{"command": "gopls", "args": ["serve"]}`. |
+| `lsp_server_extensions_invalid` | error | `extensionToLanguage` is missing or empty, has a key without a leading `.`, or maps one to something other than a language name: `{".go": "go"}`. |
+| `lsp_server_field_wrong_type` | error | `args` isn't a list of text, `env` an object of text, `transport` `stdio` or `socket`, a timeout a whole number above 0, `maxRestarts` a whole number of 0 or more, or `restartOnCrash` or `diagnostics` true or false. |
+| `monitor_wrong_type`, `monitor_field_unsupported`, `monitor_field_missing` | error | A monitor isn't an object, has a key other than `name`, `command`, `description` and `when`, or lacks `name`, `command` or `description` as text. |
+| `monitor_when_invalid` | error | `when` isn't `always` or `on-skill-invoke:` followed by a skill name. |
+| `monitor_name_duplicate` | error | Two monitors share a `name`. |
+| `user_config_reference_in_monitor_command` | error | A monitor's `command` names `${user_config.*}`. `claude plugin validate` passes it, but Claude Code refuses to start the monitor, because the command runs through a shell. Have the script read the value itself. |
+| `default_output_styles_folder_ignored`, `default_workflows_folder_ignored`, `default_themes_folder_ignored`, `default_monitors_file_ignored` | warning | The manifest names output styles, workflows, themes or monitors, so Claude Code ignores the default `output-styles/`, `workflows/`, `themes/` or `monitors/monitors.json` unless the manifest lists it too. LSP servers in the manifest add to `.lsp.json` instead. |
+
 ## Archives
 
 When you validate a `.zip`, these are errors. When you validate a folder, `validate` checks the archive `plugin pack` would make from it, and reports the file rules as portal rules; the `plugin_root_*` rules apply only to a `.zip`. A file or folder in it that you don't have permission to read is an `archive_member_unreadable` error for a folder too, because `pack` and `publish` can't zip it: run `chmod u+r` on it (`u+rx` for a folder), or move it out of the plugin.
