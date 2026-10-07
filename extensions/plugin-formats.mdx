@@ -303,9 +303,9 @@ Because they run commands, a plugin's hooks install turned off. People allow the
 | `Stop`, `SubagentStop` | The reply, or a subagent, finishes; it can ask the agent to continue |
 
 - **Matchers**: a tool event's `matcher` is a regular expression tested against the Enconvo tool's name, title and command. A `SessionStart` matcher that doesn't match `startup` never fires, since Enconvo only starts new chats.
-- **Commands**: a command that starts with `./` runs the file in your plugin. Each command gets `PLUGIN_ROOT` and `PLUGIN_DATA` (and the `CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DATA` names) in its environment, and the event as JSON on stdin.
+- **Commands**: a command that starts with `./` runs the file in your plugin. Each command gets `PLUGIN_ROOT` and `PLUGIN_DATA` (and the `CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DATA` names) in its environment, the plugin's settings as `CLAUDE_PLUGIN_OPTION_<KEY>` (see [Settings](#settings)), and the event as JSON on stdin. A hook that runs in a chat with a working folder starts there and gets it as `CLAUDE_PROJECT_DIR`.
 - **Timeouts**: `timeout` is in seconds, 60 by default and at most 600. A hook marked `async` starts and isn't waited for.
-- **Skipped**: other events (such as `PostToolBatch` or `PreCompact`), hooks whose `type` isn't `command`, and hooks with an `if` permission rule don't run in Enconvo. The preview and the plugin's page list them.
+- **Skipped**: other events (such as `PostToolBatch` or `PreCompact`), hooks whose `type` isn't `command`, hooks with an `if` permission rule, and shell commands that name `${user_config.KEY}` don't run in Enconvo. The preview and the plugin's page list them.
 
 Enconvo's store takes a plugin with hooks, but OpenAI's portal can't take one yet, and neither can it take app references (`apps` or `.app.json`). `plugin validate --openai` flags both, so leave them out of the package you upload there.
 
@@ -337,7 +337,19 @@ Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `us
 - **Changes**: saving a setting on the plugin's page restarts the servers that use it, with the new value.
 - **In skills and commands**: `${user_config.KEY}` in a skill's or command's text becomes the setting's value when the agent loads it (see [Skills](#skills)). A sensitive setting stays out of the conversation.
 
-Hooks don't receive `CLAUDE_PLUGIN_OPTION_<KEY>` in Enconvo yet.
+- **In hooks**: each setting is in a hook's environment as `CLAUDE_PLUGIN_OPTION_<KEY>`, the key in capitals (`api_token` becomes `CLAUDE_PLUGIN_OPTION_API_TOKEN`), with the saved value or the default. `true`/`false` and numbers are written as text, and several values are joined with commas. `${user_config.KEY}` works in a hook's `args`, but not in a shell `command`, where a value could run as code: as in Claude Code, such a hook doesn't run.
+
+```json hooks/hooks.json
+{
+  "hooks": {
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/report.mjs", "--region=${user_config.region}"] }] }
+    ]
+  }
+}
+```
+
+A sensitive setting reaches the hooks that can change what the agent does (`PreToolUse`, `Stop` and `SubagentStop`). The other events' hooks run without it, and a hook that names it in `args` doesn't start for those events.
 
 ## What Enconvo doesn't load
 
