@@ -46,7 +46,7 @@ Most text fields are checked the same way, and their codes start with the field'
 | Stem | Field | Limit |
 |---|---|---|
 | `plugin_name` | `name` (required) | 64 |
-| `plugin_id` | `id` | |
+| `plugin_id` | `id` in `.codex-plugin/plugin.json`, or `extensions["com.openai"].id` | |
 | `plugin_version` | `version` | 64 |
 | `plugin_description` | `description` | 1,024 |
 | `plugin_author_name`, `plugin_author_email` | `author.name`, `author.email` | 120, 320 |
@@ -81,11 +81,14 @@ The listing's four addresses (`websiteURL`, `supportURL`, `privacyPolicyURL`, `t
 | `plugin_manifest_missing` | error | The folder has no `package.json`, `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `manifest.json` or `SKILL.md`. |
 | `plugin_manifest_not_file`, `plugin_manifest_unreadable`, `plugin_manifest_json_malformed`, `plugin_manifest_root_not_object` | error | The manifest isn't a readable UTF-8 file holding a JSON object. |
 | `codex_manifest_parent_not_directory`, `codex_manifest_path_not_file` | error | `.codex-plugin` isn't a folder, or `.codex-plugin/plugin.json` in it isn't a file. |
-| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. |
+| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. A portable `plugin.json`'s `name` has to use lowercase letters, digits and single hyphens, and end with a letter or digit, or Codex refuses it. |
+| `plugin_schema_missing` | error, or warning | The root `plugin.json` doesn't give `"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"`, so Codex and OpenAI's portal don't read it as a portable plugin. A warning when `.codex-plugin/plugin.json` or `.claude-plugin/plugin.json` is there for them to read instead, an error otherwise. |
+| `plugin_schema_unsupported` | error | `$schema` names another version of the Agent Plugins schema. Codex supports only 1.0.0 and refuses the plugin. |
 | `plugin_version_not_semver` | error | `version` isn't a version number like `1.2.0`. |
 | `plugin_author_wrong_type` | error | `author` in `plugin.json` has to be an object like `{"name": "…"}`. |
 | `plugin_extensions_wrong_type` | error | `extensions` or `extensions["com.openai"]` isn't an object. |
 | `plugin_manifest_field_unsupported` | warning | A portable `plugin.json` has a field the Agent Plugins schema doesn't define. Put app data under `extensions`. |
+| `component_declaration_ignored` | warning | A portable plugin declares `skills` or `mcpServers` in `plugin.json`, in `extensions["com.openai"]`, or in `.codex-plugin/plugin.json` (a `skills` other than `./skills/`, or servers written out there). Codex, OpenAI's portal and Enconvo take its skills from `skills/` and its MCP servers from `mcp.json`; servers in `.codex-plugin/plugin.json` only pass their `env_vars` to the `mcp.json` servers of the same name. |
 | `codex_overlay_ignored` | warning | `plugin.json` has `extensions["com.openai"]`, so Codex ignores `.codex-plugin/plugin.json`. Keep the listing in one of them. |
 | `plugin_manifest_name_mismatch`, `plugin_manifest_version_mismatch` | warning (error in `publish`) | The manifests for different apps give different names or versions. |
 | `plugin_interface_missing` | portal | There is no listing (`interface`). |
@@ -313,6 +316,7 @@ Only what changed counts; the previous release's own problems aren't reported. `
 | `plugin_previous_unreadable` | error | The previous release isn't there, or it isn't a plugin; the message gives its first error. |
 | `plugin_name_mismatch` | portal | The plugin's `name` changed. OpenAI's portal takes an update only under the published plugin's name, and Enconvo and Codex install a renamed plugin as another plugin. |
 | `plugin_version_unchanged` | warning, also with `--openai` | The `version` is the previous release's. OpenAI's portal asks you to confirm before it reuses a published version, and Enconvo's store doesn't take one. |
+| `plugin_id_changed` | warning | The previous release has an `id` (`extensions["com.openai"].id`, or `id` in `.codex-plugin/plugin.json`) and this version has another one or none. Managed plugin catalogs know the plugin by the id they gave it, so keep it. OpenAI's portal keeps its own identity for an uploaded ZIP. |
 | `plugin_version_not_higher` | warning | The version is lower than the previous release's, or differs from it only in build metadata (`1.0.0+2`). Enconvo's store takes only a higher version. Checked when both are version numbers like `1.2.0`. |
 | `mcp_server_added_to_skills_plugin` | portal | The previous release has no MCP server and this version adds one. OpenAI's portal takes an MCP server only in a plugin's first ZIP. Checked for a plugin with a `plugin.json`; Enconvo's store takes the change. |
 | `mcp_server_url_changed` | portal | A remote MCP server's URL changed. OpenAI's update flow can't move a published server: ask OpenAI's support to change it, or keep the old URL. A URL with a variable, such as `${MCP_URL}`, isn't compared. Checked for a plugin with a `plugin.json`. |

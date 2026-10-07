@@ -17,6 +17,8 @@ Enconvo installs its own plugins and the plugins other AI apps use. A Codex or C
 
 Enconvo checks these in order and uses the first that matches. An Enconvo `package.json` always wins, so an Enconvo plugin can also carry a `plugin.json` for other apps. A `package.json` without Enconvo's schema or commands, such as the one an MCP server's Node.js project has, doesn't hide a `plugin.json` next to it.
 
+Codex and OpenAI's portal read a root `plugin.json` as a portable plugin only when it gives `"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"`, the one Agent Plugins schema Codex supports. Without it, Codex reads `.codex-plugin/plugin.json` or `.claude-plugin/plugin.json` instead, and installs nothing when neither is there. Enconvo installs the plugin either way, and `plugin validate` reports `plugin_schema_missing`. A portable plugin's `name` uses lowercase letters, digits and single hyphens, and starts and ends with a letter or digit.
+
 ## One package for Enconvo, Codex and Claude Code
 
 `plugin create` sets up a package that installs in all three apps:
@@ -51,6 +53,8 @@ The commands on this page need an `@enconvo/api` release newer than 0.1.174, and
 ## How Enconvo reads the manifests
 
 When a folder has more than one `plugin.json`, Enconvo reads all of them. For each field, the first manifest that sets it wins, in this order: `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, then the root `plugin.json`. The others fill in what it leaves out, so a Codex manifest can add the listing to a portable one. `extensions` are merged per vendor, and `extensions["com.openai"].interface` fills in the `interface` fields the Codex manifest doesn't set. Codex itself reads the listing from only one of them, so keep it in one place: `.codex-plugin/plugin.json`, or `extensions["com.openai"]` in `plugin.json`.
+
+A portable plugin's skills are the folders in `skills/` and its MCP servers are the ones in `mcp.json`, in Codex, OpenAI's portal and Enconvo alike. `skills` and `mcpServers` in its `plugin.json`, in `extensions["com.openai"]` or in `.codex-plugin/plugin.json` are ignored, and `plugin validate` warns `component_declaration_ignored`. Only `.claude-plugin/plugin.json` still declares its own, since Claude Code reads it.
 
 ### Name, title and description
 
@@ -128,7 +132,7 @@ Point it at the skill's `SKILL.md`, such as `./skills/get-started/SKILL.md`, whi
 
 Enconvo takes a plugin's MCP servers from the first of these that has any:
 
-1. `mcpServers` in the manifest: the servers themselves, or a path to a file of them.
+1. `mcpServers` in the manifest: the servers themselves, or a path to a file of them. In a portable plugin, only `.claude-plugin/plugin.json`'s counts.
 2. `mcp.json` at the root (the portable format).
 3. `.mcp.json` at the root (Claude Code).
 4. `mcpServers` in `package.json`.
@@ -157,7 +161,7 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 
 Claude Code starts a local server from the current project, so its `.mcp.json` names files through `${CLAUDE_PLUGIN_ROOT}`. Codex and Enconvo start it from the plugin's folder. When a plugin has both files, keep them in step.
 
-When the plugin also has `.codex-plugin/plugin.json`, Codex still reads the servers it declares (or `.mcp.json`) for their `env_vars`, and Enconvo does too: a local server in `mcp.json` gets the variables its namesake there lists, except those with `"source": "remote"`. An `env` entry that only forwards one of them, such as `"API_TOKEN": "${API_TOKEN}"`, is dropped, so the server gets the variable when it's set and doesn't get a literal `${API_TOKEN}` when it isn't. `enconvo plugin scan` starts servers the same way.
+When the plugin also has `.codex-plugin/plugin.json`, Codex doesn't start the servers it declares (or those in `.mcp.json`) but reads their `env_vars`, and Enconvo does the same: a local server in `mcp.json` gets the variables its namesake there lists, except those with `"source": "remote"`. An `env` entry that only forwards one of them, such as `"API_TOKEN": "${API_TOKEN}"`, is dropped, so the server gets the variable when it's set and doesn't get a literal `${API_TOKEN}` when it isn't. `enconvo plugin scan` starts servers the same way.
 
 ### Signing in to a remote server
 
@@ -229,7 +233,7 @@ Each answer covers one call; Enconvo doesn't offer to remember it for the chat. 
 
 ## Skills
 
-Enconvo loads every `skills/<name>/SKILL.md`, the skill folders named by the manifest's `skills` field, and a `SKILL.md` at the plugin's root. A skill's `SKILL.md` starts with its `name` and a `description` of when to use it:
+Enconvo loads every `skills/<name>/SKILL.md`, the skill folders named by the manifest's `skills` field (not in a portable plugin), and a `SKILL.md` at the plugin's root. A skill's `SKILL.md` starts with its `name` and a `description` of when to use it:
 
 ```markdown
 ---
