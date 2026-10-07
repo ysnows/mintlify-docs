@@ -76,6 +76,7 @@ npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
 - **Onboarding**: when a plugin names an onboarding skill, Enconvo offers to run it after the first install.
 - **Signing in**: when a plugin's MCP servers need you to sign in, as Notion's or Figma's do, the Plugins page shows **Sign in** as soon as it installs. Enconvo opens the server's sign-in page in your browser and offers the next server once that one connects. `plugin install` names the servers instead. A sign-in you skip waits in **Settings > MCP**.
 - **Hooks**: a plugin's [hooks](/extensions/plugin-formats#hooks) install turned off, because they run commands. `--preview` lists them; allow them with the **Allow hooks** switch on the plugin's page. Hooks you allowed stay on through updates that don't change them.
+- **Dependencies**: when a Claude Code plugin from a marketplace needs other plugins, Enconvo installs them with it (see [Plugin marketplaces](#plugin-marketplaces)). `--preview` lists them and says which are already installed, which would install, and which can't. A dependency the marketplace entry declares from a marketplace that isn't allowed stops the install; one the plugin's own `plugin.json` declares is left out and the install goes on. Their hooks stay off, and uninstalling the plugin keeps them.
 - **Same name**: installing again from the same source updates the plugin. If a plugin with the same name is already installed from somewhere else, such as the store, Enconvo leaves it alone and asks you to uninstall it first.
 
 When Enconvo isn't running, `plugin install` can still install an Enconvo plugin from GitHub by building it. For anything else, open Enconvo and try again.
@@ -121,6 +122,7 @@ Claude Code marketplace entries work with a plugin's own `plugin.json` the way C
 - When the plugin has no `plugin.json`, the entry is its manifest.
 - The entry's name, description, author and other listing details are shown; the version is the plugin's.
 - A marketplace's `renames` are followed. A plugin installed under its old name keeps updating under the new one, and installing by the old name finds it. A name renamed to `null` was removed from the marketplace, and Enconvo says so. If the plugin's own manifest changed its name too, Enconvo asks you to uninstall the old plugin and install the new one, because Enconvo names a plugin after its manifest.
+- A plugin's `dependencies`, in its entry or its `plugin.json`, install with it. Each is a name (`"formatter"`), a name and marketplace (`"formatter@acme-tools"`), or `{ "name", "marketplace", "version" }` with a semver range. A dependency comes from the plugin's own marketplace unless it names another one, and another marketplace has to be listed in `allowCrossMarketplaceDependenciesOn` by the marketplace you installed from. A dependency that's already installed is left as it is, and one outside its `version` range gets a warning.
 
 On the Plugins page, open **Add → Add from GitHub…** and paste the marketplace's address, or pick one you've added under **Your marketplaces**.
 
