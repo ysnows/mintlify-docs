@@ -76,10 +76,23 @@ npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
 - **Onboarding**: when a plugin names an onboarding skill, Enconvo offers to run it after the first install.
 - **Signing in**: when a plugin's MCP servers need you to sign in, as Notion's or Figma's do, the Plugins page shows **Sign in** as soon as it installs. Enconvo opens the server's sign-in page in your browser and offers the next server once that one connects. `plugin install` names the servers instead. A sign-in you skip waits in **Settings > MCP**.
 - **Hooks**: a plugin's [hooks](/extensions/plugin-formats#hooks) install turned off, because they run commands. `--preview` lists them; allow them with the **Allow hooks** switch on the plugin's page. Hooks you allowed stay on through updates that don't change them.
-- **Dependencies**: when a Claude Code plugin from a marketplace needs other plugins, Enconvo installs them with it (see [Plugin marketplaces](#plugin-marketplaces)). `--preview` lists them and says which are already installed, which would install, and which can't. A dependency the marketplace entry declares from a marketplace that isn't allowed stops the install; one the plugin's own `plugin.json` declares is left out and the install goes on. Their hooks stay off, and uninstalling the plugin keeps them.
+- **Dependencies**: when a Claude Code plugin from a marketplace needs other plugins, Enconvo installs them with it (see [Plugin marketplaces](#plugin-marketplaces)). `--preview` lists them and says which are already installed, which would install, and which can't. A dependency the marketplace entry declares from a marketplace that isn't allowed stops the install; one the plugin's own `plugin.json` declares is left out and the install goes on. Their hooks stay off, and uninstalling the plugin keeps them until you prune them (see [Uninstalling](#uninstalling)).
 - **Same name**: installing again from the same source updates the plugin. If a plugin with the same name is already installed from somewhere else, such as the store, Enconvo leaves it alone and asks you to uninstall it first.
 
 When Enconvo isn't running, `plugin install` can still install an Enconvo plugin from GitHub by building it. For anything else, open Enconvo and try again.
+
+### Uninstalling
+
+Uninstall a plugin from its page on the Plugins page, or from Terminal:
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+Pruning removes only plugins that were installed because another plugin needed them, once no installed plugin needs them, as `claude plugin prune` does in Claude Code. A plugin you installed yourself is never pruned, and installing a dependency again yourself makes it yours. In Terminal, Enconvo lists what it will remove and asks first; add `-y` to skip the question, which `--prune` needs when it can't ask. The Plugins page's uninstall doesn't prune yet.
 
 ## Plugin marketplaces
 
