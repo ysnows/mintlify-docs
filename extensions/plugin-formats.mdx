@@ -211,6 +211,28 @@ policy:
 
 `display_name` becomes the skill's title in Enconvo. With `allow_implicit_invocation: false`, or Claude Code's `disable-model-invocation: true` in `SKILL.md`, the agent doesn't pick the skill on its own and uses it only when someone asks for it.
 
+### Claude Code commands
+
+From Enconvo 2.5.7, a Claude Code plugin's commands install as skills, the way Claude Code treats them: every `commands/<name>.md` and the files or folders the manifest's `commands` field names. The file name is the skill's name (a command in `commands/git/push.md` becomes `git-push`), and a skill with the same name wins. The `description`, or the file's first line, describes it.
+
+```markdown
+---
+description: Create a git commit
+argument-hint: [message]
+---
+
+Current status: !`git status`
+
+Commit the staged changes with the message $ARGUMENTS.
+```
+
+- `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}` become the plugin's installed folder and its data folder.
+- `$ARGUMENTS`, `$1` and named `arguments` stand for what the person wrote with the command, and the agent runs `` !`command` `` lines and ` ```! ` blocks with its shell tool before it follows the rest.
+- `disable-model-invocation: true` (or the older `hide-from-slash-command-tool: "true"`) makes it a skill only people start.
+- `allowed-tools` and `model` are ignored: the agent keeps its usual tools, model and approvals.
+
+Command names aren't prefixed with the plugin's name, so prefer a specific name such as `commit-push-pr` over `help`.
+
 ## Hooks
 
 A Claude Code or Codex plugin's hooks run commands on the person's Mac when something happens in a chat. Enconvo finds them where Claude Code and Codex do: the manifest's `hooks` field (a path, several paths, or the hooks themselves), `extensions["com.openai"].hooks`, `hooks/hooks.json`, and a `hooks.json` at the plugin's root.
@@ -280,7 +302,7 @@ Skills, commands and hooks don't receive `${user_config.KEY}` or `CLAUDE_PLUGIN_
 | Part | What happens |
 |---|---|
 | ChatGPT apps (`.app.json`) | The plugin's page says it needs a ChatGPT app, and Enconvo installs the rest of the plugin. An app counts as needed unless its entry says `"required": false` or `"optional": true`, as OpenAI's own plugins mark the apps they can do without. |
-| Claude Code `commands/` and `agents/` | Not loaded. Write them as skills to use them in Enconvo. |
+| Claude Code `agents/` | Not loaded. Write them as skills to use them in Enconvo. |
 | LSP servers and output styles | Not loaded. |
 
 ## Check a package
