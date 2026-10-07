@@ -38,7 +38,7 @@ Most text fields are checked the same way, and their codes start with the field'
 | Code | Severity | Meaning |
 |---|---|---|
 | `<stem>_missing` | error when the field is required, otherwise portal | The field isn't set. |
-| `<stem>_wrong_type` | error | The value isn't text. |
+| `<stem>_wrong_type` | error | The value isn't text. In a portable or Claude Code `plugin.json`, a `null` `version`, `description`, `author.name`, `author.email`, `author.url` or `homepage` is this error too, because Codex and Claude Code refuse the file. Leave the field out instead. |
 | `<stem>_empty` | error | The value is empty or only spaces. |
 | `<stem>_character_unsupported` | portal | The value has control characters, or line breaks in a one-line field. |
 | `<stem>_too_long` | portal | The value is longer than the portal's limit below. |
@@ -81,12 +81,15 @@ The listing's four addresses (`websiteURL`, `supportURL`, `privacyPolicyURL`, `t
 | `plugin_manifest_missing` | error | The folder has no `package.json`, `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `manifest.json` or `SKILL.md`. |
 | `plugin_manifest_not_file`, `plugin_manifest_unreadable`, `plugin_manifest_json_malformed`, `plugin_manifest_root_not_object` | error | The manifest isn't a readable UTF-8 file holding a JSON object. |
 | `codex_manifest_parent_not_directory`, `codex_manifest_path_not_file` | error | `.codex-plugin` isn't a folder, or `.codex-plugin/plugin.json` in it isn't a file. |
-| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. A portable `plugin.json`'s `name` has to use lowercase letters, digits and single hyphens, and end with a letter or digit, or Codex refuses it. |
+| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. A portable `plugin.json`'s `name` follows Codex's rule instead: up to 64 lowercase letters, digits and single dots or hyphens, starting and ending with a letter or digit, so `acme.tools` works and `Acme_Tools` or `acme--tools` doesn't. |
 | `plugin_schema_missing` | error, or warning | The root `plugin.json` doesn't give `"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"`, so Codex and OpenAI's portal don't read it as a portable plugin. A warning when `.codex-plugin/plugin.json` or `.claude-plugin/plugin.json` is there for them to read instead, an error otherwise. |
 | `plugin_schema_unsupported` | error | `$schema` names another version of the Agent Plugins schema. Codex supports only 1.0.0 and refuses the plugin. |
 | `plugin_version_not_semver` | error | `version` isn't a version number like `1.2.0`. |
 | `plugin_author_wrong_type` | error | `author` in `plugin.json` has to be an object like `{"name": "…"}`. |
-| `plugin_extensions_wrong_type` | error | `extensions` or `extensions["com.openai"]` isn't an object. |
+| `plugin_author_field_unsupported` | error | A portable `plugin.json`'s `author` has a field other than `name`, `email` and `url`, and Codex refuses it. |
+| `plugin_repository_wrong_type`, `plugin_license_wrong_type` | error | `repository` or `license` in a portable or Claude Code `plugin.json` isn't text, such as `"https://github.com/acme/tools"` or `"MIT"`. Codex and Claude Code refuse an object or a `null`. |
+| `plugin_keywords_wrong_type` | error | `keywords` in a `plugin.json` isn't a list of text. Codex and Claude Code refuse the file. |
+| `plugin_extensions_wrong_type` | warning | `extensions` or `extensions["com.openai"]` isn't an object, so Codex and Enconvo ignore it and take the listing from `.codex-plugin/plugin.json`, if there is one. |
 | `plugin_manifest_field_unsupported` | warning | A portable `plugin.json` has a field the Agent Plugins schema doesn't define. Put app data under `extensions`. |
 | `component_declaration_ignored` | warning | A portable plugin declares `skills` or `mcpServers` in `plugin.json`, in `extensions["com.openai"]`, or in `.codex-plugin/plugin.json` (a `skills` other than `./skills/`, or servers written out there). Codex, OpenAI's portal and Enconvo take its skills from `skills/` and its MCP servers from `mcp.json`; servers in `.codex-plugin/plugin.json` only pass their `env_vars` to the `mcp.json` servers of the same name. |
 | `codex_overlay_ignored` | warning | `plugin.json` has `extensions["com.openai"]`, so Codex ignores `.codex-plugin/plugin.json`. Keep the listing in one of them. |
