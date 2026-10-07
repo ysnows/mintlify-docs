@@ -172,6 +172,7 @@ A file can list the servers under `mcpServers` or `mcp_servers`, or be the list 
 
 - **Transports**: `stdio`, `http` (also written `streamable-http` or `streamable_http`) and `sse`. Servers of other types, such as `ws`, are skipped.
 - **Working folder**: a relative `cwd` starts at the plugin's folder.
+- **Remote servers**: use `https://` (or `wss://`) for anything but this computer, and never commit a token or key in `headers`: everyone who installs the plugin can read it. Reference a sensitive setting or an environment variable instead, such as `"Authorization": "Bearer ${user_config.api_token}"`. `enconvo plugin validate` warns about both, as `claude plugin validate` does (see [MCP servers and apps](/extensions/validation-codes#mcp-servers-and-apps)).
 - **Variables** in `command`, `args`, `env`, `cwd`, `url` and `headers`:
 
 | Variable | Becomes |
