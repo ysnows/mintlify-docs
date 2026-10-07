@@ -185,6 +185,13 @@ When the authorization server doesn't register clients, ship the OAuth app peopl
 - The redirect has to be an `http` address on the same computer (`127.0.0.1`, `localhost` or `[::1]`).
 - While the app's fields still hold placeholders such as `<CLIENT_ID>` or an unset `${VAR}`, Enconvo ignores the app and signs in the usual way.
 
+Two more fields tell the sign-in what the server itself doesn't say:
+
+- `oauth_resource` (Codex, next to `url`) is the resource the token is for. Enconvo sends it to the authorization server exactly as written, in the sign-in and in every renewal, so a server that compares it as a string (`https://mcp.notion.com` without a trailing slash) accepts the token. It has to be on the server's own origin; otherwise Enconvo signs in without it.
+- `oauth.authServerMetadataUrl` (Claude Code) is where the authorization server's metadata is, for a server that doesn't publish it. Enconvo reads it instead of looking at the server's well-known addresses, and shows **Sign in** for the server even when they answer nothing. It has to use `https://`; Enconvo also reads `http://` from `localhost` while you test, which Claude Code doesn't. When the address can't be read, Enconvo looks the usual way.
+
+`enconvo plugin validate` warns about an `oauth_resource` on another origin and an `authServerMetadataUrl` that isn't `https://`.
+
 ## Skills
 
 Enconvo loads every `skills/<name>/SKILL.md`, the skill folders named by the manifest's `skills` field, and a `SKILL.md` at the plugin's root. A skill's `SKILL.md` starts with its `name` and a `description` of when to use it:
