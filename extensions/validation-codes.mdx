@@ -181,6 +181,9 @@ A Claude Code plugin's `agents` and `commands` fields are checked as Claude Code
 | `mcp_server_cwd_outside` | warning | A portable server's `cwd` has to start with `./`, `${PLUGIN_ROOT}` or `${PLUGIN_DATA}`. |
 | `mcp_server_oauth_resource_ignored` | warning | A remote server's `oauth_resource` isn't on the server's own origin, or has a fragment, so Enconvo signs in without it. |
 | `mcp_server_auth_metadata_insecure` | warning | A remote server's `oauth.authServerMetadataUrl` doesn't use `https://`. Claude Code refuses it; Enconvo reads `http://` only from `localhost`, for testing. |
+| `mcp_server_approval_mode_invalid` | error | A server's `default_tools_approval_mode` or a tool's `approval_mode` isn't `auto`, `prompt`, `writes` or `approve`. Codex won't load the file. |
+| `mcp_server_tools_wrong_type` | error | A server's `tools` isn't an object of tool settings by tool name, or a tool's settings aren't an object. |
+| `mcp_server_approval_approve_ignored` | warning | A server or tool asks for `approve`. Codex runs those tools without asking, but Enconvo asks as it would for any tool; only the person turns questions off, with the Agent's Permissions chip. |
 | `mcp_servers_multiple` | warning | The plugin has more than one MCP server. OpenAI's portal connects only one of them per plugin to scan and review it. A server declared in both `mcp.json` and `.mcp.json` under the same name counts once. |
 | `app_manifest_unreadable`, `app_manifest_json_malformed`, `app_manifest_wrong_type`, `plugin_apps_path_not_file` | error | `.app.json` isn't a readable UTF-8 JSON object. |
 | `app_entries_missing`, `app_entries_wrong_type`, `app_entry_wrong_type` | error | `.app.json` needs an `apps` object of app entries. |

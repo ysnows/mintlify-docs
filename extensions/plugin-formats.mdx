@@ -192,6 +192,39 @@ Two more fields tell the sign-in what the server itself doesn't say:
 
 `enconvo plugin validate` warns about an `oauth_resource` on another origin and an `authServerMetadataUrl` that isn't `https://`.
 
+### Which tools run, and when Enconvo asks
+
+Codex's fields for a server's tools work in Enconvo too:
+
+```json
+{
+  "mcpServers": {
+    "tracker": {
+      "type": "http",
+      "url": "https://mcp.example.com/mcp",
+      "disabled_tools": ["delete_project"],
+      "default_tools_approval_mode": "writes",
+      "tools": {
+        "search": { "approval_mode": "auto" },
+        "send_invoice": { "approval_mode": "prompt" }
+      }
+    }
+  }
+}
+```
+
+- `enabled_tools` offers only the tools it lists; `disabled_tools` hides the ones it lists.
+- `default_tools_approval_mode` sets how all the server's tools are approved, and `tools.<tool>.approval_mode` sets it for one tool:
+
+| Mode | In Enconvo |
+|---|---|
+| `prompt` | Asks before every call. |
+| `writes` | Asks before every call to a tool that doesn't declare `readOnlyHint: true`. |
+| `auto` | Asks as for any tool: by its annotations and the Agent's [Permissions](/ai/agents) setting. |
+| `approve` | The same as `auto`. Codex runs the tools without asking; in Enconvo only the person turns questions off, with the Permissions chip. |
+
+Each answer covers one call; Enconvo doesn't offer to remember it for the chat. When the Permissions chip is **Full access**, Enconvo doesn't ask. `enconvo plugin validate` reports a mode it doesn't know as an error, since Codex won't load it, and warns about `approve`.
+
 ## Skills
 
 Enconvo loads every `skills/<name>/SKILL.md`, the skill folders named by the manifest's `skills` field, and a `SKILL.md` at the plugin's root. A skill's `SKILL.md` starts with its `name` and a `description` of when to use it:
