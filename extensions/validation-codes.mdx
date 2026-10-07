@@ -81,7 +81,7 @@ The listing's four addresses (`websiteURL`, `supportURL`, `privacyPolicyURL`, `t
 | `plugin_manifest_missing` | error | The folder has no `package.json`, `plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`, `manifest.json` or `SKILL.md`. |
 | `plugin_manifest_not_file`, `plugin_manifest_unreadable`, `plugin_manifest_json_malformed`, `plugin_manifest_root_not_object` | error | The manifest isn't a readable UTF-8 file holding a JSON object. |
 | `codex_manifest_parent_not_directory`, `codex_manifest_path_not_file` | error | `.codex-plugin` isn't a folder, or `.codex-plugin/plugin.json` in it isn't a file. |
-| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`. A portable `plugin.json`'s `name` follows Codex's rule instead: up to 64 lowercase letters, digits and single dots or hyphens, starting and ending with a letter or digit, so `acme.tools` works and `Acme_Tools` or `acme--tools` doesn't. |
+| `plugin_name_format` | error | `name` has to start with a letter or digit and use only letters, digits, `-` and `_`, with single dots between them, as Codex and Claude Code take it, so `acme.tools` works and `acme.` or `acme..tools` doesn't. A portable `plugin.json`'s `name` follows Codex's rule instead: up to 64 lowercase letters, digits and single dots or hyphens, starting and ending with a letter or digit, so `acme.tools` works and `Acme_Tools` or `acme--tools` doesn't. |
 | `plugin_schema_missing` | error, or warning | The root `plugin.json` doesn't give `"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"`, so Codex and OpenAI's portal don't read it as a portable plugin. A warning when `.codex-plugin/plugin.json` or `.claude-plugin/plugin.json` is there for them to read instead, an error otherwise. |
 | `plugin_schema_unsupported` | error | `$schema` names another version of the Agent Plugins schema. Codex supports only 1.0.0 and refuses the plugin. |
 | `plugin_version_not_semver` | error | `version` isn't a version number like `1.2.0`. |
@@ -226,14 +226,14 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | Code | Meaning |
 |---|---|
 | `marketplace_json_invalid` | The catalog isn't a JSON object. |
-| `marketplace_name_missing`, `marketplace_name_invalid` | The marketplace needs a name of letters, digits, `.`, `_` and `-`, starting with a letter or digit, with no spaces, `..` or non-ASCII letters. |
+| `marketplace_name_missing`, `marketplace_name_invalid` | The marketplace needs a name of letters, digits, `.`, `_` and `-`, starting with a letter or digit, with no spaces, `..` or non-ASCII letters. Codex takes no dots in a marketplace name, so a dotted name is an error in a Codex catalog, and a warning in a Claude Code catalog when the folder has no `.agents/plugins/marketplace.json`, because Codex then reads the Claude Code one. Use `acme-tools` rather than `acme.tools`. |
 | `marketplace_name_reserved` | Claude Code keeps names such as `inline`, `npm` and `github`, and names that start with `claudeai-` (error). The official Anthropic names are a warning, because Claude Code takes them only from Anthropic's repositories. |
 | `marketplace_owner_missing` | A Claude Code catalog needs `owner.name`. |
 | `marketplace_description_missing`, `marketplace_display_name_missing` (warning) | Claude Code shows the description; Codex shows `interface.displayName`. |
 | `marketplace_field_unknown` (warning) | Claude Code ignores this top-level field. |
 | `marketplace_plugins_missing`, `marketplace_plugins_empty` | `plugins` isn't a list, or it is empty (a warning). |
 | `marketplace_plugin_root_invalid` | `metadata.pluginRoot` has to be a relative path inside the marketplace. |
-| `marketplace_plugin_invalid`, `marketplace_plugin_name_missing`, `marketplace_plugin_name_invalid`, `marketplace_plugin_duplicate` | An entry isn't an object, has no usable name, or repeats another's. |
+| `marketplace_plugin_invalid`, `marketplace_plugin_name_missing`, `marketplace_plugin_name_invalid`, `marketplace_plugin_duplicate` | An entry isn't an object, has no usable name, or repeats another's. An entry's name follows the plugin `name` rule: letters, digits, `-` and `_`, with single dots between them. |
 | `marketplace_plugin_source_missing`, `marketplace_plugin_source_invalid` | The source is missing or can't be fetched: a path with `..` or outside the marketplace, a bare name without `metadata.pluginRoot`, a `sha` that isn't a full commit, an `archive` that isn't a public https zip or has a `sha256` that isn't 64 hex digits, or a git address Enconvo can't clone. |
 | `marketplace_plugin_source_unsupported` (warning) | Enconvo can't install a `command` source. |
 | `marketplace_plugin_folder_missing`, `marketplace_plugin_empty` | The plugin's folder isn't there, or it has no `plugin.json` and the entry gives it nothing to load. |
