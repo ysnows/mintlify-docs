@@ -135,7 +135,7 @@ Claude Code marketplace entries work with a plugin's own `plugin.json` the way C
 - When the plugin has no `plugin.json`, the entry is its manifest.
 - The entry's name, description, author and other listing details are shown; the version is the plugin's.
 - A marketplace's `renames` are followed. A plugin installed under its old name keeps updating under the new one, and installing by the old name finds it. A name renamed to `null` was removed from the marketplace, and Enconvo says so. If the plugin's own manifest changed its name too, Enconvo asks you to uninstall the old plugin and install the new one, because Enconvo names a plugin after its manifest.
-- A plugin's `dependencies`, in its entry or its `plugin.json`, install with it. Each is a name (`"formatter"`), a name and marketplace (`"formatter@acme-tools"`), or `{ "name", "marketplace", "version" }` with a semver range. A dependency comes from the plugin's own marketplace unless it names another one, and another marketplace has to be listed in `allowCrossMarketplaceDependenciesOn` by the marketplace you installed from. A dependency that's already installed is left as it is, and one outside its `version` range gets a warning.
+- A plugin's `dependencies`, in its entry or its `plugin.json`, install with it. Each is a name (`"formatter"`), a name and marketplace (`"formatter@acme-tools"`), or `{ "name", "marketplace", "version" }` with a semver range. A dependency comes from the plugin's own marketplace unless it names another one, and another marketplace has to be listed in `allowCrossMarketplaceDependenciesOn` by the marketplace you installed from. A dependency with a `version` range installs at the highest release tag (`<plugin>--v<version>`) in that range, and in the ranges other installed plugins put on it, from the plugin's own repository or, for a plugin inside the marketplace, the marketplace's (a marketplace folder counts when it's in a git repository). With no such tag, a plugin inside the marketplace installs as the marketplace has it, and one in its own repository is refused. Ranges no single version satisfies refuse the install, and updates stay inside the ranges. A dependency that's already installed is left as it is, and one outside its `version` range gets a warning.
 
 On the Plugins page, open **Add → Add from GitHub…** and paste the marketplace's address, or pick one you've added under **Your marketplaces**.
 
@@ -157,7 +157,7 @@ To list a plugin in the Enconvo store, see [Plugin Store Guidelines](/extensions
 
 ### Tag a release
 
-`plugin tag` marks the commit you're releasing with a git tag named `<plugin>--v<version>`, as `claude plugin tag` does. Claude Code picks among these tags when another plugin's dependency asks for a version range, and anyone can install that release with Enconvo, for example `acme/plugins/notes@notes--v1.2.0`.
+`plugin tag` marks the commit you're releasing with a git tag named `<plugin>--v<version>`, as `claude plugin tag` does. Claude Code and Enconvo pick among these tags when another plugin's dependency asks for a version range, and anyone can install that release with Enconvo, for example `acme/plugins/notes@notes--v1.2.0`.
 
 ```sh
 npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
