@@ -84,6 +84,28 @@ Enconvo reads the same `interface` fields as Codex and OpenAI's plugin portal, f
 
 Paths start at the plugin's root, such as `./assets/logo.png`. A link has to start with `http://` or `https://` to be shown.
 
+A Claude Code plugin can give its icon and links as top-level fields in `.claude-plugin/plugin.json`, the way Anthropic's plugin directory reads them. Enconvo uses each one when `interface` doesn't set it, both for the installed plugin and for the plugin store:
+
+| Claude Code field | Used as |
+|---|---|
+| `icon` | The icon, after the `interface` logos. A path inside the plugin, such as `./logo.png` |
+| `documentationUrl` | The website, after `homepage` |
+| `supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl` | `supportURL`, `privacyPolicyURL`, `termsOfServiceURL` |
+
+```json
+{
+  "name": "deploy-tools",
+  "version": "1.0.0",
+  "icon": "./logo.png",
+  "documentationUrl": "https://example.com/docs",
+  "supportUrl": "https://example.com/support",
+  "privacyPolicyUrl": "https://example.com/privacy",
+  "termsOfServiceUrl": "https://example.com/terms"
+}
+```
+
+Claude Code ignores these fields when it loads the plugin, so `plugin validate` only warns about a bad one. Keep them in `plugin.json`, not in a marketplace entry, where `claude plugin validate` reports them as unknown.
+
 OpenAI's portal takes one of its own categories (Productivity, Creativity, Developer Tools, Business & Operations, Data & Analytics, Communication, Education & Research, Security, Finance, Healthcare, Travel, Entertainment or Other), example prompts that don't @mention an MCP server, and screenshots only for a plugin with an MCP server. `plugin validate --openai` checks all three.
 
 The plugin store sends the website, support, privacy policy and terms of service links with each version, so its page shows them before anyone installs the plugin. It sends only `https://` links; `plugin review` flags the others. An Enconvo `package.json` can hold the same `interface` block for these links.

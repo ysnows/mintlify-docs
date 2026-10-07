@@ -175,6 +175,16 @@ A Claude Code plugin's `agents` and `commands` fields are checked as Claude Code
 | `plugin_command_entry_content_empty` | error | A command's `content` is empty. |
 | `default_agents_folder_ignored`, `default_commands_folder_ignored` | warning | The plugin has an `agents/` or `commands/` folder, but the field doesn't list it, so nothing in it is installed. |
 
+Claude Code's directory listing fields are checked as warnings, because Claude Code ignores them when it loads the plugin. Enconvo and the plugin store leave out a bad one.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_icon_wrong_type` | warning | `icon` isn't a path. |
+| `plugin_icon_path_invalid` | warning | `icon` doesn't start with `./`, leaves the plugin with `..`, or links to a file outside it. |
+| `plugin_icon_file_missing` | warning | `icon` isn't a file in the plugin. |
+| `plugin_icon_format_unsupported` | warning | `icon` isn't a `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg` or `.gif` image. |
+| `plugin_listing_url_invalid` | warning | `documentationUrl`, `supportUrl`, `privacyPolicyUrl` or `termsOfServiceUrl` isn't an `https://` address, or holds a user name or password. |
+
 ## MCP servers and apps
 
 | Code | Severity | Meaning |
@@ -242,6 +252,7 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | `marketplace_plugin_hooks_not_inline` (warning) | Only hooks written in the entry are applied. |
 | `marketplace_plugin_headers_helper_not_strict` | `headersHelper` needs `"strict": false`. |
 | `marketplace_plugin_headers_ignored` (warning) | Enconvo doesn't send `headers` or run `headersHelper`. |
+| `marketplace_plugin_listing_field_misplaced` (warning) | The entry has `icon`, `documentationUrl`, `supportUrl`, `privacyPolicyUrl` or `termsOfServiceUrl`, which belong in the plugin's `.claude-plugin/plugin.json`. `claude plugin validate` reports them as unknown in an entry. |
 | `marketplace_plugin_manifest_missing` (warning) | A Codex marketplace plugin without `.codex-plugin/plugin.json`. |
 | `marketplace_policy_missing`, `marketplace_policy_invalid`, `marketplace_category_missing` | A Codex entry needs `policy.installation` (`AVAILABLE`, `INSTALLED_BY_DEFAULT` or `NOT_AVAILABLE`), `policy.authentication` (`ON_INSTALL` or `ON_USE`) and a `category`. A missing one is a warning; a wrong value is an error. |
 
@@ -421,4 +432,4 @@ One URL that serves the token is enough. `scan` exits with status 1 when none do
 | `plugin_version_missing` | error | The store needs a version. |
 | `plugin_package_too_large` | error | The package is over 50 MB. |
 | `plugin_readme_too_large` | warning | The README is over 64 KB, so the store page leaves it out. |
-| `store_icon_missing` | warning | The plugin has no icon the store can show (PNG, JPEG, WebP or GIF up to 5 MB), so it shows a default icon. |
+| `store_icon_missing` | warning | The plugin has no icon the store can show (PNG, JPEG, WebP or GIF up to 5 MB) in `interface.logo` or the other `interface` logos, or in a Claude Code plugin's `icon`, so it shows a default icon. |
