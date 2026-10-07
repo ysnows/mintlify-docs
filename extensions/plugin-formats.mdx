@@ -398,8 +398,8 @@ Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `us
 {
   "name": "my-database",
   "userConfig": {
-    "region": { "type": "string", "title": "Region", "options": ["us-east1", "europe-west1"], "default": "us-east1" },
-    "password": { "type": "string", "title": "Password", "sensitive": true, "required": true }
+    "region": { "type": "string", "title": "Region", "description": "Where your database runs", "options": ["us-east1", "europe-west1"], "default": "us-east1" },
+    "password": { "type": "string", "title": "Password", "description": "Your database password", "sensitive": true, "required": true }
   },
   "mcpServers": {
     "db": {
@@ -416,6 +416,7 @@ Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `us
 - **Sensitive settings** are filled in only as the server starts, so they never appear in Enconvo's saved server settings.
 - **Missing settings**: a server that needs a required setting you haven't filled in doesn't start, and says which setting to fill in. An optional setting left empty becomes an empty value.
 - **Changes**: saving a setting on the plugin's page restarts the servers that use it, with the new value.
+- **Checks**: Claude Code doesn't load a plugin with a setting outside its rules, such as one without a `title` and `description`, or a `${user_config.KEY}` in a server for a key no setting declares. Enconvo is more lenient, so run `enconvo plugin validate` to catch them before you share the plugin (see [Claude Code settings and channels](/extensions/validation-codes#claude-code-settings-and-channels)).
 - **In skills and commands**: `${user_config.KEY}` in a skill's or command's text becomes the setting's value when the agent loads it (see [Skills](#skills)). A sensitive setting stays out of the conversation.
 
 - **In hooks**: each setting is in a hook's environment as `CLAUDE_PLUGIN_OPTION_<KEY>`, the key in capitals (`api_token` becomes `CLAUDE_PLUGIN_OPTION_API_TOKEN`), with the saved value or the default. `true`/`false` and numbers are written as text, and several values are joined with commas. `${user_config.KEY}` works in a hook's `args`, but not in a shell `command`, where a value could run as code: as in Claude Code, such a hook doesn't run.

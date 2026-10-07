@@ -185,7 +185,30 @@ Claude Code's directory listing fields are checked as warnings, because Claude C
 | `plugin_icon_format_unsupported` | warning | `icon` isn't a `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg` or `.gif` image. |
 | `plugin_listing_url_invalid` | warning | `documentationUrl`, `supportUrl`, `privacyPolicyUrl` or `termsOfServiceUrl` isn't an `https://` address, or holds a user name or password. |
 
+## Claude Code settings and channels
+
+Claude Code doesn't load a plugin whose `userConfig` or `channels` breaks its rules, so these are errors, matching `claude plugin validate`. Enconvo turns the settings into the plugin's preferences. A `.codex-plugin` manifest isn't checked for them.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `user_config_wrong_type` | error | `userConfig` (at the top level or in a channel) isn't an object of settings by key. |
+| `user_config_key_invalid` | error | A setting key isn't letters, digits and `_`, or starts with a digit. |
+| `user_config_setting_wrong_type` | error | A setting isn't an object. |
+| `user_config_field_unsupported` | error | A setting has a field other than `type`, `title`, `description`, `required`, `default`, `options`, `multiple`, `sensitive`, `min` and `max`. |
+| `user_config_type_invalid` | error | `type` isn't `string`, `number`, `boolean`, `directory` or `file`. |
+| `user_config_field_wrong_type` | error | `title` or `description` is missing or isn't text, `required`, `multiple` or `sensitive` isn't `true` or `false`, `min` or `max` isn't a number, or `default` isn't text, a number, `true` or `false`, or a list of text. |
+| `user_config_options_invalid` | error | `options` is on a setting that isn't a plain `string` one (or is `multiple` or `sensitive`), or isn't a non-empty list of text up to 64 characters that differs in more than letter case, with no control, invisible or non-plain space character and no space at either end. Its `default` has to be one of them; without a `default`, set `"required": true`. |
+| `channels_wrong_type` | error | `channels` isn't a list. |
+| `channel_wrong_type` | error | A channel isn't an object. |
+| `channel_field_unsupported` | error | A channel has a field other than `server`, `displayName` and `userConfig`. |
+| `channel_server_missing` | error | A channel doesn't name its MCP server in `server`. |
+| `channel_display_name_wrong_type` | error | A channel's `displayName` isn't text. |
+| `user_config_reference_undeclared` | error | An MCP server's `command`, `args`, `env`, `url` or `headers` names `${user_config.KEY}` for a key that isn't a top-level setting or a setting of that server's channel. Claude Code drops the server or passes the text through, and Enconvo fills in an empty value. |
+| `user_config_reference_in_headers_helper` | error | An MCP server's `headersHelper` names `${user_config.KEY}`. Claude Code never fills settings into this shell command, so read the value in the helper script. |
+
 ## MCP servers and apps
+
+These apply to every MCP file the plugin has, and to the servers a Claude Code plugin declares inline in `.claude-plugin/plugin.json`.
 
 | Code | Severity | Meaning |
 |---|---|---|
