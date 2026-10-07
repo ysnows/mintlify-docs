@@ -182,6 +182,8 @@ npx -p @enconvo/api enconvo plugin pack --openai
 
 After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool. It no longer asks you to justify them; if its automated review flags one, you can appeal with an explanation. A plugin whose views embed pages still needs a justification for each embedded page: what it does, why the plugin embeds it, and who controls its domain. Pages from the MCP server's own registrable domain are allowed, and separate tenants on a shared host count as different domains. `scan --openai` lists the domains your views embed (`frame_domain_explanation_required`).
 
+Before you can submit the plugin, the portal verifies that you control the MCP server's domain: it gives you a token to serve as plain text at `/.well-known/openai-apps-challenge` on the server's host or a parent domain. `scan --openai` says what those URLs answer, and `scan --challenge-token <token>` checks that one serves exactly the token before you select **Verify Domain**; see [Domain verification](/extensions/validation-codes#domain-verification).
+
 OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
 
 OpenAI's final submission asks more of the listing than its upload does, and `validate --openai` warns about each gap:

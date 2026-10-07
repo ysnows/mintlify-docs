@@ -311,7 +311,7 @@ OpenAI's portal has a few codes that `validate` doesn't report, because they rep
 | `archive_member_path_too_long`, `skill_bundle_too_large` | A path, or a skill's compressed files, are over a limit OpenAI doesn't publish; the portal's message gives the limit. |
 | `archive_plugin_files_missing` | A skills-only ZIP has no plugin manifest or no valid skill. `validate` reports these as `plugin_manifest_missing` and the `skill_*` codes. |
 | `scan_required` | The portal needs a successful, current scan of the production MCP server; rescan after the server changes. `plugin scan --openai` checks the tools beforehand. |
-| `domain_verification_required` | Host the token the portal gives you at `/.well-known/openai-apps-challenge` on the MCP server's host or an allowed parent host, then select **Verify Domain**. |
+| `domain_verification_required` | Host the token the portal gives you at `/.well-known/openai-apps-challenge` on the MCP server's host or an allowed parent host, then select **Verify Domain**. `plugin scan --openai` says what those URLs answer, and `--challenge-token <token>` checks for the exact token first; see [Domain verification](#domain-verification). |
 | `app_not_eligible` | A local or workspace package refers to an MCP server that isn't eligible or available. To list the plugin in the directory, submit it **With MCP** and give the MCP server directly. |
 | `justification_required` | A tool annotation has no justification of its read-only, open-world or destructive behavior. The portal's error list still has this code, though its submission page no longer asks for one; if the portal reports it, give the justification there. |
 
@@ -324,6 +324,7 @@ npx -p @enconvo/api enconvo plugin scan [path]                # the plugin's fol
 npx -p @enconvo/api enconvo plugin scan [path] --openai       # also what OpenAI's portal needs
 npx -p @enconvo/api enconvo plugin scan [path] --timeout 60   # seconds to wait for each server; the default is 30
 npx -p @enconvo/api enconvo plugin scan [path] --json         # the result as JSON
+npx -p @enconvo/api enconvo plugin scan [path] --challenge-token <token>   # checks the token OpenAI's portal gave you
 ```
 
 ```text
@@ -343,6 +344,10 @@ With `--openai`, `annotations_required` is an error. `scan` finds servers where 
 | `tool_description_missing` | warning | A tool has no description. The model picks tools by what their descriptions say. |
 | `tool_name_duplicate` | warning | The server lists two tools with the same name. |
 | `tools_missing` | warning, only with `--openai` | The server lists no tools, so OpenAI's portal has nothing to scan or review. |
+| `domain_challenge_missing` | warning, only with `--openai` | No URL where OpenAI's portal verifies the server's domain serves a token yet. Expected until the portal gives you one after the upload; see [Domain verification](#domain-verification). |
+| `domain_challenge_format` | warning | The server's own challenge URL answers with a web page, JSON, several tokens or a redirect instead of the token alone, or the token has spaces or a line break around it. The portal asks for the exact token as plain text. |
+| `domain_challenge_mismatch` | error, only with `--challenge-token` | No challenge URL serves the token you gave. The message lists what each one answers. |
+| `domain_challenge_unchecked` | warning | You gave `--challenge-token`, but the plugin has no MCP server at a public `https://` URL, so there's no domain to verify. |
 | `mcp_server_not_remote` | warning, only with `--openai` | The server runs on the user's computer, or its URL isn't a public `https://` address. OpenAI's portal connects to a server at a public `https://` URL to scan and review it, so deploy the server and declare its URL before you submit there. Enconvo, Codex and Claude Code run a local server as it is. |
 | `scan_server_failed` | error | The server couldn't start, exited, or didn't answer in time. The message quotes the end of what it printed on stderr. When a command uses paths like `./server.js`, start it from the plugin's folder: `${CLAUDE_PLUGIN_ROOT}/server.js` in `.mcp.json`, or `"cwd": "./"` in `mcp.json`. |
 | `scan_sign_in_required` | warning | The server asked for sign-in (HTTP 401 or 403), so its tools weren't listed. Enconvo signs in when the plugin is installed. To scan it here, give the server a token through `bearer_token_env_var` or its `headers`. |
@@ -358,6 +363,24 @@ With `--openai`, `annotations_required` is an error. `scan` finds servers where 
 | `scan_archive_unsupported` | error | `scan` was given a `.zip`. |
 
 OpenAI's portal no longer asks you to justify each tool's annotations; if its automated review flags one, you can appeal with an explanation. It does ask for a justification of each page your views embed (`frame_domain_explanation_required`). A server you have to sign in to is scanned there with the reviewer account you give in the Review details form.
+
+### Domain verification
+
+When you connect a plugin's MCP server in OpenAI's portal, after the upload, the portal verifies that you control the server's domain before you can submit the plugin. It gives you a token, and you serve that token at `/.well-known/openai-apps-challenge` on the MCP server's host or on a parent domain: for `https://mcp.example.com/mcp`, at `https://mcp.example.com/.well-known/openai-apps-challenge` or `https://example.com/.well-known/openai-apps-challenge`. The URL answers with the token alone, as plain text: not a web page, JSON or a list of tokens. The path of the server's URL doesn't matter. If another plugin's token is already at that URL, use a parent domain or a hostname of your plugin's own rather than replacing it.
+
+For each server at a public `https://` URL, `scan --openai` reads those URLs and lists what each answers. Once the portal gives you the token, check it before you select **Verify Domain**:
+
+```sh
+npx -p @enconvo/api enconvo plugin scan --challenge-token tok_123
+```
+
+```text
+domain verification:
+  https://mcp.example.com/.well-known/openai-apps-challenge: HTTP 404
+  https://example.com/.well-known/openai-apps-challenge: the token you gave
+```
+
+One URL that serves the token is enough. `scan` exits with status 1 when none does (`domain_challenge_mismatch`).
 
 ## Packing and publishing
 
