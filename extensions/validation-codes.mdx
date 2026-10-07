@@ -153,6 +153,21 @@ These apply to the listing's images (`logo`, `composerIcon`, `logoDark`, `compos
 | `skill_agent_policy_wrong_type`, `skill_agent_allow_implicit_invocation_wrong_type` | portal | `policy` isn't an object, or `allow_implicit_invocation` isn't `true` or `false`. |
 | `skill_agent_dependencies_wrong_type`, `skill_agent_dependency_unsupported` | portal | `dependencies` takes only `tools`. |
 
+## Claude Code agents and commands
+
+A Claude Code plugin's `agents` and `commands` fields are checked as Claude Code loads them. Either field replaces its default folder.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_agents_path_wrong_type`, `plugin_commands_path_wrong_type` | error | The field isn't a path or a list of paths (for `commands`, or a map of command names). |
+| `plugin_agents_path_missing`, `plugin_commands_path_missing` | error | A listed path doesn't exist. |
+| `plugin_agents_path_not_file` | error | `agents` lists a folder. Claude Code takes agent `.md` files only, so list each one. |
+| `plugin_agents_file_not_markdown`, `plugin_commands_file_not_markdown` | error | A listed file, or a command's `source`, isn't a `.md` file. |
+| `plugin_command_entry_wrong_type` | error | An entry in the `commands` map isn't an object. |
+| `plugin_command_entry_source_or_content` | error | A `commands` map entry needs exactly one of `source` and `content`. |
+| `plugin_command_entry_content_empty` | error | A command's `content` is empty. |
+| `default_agents_folder_ignored`, `default_commands_folder_ignored` | warning | The plugin has an `agents/` or `commands/` folder, but the field doesn't list it, so nothing in it is installed. |
+
 ## MCP servers and apps
 
 | Code | Severity | Meaning |

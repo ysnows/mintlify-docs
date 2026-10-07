@@ -230,7 +230,20 @@ Skills keep their plain names. When two plugins both ship a skill with the same 
 
 ### Claude Code commands
 
-From Enconvo 2.5.7, a Claude Code plugin's commands install as skills, the way Claude Code treats them: every `commands/<name>.md` and the files or folders the manifest's `commands` field names. The file name is the skill's name (a command in `commands/git/push.md` becomes `git-push`), and a skill with the same name wins. The `description`, or the file's first line, describes it.
+From Enconvo 2.5.7, a Claude Code plugin's commands install as skills, the way Claude Code treats them: every `commands/<name>.md`. The file name is the skill's name (a command in `commands/git/push.md` becomes `git-push`), and a skill with the same name wins. The `description`, or the file's first line, describes it.
+
+As in Claude Code, a `commands` field in the manifest replaces the `commands/` folder: list the folders or `.md` files to install (`[]` installs none), or map each command's name to a `source` file or inline `content`:
+
+```json
+{
+  "commands": {
+    "status": { "source": "./commands/status.md", "description": "Show the deployment status", "argumentHint": "[env]" },
+    "about": { "content": "Describe what this plugin does.", "description": "Describe this plugin" }
+  }
+}
+```
+
+An entry needs exactly one of `source` and `content`; its `description` and `argumentHint` win over the file's frontmatter. `enconvo plugin validate` reports entries Claude Code would reject, and warns when the field leaves out a `commands/` folder the plugin ships.
 
 ```markdown
 ---
@@ -254,7 +267,7 @@ When another plugin has a command or skill of the same name, the agent sees each
 
 ## Agents
 
-From Enconvo 2.5.7, a Claude Code plugin's agents (every `agents/<name>.md`, and the files or folders the manifest's `agents` field names) become helpers that an agent can hand work to, in any chat running in Agent mode. They also appear in the composer's `@` menu after Explorer and Subagent. Enconvo reads the same frontmatter Claude Code does:
+From Enconvo 2.5.7, a Claude Code plugin's agents (every `agents/<name>.md`, or only the `.md` files the manifest's `agents` field lists, which replaces the folder as in Claude Code) become helpers that an agent can hand work to, in any chat running in Agent mode. They also appear in the composer's `@` menu after Explorer and Subagent. Enconvo reads the same frontmatter Claude Code does:
 
 ```markdown
 ---
