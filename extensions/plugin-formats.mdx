@@ -226,6 +226,8 @@ Run `python3 ${CLAUDE_SKILL_DIR}/scripts/report.py --region ${user_config.region
 
 Only these names, written with braces, are filled in: `$HOME` and other `${…}` text reaches the agent as written. As in Claude Code, a name is filled in wherever it appears, including in examples.
 
+Skills keep their plain names. When two plugins both ship a skill with the same name, such as `configure`, the agent sees each one as `<plugin>:<name>` (`telegram:configure`, `discord:configure`), the name Claude Code gives it. A skill that names another as `/telegram:access` loads that plugin's copy.
+
 ### Claude Code commands
 
 From Enconvo 2.5.7, a Claude Code plugin's commands install as skills, the way Claude Code treats them: every `commands/<name>.md` and the files or folders the manifest's `commands` field names. The file name is the skill's name (a command in `commands/git/push.md` becomes `git-push`), and a skill with the same name wins. The `description`, or the file's first line, describes it.
@@ -248,7 +250,7 @@ Commit the staged changes with the message $ARGUMENTS.
 
 A plugin installed with an earlier Enconvo gets its commands the next time Enconvo starts.
 
-Command names aren't prefixed with the plugin's name, so prefer a specific name such as `commit-push-pr` over `help`.
+When another plugin has a command or skill of the same name, the agent sees each one as `<plugin>:<name>`, as Claude Code names them (see [Skills](#skills)). A specific name such as `commit-push-pr` still reads better than `help`.
 
 ## Agents
 
