@@ -9,6 +9,7 @@ description: "What each problem `enconvo plugin validate`, `scan`, `pack` and `p
 npx -p @enconvo/api enconvo plugin validate [path]            # the folder, a .zip or a marketplace
 npx -p @enconvo/api enconvo plugin validate [path] --openai   # OpenAI's portal rules become errors
 npx -p @enconvo/api enconvo plugin validate [path] --json     # the result as JSON
+npx -p @enconvo/api enconvo plugin validate [path] --previous <release>   # check an update against the release before it
 ```
 
 Each problem is one line: its severity, its code, the file it is in, and what is wrong.
@@ -296,6 +297,27 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded` and, from `plugin scan --openai`, `screenshots_not_allowed`.
 
+## Updates
+
+An update replaces the whole plugin, on OpenAI's portal as in Enconvo and Codex. To check a new version as an update, give `validate` or `pack` the release before it, as a `.zip` or a folder: the zip `plugin pack` made, or the one OpenAI's portal gives you with **Download release ZIP** in the published version's **…** menu.
+
+```sh
+npx -p @enconvo/api enconvo plugin validate --openai --previous my-plugin-1.0.0.zip
+npx -p @enconvo/api enconvo plugin pack --openai --previous my-plugin-1.0.0.zip
+```
+
+Only what changed counts; the previous release's own problems aren't reported. `validate --json` lists the skills and MCP servers it compares under `components`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_previous_unreadable` | error | The previous release isn't there, or it isn't a plugin; the message gives its first error. |
+| `plugin_name_mismatch` | portal | The plugin's `name` changed. OpenAI's portal takes an update only under the published plugin's name, and Enconvo and Codex install a renamed plugin as another plugin. |
+| `plugin_version_unchanged` | warning, also with `--openai` | The `version` is the previous release's. OpenAI's portal asks you to confirm before it reuses a published version, and Enconvo's store doesn't take one. |
+| `plugin_version_not_higher` | warning | The version is lower than the previous release's, or differs from it only in build metadata (`1.0.0+2`). Enconvo's store takes only a higher version. Checked when both are version numbers like `1.2.0`. |
+| `mcp_server_added_to_skills_plugin` | portal | The previous release has no MCP server and this version adds one. OpenAI's portal takes an MCP server only in a plugin's first ZIP. Checked for a plugin with a `plugin.json`; Enconvo's store takes the change. |
+| `mcp_server_url_changed` | portal | A remote MCP server's URL changed. OpenAI's update flow can't move a published server: ask OpenAI's support to change it, or keep the old URL. A URL with a variable, such as `${MCP_URL}`, isn't compared. Checked for a plugin with a `plugin.json`. |
+| `plugin_components_removed` | warning | This version leaves out skills or MCP servers the previous release has, so the update removes them for everyone who installed it. |
+
 ## Codes only OpenAI's portal reports
 
 OpenAI's portal has a few codes that `validate` doesn't report, because they repeat a rule `validate` already checks under another code, or because only OpenAI can check them.
@@ -306,7 +328,6 @@ OpenAI's portal has a few codes that `validate` doesn't report, because they rep
 | `submission_developer_name_*`, `developer_name_defaulted` | The developer name comes from your verified OpenAI identity. |
 | `manifest_normalized` | The portal saves the manifest it read as `.codex-plugin/plugin.json`, and asks you to confirm any field it changed. |
 | `skill_frontmatter_adjusted` | The portal trimmed the spaces around a skill's `name` and `description` and collapsed the spaces inside them. Nothing to fix. |
-| `plugin_name_mismatch`, `plugin_version_unchanged` | An update to a plugin already on the portal has a different `name`, or the same `version`; the portal asks you to confirm a reused version. Enconvo's store refuses a version it already has when you publish. |
 | `mcp_configuration_excluded` | The portal took an MCP configuration out of a skills-only upload. |
 | `archive_member_path_too_long`, `skill_bundle_too_large` | A path, or a skill's compressed files, are over a limit OpenAI doesn't publish; the portal's message gives the limit. |
 | `archive_plugin_files_missing` | A skills-only ZIP has no plugin manifest or no valid skill. `validate` reports these as `plugin_manifest_missing` and the `skill_*` codes. |

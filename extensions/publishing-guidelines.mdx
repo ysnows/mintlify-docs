@@ -151,6 +151,7 @@ Before you run `plugin publish`:
 
 - `plugin validate` reports no errors, and you have read its warnings.
 - `version` is higher than the last version you published, and every manifest in the package gives the same name and version.
+- For an update, `plugin validate --previous` with the zip of the release before it reports nothing you didn't mean: an update replaces the whole plugin, so a skill or MCP server it leaves out is removed (`plugin_components_removed`).
 - The title, description and icon say what the plugin does, and the screenshots show it working.
 - A homepage or support address is set, and a privacy policy is linked if the plugin sends data anywhere.
 - Every MCP tool has a clear name and description and sets `readOnlyHint`, `destructiveHint` and `openWorldHint`, and `plugin scan` lists them without problems.
@@ -183,6 +184,8 @@ npx -p @enconvo/api enconvo plugin pack --openai
 After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool. It no longer asks you to justify them; if its automated review flags one, you can appeal with an explanation. A plugin whose views embed pages still needs a justification for each embedded page: what it does, why the plugin embeds it, and who controls its domain. Pages from the MCP server's own registrable domain are allowed, and separate tenants on a shared host count as different domains. `scan --openai` lists the domains your views embed (`frame_domain_explanation_required`).
 
 Before you can submit the plugin, the portal verifies that you control the MCP server's domain: it gives you a token to serve as plain text at `/.well-known/openai-apps-challenge` on the server's host or a parent domain. `scan --openai` says what those URLs answer, and `scan --challenge-token <token>` checks that one serves exactly the token before you select **Verify Domain**; see [Domain verification](/extensions/validation-codes#domain-verification).
+
+To update a plugin you published there, upload a complete ZIP with a higher version and everything you mean to keep. If you didn't keep the zip of the published version, the portal gives it to you with **Download release ZIP** in that version's **…** menu; check the new version against it with `validate --openai --previous <zip>`. The portal can't add an MCP server to a published plugin that had none, or change a published server's URL (ask OpenAI's support for that), and `--previous` reports both; see [Updates](/extensions/validation-codes#updates).
 
 OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
 
