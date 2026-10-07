@@ -41,7 +41,7 @@ An Enconvo plugin's source code has to be built before it works, so the dialog g
 
 ## From a chat
 
-When you ask Enconvo's agent for something your plugins can't do, it can look for a plugin in the plugin marketplaces on your Mac: the ones you've added in Enconvo, and the ones you've added in Codex or Claude Code that Enconvo doesn't have yet (see [Marketplaces you added in Codex or Claude Code](#marketplaces-you-added-in-codex-or-claude-code)). It reads the copies of their catalogs already on your Mac and downloads nothing while it looks. It leaves out plugins you've installed, and plugins named like one you've installed from somewhere else.
+When you ask Enconvo's agent for something your plugins can't do, it can look for a plugin in the plugin marketplaces on your Mac: the ones you've added in Enconvo, and the ones Codex or Claude Code has that Enconvo doesn't have yet, including the OpenAI Curated marketplace that comes with Codex (see [Marketplaces you added in Codex or Claude Code](#marketplaces-you-added-in-codex-or-claude-code)). It reads the copies of their catalogs already on your Mac and downloads nothing while it looks. It leaves out plugins you've installed, and plugins named like one you've installed from somewhere else.
 
 When it finds one, the agent shows a card in the chat, and nothing installs until you click **Install**:
 
@@ -52,7 +52,7 @@ Either way, the plugin's hooks stay off until you turn them on in **Plugins**. W
 
 ### Plugins from ChatGPT
 
-Plugins in the [ChatGPT plugin directory](https://chatgpt.com/plugins) can't be installed in Enconvo. Most of them are ChatGPT apps, which run only inside ChatGPT, and OpenAI gives the rest of them only to ChatGPT and Codex. If you've signed in to Codex on your Mac, the agent knows the directory from the copy Codex keeps. When you name one of its plugins or paste its chatgpt.com link, the agent tells you why it can't install it and offers something that does the same: a Connector, an MCP server, a skill, or a plugin with the same name in one of your marketplaces. Many of the directory's plugins that come with files also have a plugin of the same name in OpenAI's `openai/plugins` repository, the marketplace Codex calls OpenAI Curated. Enconvo doesn't add it for you: paste `openai/plugins` into **Add from GitHub** and install one of its plugins, or run `npx -p @enconvo/api enconvo plugin marketplace add openai/plugins`. After that, the agent offers its plugins too. Enconvo doesn't load the ChatGPT apps those plugins include, only their skills and MCP servers.
+Plugins in the [ChatGPT plugin directory](https://chatgpt.com/plugins) can't be installed in Enconvo. Most of them are ChatGPT apps, which run only inside ChatGPT, and OpenAI gives the rest of them only to ChatGPT and Codex. If you've signed in to Codex on your Mac, the agent knows the directory from the copy Codex keeps. When you name one of its plugins or paste its chatgpt.com link, the agent tells you why it can't install it and offers something that does the same: a Connector, an MCP server, a skill, or a plugin with the same name in one of your marketplaces. Many of the directory's plugins that come with files also have a plugin of the same name in OpenAI Curated, the marketplace that comes with Codex (OpenAI's public `openai/plugins` repository). The agent offers that plugin, and installing it adds OpenAI Curated to Enconvo. Enconvo doesn't load the ChatGPT apps those plugins include, only their skills and MCP servers.
 
 A chatgpt.com link doesn't work in **Add from GitHub** either; the dialog says the same thing.
 
@@ -128,14 +128,14 @@ npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
 
 ### Marketplaces you added in Codex or Claude Code
 
-If you've added marketplaces in Codex or Claude Code on this Mac, `marketplace list` shows the ones Enconvo doesn't have yet, and `import` adds them, so you don't type their addresses again:
+If you've added marketplaces in Codex or Claude Code on this Mac, or Codex has fetched its OpenAI Curated marketplace, `marketplace list` shows the ones Enconvo doesn't have yet, and `import` adds them, so you don't type their addresses again:
 
 ```sh
 npx -p @enconvo/api enconvo plugin marketplace import                            # all of them
 npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # only these
 ```
 
-Enconvo finds them in Codex's `~/.codex/config.toml` and personal `~/.agents/plugins/marketplace.json`, and in Claude Code's list of known marketplaces. It only reads those files and changes nothing in either app. It leaves out the marketplaces that come with Codex, and Claude Code marketplaces added from the web address of a `marketplace.json` file, which Enconvo doesn't add. When both apps have a marketplace of the same name, it offers Codex's.
+Enconvo finds them in Codex's `~/.codex/config.toml`, its copy of OpenAI Curated, and its personal `~/.agents/plugins/marketplace.json`, and in Claude Code's list of known marketplaces. It only reads those files and changes nothing in either app. OpenAI Curated is added from `openai/plugins` on GitHub. It leaves out the other marketplaces that come with Codex, which hold plugins for Codex's own tools, and Claude Code marketplaces added from the web address of a `marketplace.json` file, which Enconvo doesn't add. When both apps have a marketplace of the same name, it offers Codex's.
 
 A marketplace's plugins can come from a folder in the marketplace, another GitHub repository, a git address, a folder in a git repository, npm, or a zip on the web (Claude Code's `archive` source). A plugin a Codex marketplace marks `NOT_AVAILABLE` can't be installed.
 
