@@ -211,6 +211,21 @@ policy:
 
 `display_name` becomes the skill's title in Enconvo. With `allow_implicit_invocation: false`, or Claude Code's `disable-model-invocation: true` in `SKILL.md`, the agent doesn't pick the skill on its own and uses it only when someone asks for it.
 
+From Enconvo 2.5.7, the agent reads a skill with Claude Code's variables filled in, so a skill can run its own scripts:
+
+```markdown
+Run `python3 ${CLAUDE_SKILL_DIR}/scripts/report.py --region ${user_config.region}`.
+```
+
+| Variable | Becomes |
+|---|---|
+| `${CLAUDE_SKILL_DIR}` | The skill's own folder, in any skill |
+| `${CLAUDE_PLUGIN_ROOT}` | The plugin's installed folder |
+| `${CLAUDE_PLUGIN_DATA}` | The plugin's data folder, kept across updates (created when a skill names it) |
+| `${user_config.KEY}` | The plugin's setting `KEY`. A sensitive setting shows as `[hidden: the "<title>" setting]`, and one that's empty as `[not set: the "<title>" setting]` |
+
+Only these names, written with braces, are filled in: `$HOME` and other `${…}` text reaches the agent as written. As in Claude Code, a name is filled in wherever it appears, including in examples.
+
 ### Claude Code commands
 
 From Enconvo 2.5.7, a Claude Code plugin's commands install as skills, the way Claude Code treats them: every `commands/<name>.md` and the files or folders the manifest's `commands` field names. The file name is the skill's name (a command in `commands/git/push.md` becomes `git-push`), and a skill with the same name wins. The `description`, or the file's first line, describes it.
@@ -226,7 +241,7 @@ Current status: !`git status`
 Commit the staged changes with the message $ARGUMENTS.
 ```
 
-- `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}` become the plugin's installed folder and its data folder.
+- `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}` become the plugin's installed folder and its data folder, and `${user_config.KEY}` the plugin's setting, as in [skills](#skills).
 - `$ARGUMENTS`, `$1` and named `arguments` stand for what the person wrote with the command, and the agent runs `` !`command` `` lines and ` ```! ` blocks with its shell tool before it follows the rest.
 - `disable-model-invocation: true` (or the older `hide-from-slash-command-tool: "true"`) makes it a skill only people start.
 - `allowed-tools` and `model` are ignored: the agent keeps its usual tools, model and approvals.
@@ -316,8 +331,9 @@ Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `us
 - **Sensitive settings** are filled in only as the server starts, so they never appear in Enconvo's saved server settings.
 - **Missing settings**: a server that needs a required setting you haven't filled in doesn't start, and says which setting to fill in. An optional setting left empty becomes an empty value.
 - **Changes**: saving a setting on the plugin's page restarts the servers that use it, with the new value.
+- **In skills and commands**: `${user_config.KEY}` in a skill's or command's text becomes the setting's value when the agent loads it (see [Skills](#skills)). A sensitive setting stays out of the conversation.
 
-Skills, commands and hooks don't receive `${user_config.KEY}` or `CLAUDE_PLUGIN_OPTION_<KEY>` in Enconvo yet.
+Hooks don't receive `CLAUDE_PLUGIN_OPTION_<KEY>` in Enconvo yet.
 
 ## What Enconvo doesn't load
 
