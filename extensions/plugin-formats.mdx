@@ -10,7 +10,7 @@ Enconvo installs its own plugins and the plugins other AI apps use. A Codex or C
 | Format | Enconvo recognizes it by | What Enconvo loads |
 |---|---|---|
 | Enconvo plugin | `package.json` with Enconvo's `$schema` or a `commands` list | Commands, Local API routes, AI model and voice providers, settings, skills and MCP servers |
-| Claude Code plugin | `.claude-plugin/plugin.json` | Skills, MCP servers, and `userConfig` as settings |
+| Claude Code plugin | `.claude-plugin/plugin.json` | Skills, MCP servers, and settings from `userConfig` and `channels` |
 | Codex plugin | `.codex-plugin/plugin.json` | Skills, MCP servers, and the listing in `interface` |
 | Portable plugin ([Agent Plugins](https://agent-plugins.org)) | `plugin.json` at the root, with a `name` | Skills, MCP servers, and the listing in `extensions["com.openai"]` |
 | Desktop extension (MCPB, formerly DXT) | `manifest.json` | Its MCP server, and `user_config` as settings |
@@ -350,6 +350,34 @@ Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `us
 ```
 
 A sensitive setting reaches the hooks that can change what the agent does (`PreToolUse`, `Stop` and `SubagentStop`). The other events' hooks run without it, and a hook that names it in `args` doesn't start for those events.
+
+### Channel settings
+
+A Claude Code channel binds a message channel, such as a chat-app bridge, to one of the plugin's MCP servers. Settings a channel asks for in its own `userConfig` appear on the plugin's settings page after the plugin's own, titled with the channel's `displayName` (such as **Telegram: Bot token**), and fill `${user_config.KEY}` only in that server's `env`:
+
+```json .claude-plugin/plugin.json
+{
+  "name": "chat-bridge",
+  "mcpServers": {
+    "telegram": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server.js"],
+      "env": { "BOT_TOKEN": "${user_config.bot_token}" }
+    }
+  },
+  "channels": [
+    {
+      "server": "telegram",
+      "displayName": "Telegram",
+      "userConfig": {
+        "bot_token": { "type": "string", "title": "Bot token", "description": "Telegram bot token", "sensitive": true, "required": true }
+      }
+    }
+  ]
+}
+```
+
+A channel's setting can share its key with one of the plugin's own settings or another channel's: each is saved apart, and the server's `args`, `url` and headers, like every other server, still use the plugin's own settings. Hooks see a channel setting as `CLAUDE_PLUGIN_OPTION_CHANNEL__<SERVER>__<KEY>`.
 
 ## What Enconvo doesn't load
 
