@@ -368,7 +368,7 @@ A Claude Code or Codex plugin's hooks run commands on the person's Mac when some
       { "matcher": "Bash", "hooks": [{ "type": "command", "command": "./scripts/guard.sh", "timeout": 10 }] }
     ],
     "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/session-start.mjs" }] }
+      { "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-start.mjs\"" }] }
     ]
   }
 }
@@ -389,6 +389,8 @@ Because they run commands, a plugin's hooks install turned off. People allow the
 - **Commands**: a command that starts with `./` runs the file in your plugin. Each command gets `PLUGIN_ROOT` and `PLUGIN_DATA` (and the `CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DATA` names) in its environment, the plugin's settings as `CLAUDE_PLUGIN_OPTION_<KEY>` (see [Settings](#settings)), and the event as JSON on stdin. A hook that runs in a chat with a working folder starts there and gets it as `CLAUDE_PROJECT_DIR`.
 - **Timeouts**: `timeout` is in seconds, 60 by default and at most 600. A hook marked `async` starts and isn't waited for.
 - **Skipped**: other events (such as `PostToolBatch` or `PreCompact`), hooks whose `type` isn't `command`, hooks with an `if` permission rule, and shell commands that name `${user_config.KEY}` don't run in Enconvo. The preview and the plugin's page list them.
+
+For hooks that also work in Claude Code and Codex, put them in `hooks/hooks.json`, which both read (Codex only when its manifest's `hooks` names nothing else), and keep to what both take: `command` hooks with the whole command line in `command`, since Codex has no `args`, each `${CLAUDE_PLUGIN_ROOT}` path in double quotes, a whole number of seconds in `timeout`, and only `description` and `hooks` at the top of the file. Hooks written in a manifest differ between the two: Claude Code's `hooks` holds the events themselves, Codex's a whole hooks file, `{"hooks": {…}}`. Claude Code doesn't load a plugin whose hooks file isn't valid JSON, and applies none of a file's hooks when it can't read one under `PreToolUse` or `PermissionRequest`; Codex skips a whole file over a top-level field other than `description` and `hooks`, or a hook type it doesn't know. `plugin validate` reports each of these with what each app does (see [Hooks](/extensions/validation-codes#hooks)).
 
 Enconvo's store takes a plugin with hooks, but OpenAI's portal can't take one yet, and neither can it take app references (`apps` or `.app.json`). `plugin validate --openai` flags both, so leave them out of the package you upload there.
 

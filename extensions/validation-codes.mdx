@@ -243,6 +243,32 @@ These apply to every MCP file the plugin has, and to the servers a Claude Code p
 | `hooks_configuration_excluded` | portal | OpenAI's portal can't take a plugin with lifecycle hooks (the manifest's `hooks`, `hooks/hooks.json` or `hooks.json`) yet. Leave them out of the package you upload there; Enconvo's store takes them. |
 | `screenshot_configuration_excluded` | portal | `interface.screenshots` is for a plugin with an MCP server and its own interface; OpenAI's portal refuses it in a plugin that has only skills. |
 
+## Hooks
+
+These apply to `hooks/hooks.json`, the files the manifest's `hooks` names, and hooks written in the manifest itself, checked as `claude plugin validate` checks them and as Codex reads them. Each message says what Claude Code and Codex do about the problem. Claude Code reads a Claude Code plugin's hooks; Codex reads the hooks of the manifest it loads (`.codex-plugin/plugin.json`, a portable plugin's `extensions["com.openai"].hooks`, or a Claude Code plugin's when it has no other manifest).
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `hooks_unreadable`, `hooks_json_malformed` | error | A hooks file isn't readable UTF-8 JSON. Claude Code doesn't load the plugin at all, and Codex skips the file. |
+| `hooks_wrong_type` | error | A hooks file, or its `hooks`, isn't an object. Claude Code and Codex skip every hook in it. |
+| `hooks_events_outside` | error or warning | Events such as `PreToolUse` are at the top of the file, beside `hooks`, instead of inside it: `{"hooks": {"PreToolUse": […]}}`. Codex skips the file, and so does Claude Code when one of them is `PreToolUse` or `PermissionRequest`, or the file has no `hooks`; it ignores other stray events. |
+| `hooks_events_missing` | error | A hooks file has no `hooks` object of events, so Claude Code applies none of it. |
+| `hooks_field_unsupported` | error or warning | A hooks file has `surface`, which Claude Code no longer takes, or another field than `description` and `hooks`, which Codex refuses: it skips every hook in the file. |
+| `hooks_field_wrong_type` | error | A hooks file's `description` isn't text, or its `modules` isn't a list of one hooks module. |
+| `hook_event_unknown` | warning | Claude Code or Codex doesn't send the event, so it ignores those hooks. Codex sends 12 events: 11 of Claude Code's, such as `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `SessionStart` and `Stop`, and its own `Interrupt`. |
+| `hook_matchers_wrong_type`, `hook_matcher_invalid`, `hook_entry_invalid` | error or warning | An event isn't a list of matchers, a matcher isn't `{"matcher": "…", "hooks": […]}` with text in `matcher`, or a hook isn't an object with a `type`. |
+| `hook_type_unknown` | error or warning | A hook's `type` isn't one Claude Code (`command`, `prompt`, `agent`, `http`, `mcp_tool`) or Codex (`command`, `prompt`, `agent`, `mcp_tool`) knows. Codex skips the whole file over a type it doesn't know, such as `http`. |
+| `hook_field_wrong_type` | error or warning | A hook misses a field its type needs (`command`, `prompt`, `url`, or `server` and `tool`) or has one of the wrong kind, such as a `timeout` that isn't a number above 0 (Codex needs a whole number), a `url` that isn't absolute, or `headers` values that aren't text. |
+| `hook_type_unsupported` | warning | A `prompt` or `agent` hook in a Codex plugin: Codex reads it but doesn't run it yet. |
+| `hook_args_ignored` | warning | A `command` hook Codex reads has `args`. Codex has none, so it runs the `command` alone: write the whole command line there, with each path in double quotes. |
+| `hook_command_placeholder_unquoted` | warning | A shell command uses `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}` or `${CLAUDE_PROJECT_DIR}` outside quotes, so it breaks when the path has a space. Write `"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh"`. |
+| `plugin_hooks_wrong_type` | error or warning | The manifest's `hooks` isn't a path to a hooks file, the hooks themselves, or a list of them, or the list mixes paths and hooks, which Codex ignores. |
+| `plugin_hooks_path_invalid`, `plugin_hooks_path_missing`, `plugin_hooks_path_not_file` | error | A path in `hooks` doesn't start with `./`, points at nothing, or points at a folder. |
+| `hooks_inline_format_conflict` | warning | Hooks written in a manifest have the other app's shape: Claude Code's `hooks` holds the events themselves, Codex's a whole hooks file, `{"hooks": {…}}`, and each ignores the other's. Put them in `hooks/hooks.json`, which both read. |
+| `hooks_file_ignored` | warning | `hooks/hooks.json` isn't loaded by Codex because its manifest names other hooks (Claude Code always adds the file), or the plugin has a `hooks.json` at its root, which neither app loads unless the manifest names it. Name the file in `hooks`, or move it to `hooks/hooks.json`. |
+
+An error here means the plugin's own app loses hooks: Claude Code applies none of a file's hooks when it can't read one under `PreToolUse` or `PermissionRequest`, since that hook may be what guards the plugin, and Codex skips a whole file it can't parse. When only the other app is affected, such as Codex reading a Claude Code plugin, or Claude Code ignoring one entry under another event, it is a warning.
+
 ## Archives
 
 When you validate a `.zip`, these are errors. When you validate a folder, `validate` checks the archive `plugin pack` would make from it, and reports the file rules as portal rules; the `plugin_root_*` rules apply only to a `.zip`. A file or folder in it that you don't have permission to read is an `archive_member_unreadable` error for a folder too, because `pack` and `publish` can't zip it: run `chmod u+r` on it (`u+rx` for a folder), or move it out of the plugin.
