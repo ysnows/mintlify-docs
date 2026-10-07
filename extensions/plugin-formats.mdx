@@ -233,6 +233,28 @@ Commit the staged changes with the message $ARGUMENTS.
 
 Command names aren't prefixed with the plugin's name, so prefer a specific name such as `commit-push-pr` over `help`.
 
+## Agents
+
+From Enconvo 2.5.7, a Claude Code plugin's agents (every `agents/<name>.md`, and the files or folders the manifest's `agents` field names) become helpers that an agent can hand work to, in any chat running in Agent mode. They also appear in the composer's `@` menu after Explorer and Subagent. Enconvo reads the same frontmatter Claude Code does:
+
+```markdown
+---
+name: code-reviewer
+description: Reviews a diff for bugs. Use after editing code.
+tools: Read, Grep, Glob
+model: sonnet
+---
+
+Review the changes for bugs. Read ${CLAUDE_PLUGIN_ROOT}/checklist.md first.
+```
+
+- `description` tells the agent when to use the helper. `<example>` blocks are left out of what it sees.
+- A `tools` list with only reading tools (`Read`, `Grep`, `Glob`, `WebFetch`, …), or `permissionMode: plan`, makes the helper read-only. Other tool lists limit what it may call.
+- `model` is used when the chat's model provider has a matching model, and the helper otherwise runs on the chat's model.
+- `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}` become the plugin's installed folder and its data folder.
+
+A project's own helper (in `.claude/agents/`, `.codex/agents/` or `.enconvo/agents/`) keeps its name. A plugin helper whose name is already taken, by a project helper, another plugin or a built-in role such as `explorer`, gets the plugin's name in front (`pr_review_toolkit_code_reviewer`). An agent is offered at most 20 helpers, the project's first.
+
 ## Hooks
 
 A Claude Code or Codex plugin's hooks run commands on the person's Mac when something happens in a chat. Enconvo finds them where Claude Code and Codex do: the manifest's `hooks` field (a path, several paths, or the hooks themselves), `extensions["com.openai"].hooks`, `hooks/hooks.json`, and a `hooks.json` at the plugin's root.
@@ -302,7 +324,6 @@ Skills, commands and hooks don't receive `${user_config.KEY}` or `CLAUDE_PLUGIN_
 | Part | What happens |
 |---|---|
 | ChatGPT apps (`.app.json`) | The plugin's page says it needs a ChatGPT app, and Enconvo installs the rest of the plugin. An app counts as needed unless its entry says `"required": false` or `"optional": true`, as OpenAI's own plugins mark the apps they can do without. |
-| Claude Code `agents/` | Not loaded. Write them as skills to use them in Enconvo. |
 | LSP servers and output styles | Not loaded. |
 
 ## Check a package
