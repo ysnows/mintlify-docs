@@ -268,6 +268,8 @@ description: Summarizes a set of notes into key points. Use when the user asks f
 Instructions the agent follows when it uses the skill.
 ```
 
+From Enconvo 2.5.7, Enconvo reads this frontmatter as YAML, the way Claude Code does. A `description` that wraps over several lines, starts on the line below `description:`, uses quotes and escapes, or is folded with `>` reaches the agent as Claude Code shows it. The same goes for a Claude Code command's frontmatter. A list becomes its text, as in Claude Code: `argument-hint: [file]` reads `file`, so quote it (`argument-hint: "[file]"`) to keep the brackets. Frontmatter that isn't valid YAML is still read a line at a time. `enconvo plugin validate` reports it, because Claude Code then loads the file without its description (see [validation codes](/extensions/validation-codes#claude-code-agents-and-commands)). A plugin installed before then picks up the new descriptions when it updates or is installed again.
+
 An `agents/openai.yaml` next to it sets how Codex and Enconvo list the skill:
 
 ```yaml
