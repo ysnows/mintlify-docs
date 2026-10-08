@@ -182,6 +182,22 @@ A Claude Code plugin's `agents` and `commands` fields are checked as Claude Code
 | `plugin_command_entry_content_empty` | error | A command's `content` is empty. |
 | `default_agents_folder_ignored`, `default_commands_folder_ignored` | warning | The plugin has an `agents/` or `commands/` folder, but the field doesn't list it, so nothing in it is installed. |
 
+The frontmatter of each command, agent and skill (the `---` block at the top of the file) is read as Claude Code reads it. Claude Code parses it as YAML, and when that fails it tries once more after putting top-level values that hold `: ` or a YAML symbol such as `@`, `*` or `#` in quotes. Frontmatter that still fails loads with no metadata: a command or skill loses its description and every other field, and an agent keeps only the name its file gives it. Quote a value that holds `: ` or starts with a symbol, at any level, to be safe.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_component_frontmatter_invalid` | error | Claude Code can't parse the frontmatter. The message gives the line and what to change, such as a quote that isn't closed, a nested value with `: ` in it, or a line indented more than the keys around it. |
+| `plugin_component_frontmatter_wrong_type` | error | The frontmatter is a list or a single value instead of `key: value` lines. |
+| `plugin_component_frontmatter_missing` | warning | A command or agent has no frontmatter, so Claude Code shows it without a description. |
+| `plugin_component_description_missing` | warning | A command or agent has no `description`, which tells people and Claude when to use it. A skill gets `skill_description_missing`. |
+| `plugin_component_field_wrong_type` | error | `description` or `name` isn't text, `allowed-tools` isn't text or a list of tool names, or `shell` isn't text. YAML reads `name: 5` as a number and `name: true` as a boolean, so put such values in quotes. |
+| `plugin_component_shell_invalid` | error | A command's or skill's `shell` isn't `bash` or `powershell`. |
+| `plugin_component_metadata_ignored` | warning | A command's or skill's `metadata` isn't `key: value` pairs, so Claude Code drops it. |
+| `plugin_component_unreadable` | error | A command or agent file can't be read. |
+| `plugin_root_context_ignored` | warning | The plugin has a `CLAUDE.md` or `CLAUDE.local.md` at its root. Neither Claude Code nor Enconvo loads it as context; put that context in a skill (`skills/<name>/SKILL.md`). |
+
+Every `.md` file under `commands/`, `agents/` and the paths the manifest lists is checked, including hidden folders. A skill whose frontmatter, name or description already has a `skill_*` finding isn't checked again. Only a plugin with a `.claude-plugin/plugin.json` is read this way.
+
 Claude Code's directory listing fields are checked as warnings, because Claude Code ignores them when it loads the plugin. Enconvo and the plugin store leave out a bad one.
 
 | Code | Severity | Meaning |
