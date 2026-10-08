@@ -283,6 +283,20 @@ policy:
 
 `display_name` becomes the skill's title in Enconvo. With `allow_implicit_invocation: false`, or Claude Code's `disable-model-invocation: true` in `SKILL.md`, the agent doesn't pick the skill on its own and uses it only when someone asks for it.
 
+From Enconvo 2.5.7, the MCP servers a skill needs, listed under `dependencies.tools` the way Codex lists them, work in Enconvo too:
+
+```yaml
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "linear"
+      description: "Linear MCP server"
+      transport: "streamable_http"   # the default; or "stdio" with a command
+      url: "https://mcp.linear.app/mcp"
+```
+
+When the agent loads the skill, Enconvo connects the MCP server you added with that URL (or, for `stdio`, that command), whatever you named it, even if it's switched off, and gives the agent its tools. As in Codex, a server counts by what it runs, not by its name. For a server you haven't added, one that needs you to sign in, or one that can't connect, the agent is told which it is and how to fix it, and asks you before it adds a server or opens a sign-in. Other `transport` values are skipped, as they are in Codex.
+
 From Enconvo 2.5.7, two more Claude Code fields in `SKILL.md` work as they do in Claude Code:
 
 ```markdown
