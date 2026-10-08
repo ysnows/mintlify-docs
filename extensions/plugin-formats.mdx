@@ -283,6 +283,22 @@ policy:
 
 `display_name` becomes the skill's title in Enconvo. With `allow_implicit_invocation: false`, or Claude Code's `disable-model-invocation: true` in `SKILL.md`, the agent doesn't pick the skill on its own and uses it only when someone asks for it.
 
+From Enconvo 2.5.7, two more Claude Code fields in `SKILL.md` work as they do in Claude Code:
+
+```markdown
+---
+name: triage-crash
+description: Reads a crash log and names the likely cause.
+when_to_use: Use when the user pastes a stack trace or a crash report.
+user-invocable: false
+---
+```
+
+- `when_to_use` is added to the description the agent sees (`description - when_to_use`), and skill search matches it too.
+- `user-invocable: false` keeps the skill out of the `/` and `$` menus and the SmartBar's skill search, for skills that only make sense when the agent picks them. The agent still sees and uses it.
+
+Yes-or-no fields are read as Claude Code reads them: `true`, `yes`, `on` and `1` mean yes, and `false`, `no`, `off` and `0` mean no. Any other `user-invocable` value also hides the skill from the menus.
+
 From Enconvo 2.5.7, the agent reads a skill with Claude Code's variables filled in, so a skill can run its own scripts:
 
 ```markdown
@@ -331,6 +347,7 @@ Commit the staged changes with the message $ARGUMENTS.
 - `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}` become the plugin's installed folder and its data folder, and `${user_config.KEY}` the plugin's setting, as in [skills](#skills).
 - `$ARGUMENTS`, `$1` and named `arguments` stand for what the person wrote with the command, and the agent runs `` !`command` `` lines and ` ```! ` blocks with its shell tool before it follows the rest.
 - `disable-model-invocation: true` (or the older `hide-from-slash-command-tool: "true"`) makes it a skill only people start.
+- `user-invocable: false` keeps it out of the `/` and `$` menus, and `when_to_use` is added to what the agent sees, as in [skills](#skills).
 - `allowed-tools` and `model` are ignored: the agent keeps its usual tools, model and approvals.
 
 A plugin installed with an earlier Enconvo gets its commands the next time Enconvo starts.
