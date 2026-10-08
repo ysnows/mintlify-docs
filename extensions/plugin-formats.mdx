@@ -283,6 +283,19 @@ policy:
 
 `display_name` becomes the skill's title in Enconvo. With `allow_implicit_invocation: false`, or Claude Code's `disable-model-invocation: true` in `SKILL.md`, the agent doesn't pick the skill on its own and uses it only when someone asks for it.
 
+From Enconvo 2.5.7, `short_description` is the line the `/` and `$` menus and the SmartBar's skill search show under the skill's name, and those searches match it. Without it, Enconvo uses `short-description` under `metadata` in the `SKILL.md` frontmatter, as Codex does, and then the `description`:
+
+```markdown
+---
+name: summarize-notes
+description: Summarizes the user's notes for a date range, grouped by project, with open questions and decisions listed separately.
+metadata:
+  short-description: Key points from your notes
+---
+```
+
+Keep it short; Codex ignores a `short_description` longer than 1,024 characters, and so does Enconvo. The agent always reads the full `description` to decide when to use the skill.
+
 From Enconvo 2.5.7, the MCP servers a skill needs, listed under `dependencies.tools` the way Codex lists them, work in Enconvo too:
 
 ```yaml
