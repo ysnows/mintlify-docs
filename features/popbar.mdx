@@ -1,9 +1,9 @@
 ---
 title: "PopBar"
-description: "Run configurable commands on selected text from a compact toolbar."
+description: "Run configurable commands and PopBar extensions on selected text from a compact toolbar."
 ---
 
-PopBar appears near selected text when enabled. Its commands can explain, translate, edit, search, copy, or read the selection aloud.
+PopBar appears near selected text when enabled. Its commands can explain, translate, edit, search, copy, or read the selection aloud, and [PopBar extensions](#popbar-extensions) add more buttons, such as a web search, a text converter, or sending the selection to another app.
 
 ## Use PopBar
 
@@ -14,22 +14,80 @@ PopBar appears near selected text when enabled. Its commands can explain, transl
 
 You can also run **Show PopBar** with an assigned shortcut. Selection detection depends on the app and Accessibility permission; secure fields and some custom editors may not expose selectable text.
 
-## Configure the command list
+## Choose the buttons
 
-In PopBar settings, edit **PopBar Command List** to add, remove, and reorder commands. The list can include Ask AI, Ask in Sidebar, Open Link, Search, Copy, Translate, Explain, Fix Spelling, AI Edit, and Read Aloud. The actual toolbar reflects your configured list.
+The **Buttons** tab of PopBar settings shows the bar's buttons in one strip. Drag a button to reorder it, point to it and click **×** to take it off, or click it for more options. **Reset to Default** brings back the default buttons.
 
-Customize labels and whether a command shows an icon or text where those controls are available. Add a reusable [AI Command](/features/ai-commands) or a [Writing Toolkit](/features/writing-tools) command for your own editing workflow.
+Click **Add Buttons** to open the Button Gallery. It has Ask AI, Ask in Sidebar, Open Link, Search, Copy, Translate, Explain, Fix Spelling, AI Edit, Read Aloud, and more, the actions of your [PopBar extensions](#popbar-extensions), and a way to make your own [AI Command](/features/ai-commands). You can also add a [Writing Toolkit](/features/writing-tools) command for your own editing workflow. The toolbar reflects the buttons you added.
 
 ## Control where it appears
 
-Review **PopBar Excluded Application** and the activation options in the same settings pane. Exclude apps where automatic selection actions would interrupt your work. Escape dismisses the current toolbar.
+The **When It Shows** tab sets whether PopBar shows only with its hotkey or everywhere, and the places where it stays away. Exclude apps where automatic selection actions would interrupt your work. Escape dismisses the current toolbar.
+
+## PopBar extensions
+
+PopBar extensions are small add-ons whose actions become PopBar buttons. They use the extension format of [PopClip](https://www.popclip.app), so extensions written for PopClip install in Enconvo too. PopBar extensions need Enconvo for Mac.
+
+<Note>
+Enconvo isn't affiliated with Pilotmoon Software, the maker of PopClip.
+</Note>
+
+### Install from Enconvo's catalog
+
+1. Open **Plugins** and choose the **PopBar Extensions** tab.
+2. Browse the catalog by category, or type in the search field to find one.
+3. Click **+** next to an extension, then **Install**.
+4. Add its actions to the bar: in PopBar settings, click **Add Buttons** and add them from the **PopBar Extensions** section.
+
+Enconvo reviews every extension in its catalog before listing it, and installs exactly the version it reviewed. Installed extensions are listed at the top of the tab. When Enconvo has reviewed a newer version of one, its row in the catalog shows **Update**. In the Button Gallery, **Get more…** opens the same tab.
+
+You can also browse the catalog on the web at [app.enconvo.com/popbar-extensions](https://app.enconvo.com/popbar-extensions). On your Mac, an extension's **Install** button opens Enconvo, which shows what the extension can do before anything installs.
+
+### Add an extension from elsewhere
+
+Click **Add PopBar extension…** on the **PopBar Extensions** tab, or in the **Add** menu of the Plugins page. Then do one of these:
+
+- Paste a link to a `.popclipextz` package.
+- Paste a snippet, the short text form of an extension that starts with `#popclip`.
+- Click **Choose file…** to pick a `.popclipextz` package or a `.popclipext` folder on your Mac.
+
+Click **Preview**. Enconvo reads the extension without running it and lists what it can do beyond the PopBar, such as running scripts, connecting to the internet, opening apps, or pressing keys. Nothing installs until you click **Allow and install**. An extension that doesn't come from Enconvo's catalog isn't reviewed by Enconvo, so install it only from a source you trust.
+
+When you select a snippet in any app, the PopBar shows an **Install Extension** button first. Clicking it opens the same preview.
+
+### Import from PopClip
+
+If you use PopClip, click **Import from PopClip…** on the **PopBar Extensions** tab. Enconvo copies your PopClip extensions and their settings, in PopClip's order, and adds their actions to the PopBar. PopClip itself isn't changed.
+
+- An extension that is turned off in PopClip installs, but isn't added to the PopBar.
+- API keys and passwords aren't copied. Enconvo lists the extensions that need them, so enter them again in each extension's settings.
+- An extension that matches a version in Enconvo's catalog counts as reviewed and updates from the catalog.
+
+### Settings, updates, and removal
+
+An extension with options shows **Settings…** on its card in the Button Gallery, which opens its settings on the Plugins page. An extension installed from a link updates from the same link. When an update can do more than the version you allowed, Enconvo shows only what's new and asks again before updating.
+
+To remove an extension, open it from the **PopBar Extensions** tab and uninstall it. Its buttons leave the PopBar.
+
+### What isn't supported yet
+
+- Extensions that sign in to an account.
+- Extensions that build their actions each time the bar appears.
+
+Enconvo tells you during the preview when an extension uses one of these.
+
+### Suggest an extension
+
+Enconvo's catalog lives in [github.com/Enconvo/popbar-extensions](https://github.com/Enconvo/popbar-extensions). Open an issue or pull request there to suggest an extension for review.
 
 ## Troubleshooting
 
 - **No toolbar:** check Enable, Accessibility permission, and app exclusions.
 - **Wrong text:** make a fresh selection and invoke PopBar again.
-- **Missing command:** inspect PopBar Command List and verify that the command's plugin is installed.
+- **Missing command:** check the Buttons tab and verify that the command's plugin is installed.
 - **Result does not replace text:** the destination app may not allow replacement; copy the result and paste it into an editable field.
+- **Extension buttons don't appear:** add the extension's actions in **Add Buttons**. Some actions show only for matching text, such as a link or a number.
+- **Catalog doesn't load:** check your connection, then click **Try again** on the **PopBar Extensions** tab.
 
 ## Change the result's model or settings
 
