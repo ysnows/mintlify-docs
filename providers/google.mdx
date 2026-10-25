@@ -1,38 +1,55 @@
 ---
-title: "Google Gemini AI"
-description: "Connect Google Gemini AI and choose an AI model in Enconvo."
+title: "Google Gemini"
+description: "Chat with Gemini models in Enconvo using a Gemini API key."
 ---
 
-Use **Google Gemini AI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+Use Google's Gemini models in chats, Agents, and AI Commands. Connect with a Gemini API key from Google AI Studio; Google bills the usage to your own account. It's listed as **Google Gemini AI** in Settings.
+
+<Note>
+Google Gemini connects with an API key only. Google stopped supporting the Gemini sign-in for personal Google accounts, so Enconvo removed the Google Account option in 2.5.8. To use models through a Google sign-in, see [Antigravity](/providers/antigravity).
+</Note>
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **Google Gemini AI**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Steps>
+  <Step title="Get an API key">
+    Create a key in [Google AI Studio](https://aistudio.google.com/apikey).
+  </Step>
+  <Step title="Add it to Enconvo">
+    Open **Settings → AI Model → Google Gemini AI**. Under **Authentication**, paste the key into **API Key**, then click **Validate**.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
-## Provider options
+To keep a second Gemini key, click **Add New Provider** and create another profile.
 
-The AI Model page offers **API Key** and **Google Account** authentication. Other Gemini capabilities share the profile’s API key. **Google Search Tool**, **URL Context Tool**, and **Show thoughts** appear where supported. See [Google Account](/providers/google_subscription).
+## Models and options
 
-The provider definition includes: **Model Name**, **Temperature**, **Google Search Tool**, **URL Context Tool**, **Show thoughts**. Some controls appear only for models or authentication methods that support them.
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
+| **Google Search Tool** | Grounds answers in Google Search results, with sources you can check. Off by default. |
+| **URL Context Tool** | Lets the model read the pages at links in your message. Off by default. |
+| **Show thoughts** | Shows summaries of the model's thinking with its answer. Off by default. |
 
-## Use it in a conversation
-
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
-
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+The same Google Gemini profile also serves Gemini text-to-speech, image generation, transcription, video generation, and web search, so changing its key affects those features too.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in Google AI Studio. |
+| A model is missing | Click **Refresh** beside **Model Name**. To add a model yourself, use **Manage Models**. |
+| Answers about current events are out of date | Turn on **Google Search Tool**. |
+| Rate or usage limit errors | Check your quota in Google AI Studio, or switch to another provider for now. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Antigravity" icon="google" href="/providers/antigravity">Use models through a Google sign-in, and know the account risk.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

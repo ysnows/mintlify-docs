@@ -1,9 +1,13 @@
 ---
 title: "Developing Extensions"
-description: "Create a TypeScript command or Local API route with the Enconvo SDK."
+description: "Build an Enconvo plugin with a TypeScript command and a Local API route, try it in the app, and publish it to the plugin store."
 ---
 
+This guide is for developers who want to add their own commands to Enconvo. You create a plugin with one command and one Local API route, build it into Enconvo, test it, and publish it to the plugin store.
+
 An Enconvo plugin is an ESM package with metadata in `package.json`, commands under `src/`, and optional API routes under `src/api/`. Commands run through Enconvo's extension runtime; a plugin command is a default-exported function, not a class implementing a `Command` interface.
+
+## Before you start
 
 You need Node.js 18 or later, npm or another package manager, and Enconvo running on your Mac.
 
@@ -167,12 +171,40 @@ npm run validate
 npx enconvo plugin publish
 ```
 
-`plugin validate` checks the plugin against the store rules without uploading anything; [Validation Codes](/extensions/validation-codes) explains each problem it reports. After a build, it also shows how many files the package will contain and which files are left out. It checks that the name uses only letters, digits, dots, dashes and underscores, that `version` looks like `1.2.3`, that the plugin has a title, and that the icon is a PNG, JPEG, WebP or GIF of up to 5 MB. You can add up to 8 screenshots in a `metadata/` folder; the plugin's page in the store shows them under its description, in file name order.
+### Check the plugin
 
-`plugin publish` builds the plugin and uploads it with the Enconvo account you're signed in with, so Enconvo has to be running and signed in. Enconvo reviews every version before it appears in the store. Until a new plugin is approved, only you can see it; while an update is in review, the store keeps offering the previous version. Raise `version` in `package.json` for every update. Before it builds anything, `plugin publish` asks the store which version it released, and stops with the next version to use when yours isn't higher. A version that is in review, or was turned down, can be submitted again as it is; the new upload replaces it.
+`plugin validate` checks the plugin against the store rules without uploading anything; [Validation Codes](/extensions/validation-codes) explains each problem it reports. After a build, it also shows how many files the package will contain and which files are left out. It checks that:
+
+- the name uses only letters, digits, dots, dashes and underscores
+- `version` looks like `1.2.3`
+- the plugin has a title
+- the icon is a PNG, JPEG, WebP or GIF of up to 5 MB
+
+You can add up to 8 screenshots in a `metadata/` folder; the plugin's page in the store shows them under its description, in file name order.
+
+### Upload it for review
+
+`plugin publish` builds the plugin and uploads it with the Enconvo account you're signed in with, so Enconvo has to be running and signed in. Enconvo reviews every version before it appears in the store. Until a new plugin is approved, only you can see it; while an update is in review, the store keeps offering the previous version.
+
+Raise `version` in `package.json` for every update. Before it builds anything, `plugin publish` asks the store which version it released, and stops with the next version to use when yours isn't higher. A version that is in review, or was turned down, can be submitted again as it is; the new upload replaces it.
 
 The package is made from the built plugin. `.env` files, `node_modules`, version-control folders and `.zip` archives are left out, but check that no other credentials or private files end up in it.
 
 Reviewers follow the [Plugin Store Guidelines](/extensions/publishing-guidelines). Add a `review` object to `package.json` with the prompts they should try, and pass sign-in details for a demo account with `--review-notes`; only reviewers see them.
 
-To add your own AI model or text-to-speech voice to Enconvo's pickers, see [AI Model and Voice Plugins](/extensions/provider-plugins). For SDK building blocks, see [Extension API Reference](/extensions/extension-api-reference). For reusable multi-step processes that do not need a plugin, use [Workflows](/workflows/introduction).
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="AI Model and Voice Plugins" icon="microchip" href="/extensions/provider-plugins">
+    Add your own AI model or text-to-speech voice to Enconvo's pickers
+  </Card>
+  <Card title="Extension API Reference" icon="book" href="/extensions/extension-api-reference">
+    The SDK's building blocks
+  </Card>
+  <Card title="Plugin Formats" icon="box" href="/extensions/plugin-formats">
+    Skill and MCP plugins that also install in Codex and Claude Code
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
+    Reusable multi-step processes that don't need a plugin
+  </Card>
+</CardGroup>

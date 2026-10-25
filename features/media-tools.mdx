@@ -1,33 +1,65 @@
 ---
 title: "Media Utilities"
-description: "Compress images, video, and audio, or extract a soundtrack."
+description: "Compress images, video, and audio, save the sound from a video, or download a video from a link."
 ---
 
-Enconvo includes local utility commands alongside its AI generation tools. Find them in SmartBar or under **Settings → Plugins**.
+Media Utilities are local commands for everyday media chores: make images, video, or audio files smaller, save the soundtrack of a video, or download a video from a web page. Find them in SmartBar, or under **Settings → Plugins**.
 
-| Command | Use |
+| Command | What it does | Saves to |
+| --- | --- | --- |
+| **Image Compress** | Compresses one or more images, with adjustable quality | Replaces the original images |
+| **Video Compress** | Makes a video file smaller | `~/Downloads` |
+| **Audio Compress** | Makes an audio file smaller (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Saves the audio track of a video, or of every video in a folder, as M4A (MP3 when the track can't be copied) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Downloads the video or audio from a link, such as YouTube, TikTok, Instagram, Reddit, X, or Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** replaces your original images by default. To keep them, turn off **Overwrite Original Image File** in its settings first; the compressed copies then go to an `enconvo-compressed-images` folder next to the images.
+</Warning>
+
+## Compress a file or extract its audio
+
+1. Select the files in Finder, or attach them.
+2. Open SmartBar and run the command.
+3. Open the output and check it.
+
+Keep the original while you try out compression settings. Each command's settings are under **Settings → Plugins**: **Image Utils** for Image Compress, and **Media Utils** for the others.
+
+| Setting | What it changes |
 | --- | --- |
-| Image Compress | Compress one or more images with adjustable quality |
-| Video Compress | Reduce a video's file size |
-| Audio Compress | Reduce an audio file's size |
-| Extract Audio | Save audio from a video |
-| Online Video Downloader | Download supported online video or audio from a URL |
+| **Quality** | From 0 to 100; higher keeps more quality and makes a bigger file. 80 by default |
+| **Destination Folder Path** | Where the compressed file goes: an absolute path, or a path relative to the file |
+| **Overwrite Original … File** | Replaces the original file. On by default for images, off for video and audio |
 
-## Compress or convert a file
+## Download a video
 
-1. Find the command in SmartBar.
-2. Supply the file or files as input, using the command's file controls or supported context.
-3. Review output quality, destination, and overwrite options in the command's settings.
-4. Run the command and open the output to check it.
+1. Open the video's page in your browser, or copy its link.
+2. Run **Online Video Downloader** from SmartBar. It takes the link from the browser's active tab, or from a link you type.
+3. Follow the progress in the Dynamic Island, where you can cancel. When it's done, click **Show in Finder**.
 
-Keep the original when experimenting with compression. Image Compress supports batch input and either overwrite or a custom output folder; choose the destination deliberately.
+The download is saved to your chat history, and a file you already downloaded is reused instead of fetched again. Whether a site works depends on the site and on what it lets you access. Download only content you're allowed to save.
 
-## Download media
-
-Give **Online Video Downloader** the supported page URL and review the available audio/video options. Availability depends on the source site and access requirements. Download only content you are authorized to save.
+| Setting | What it changes |
+| --- | --- |
+| **Output Directory** | Where downloads go. `~/Downloads` by default |
+| **Audio Only** | Downloads only the audio |
+| **Favorite Resolution** | The resolution to download, from **Best** (the default) down to 144p |
+| **Force Convert to Compatible MP4** | Converts the video to an MP4 that plays everywhere. On by default; it takes extra time and CPU |
+| **Use Browser Cookies** | Signs in with your browser's cookies, for videos only you can see. Choose the browser in **Browser** |
 
 ## Troubleshooting
 
-For a failed conversion, check the input format, writable output location, and available disk space. If an online download stops working, inspect the error and update the utility before trying again; websites can change their formats and access rules.
+| Problem | What to do |
+| --- | --- |
+| **No images to compress** | Select the images in Finder or attach them, then run the command again |
+| A conversion fails | Check the file's format, that the output folder is writable, and that you have free disk space |
+| A private video won't download | Turn on **Use Browser Cookies** and choose the browser you're signed in with |
+| Downloads from a site stop working | Read the error and update the plugin before you try again. Websites change their formats and access rules |
 
-Related: [Image Generation](/ai/image-generation), [Video Generation](/ai/video-generation), [Transcription](/features/transcription).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Image Generation" icon="image" href="/ai/image-generation">Create or edit an image in chat.</Card>
+  <Card title="Video Generation" icon="film" href="/ai/video-generation">Turn a prompt or an image into a clip.</Card>
+  <Card title="Transcription" icon="file-audio" href="/features/transcription">Turn audio and video into text.</Card>
+</CardGroup>

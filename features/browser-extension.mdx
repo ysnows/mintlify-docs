@@ -1,52 +1,50 @@
 ---
-title: "Enconvo Browser Extension"
-description: "Use Enconvo with your real browser session for signed-in websites, website approvals, and browser automation"
+title: "Browser Extension"
+description: "Install the Enconvo Companion extension so Enconvo can work in your real browser, with your sign-ins, cookies, and extensions."
 ---
 
-## Overview
+The Enconvo browser extension, Enconvo Companion, lets Enconvo control your real browser when a task needs your signed-in browser state. Use it for sites such as LinkedIn, Gmail, Salesforce, dashboards, or internal tools, where your cookies and browser extensions matter. Settings calls it **Browser Companion**.
 
-The Enconvo Browser Extension lets Enconvo control your real browser when a task needs your signed-in browser state. Use it for sites such as LinkedIn, Gmail, Salesforce, dashboards, or internal tools where your cookies and browser extensions matter.
+For public pages, local previews, or workflows that shouldn't touch your personal browser profile, use isolated browser automation instead.
 
-For public pages, local previews, or workflows that should not touch your personal browser profile, use isolated browser automation instead.
-
-## Set Up The Extension
+## Set up the extension
 
 <Steps>
   <Step title="Install the extension">
-    Open **Settings → Plugins → Browser Use** and click **Install Browser Companion** next to your browser, or install the Enconvo browser extension from your browser's extension store. It works in Chrome, Edge, Brave, Arc, Vivaldi, Opera, and Firefox. The [Computer Use video tutorial](https://youtu.be/0CbQA7d8zqU?t=33) shows the install in Chrome.
+    Open **Settings → Browser Use** and click **Install Browser Companion** in **Browser Extensions**. The extension's Chrome Web Store page opens. You can also install it from your browser's extension store. It works in Chrome, Edge, Brave, Arc, Vivaldi, Opera, and Firefox. The [Computer Use video tutorial](https://youtu.be/0CbQA7d8zqU?t=33) shows the install in Chrome.
   </Step>
-  <Step title="Open your browser">
-    Keep the browser running. The extension connects to Enconvo automatically over `ws://localhost:11225`.
+  <Step title="Keep the browser open">
+    The extension connects to Enconvo on its own, over `ws://localhost:11225`.
   </Step>
-  <Step title="Check the toolbar popup">
-    Click the extension icon. The popup should show **Connected Chrome**, **Connected Edge**, **Connected Firefox**, or the current browser name.
+  <Step title="Check the popup">
+    Click the extension's icon. The popup shows **Connected Chrome**, **Connected Edge**, **Connected Firefox**, or the name of the browser you're in.
   </Step>
   <Step title="Start a browser task">
     Ask Enconvo to read, click, type, take a screenshot, or manage tabs in the browser.
   </Step>
 </Steps>
 
-## Popup Status
+## The popup
 
-The extension popup shows:
+| Item | What it shows |
+| --- | --- |
+| Connection status | Whether this browser's extension is connected to Enconvo |
+| Current browser | The browser this extension is connected as, such as Chrome, Edge, Brave, or Firefox |
+| Connected browsers | The other browsers whose extension is connected to Enconvo now |
+| Version | The installed extension version |
+| **Learn more** | Opens this page |
 
-- **Connection status**: whether the current browser extension instance is connected to Enconvo.
-- **Current browser**: the browser this extension instance is connected as, such as Chrome, Edge, Brave, or Firefox.
-- **Connected browsers**: other browser extension instances currently connected to Enconvo.
-- **Version**: the installed browser extension version.
-- **Learn more**: a link back to this documentation page.
+If the popup says disconnected, restart Enconvo and refresh the browser. If it still doesn't connect, turn the extension off and on again.
 
-If the popup says disconnected, restart Enconvo and refresh the browser. If it still does not connect, disable and re-enable the extension.
+## Use more than one browser
 
-## Multiple Browsers
+Enconvo can connect to several browsers at once. When a task doesn't name a browser, Enconvo picks one in this order:
 
-Enconvo can connect to more than one browser at the same time. Browser actions use this priority order when no browser is specified:
+1. The **Default Browser** you chose in the Browser Use settings (**Settings → Browser Use**, then **Settings** in the **⋯** menu).
+2. Your Mac's default browser.
+3. The connected browser you used most recently.
 
-1. The default browser selected in Computer Use settings.
-2. Your macOS system default browser.
-3. The most recently focused connected browser.
-
-You can also target a browser explicitly in automation APIs:
+Automation APIs can also name the browser:
 
 ```json
 {
@@ -56,42 +54,39 @@ You can also target a browser explicitly in automation APIs:
 
 Common values include `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera`, and `firefox`.
 
-## Current Tab Targeting
+## Stay on the right tab
 
-When a browser task starts, Enconvo records the browser and tab it is working
-with. Follow-up actions stay attached to that tab whenever possible, even if a
-page opens a popup, reloads, or switches focus.
+When a browser task starts, Enconvo notes the browser and tab it's working in. Later steps stay on that tab whenever they can, even if the page opens a popup, reloads, or loses focus.
 
-For best results:
+For the best results:
 
-- Keep the target tab open until the task finishes.
-- Mention the browser name if several browsers are connected.
-- Ask Enconvo to "use the current tab" when you want it to act on the visible
-  page.
-- Ask for a fresh snapshot after a page navigation or form submission.
+- Keep the tab open until the task finishes.
+- Name the browser when several are connected.
+- Say "use the current tab" when you want Enconvo to act on the page in front of you.
+- Ask for a fresh look at the page after it navigates or you submit a form.
 
-## Website Access And Safety
+## Website access and safety
 
-Browser pages can contain untrusted instructions. Review the site and the requested action before allowing Enconvo to continue on sensitive pages.
+Web pages can contain instructions you didn't write. On sensitive pages, review the site and the action before you let Enconvo continue.
 
-The extension uses browser permissions to read page content, click, type, capture screenshots, inspect tabs, and access cookies when a browser task requires it. Treat authenticated pages, browser history, and internal tools as sensitive data.
+The extension uses browser permissions to read pages, click, type, take screenshots, see tabs, and read cookies when a task needs them. Treat signed-in pages, browser history, and internal tools as sensitive data.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="The popup says disconnected">
-    1. Make sure Enconvo is running.
-    2. Restart the browser.
-    3. Disable and re-enable the extension.
-    4. Confirm nothing is blocking `localhost:11225`.
-  </Accordion>
-  <Accordion title="The wrong browser is controlled">
-    Open Computer Use settings and set the default browser, or pass a browser value such as `edge`, `chrome`, or `firefox` in the browser action.
-  </Accordion>
-  <Accordion title="The extension is connected but a page cannot be controlled">
-    Browser internal pages such as `chrome://` cannot be controlled. Strict CSP pages, closed Shadow DOM, and browser permission prompts may also limit automation.
-  </Accordion>
-  <Accordion title="File upload does not work">
-    In the browser extension details page, enable file URL access if the task needs local file uploads or file-backed pages.
-  </Accordion>
-</AccordionGroup>
+| Problem | What to do |
+| --- | --- |
+| The popup says disconnected | Make sure Enconvo is running, restart the browser, then turn the extension off and on again. Check that nothing blocks `localhost:11225`. |
+| The wrong browser is controlled | Set **Default Browser** in the Browser Use settings, or pass a browser value such as `edge`, `chrome`, or `firefox` in the browser action. |
+| Connected, but a page can't be controlled | Browser pages such as `chrome://` can't be controlled. Pages with a strict content security policy, closed Shadow DOM, and browser permission prompts can also get in the way. |
+| A file upload doesn't work | On the extension's details page in your browser, turn on access to file URLs. Tasks that upload local files or open file-backed pages need it. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Browser Use" icon="window-restore" href="/features/browser-control">
+    What Agents can do in your browser.
+  </Card>
+  <Card title="Computer Use" icon="computer-mouse" href="/features/computer-use">
+    Control Mac apps and the browser's own toolbar.
+  </Card>
+</CardGroup>

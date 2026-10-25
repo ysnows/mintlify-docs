@@ -1,26 +1,32 @@
 ---
-title: "Workflows Introduction"
-description: "Build repeatable automations with visual editing, sequential steps, and parallel jobs."
+title: "Workflows"
+description: "Chain prompts, Agents, shell commands, and tools into a repeatable process you can run, inspect, and schedule."
 ---
 
-A workflow describes a repeatable process: read information, transform it, ask a model, call an Agent, or use an installed tool. Open **Settings → Workflows → Manage** to browse workflows and their run history.
+A workflow is a repeatable process saved as steps: read information, transform it, ask a model, hand work to an Agent, or call an installed tool. Use one when you do the same multi-step job again and again and want to see what each step produced. Open **Settings → Workflows → Manage** to browse your workflows and their run history.
 
 <Tip>
 New to workflows? Watch the 2½-minute video tutorial [Build Your First Workflow](/workflows/build-your-first-workflow) to create, edit, and run one from start to finish.
 </Tip>
 
-## Choose the right automation
+## Choose the right tool
 
-| Need | Use |
+| You want to | Use |
 | --- | --- |
 | Reuse a prompt on selected text | [AI Commands](/features/ai-commands) |
 | Let an assistant decide which tools to use | [Agents](/ai/agents) |
 | Define a repeatable sequence with inspectable outputs | A workflow |
-| Run an Agent instruction or script at a set time | [Scheduled Tasks](/workflows/scheduled-jobs) |
+| Run an Agent instruction, a workflow, or a script at a set time | [Automations](/workflows/scheduled-jobs) |
 
-## Jobs and steps
+## How a workflow is organized
 
-Current workflows use `version: agent-workflow/v1` with a **jobs** map. Each job contains an ordered **steps** list. Steps within a job run sequentially. Jobs start in parallel unless `needs` makes one job wait for another.
+A workflow has three parts:
+
+- `inputs`: the values a run needs, such as a topic or a piece of text.
+- `jobs`: named groups of steps. Jobs start in parallel unless `needs` makes one job wait for another.
+- `steps`: the ordered list inside each job. Steps within a job run one after another.
+
+Current workflows use `version: agent-workflow/v1` with a `jobs` map, and each job holds a `steps` list:
 
 ```yaml
 version: agent-workflow/v1
@@ -43,7 +49,9 @@ The old top-level `tasks` format is no longer accepted. Move each sequence into 
 
 ## What a step can do
 
-| Executor | Fields | Result |
+Each step does exactly one of these:
+
+| Step | Fields | Result |
 | --- | --- | --- |
 | Shell | `command` or `run` | Command output, including `stdout`, `stderr`, and `exitCode` |
 | Prompt | `prompt` | A model reply; use an output schema for structured data |
@@ -51,15 +59,28 @@ The old top-level `tasks` format is no longer accepted. Move each sequence into 
 | Tool | `tool` and `with` | An installed Local API endpoint's result |
 | Transform | `uses: transform` and `value` | A templated value |
 | Subworkflow | `uses: workflow` with `workflowId` or `workflow` | A child workflow run result |
+| Approval | `uses: approval` and `message` | Your answer: approved, or declined with optional feedback |
+| Judge | `uses: judge` and `question` | A yes or no from Jev, Enconvo Cloud's fast decision model, with its probability |
+| Classify | `uses: classify`, `question`, and `options` | The option Jev picked, with its confidence |
 
-Each step has exactly one executor. A workflow can add conditions, loops, retries, and output schemas; see [Advanced Workflows](/workflows/advanced-workflows).
+A step can also run only when a condition holds, repeat over a list, retry, or return structured data. See [Advanced Workflows](/workflows/advanced-workflows).
 
-## Where to run a workflow
+## Run a workflow
 
 - Open it in **Workflows**, set **Inputs**, and choose **Run**.
 - Search for a saved workflow in SmartBar. Launcher text is available as `inputs.input_text`.
 - Mention an available workflow with `@` in chat so an Agent can use it.
+- Run it on a schedule with an [automation](/workflows/scheduled-jobs#schedule-a-workflow).
 
-Saved workflow files live at `~/.enconvo/workflows/<id>.yaml`. The filename is the workflow ID. Keep that ID stable to preserve the link with its run history.
+## Where workflows are saved
 
-Continue with [Creating Workflows](/workflows/creating-workflows) for the visual editor, YAML, assistant, and a first run.
+Each workflow is one file at `~/.enconvo/workflows/<id>.yaml`. The filename is the workflow ID. Keep that ID stable to preserve the link with its run history.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Build Your First Workflow" icon="play" href="/workflows/build-your-first-workflow">A video tutorial from template to finished run.</Card>
+  <Card title="Creating Workflows" icon="pen-to-square" href="/workflows/creating-workflows">The Visual editor, YAML, the assistant, and every step type.</Card>
+  <Card title="Advanced Workflows" icon="code-branch" href="/workflows/advanced-workflows">Conditions, loops, retries, output schemas, and subworkflows.</Card>
+  <Card title="Automations" icon="clock" href="/workflows/scheduled-jobs">Run a workflow or an Agent on a schedule.</Card>
+</CardGroup>

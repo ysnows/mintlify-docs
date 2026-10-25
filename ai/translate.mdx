@@ -1,27 +1,66 @@
 ---
 title: "Translation"
-description: "Translate text, screenshots, and dictated input."
+description: "Translate the text you select, a part of your screen, or what you dictate."
 ---
 
-Use **Translator** for text or **Screenshot Translate** for content on screen. Translation uses the configured model and command settings; review the target language before running it.
+Enconvo translates the text you select with **Translator**, text on your screen with **Screenshot Translate**, and your speech as you dictate. All of them are part of the [Writing Toolkit](/features/writing-tools) and run on your AI model.
 
 ## Translate selected text
 
-1. Select the passage in another app.
-2. Choose the translation command in PopBar or find **Translator** in SmartBar.
-3. Set the target language in the available command controls.
-4. Review the result before replacing or sending the original text.
+1. Select the passage in any app.
+2. Click **Translate** in PopBar, or open SmartBar and run **Translator**.
+3. Read the translation, then click **Paste** to replace the original, or copy it.
 
-## Translate a screenshot
+## Choose the languages
 
-Run **Screenshot Translate**, select the relevant region, and review both recognition and translation. An OCR mistake can change the translated meaning. See [OCR](/ai/ocr) for provider setup.
+Open **Settings → AI Commands**, pick **Translator** under **Built-in**, and set its languages in the **Language** section.
 
-## Translate speech
+| Setting | What it does |
+| --- | --- |
+| **Target Language** | The language Translator writes in. Text in any language other than the Source Language goes into it. **Auto** uses your Response Language (**Settings → About You**), or your Mac's language when that is Auto too |
+| **Source Language** | The language paired with the target: text already in the Target Language is translated into it. **Auto** uses your Response Language, or English when that is the Target Language |
 
-Use **Dictation Translate** as a dictation post-action to convert recognized text into a target language. For realtime translated captions, choose a speech provider that exposes the supported live-translation options under [Live Captioning](/features/live-captioning).
+For example, with English as the target and Chinese as the source, Chinese or French text becomes English, and English text becomes Chinese.
 
-## Customize results
+## Translate part of the screen
 
-Translation and Writing Toolkit commands follow the global AI model unless a command override is set. For recurring terminology, provide a glossary in a custom [AI Command](/features/ai-commands) or Agent instruction. Tell the model what to preserve, such as names, technical identifiers, or quoted passages.
+1. Run **Screenshot Translate** from SmartBar.
+2. Drag over the area you want translated.
+3. The translation appears in the Dynamic Island. Click it to open the chat, where you can ask follow-up questions about the screenshot and its translation.
 
-If output uses the wrong language, check both the command's target and any post-action. If text is missing, review selected-text permissions or screenshot OCR first.
+Screenshot Translate sends the area to Translator's model as an image. To read the text with your OCR provider first and translate that text, turn on **Need OCR** in **Settings → Plugins → Writing Toolkit → Screenshot Translate**. Then an OCR mistake can change the meaning, so compare the result with the screen. See [OCR](/ai/ocr) to set up a provider.
+
+| Setting | What it does |
+| --- | --- |
+| **Need OCR** | Reads the text with your OCR provider before translating. Off by default |
+| **Follow-up Command** | The command that answers the messages you send after the translation |
+| **Clear After Closing** | Returns the Dynamic Island to an empty input 10 seconds after you close the translation, unless you replied to it |
+
+## Translate as you speak
+
+While you dictate, choose **Translate** in Dictation's **Clean up** options, and Enconvo types what you say in your Response Language, or in English if you already speak it. This option is the **Dictation Translate** command, which works on the recognized text before it's inserted. See [Dictation](/features/dictation#clean-up-or-translate-as-you-speak).
+
+For live translated captions, choose a speech provider that offers live translation in [Live Captioning](/features/live-captioning#translate-captions).
+
+## Keep terms consistent
+
+Translator runs on the model set in **Settings → AI Commands → All Commands**. To use a different one, change **AI Model** on Translator's page.
+
+For terminology you use often, click **Customize** on Translator's page, or write an [Agent](/ai/agents) instruction, and add a glossary. Say what must stay as it is, such as names, technical identifiers, or quoted passages.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The translation is in the wrong language | Check Translator's **Target Language** and **Source Language**, and any **Post Action** |
+| Text is missing from the translation | For selected text, check the Accessibility permission. For Screenshot Translate with **Need OCR** on, check what OCR read |
+| Screenshot Translate captures nothing | Check the Screen Recording permission in [Permissions](/configuration/permissions) |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Writing Toolkit" icon="pen-to-square" href="/features/writing-tools">Rewrite, shorten, and explain selected text.</Card>
+  <Card title="OCR" icon="font" href="/ai/ocr">Read the text on your screen.</Card>
+  <Card title="Dictation" icon="microphone" href="/features/dictation">Clean up or translate as you speak.</Card>
+  <Card title="Live Captioning" icon="closed-captioning" href="/features/live-captioning">Captions for audio as it plays.</Card>
+</CardGroup>

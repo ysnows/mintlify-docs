@@ -1,36 +1,51 @@
 ---
 title: "Z.AI"
-description: "Connect Z.AI and choose an AI model in Enconvo."
+description: "Chat with Z.AI models in Enconvo using your own Z.AI API key."
 ---
 
-Use **Z.AI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+Z.AI offers its models through an API key. Add your key to Enconvo to use those models in chats, Agents, and AI Commands. Z.AI bills the usage to your own account.
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **Z.AI**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Steps>
+  <Step title="Get an API key">
+    Create a key in the [Z.AI](https://z.ai/).
+  </Step>
+  <Step title="Add it to Enconvo">
+    Open **Settings → AI Model → Z.AI**. Under **Authentication**, paste the key into **API Key**, then click **Validate**.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
-## Provider options
+To keep a second Z.AI key, for example one for work, click **Add New Provider** and create another profile.
 
-The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
+## Models and options
 
-## Use it in a conversation
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
 
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
+To use a different model in one chat, pick it from that chat's model picker.
 
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+For model details and limits, see the [Z.AI documentation](https://docs.z.ai/).
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in your Z.AI account. |
+| A model is missing | Click **Refresh** beside **Model Name** to reload the list. To add a model yourself, use **Manage Models**. |
+| Images or tools fail | Pick a model that supports image input or tool calls. |
+| Rate or usage limit errors | Check usage and limits in your Z.AI account, or switch to another provider for now. |
+| Replies are slow | Try a smaller model, a shorter input, or lower reasoning effort. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Auto Route" icon="route" href="/providers/auto-route">Let Enconvo pick the model for each message.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

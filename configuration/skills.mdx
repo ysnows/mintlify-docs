@@ -1,19 +1,17 @@
 ---
 title: "Skills"
-description: "Extend EnConvo with task-specific AI capabilities using Agent Skills"
+description: "Teach Enconvo's Agents a repeatable task with a skill: instructions, references, and optional scripts in one folder."
 ---
 
-## Overview
-
-Use Agent Skills to extend EnConvo with task-specific capabilities. A skill packages instructions, resources, and optional scripts so EnConvo can follow a workflow reliably. You can share skills across teams or with the community.
+A skill packages instructions, resources, and optional scripts so Enconvo can follow a workflow reliably. Make one when you keep explaining the same procedure, such as how to review code or how to format meeting notes. You can share skills with your team or the community.
 
 <Note>
-Skills use **progressive disclosure** to manage context efficiently: EnConvo starts with each skill's metadata (name, description, file path). Full instructions are loaded only when a skill is activated.
+Skills use **progressive disclosure** to manage context efficiently: Enconvo starts with each skill's metadata (name, description, file path). Full instructions are loaded only when a skill is activated.
 </Note>
 
-## Skill Structure
+## What a skill looks like
 
-A skill is a directory with a `SKILL.md` file plus optional scripts and references.
+A skill is a folder with a `SKILL.md` file, plus optional scripts and references.
 
 ```
 my-skill/
@@ -23,9 +21,9 @@ my-skill/
 └── assets/           # Optional: templates, resources
 ```
 
-### SKILL.md Format
+### SKILL.md format
 
-The `SKILL.md` file must include a frontmatter block with `name` and `description`:
+`SKILL.md` must start with a frontmatter block that has a `name` and a `description`:
 
 ```markdown
 ---
@@ -37,25 +35,16 @@ Step-by-step instructions for EnConvo to follow.
 ```
 
 <Tip>
-Because implicit matching depends on the `description` field, write descriptions with clear scope and boundaries. Be specific about **when** and **when not** to use the skill.
+Enconvo picks a skill by its `description`, so give it a clear scope and boundaries. Say **when** to use the skill and **when not** to.
 </Tip>
 
-## How Skills Are Activated
+## Use a skill
 
-EnConvo can activate skills in two ways:
+You can call a skill by name, or let Enconvo pick one that matches your request.
 
-<CardGroup cols={2}>
-  <Card title="Explicit Invocation" icon="hand-pointer">
-    Mention the skill directly in your prompt using the `/` prefix. Use this when you know exactly which skill you need.
-  </Card>
-  <Card title="Implicit Invocation" icon="wand-magic-sparkles">
-    EnConvo automatically selects a skill when your task matches its description. No manual selection needed.
-  </Card>
-</CardGroup>
+### Call a skill by name
 
-### Explicit Invocation
-
-Type `/` followed by the skill name in SmartBar or chat to invoke it directly:
+Type `/` followed by the skill name in SmartBar or chat:
 
 ```
 /code-reviewer Review this function for security issues
@@ -63,20 +52,20 @@ Type `/` followed by the skill name in SmartBar or chat to invoke it directly:
 /api-checker Check the health of api.example.com
 ```
 
-This is the most reliable way to invoke a skill -- you get exactly the one you want.
+This is the most reliable way: you get exactly the skill you want. To list only skills, type `$`.
 
-### Implicit Invocation
+### Let Enconvo pick
 
-When you do not specify a skill, EnConvo automatically matches your request to the most relevant skill based on the `description` field:
+When you don't name a skill, Enconvo matches your request to the most relevant skill by its `description`:
 
 1. You type: "Summarize these meeting notes into action items"
-2. EnConvo scans all available skill descriptions
+2. Enconvo scans all available skill descriptions
 3. The `meeting-notes` skill matches ("...format raw meeting transcripts into structured notes with action items...")
 4. The skill is activated and its instructions guide the response
 
-### How to Write Descriptions That Match Well
+### Write descriptions that match well
 
-Good implicit matching depends entirely on well-written `description` fields:
+Good matching depends on a well-written `description`:
 
 | Quality | Example |
 |---------|---------|
@@ -84,28 +73,29 @@ Good implicit matching depends entirely on well-written `description` fields:
 | **Too broad** | "Does anything related to programming" |
 | **Good** | "Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code." |
 
-The key elements:
+A good description has three parts:
+
 - **What it does**: "Review code for bugs, security issues, and best practices"
 - **When to trigger**: "Use when the user asks for a code review"
-- **When NOT to trigger**: "Do not use for code generation or writing new code"
+- **When not to trigger**: "Do not use for code generation or writing new code"
 
-## Skill Locations
+## Where skills live
 
-EnConvo reads skills from multiple locations, with different scopes:
+Enconvo reads skills from several places, each with its own scope:
 
-| Scope | Location | Use Case |
-|-------|----------|----------|
-| **Project** | `$PROJECT/.agents/skills/` | Skills specific to a project or workspace |
-| **User** | `~/.agents/skills/` | Personal skills that apply across all projects |
-| **System** | Bundled with EnConvo | Built-in skills available to everyone |
+| Scope | Location | Use it for |
+|-------|----------|------------|
+| **Project** | `$PROJECT/.agents/skills/` (also `.enconvo/skills/`, `.claude/skills/`, and `.codex/skills/`) | Skills for one project or workspace |
+| **User** | `~/.agents/skills/` (also `~/.enconvo/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`) | Personal skills for all your projects |
+| **System** | Bundled with Enconvo | Built-in skills available to everyone |
 
-<Note>
-If two skills share the same name in different locations, both remain available -- EnConvo does not merge them.
-</Note>
+Each Agent can also carry its own skills: add them under **Skills** in the Agent's settings.
 
-### Project Skills
+If two skills in different locations share a name, both stay available; Enconvo doesn't merge them. **Settings → Skills** lists these skills under **In more than one folder**.
 
-Project-scoped skills are stored inside your project directory. They are available only when that project is active:
+### Project skills
+
+Project skills live inside your project folder, and are available only when that project is active:
 
 ```
 my-project/
@@ -119,11 +109,11 @@ my-project/
 └── package.json
 ```
 
-This is ideal for skills that depend on project-specific conventions, file structures, or tools.
+Use them for skills that depend on a project's conventions, file structure, or tools.
 
-### User Skills
+### User skills
 
-User-scoped skills in `~/.agents/skills/` are available across all projects. Use this for personal productivity skills that are not project-specific:
+User skills in `~/.agents/skills/` are available in every project. Use them for personal skills that don't belong to one project:
 
 ```
 ~/.agents/skills/
@@ -135,26 +125,25 @@ User-scoped skills in `~/.agents/skills/` are available across all projects. Use
     └── SKILL.md
 ```
 
-## Creating a Skill
+## Create a skill
 
-### Using the Skill Creator
+### With the skill creator
 
-The fastest way to create a skill is with the built-in creator:
+The fastest way to create a skill is the built-in creator:
 
 ```
 /skill-creator
 ```
 
 The creator walks you through:
+
 1. What the skill does
 2. When it should trigger
 3. Whether it should be instruction-only or include scripts
 
-<Info>
-**Instruction-only** is the default and recommended approach. Use scripts only when you need deterministic behavior or external tooling.
-</Info>
+Instruction-only is the default and the recommended approach. Add scripts only when you need deterministic behavior or external tooling.
 
-### Manual Creation
+### By hand
 
 Create a folder with a `SKILL.md` file:
 
@@ -181,16 +170,16 @@ Create a folder with a `SKILL.md` file:
     EOF
     ```
   </Step>
-  <Step title="Verify">
-    EnConvo detects skill changes automatically. If the new skill doesn't appear, restart EnConvo.
+  <Step title="Check that it appears">
+    Enconvo detects skill changes automatically. If the new skill doesn't appear, restart Enconvo.
   </Step>
 </Steps>
 
-### Writing Effective Instructions
+### Write the instructions
 
-The body of `SKILL.md` (below the frontmatter) contains the instructions the AI follows. Write them as clear, imperative steps:
+The body of `SKILL.md`, below the frontmatter, holds the instructions the AI follows. Write them as clear, imperative steps:
 
-```markdown
+````markdown
 ---
 name: changelog-generator
 description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
@@ -224,26 +213,23 @@ description: Generate a changelog from git commits. Use when the user asks to cr
 ### Breaking Changes
 ⚠️ API endpoint `/v1/users` now requires authentication
 ```
-```
+````
 
-<AccordionGroup>
-  <Accordion title="Be specific about inputs" icon="arrow-right-to-bracket">
-    State exactly where the input comes from: "Read the selected text", "Parse the attached file", "Use the URL from the user's message".
-  </Accordion>
-  <Accordion title="Define the output format" icon="arrow-right-from-bracket">
-    Include a concrete example of what the output should look like. This prevents ambiguity and ensures consistency.
-  </Accordion>
-  <Accordion title="Handle edge cases" icon="triangle-exclamation">
-    Add instructions for common edge cases: "If no commits are found, report that the range is empty" or "If the input is not valid JSON, ask the user to check the format".
-  </Accordion>
-  <Accordion title="Keep it focused" icon="bullseye">
-    One skill should do one thing well. If you find yourself writing a skill with 10+ steps covering multiple tasks, split it into separate skills.
-  </Accordion>
-</AccordionGroup>
+### Tips for good skills
 
-## Adding Scripts
+- **Keep each skill focused.** One skill does one job. A skill that does too many things is harder to trigger correctly and harder to maintain. If you're writing 10 or more steps that cover several tasks, split it into separate skills.
+- **Be specific about inputs.** Say exactly where the input comes from: "Read the selected text", "Parse the attached file", "Use the URL from the user's message".
+- **Define the output format.** Include a concrete example of what the output should look like, so results stay consistent.
+- **Handle edge cases.** Add instructions for common edge cases: "If no commits are found, report that the range is empty" or "If the input is not valid JSON, ask the user to check the format".
+- **Write imperative steps.** Be explicit about inputs, steps, and expected outputs. Vague instructions lead to inconsistent results.
+- **Prefer instructions over scripts.** Plain-language instructions are easier to write, debug, and change. Use scripts only when you need deterministic behavior or external tooling.
+- **Use clear boundaries.** In the description, state both what the skill should handle and what it shouldn't.
+- **Test your trigger descriptions.** Try different prompts to confirm the skill triggers, and doesn't trigger, when it should.
+- **Version your skills.** Keep team-shared skills in version control (git), so you can track changes, roll back, and collaborate.
 
-For skills that need executable logic, add a `scripts/` directory:
+## Add scripts
+
+For skills that need executable logic, add a `scripts/` folder:
 
 ```
 my-skill/
@@ -252,9 +238,9 @@ my-skill/
     └── fetch_data.sh
 ```
 
-Reference scripts in your `SKILL.md`:
+Refer to the scripts in your `SKILL.md`:
 
-```markdown
+````markdown
 ---
 name: api-checker
 description: Check API endpoint health and response times.
@@ -268,9 +254,9 @@ description: Check API endpoint health and response times.
    ```
 2. Parse the JSON output.
 3. Report status, response time, and any errors.
-```
+````
 
-### When to Use Scripts
+### When to use scripts
 
 | Use Scripts When | Use Instructions Only When |
 |-----------------|---------------------------|
@@ -279,9 +265,9 @@ description: Check API endpoint health and response times.
 | You need to process or transform data programmatically | The task is about writing, summarizing, or analyzing |
 | You require authentication or credential handling | The instructions alone are sufficient |
 
-## Adding References
+## Add references
 
-Include documentation or context files that the skill can consult:
+Include documentation or context files the skill can consult:
 
 ```
 my-skill/
@@ -293,113 +279,84 @@ my-skill/
     └── run.sh
 ```
 
-Reference them in instructions:
+Refer to them in the instructions:
 
 ```markdown
 Consult `references/api-docs.md` for the API schema before making requests.
 ```
 
 References are useful for:
+
 - API documentation the skill needs to follow
 - Style guides or brand guidelines
 - Code examples and templates
 - Domain-specific knowledge
 
-## Installing Skills
+## Install skills
 
-EnConvo supports two methods to install skills using `/skill-installer`:
+Use `/skill-installer` to install a skill from the Enconvo skills store or from GitHub. It can also install from Skills.sh, ClawHub, and direct ZIP URLs.
 
-### From EnConvo Skills Store
+### From the Enconvo skills store
 
-Search and install skills by name from the built-in skills store:
+Search for a skill by name and install it:
 
 ```
 /skill-installer pdf
 ```
 
-This searches the EnConvo skills store and installs the matching skill. EnConvo detects newly installed skills automatically.
+This searches the Enconvo skills store and installs the matching skill. Enconvo detects newly installed skills automatically.
 
 ### From GitHub
 
-Install skills directly from a GitHub repository URL -- including subdirectories:
+Install a skill straight from a GitHub repository URL:
 
 ```
 /skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
 ```
 
-<Tip>
-GitHub installation supports **subdirectory paths**, so you can point to a specific skill folder within a larger repository. No need to clone the entire repo.
-</Tip>
+The URL can point to a subfolder, so you can install one skill from a larger repository without cloning all of it.
 
-### Browsing the Skills Store
+### From a folder on your Mac
 
-The Skills Store provides a curated collection of community-built skills:
+1. Open **Settings → Skills** and click **Import**.
+2. Choose a folder that holds skill subfolders, each with a `SKILL.md`.
 
-1. Open **Settings**
-2. Navigate to **Skills Store**
-3. Browse categories or search by keyword
-4. Click **Install** on any skill
-5. The skill is downloaded and ready to use immediately
+Enconvo adds the folder to the places it reads skills from, and its skills are shared by all Agents. To stop using the folder, choose it in the source menu, then **Remove folder**. The folder itself stays on disk.
 
-Popular skill categories:
-- **Development**: Code review, documentation generation, testing
-- **Writing**: Email composition, blog posts, technical writing
-- **Data**: Analysis, visualization, reporting
-- **Productivity**: Meeting notes, task management, scheduling
+## Manage skills
 
-## Managing Skills
+### See your skills
 
-### Viewing Installed Skills
+**Settings → Skills** lists the skills shared by all Agents. Choose a view at the top:
 
-See all your installed skills in **Settings** -> **Skills**:
+| View | Shows |
+| --- | --- |
+| **All skills** | Every skill once, even when several folders have a copy |
+| **On, never used** | Skills Agents are offered in every chat, but haven't used |
+| **In more than one folder** | Skills with a copy in more than one folder, such as for Claude Code and Codex |
+| **Off** | Skills Agents don't get |
 
-- System skills (built-in)
-- User skills (from `~/.agents/skills/`)
-- Project skills (from current project)
-- Store-installed skills
+Search, filter by source (**All sources**, **Built-in**, **From Plugins**, or one folder), or sort by **Name A to Z** or **Last used**.
 
-### Updating Skills
+### Update skills
 
-- **Store skills**: Check for updates in the Skills Store
-- **GitHub skills**: Re-run the installer with the same URL
-- **Custom skills**: Edit the `SKILL.md` file directly -- changes are detected automatically
+- **Store skills**: run `/skill-installer` again to check for a newer version.
+- **GitHub skills**: run the installer again with the same URL.
+- **Your own skills**: edit the `SKILL.md` file directly. Enconvo detects the change automatically.
 
-### Disabling Skills
+### Turn a skill off
 
-You can disable a skill without deleting it:
+You can turn a skill off without deleting it:
 
-1. Go to **Settings** -> **Skills**
-2. Find the skill
-3. Toggle it off
+1. Open **Settings → Skills**.
+2. Find the skill.
+3. Turn its switch off.
 
-Disabled skills will not be available for implicit or explicit invocation until re-enabled.
+Agents can't use a skill that's off, by name or by matching, until you turn it back on. An app profile that pins the skill can still use it.
 
-## Best Practices
+## Example skills
 
-<AccordionGroup>
-  <Accordion title="Keep each skill focused" icon="bullseye">
-    One skill = one job. A skill that does too many things is harder to trigger correctly and harder to maintain.
-  </Accordion>
-  <Accordion title="Prefer instructions over scripts" icon="file-lines">
-    Use plain-language instructions unless you need deterministic behavior or external tooling. Instructions are easier to write, debug, and iterate on.
-  </Accordion>
-  <Accordion title="Write imperative steps" icon="list-ol">
-    Be explicit about inputs, steps, and expected outputs. Vague instructions lead to inconsistent results.
-  </Accordion>
-  <Accordion title="Test your trigger descriptions" icon="flask">
-    Try various prompts against your skill's `description` field to confirm it triggers (and doesn't trigger) correctly.
-  </Accordion>
-  <Accordion title="Use clear boundaries" icon="shield">
-    In the description, state both what the skill **should** handle and what it **should not** handle.
-  </Accordion>
-  <Accordion title="Version your skills" icon="code-branch">
-    For team-shared skills, keep them in version control (git). This makes it easy to track changes, roll back, and collaborate.
-  </Accordion>
-</AccordionGroup>
-
-## Example Skills
-
-### Code Reviewer
+### Code reviewer
 
 ```markdown
 ---
@@ -422,7 +379,7 @@ description: Review code for bugs, security issues, and best practices. Use when
    - Explanation and fix
 ```
 
-### Meeting Notes
+### Meeting notes
 
 ```markdown
 ---
@@ -441,9 +398,9 @@ description: Format raw meeting transcripts into structured notes with action it
 3. Use markdown formatting for readability.
 ```
 
-### Git Commit Message
+### Git commit message
 
-```markdown
+````markdown
 ---
 name: commit-message
 description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
@@ -468,11 +425,11 @@ description: Generate conventional commit messages from staged changes. Use when
    ```
 4. Keep the subject line under 72 characters.
 5. Include a body only if the change needs explanation.
-```
+````
 
-### API Documentation Generator
+### API documentation generator
 
-```markdown
+````markdown
 ---
 name: api-docs
 description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
@@ -507,21 +464,13 @@ Create a new user account.
 ```json
 { "id": "usr_123", "email": "user@example.com", "name": "John" }
 ```
-```
+````
 
-## Resources
+## Related
 
 <CardGroup cols={2}>
-  <Card title="EnConvo GitHub" icon="github" href="https://github.com/enconvo">
-    Browse open-source extensions and skills
-  </Card>
-  <Card title="Community Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">
-    Share skills and get help from the community
-  </Card>
-  <Card title="Skills Store" icon="store" href="https://www.enconvo.com">
-    Browse and install community skills
-  </Card>
-  <Card title="MCP Integration" icon="plug" href="/features/mcp">
-    Combine skills with MCP tools
-  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">Give an Agent its own skills and tools.</Card>
+  <Card title="MCP Integration" icon="plug" href="/features/mcp">Combine skills with MCP tools.</Card>
+  <Card title="Enconvo GitHub" icon="github" href="https://github.com/enconvo">Browse open-source extensions and skills.</Card>
+  <Card title="Community Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">Share skills and get help from the community.</Card>
 </CardGroup>

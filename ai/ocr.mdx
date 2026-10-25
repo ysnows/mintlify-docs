@@ -1,31 +1,69 @@
 ---
 title: "OCR"
-description: "Extract text from images and selected screen regions."
+description: "Copy the text from any part of your screen or from an image, read on your Mac or by an online service."
 ---
 
-Enconvo provides OCR commands and a selectable OCR provider. Use local Apple OCR, local MLX OCR, an AI model, or a supported cloud OCR provider according to the material you need to read.
+OCR reads the text in a screenshot or an image, so you can copy it, paste it, translate it, or ask about it. Reach for it when you can't select the text, such as in an image, a video frame, or a scanned page. You choose whether the text is read on your Mac or by an online service.
 
-## Extract text from the screen
+## Before you start
 
-1. Open **Settings → Global Providers Settings → OCR** and choose a provider.
-2. Run **Screenshot OCR** and select the relevant screen region.
-3. Review the extracted text before copying or using it in another command.
+Enconvo needs the Screen Recording permission to capture your screen. See [Permissions](/configuration/permissions).
 
-**Silent Screenshot OCR** copies its result to the clipboard. **OCR** processes supplied image input. **Screenshot Translate** and **Screenshot Explain** add a follow-up task to a screen capture.
+## Copy text from the screen
+
+1. Run **Screenshot OCR** from SmartBar.
+2. Drag over the area with the text.
+3. The text opens in the Dynamic Island. Click **Copy**, or **Paste** (**⌘↩**) to put it in the app you're using.
+
+From the same result you can also click **Translate** or **Ask AI**. The **⋯** menu has **Keep Original Line Breaks**, **Copy Image**, **Save Image…**, **Select Area Again**, **Add to Knowledge Base**, and **OCR Settings…**.
+
+To read the area again with another provider, click the provider's name above the text and pick one. When the provider knows where each line is, switch to the image view to select lines on the screenshot, then click **Copy Selection**.
+
+## Other OCR commands
+
+| Command | What it does |
+| --- | --- |
+| **Screenshot OCR** | Reads a screen area and opens the text in the Dynamic Island |
+| **Silent Screenshot OCR** | Reads a screen area and copies the text to the clipboard |
+| **OCR** | Reads the text in an image you give it |
+| **Screenshot Translate** | Translates a screen area. See [Translation](/ai/translate) |
+| **Screenshot Explain** | Explains a screen area. See [Writing Toolkit](/features/writing-tools) |
 
 ## Choose a provider
 
-| Provider | Processing |
+Open **Settings → OCR**, pick a provider, and click **Set as Default**.
+
+| Provider | Where the text is read |
 | --- | --- |
-| Apple Native OCR | Native local text recognition |
-| PP-OCRv6 (MLX) | Local detection and recognition on supported Apple Silicon hardware |
-| AI Model OCR | Use a configured AI model and instruction |
-| Mistral OCR / Cloud variant | Remote OCR through configured access |
+| **Apple Native OCR** | On your Mac, with Apple's own text recognition |
+| **PP-OCRv6 (MLX)** | On your Mac, with PaddleOCR detection and recognition models on Apple silicon. Nothing leaves your Mac |
+| **AI Model OCR** | By the AI model you choose, following its **Instruction** |
+| **Mistral OCR** | By Mistral's online service, with your Mistral key or Mistral sign-in |
+| **Mistral OCR (Enconvo Cloud Plan)** | By Mistral's online service, through your Enconvo Cloud plan |
 
-See [Provider Catalog](/providers/catalog#ocr) for current configuration fields.
+Each OCR command can also use a provider of its own: set **OCR Provider** in its settings under **Settings → Plugins → OCR**. See [Provider Catalog](/providers/catalog#ocr) for each provider's fields.
 
-## Improve accuracy
+## Get better results
 
-Capture a tight, readable region at a useful scale. Check columns, tables, punctuation, code indentation, and ambiguous characters manually. A scanned document may require OCR even when it has a PDF file extension.
+Capture a tight, readable area at a size where the text is easy to read. Check columns, tables, punctuation, code indentation, and characters that look alike by hand.
 
-If screen capture is blank or unavailable, check [Permissions](/configuration/permissions). If recognition fails, test a simple image and read the selected provider's error. For asking about a visual element rather than extracting text, try [Appshots](/features/appshots) or [Screen Doodle](/features/screen-doodle).
+A scanned document can need OCR even when it's a PDF file.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The capture is blank or doesn't start | Check the Screen Recording permission in [Permissions](/configuration/permissions) |
+| **No Text Found** | Click **Select Area Again** and choose a tighter area. Handwriting or stylized type may read better with **Try AI Model OCR** |
+| **Couldn't Read** | Click **Retry**, try a simple image, and read the provider's error. **Settings** opens the OCR settings |
+| Lines run together or break in the wrong places | Turn **Keep Original Line Breaks** on or off in the **⋯** menu, or read the area again with another provider |
+| You want to ask about something on screen, not copy its text | Use [Appshots](/features/appshots) or [Screen Doodle](/features/screen-doodle) |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Translation" icon="language" href="/ai/translate">Translate a part of your screen.</Card>
+  <Card title="Appshots" icon="camera" href="/features/appshots">Attach an app window to a chat.</Card>
+  <Card title="Screen Doodle" icon="pen" href="/features/screen-doodle">Mark up part of the screen and ask about it.</Card>
+  <Card title="Provider Catalog" icon="list" href="/providers/catalog#ocr">Every OCR provider and its settings.</Card>
+</CardGroup>

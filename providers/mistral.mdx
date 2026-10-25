@@ -1,40 +1,70 @@
 ---
 title: "Mistral AI"
-description: "Connect Mistral AI and choose an AI model in Enconvo."
+description: "Chat with Mistral models in Enconvo using a Mistral API key or your Mistral account."
 ---
 
-Use **Mistral AI** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+Use Mistral's models in chats, Agents, and AI Commands. Paste a Mistral API key, or sign in with your Mistral account and let Enconvo create the key for you. Mistral bills the usage to your account either way.
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **Mistral AI**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Tabs>
+  <Tab title="Sign in with Mistral">
+    <Steps>
+      <Step title="Open the provider">
+        Open **Settings → AI Model → Mistral AI**.
+      </Step>
+      <Step title="Sign in">
+        Under **Authentication**, choose the Mistral account sign-in and click **Connect**. Sign in with your Mistral account and choose a workspace. The sign-in works the way Mistral Vibe signs in: it creates an API key for that workspace, so there's nothing to copy.
+      </Step>
+      <Step title="Pick a model">
+        Choose a model in **Model Name** and send a short message.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Use an API key">
+    <Steps>
+      <Step title="Get an API key">
+        Create a key in the [Mistral console](https://console.mistral.ai/api-keys/).
+      </Step>
+      <Step title="Add it to Enconvo">
+        Open **Settings → AI Model → Mistral AI**. Under **Authentication**, paste the key into **API Key**, then click **Validate**.
+      </Step>
+      <Step title="Pick a model">
+        Choose a model in **Model Name** and send a short message.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
-## Provider options
+Once you're signed in, the account card shows your plan, the key, and what's left of your per-minute limits.
 
-The provider offers **API Key** and Mistral account sign-in. The sign-in works the way Mistral Vibe signs in: you sign in with your Mistral account, and it creates an API key for the workspace you choose, so there is no key to copy and paste. Voxtral transcription and Mistral OCR can use the same sign-in.
+## Models and options
 
-The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
+| **Reasoning Effort** (in the chat) | For Mistral Large 4, Medium 3.5, and Small 4: **None** answers without thinking, **High** thinks first. Large 4 thinks by default. |
 
-The iPhone app can use your Le Chat plan in Phone chats too: on the iPhone, open **Settings → AI Model → Mistral**, choose the Le Chat card under **Authentication**, and tap **Sign in with Mistral**. See [Phone Chats](/integrations/iphone-phone-chats).
+Voxtral transcription and Mistral OCR can use the same sign-in or key.
 
-## Use it in a conversation
+## On the iPhone
 
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
-
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+The iPhone app can use your Le Chat plan in Phone chats too. On the iPhone, open **Settings → AI Model → Mistral**, choose the Le Chat card under **Authentication**, and tap **Sign in with Mistral**. See [Phone Chats](/integrations/iphone-phone-chats).
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in the Mistral console. |
+| The sign-in stops working | Open the account card's menu and click **Reconnect**. |
+| A model is missing | Click **Refresh** beside **Model Name**. To add a model yourself, use **Manage Models**. |
+| Rate limit errors | Your workspace's per-minute limit is used up. Wait a minute, or check limits in the Mistral console. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Phone Chats" icon="mobile" href="/integrations/iphone-phone-chats">Use your Le Chat plan in the iPhone app's own chats.</Card>
+  <Card title="Speech recognition" icon="waveform-lines" href="/ai/speech-recognition">Use Voxtral for dictation and transcription.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

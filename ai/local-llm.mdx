@@ -1,33 +1,40 @@
 ---
 title: "Local Models"
-description: "Choose on-device processing and connect local model servers."
+description: "Run models on your own hardware, and keep a whole task on your Mac."
 ---
 
-Enconvo supports local inference through MLX, Ollama, and LM Studio. Choose the runtime that serves the model you need and verify each stage of your task if you want to keep processing on-device.
+Run models on your Mac, or on another computer you own, when you want chats to stay private or to work without a provider account. Enconvo has a built-in engine, and it also connects to Ollama and LM Studio.
 
-| Runtime | Setup | Hardware/location |
+## Choose a runtime
+
+| Runtime | Best for | Setup |
 | --- | --- | --- |
-| [MLX](/providers/mlx) | Download a supported model in its provider settings | Apple Silicon Mac |
-| [Ollama](/providers/ollama) | Start a model server and configure its URL | Same Mac or reachable server |
-| [LM Studio](/providers/lm-studio) | Load a model and start its API server | Same Mac or reachable server |
+| [Local LLM (MLX)](/providers/mlx) | Running models inside Enconvo on an Apple Silicon Mac with macOS 15 or later | Pick and download a model in Settings |
+| [Ollama](/providers/ollama) | Models you already manage with Ollama, on this Mac or a server | Start Ollama and set its address |
+| [LM Studio](/providers/lm-studio) | Models you already use in LM Studio, on this Mac or a server | Start LM Studio's server and set its address |
 
 ## Start small
 
-1. Configure the local provider and download/load a model.
-2. Send a short text-only request.
-3. Add larger documents or tools after the basic request succeeds.
-4. Check memory use and response time before choosing a larger model.
+1. Set up the runtime and download or load a model.
+2. Send a short text message.
+3. Once that works, add documents or tools.
+4. Watch memory use and speed before you try a larger model. **Settings → Local Models** shows the models on this Mac and how much memory they use.
 
-Model parameter count, quantization, context size, and concurrent tasks all affect memory. Use the model manager’s actual size and compatibility information instead of a fixed RAM table.
+Model size, quantization, context length, and other running tasks all affect memory. Use the size the model picker shows rather than a fixed rule.
 
 ## Keep the whole task local
 
-Review more than the chat model: speech recognition, text-to-speech, OCR, document parsing, embeddings, reranking, search, and MCP tools can use separate providers. Enconvo offers local providers for several of these categories, listed in the [catalog](/providers/catalog).
+A local chat model alone doesn't keep everything on your Mac. Speech recognition, text-to-speech, OCR, document parsing, embeddings, reranking, search, and MCP tools each use their own provider. Enconvo has local providers for several of them; the [provider catalog](/providers/catalog) lists them.
 
-Web search and external services still require network access. A local model can also call tools that send content outside the Mac.
+**Settings → Local Models** shows which features run on this Mac and which run in the cloud. Web search and other online services still need the internet, and a local model can still call tools that send content off your Mac.
 
-## LAN connections
+## Use a model server on another computer
 
-When using a server on another computer, configure its LAN address and listen interface. Check macOS **Local Network** permission if connection errors mention the network being blocked. `localhost` refers to the Mac running Enconvo, not the remote model server.
+Set the server to accept network connections, and set Enconvo's **BaseUrl** to that computer's address. `localhost` always means the Mac running Enconvo. If macOS blocks the connection, turn on Enconvo in **System Settings → Privacy & Security → Local Network**.
 
-See [Privacy and Security](/configuration/privacy-security) for data-flow checks.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/providers/mlx">Enconvo's built-in engine.</Card>
+  <Card title="Privacy and security" icon="shield" href="/configuration/privacy-security">Where your data goes, feature by feature.</Card>
+</CardGroup>

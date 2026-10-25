@@ -1,86 +1,64 @@
 ---
-title: "Gmail Integration"
-description: "Read, search, and manage Gmail directly from Enconvo"
+title: "Gmail"
+description: "Connect your Gmail once so agents can search, read, organize, and send your mail from any chat."
 ---
 
-## Overview
+The Gmail Connector brings your email into Enconvo. Ask an agent to find important mail, summarize a thread, draft a reply, or clean up your inbox, and it uses Gmail for you. You connect your Google account once, through your Enconvo account; there's no Google Cloud project or API key to set up.
 
-The Gmail integration brings your email directly into EnConvo's AI workspace. With 13 built-in tools, you can search, read, send, draft, organize, and manage emails entirely through natural language -- no need to switch to your browser or the Gmail app.
+## Before you start
 
-Ask your AI assistant to find important emails, draft replies, clean up your inbox, or manage labels, and it handles everything behind the scenes using the Gmail API.
+Sign in to your Enconvo account in **Settings → Account**. Connectors are free on every plan, but they need an Enconvo account.
 
-## Available Tools
-
-EnConvo's Gmail extension exposes the following tools that the AI can use automatically during conversations:
-
-### Email Operations
-
-| Tool | Description |
-|------|-------------|
-| **Search Emails** | Search your inbox using Gmail search syntax (e.g., `from:john@example.com`, `subject:invoice`, `after:2024/01/01`) |
-| **Read Email** | Retrieve the full content of a specific email by its message ID |
-| **Send Email** | Send a new email with recipients, subject, body, CC/BCC, and attachments |
-| **Draft Email** | Create a draft email without sending it |
-| **Modify Email** | Change email labels (move between folders, mark as read/unread) |
-| **Delete Email** | Permanently delete a specific email |
-
-### Batch Operations
-
-| Tool | Description |
-|------|-------------|
-| **Batch Modify Emails** | Apply label changes to multiple emails at once (configurable batch size, default 50) |
-| **Batch Delete Emails** | Permanently delete multiple emails in batches |
-
-### Label Management
-
-| Tool | Description |
-|------|-------------|
-| **List Email Labels** | Retrieve all available Gmail labels |
-| **Create Label** | Create a new Gmail label with visibility settings |
-| **Update Label** | Rename or change visibility of an existing label |
-| **Delete Label** | Remove a Gmail label |
-| **Get or Create Label** | Find an existing label by name, or create it if it does not exist |
-
-## Setting Up Gmail
-
-### Authentication
-
-EnConvo uses Google OAuth to securely connect to your Gmail account. Sign-in uses Google authorization; review the requested access before granting it.
+## Connect Gmail
 
 <Steps>
-  <Step title="Open Gmail Extension Settings">
-    Go to **Settings** and find the **Gmail** extension
+  <Step title="Find Gmail">
+    Open **Settings → Plugins** and search for **Gmail** on the **Enconvo** tab. Click it to open its page.
   </Step>
-  <Step title="Choose Credential Provider">
-    Select either **Gmail (Enconvo Cloud)** (recommended, pre-configured OAuth) or your own **Gmail** credentials
+  <Step title="Connect">
+    Click **Connect**. Your browser opens Google's sign-in.
   </Step>
-  <Step title="Authorize Access">
-    Click **Sign In** and follow the Google OAuth flow to grant EnConvo access to your Gmail
+  <Step title="Allow access">
+    Choose your Google account and review the access it asks for before you allow it. Google's consent screen shows Composio, Enconvo's integration partner.
   </Step>
-  <Step title="Start Using Gmail Tools">
-    Enable the Gmail tools for the Agent you intend to use, then test a read-only request in that Agent's conversation
+  <Step title="Check the result">
+    Back in Enconvo, your address shows under **Account**. Click **Try now**, or ask an agent a read-only question first, such as "Summarize the unread emails in my inbox from today."
   </Step>
 </Steps>
 
-<Tip>
-The **Gmail (Enconvo Cloud)** credential option provides a pre-configured OAuth setup so you can get started without creating your own Google API project.
-</Tip>
+If you ask an agent about your mail before Gmail is connected, the chat shows a card to connect it.
 
-### Using Your Own Google API Credentials
+## What agents can do
 
-If you prefer to use your own Google Cloud project:
+| Area | What agents can do |
+| --- | --- |
+| Read | Search mail, open messages and threads, download attachments, list labels and drafts |
+| Organize | Add and remove labels, archive, move messages to Trash and restore them |
+| Write | Create and send drafts, send new mail, reply, and forward |
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the **Gmail API**
-4. Create OAuth 2.0 credentials (Desktop application type)
-5. In EnConvo, select the **Gmail** credential provider and enter your Client ID and Client Secret
+Search uses Gmail's own search syntax, such as `from:john@example.com`, `subject:invoice`, or `after:2024/01/01`.
 
-## Using Gmail in Conversations
+When agents write or send mail, they can set To, CC, and BCC, write a plain-text or HTML body, reply inside an existing thread, and attach files from your Mac: up to 10 files, each up to 95 MB. Files past what one email can carry (25 MB together) go as download links on file.enconvo.com instead, and anyone with a link can download the file.
 
-Once connected, simply talk to your AI assistant about email tasks. The AI automatically selects and uses the appropriate Gmail tools.
+<Warning>
+Agents can send mail without asking first. Ask for a draft when you want to review it. Enconvo never deletes mail permanently; deleting moves it to Trash.
+</Warning>
 
-### Example Conversations
+## Options
+
+These appear on Gmail's page once an account is connected.
+
+| Option | What it changes |
+| --- | --- |
+| **Available in all chats** | On: agents can use Gmail in every conversation. Off: agents use it only when you `@` mention it or a Profile includes it. |
+| **Mail Alerts** | Alerts you on the Dynamic Island and your iPhone when important mail arrives. Enconvo asks before turning it on, because the sender, subject, and start of each new mail go to Enconvo Cloud to judge how important it is. Mail is never stored there. |
+| **Connect another account** | Adds another Gmail address, up to 5. |
+
+With several accounts, agents read from all of them, and send or create mail with the default account unless you name another, such as "send it from my work address." Choose **Make default** in an account's menu to change the default.
+
+## Use Gmail in chats
+
+Once Gmail is connected, ask for what you need. The agent picks the right Gmail tools.
 
 **Search and summarize:**
 ```
@@ -92,84 +70,62 @@ Once connected, simply talk to your AI assistant about email tasks. The AI autom
 "Draft a reply to the latest email from marketing@company.com thanking them for the report"
 ```
 
-**Inbox cleanup:**
+**Clean up the inbox:**
 ```
 "Archive all newsletters from the past month"
 ```
 
-**Label management:**
+**Manage labels:**
 ```
 "Create a label called 'Q1 Reports' and move all emails with 'quarterly report' in the subject there"
 ```
 
-**Batch operations:**
+**Clear out old mail (it goes to Trash):**
 ```
 "Delete all promotional emails older than 6 months"
 ```
 
-### Email Composition Features
+## Ideas for workflows
 
-When sending or drafting emails, the AI can:
+Gmail works in [workflows](/workflows/introduction) and [scheduled tasks](/workflows/scheduled-jobs) too:
 
-- Set recipients (To, CC, BCC)
-- Compose both plain text and HTML email bodies
-- Attach files from your Mac
-- Reply to existing email threads (preserving thread context)
-- Use `multipart/alternative` for emails with both plain text and HTML versions
-
-## Workflows
-
-Gmail tools integrate with EnConvo's workflow system. Common workflow patterns:
-
-| Workflow | Description |
-|----------|-------------|
+| Idea | What it does |
+| --- | --- |
 | **Daily Email Digest** | Search for unread emails, summarize them, and present a morning briefing |
-| **Auto-Categorize** | Search for new emails and automatically apply labels based on content |
-| **Follow-Up Reminder** | Find emails awaiting replies and create reminders |
-| **Report Generation** | Search for emails matching criteria and compile a summary report |
+| **Auto-Categorize** | Search for new emails and apply labels based on their content |
+| **Follow-Up Reminder** | Find emails waiting for a reply and create reminders |
+| **Report Generation** | Search for emails that match your criteria and compile a summary report |
 
-## Privacy and Security
+## Privacy
 
-<Warning>
-EnConvo accesses your Gmail only when you explicitly ask the AI to perform email-related tasks. No emails are read, cached, or processed in the background.
-</Warning>
-
-- **OAuth 2.0**: Industry-standard authentication -- EnConvo never sees your Google password
-- **On-demand access**: Gmail API calls are made only when the AI uses a Gmail tool during your conversation
-- **No background syncing**: EnConvo does not maintain a local copy of your emails
-- **Revocable access**: You can revoke EnConvo's access at any time from your [Google Account permissions](https://myaccount.google.com/permissions)
-- **Scoped permissions**: Only the minimum required Gmail scopes are requested
+- **Through Enconvo Cloud and Composio**: Your mail passes through Enconvo Cloud and Composio only to do what you ask, and isn't stored.
+- **Your password stays with Google**: You sign in on Google's own page, so Enconvo never sees your Google password.
+- **On demand**: Agents read Gmail only when a task needs it. The one exception is **Mail Alerts**, which, when you turn it on, checks each new mail as it arrives.
+- **Revocable**: Click **Disconnect** on Gmail's page to remove access on all your devices. You can also remove access in your [Google Account permissions](https://myaccount.google.com/permissions).
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Authentication fails or token expired">
-    Go to **Settings** -> **Gmail** and re-authenticate by signing in again. OAuth tokens expire periodically and need to be refreshed.
-  </Accordion>
-  <Accordion title="AI does not use Gmail tools">
-    Make sure the Gmail extension is installed and the credential provider is configured. Gmail tools are automatically available to agent-mode conversations -- verify that agent mode is enabled.
-  </Accordion>
-  <Accordion title="Search returns no results">
-    Gmail search uses the same query syntax as the Gmail web interface. Try simpler queries first (e.g., `from:john`) and ensure the emails exist in the authenticated account.
-  </Accordion>
-  <Accordion title="Cannot send attachments">
-    Verify that the file paths are correct and accessible. The AI needs valid absolute file paths on your Mac to attach files.
-  </Accordion>
-</AccordionGroup>
+| Problem | What to do |
+| --- | --- |
+| **Connect** is grayed out | Sign in to your Enconvo account in **Settings → Account** first. |
+| Gmail shows **Reconnect** | Its access ran out. Click **Reconnect** and sign in with Google again. |
+| The agent doesn't use Gmail | Check that Gmail is connected. If **Available in all chats** is off, `@` mention Gmail in the chat. |
+| A search finds nothing | Try a simpler query first, such as `from:john`, and check that the mail is in a connected account. Gmail search works the same as on the Gmail website. |
+| An attachment doesn't send | Check that the file paths are correct and the files exist on your Mac. |
 
-## Related Features
+## Related
 
 <CardGroup cols={2}>
-  <Card title="Apple Mail" icon="envelope" href="/integrations/apple-ecosystem">
-    Native macOS Mail integration
+  <Card title="Apple Apps" icon="envelope" href="/integrations/apple-ecosystem">
+    Work with the Mail app and other apps on your Mac.
   </Card>
   <Card title="Agents" icon="robot" href="/ai/agents">
-    AI agents that use Gmail tools automatically
+    Agents that use Gmail for you.
   </Card>
   <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">
-    Automate email tasks with workflows
+    Automate email tasks with workflows.
   </Card>
-  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
-    AI understands your current context
+  <Card title="Automations" icon="clock" href="/workflows/scheduled-jobs">
+    Run an email task on a schedule.
   </Card>
 </CardGroup>

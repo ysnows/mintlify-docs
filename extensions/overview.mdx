@@ -1,19 +1,52 @@
 ---
-title: "Plugins Overview"
-description: "Find, install, configure, and use Enconvo plugins."
+title: "Plugins"
+description: "Find, install, and manage the plugins that give Enconvo new commands, tools, and connections."
 ---
 
-Plugins add commands, providers, tools, and API routes to Enconvo. Open **Settings → Plugins → Plugins** to search the catalog and inspect installed plugins.
+Plugins add commands, providers, tools, and API routes to Enconvo. Open **Settings → Plugins** to search the catalog, install what you need, and manage what you already have.
 
-## Find and configure a plugin
+## Find and install a plugin
 
-1. Search by the task or plugin name.
-2. Open its detail page and review its description, commands, and requirements.
-3. Install it if it is not already installed.
-4. Configure any required provider credentials or command settings.
-5. Run a command from SmartBar, or enable its tools for the Agent that should use it.
+<Steps>
+  <Step title="Open Plugins">
+    Open **Settings → Plugins**. Press **⌘K** to jump to the search box.
+  </Step>
+  <Step title="Search">
+    Search by the task or the plugin's name. When nothing on the current tab matches, the page offers the results on another tab.
+  </Step>
+  <Step title="Open its page">
+    Click the plugin to read its description, what it includes, and what it needs.
+  </Step>
+  <Step title="Install and set it up">
+    Click **Install** if it isn't installed yet. Then add any provider credentials or command settings it asks for.
+  </Step>
+  <Step title="Use it">
+    Click **Try now**, run one of its commands from SmartBar, or enable its tools for the Agent that should use it.
+  </Step>
+</Steps>
 
-The **Installed** strip provides quick access to installed plugins. A plugin's detail page lists commands and their settings. Opening a command's settings from another surface takes you back to that command within its plugin.
+A plugin's page lists its commands and their settings. When you open a command's settings from somewhere else in Enconvo, you land on that command inside its plugin.
+
+## The Plugins page
+
+| Tab | What it shows |
+| --- | --- |
+| **Enconvo** | The catalog by category. **Installed** at the top lists the Connectors you connected and the plugins you installed or made. **Recently added** shows new entries. |
+| **Built-in** | Plugins that come with Enconvo: **Search** holds the lists you search from SmartBar, and **Control** holds Computer Use and Browser Use. |
+| **Mac Apps** | Apps on this Mac that agents can use, such as Calendar, Mail, and Notes. Connecting one asks macOS for permission, not for an account. See [Apple Apps](/integrations/apple-ecosystem). |
+| **PopBar** | PopClip-compatible extensions that add buttons to [PopBar](/features/popbar). |
+| **Personal** | Plugins you built or imported, and the ones you published to the Enconvo store. |
+
+To bring in a plugin from outside the catalog, use **Create plugin** or the **Add** menu:
+
+| Option | What it does |
+| --- | --- |
+| **Create plugin** | Describe what you need, and the agent writes, tests, and installs the plugin. |
+| **Upload plugin archive…** | Installs an `.enconvo` file, or a Claude Code or Codex plugin `.zip`. |
+| **Add from GitHub…** | Installs from a plugin repository, or a Claude Code or Codex marketplace. |
+| **Add MCP server…** | Opens [MCP Servers](/features/mcp). |
+| **Add PopBar extension…** and **Import from PopClip…** | Add PopClip extensions to PopBar. |
+| **New skill…** | Opens [Skills](/configuration/skills). |
 
 ## Find the right capability
 
@@ -23,22 +56,50 @@ The **Installed** strip provides quick access to installed plugins. A plugin's d
 | Search and read the web | [Web Search](/ai/web-search), [Read Web Pages](/ai/web-fetch) |
 | Work with files or a terminal | [File Tools](/ai/file-tools), [Code Runner](/ai/code-runner) |
 | Generate images, video, or speech | [Provider Catalog](/providers/catalog) |
-| Work with Mail, Calendar, Notes, or Reminders | [Apple Ecosystem](/integrations/apple-ecosystem) |
+| Work with Mail, Calendar, Notes, or Reminders | [Apple Apps](/integrations/apple-ecosystem) |
 | Connect external tools | [MCP Servers](/features/mcp) |
 | Add reusable Agent instructions | [Skills](/configuration/skills) |
 
-The [Built-in Command Catalog](/extensions/built-in-extensions) lists the currently documented command families. Available store entries and installed plugins can differ between builds.
+The [Built-in Command Catalog](/extensions/built-in-extensions) lists the documented command families. The store entries and installed plugins in your build can differ from it.
 
 ## Commands, providers, and tools
 
-A command is an executable action. A provider supplies a capability such as a model or voice. A tool is an action an Agent can call. Installing a plugin does not necessarily choose its provider globally or enable every tool for every Agent.
+- A **command** is an action you run.
+- A **provider** supplies a capability, such as a model or a voice.
+- A **tool** is an action an Agent can call.
 
-In SmartBar, use its configured command picker (normally `@`) or search a command's title. The `/` action menu serves a different purpose; it is not a universal plugin-name prefix.
+Installing a plugin doesn't always make its provider the default, or turn on every tool for every Agent.
 
-## Update or remove
+In SmartBar, use the command picker (`@` by default) or search for a command's title. The `/` action menu does something else; it isn't a prefix for plugin names.
 
-Use the plugin's available update or uninstall controls and review the confirmation. Check Agents, workflows, and custom commands that depend on it before removal. Resetting a command restores its settings; resetting a shared provider can also affect credentials used by other capabilities. See [Credentials](/configuration/credentials).
+## Turn off, update, or remove
 
-## Develop a plugin
+On a plugin's page:
 
-Use the TypeScript SDK and CLI described in [Developing Extensions](/extensions/developing). The current CLI groups build, install, schema generation, and publish under `enconvo plugin`. Publishing makes a plugin available outside your local development environment. Enconvo also installs Codex, Claude Code and portable plugins; see [Plugin Formats](/extensions/plugin-formats) and [Installing Plugins](/extensions/installing-plugins).
+- The switch turns the plugin on or off. While it's off, agents can't find or use it, and SmartBar doesn't list it or let you `@` it. Its settings are kept.
+- The **⋯** menu has **Settings**, **Check for updates**, and **Uninstall**. Plugins that come with Enconvo can't be uninstalled.
+
+Before you uninstall a plugin, check the Agents, workflows, and custom commands that use it. Resetting a command restores its settings. Resetting a shared provider can also change credentials that other features use; see [Credentials](/configuration/credentials).
+
+## Build your own
+
+Use the TypeScript SDK and CLI in [Developing Extensions](/extensions/developing). The CLI groups build, install, schema generation, and publish under `enconvo plugin`. Publishing makes a plugin available outside your own development setup.
+
+Enconvo also installs Codex, Claude Code, and portable plugins. See [Plugin Formats](/extensions/plugin-formats) and [Installing Plugins](/extensions/installing-plugins).
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Installing Plugins" icon="download" href="/extensions/installing-plugins">
+    Install from the catalog, a file, GitHub, or a marketplace.
+  </Card>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">
+    Give agents the tools of any MCP server.
+  </Card>
+  <Card title="Skills" icon="star" href="/configuration/skills">
+    Teach agents reusable procedures.
+  </Card>
+  <Card title="Developing Extensions" icon="code" href="/extensions/developing">
+    Build, test, and publish a plugin.
+  </Card>
+</CardGroup>

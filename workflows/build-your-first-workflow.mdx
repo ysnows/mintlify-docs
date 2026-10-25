@@ -1,6 +1,6 @@
 ---
 title: "Build Your First Workflow"
-description: "A narrated video tutorial: create, edit, extend, run, and inspect a workflow in eight steps."
+description: "Follow a narrated video to create a workflow from a template, add steps by hand and with the assistant, then run it and read each step's output."
 ---
 
 import { YouTubePlayer } from '/snippets/youtube-player.mdx';
@@ -21,14 +21,14 @@ The **Tour of step kinds** template already runs out of the box. Over the tutori
 | List saved workflows | Tool | Lists your existing workflows (runs in parallel with the date) |
 | Ask the model for an idea | Prompt | Suggests one new automation about the `topic` input |
 | Let the agent expand it | Agent | Turns the idea into a three-step plan |
-| Write a tweet | Prompt | **Added by hand** — turns the plan into one punchy tweet |
-| Translate the tweet into Japanese | Prompt | **Added by the assistant** — translates the tweet |
+| Write a tweet | Prompt | Added by hand: turns the plan into one punchy tweet |
+| Translate the tweet into Japanese | Prompt | Added by the assistant: translates the tweet |
 
-## Steps
+## Follow along
 
 <Steps>
   <Step title="Create a workflow (0:07)">
-    Open **Settings → Workflows → Manage** and select **New workflow**. Under **Or start from a template**, choose **Tour of step kinds**; the workflow is created and the editor opens in **Visual** mode. (In the video, which was recorded before the New workflow dialog, the starter is called *Starter Workflow*.)
+    Open **Settings → Workflows → Manage** and select **New workflow**. Under **Or start from a template**, choose **Tour of step kinds**. The workflow is created and the editor opens in **Visual** mode. The video was recorded before the **New workflow** dialog existed, so there the starter is called *Starter Workflow*.
   </Step>
   <Step title="Read the graph (0:18)">
     Read the graph from the top. The **Inputs** node declares what a run needs; here it is a single `topic`. The first two steps sit side by side because they belong to separate jobs, so they run in parallel. Each result then flows down into the steps below it, which run in order.
@@ -37,7 +37,7 @@ The **Tour of step kinds** template already runs out of the box. Over the tutori
     Select a step to open it in the inspector, where you can change its ID, title, and prompt. Double curly braces pull values into a step: `{{ inputs.topic }}` reads a run input, and `{{ steps.idea.output }}` reads an earlier step's result. That is how steps talk to each other.
   </Step>
   <Step title="Add a step (0:37)">
-    Select the **+** below the last step and pick a step type — Prompt, Agent, Shell, Tool, and more. Give the new Prompt step the ID `tweet`, the title "Write a tweet", and this prompt:
+    Select the **+** below the last step and pick a step type, such as Prompt, Agent, Shell, or Tool. Give the new Prompt step the ID `tweet`, the title "Write a tweet", and this prompt:
 
     ```text wrap
     Turn this plan into one punchy tweet: {{ steps.plan.output }}
@@ -47,20 +47,20 @@ The **Tour of step kinds** template already runs out of the box. Over the tutori
     After you rename a step ID, press Return before moving to the next field.
     </Tip>
   </Step>
-  <Step title="Or just ask the workflow assistant (0:57)">
+  <Step title="Or ask the workflow assistant (0:57)">
     Instead of editing by hand, select **Assistant** in the toolbar and describe the change in the panel that opens beside the canvas:
 
     ```text wrap
     Add a final step that translates the tweet into Japanese
     ```
 
-    The assistant edits the graph for you and lists the steps it changed; select **Revert** on its reply if you don't like the result. In the video it adds a `translate_ja` step whose prompt reads `{{ steps.tweet.output }}`. Review the new step before you save — assistant edits stay unsaved until you select **Save**.
+    The assistant edits the graph and lists the steps it changed. Select **Revert** on its reply if you don't like the result. In the video it adds a `translate_ja` step whose prompt reads `{{ steps.tweet.output }}`. Review the new step before you save: assistant edits stay unsaved until you select **Save**.
   </Step>
-  <Step title="It's just YAML (1:16)">
-    Select **YAML** in the toolbar to see the same workflow as source. There is one plain file per workflow, saved at `~/.enconvo/workflows/<id>.yaml`, so it is easy to read, diff, and share. Select **Visual** to return to the graph. See [the full YAML](#the-finished-workflow) below.
+  <Step title="See the YAML (1:16)">
+    Select **YAML** in the toolbar to see the same workflow as source. Each workflow is one plain file, saved at `~/.enconvo/workflows/<id>.yaml`, so it is easy to read, diff, and share. Select **Visual** to return to the graph. The full file is in [The finished workflow](#the-finished-workflow) below.
   </Step>
   <Step title="Run it and check the output (1:28)">
-    Select **Inputs**, set the run values — the video uses `{"topic": "matcha"}` — and choose **Run**. Running steps glow blue and finished steps turn green. The Agent step takes longer than the others.
+    Select **Inputs**, set the run values (the video uses `{"topic": "matcha"}`), and choose **Run**. Running steps glow blue and finished steps turn green. The Agent step takes longer than the others.
 
     When the run finishes, select any step and open its **Output** tab to see exactly what it produced. The last step picked up the tweet and translated it, with no copy and paste.
   </Step>
@@ -121,11 +121,11 @@ jobs:
 
 The `ideate` job waits for `date` and `catalog` through `needs`, so it can read their results with `jobs.<job>.<step>.output`. Within a job, later steps read earlier ones with `steps.<id>.output`.
 
-## Next steps
+## Related
 
 <CardGroup cols={2}>
-  <Card title="Workflows introduction" icon="diagram-project" href="/workflows/introduction">Jobs, steps, and every executor a step can use.</Card>
-  <Card title="Creating workflows" icon="pen-to-square" href="/workflows/creating-workflows">The Visual editor, YAML, and the editing assistant in detail.</Card>
-  <Card title="Advanced workflows" icon="code-branch" href="/workflows/advanced-workflows">Conditions, loops, retries, output schemas, and subworkflows.</Card>
-  <Card title="Scheduled jobs" icon="clock" href="/workflows/scheduled-jobs">Run an Agent instruction or script at a set time.</Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows/introduction">Jobs, steps, and every kind of step.</Card>
+  <Card title="Creating Workflows" icon="pen-to-square" href="/workflows/creating-workflows">The Visual editor, YAML, and the editing assistant in detail.</Card>
+  <Card title="Advanced Workflows" icon="code-branch" href="/workflows/advanced-workflows">Conditions, loops, retries, output schemas, and subworkflows.</Card>
+  <Card title="Automations" icon="clock" href="/workflows/scheduled-jobs">Run a workflow or an Agent instruction at a set time.</Card>
 </CardGroup>

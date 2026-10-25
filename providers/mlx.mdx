@@ -1,22 +1,50 @@
 ---
-title: "MLX Local Models"
-description: "Use on-device language models on Apple Silicon."
+title: "Local LLM (MLX)"
+description: "Run language models on your Mac with Enconvo's built-in MLX engine."
 ---
 
-The **MLX (mlx)** AI Model provider runs supported models on Apple Silicon through Enconvo’s local model runtime.
+Local LLM runs language models on your Mac's Apple Silicon, with no account or API key. After the model downloads, chats with it stay on your Mac. It needs macOS 15 or later.
 
-## Use a local model
+## Set up
 
-1. Open **Settings → AI Model → MLX (mlx)**.
-2. Open the model picker and select a supported model.
-3. Download the required resources when prompted, allowing enough disk space and memory for the selected model.
-4. Wait for setup to complete, then test a short text request.
-5. Review **Temperature** and **Reasoning Effort** when supported by the selected model.
+<Steps>
+  <Step title="Open the provider">
+    Open **Settings → AI Model → Local LLM (MLX)**.
+  </Step>
+  <Step title="Pick a model">
+    Open the **Model** list. Enconvo suggests a model that suits your Mac, and you can search Hugging Face for others.
+  </Step>
+  <Step title="Download it">
+    Start the download and wait for it to finish. Enconvo checks free disk space first, and a download resumes after a restart or a network drop.
+  </Step>
+  <Step title="Test it">
+    Send a short message. The first reply takes longer while the model loads into memory.
+  </Step>
+</Steps>
 
-Model files need an initial download; subsequent inference uses the local runtime. Model availability and hardware support depend on your build.
+## Models and options
 
-## Other local capabilities
+| Setting | What it does |
+| --- | --- |
+| **Model** | The local model this provider runs. |
+| **Thinking** | For models with a thinking mode. **Off** (the default) answers right away; **On** reasons first. **Low**, **Medium**, and **High** set how long gpt-oss models reason; other models treat them as **On**. |
 
-Enconvo also includes MLX providers for speech recognition, text-to-speech, embeddings, reranking, and OCR. Each capability has its own model selection. See the [provider catalog](/providers/catalog).
+To see how much memory and disk your local models use, or to delete one, open **Settings → Local Models**. Models load again when a feature needs them.
 
-If loading fails, inspect the error, available memory and disk space, and the model’s hardware requirements. Start with a smaller model before increasing context or concurrency.
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The download doesn't start | Free up disk space; Enconvo checks it before downloading. |
+| The model fails to load or the Mac slows down | Pick a smaller model, or close other heavy apps. **Settings → Local Models** shows memory use. |
+| Replies are slow | Pick a smaller model, or turn **Thinking** off. |
+| Tools or images fail | Pick a model that supports tool calls or image input. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Local models" icon="microchip" href="/ai/local-llm">Keep a whole task on your Mac, not only the chat model.</Card>
+  <Card title="Ollama" icon="server" href="/providers/ollama">Use models served by Ollama.</Card>
+  <Card title="LM Studio" icon="server" href="/providers/lm-studio">Use models served by LM Studio.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Local providers for speech, OCR, and embeddings too.</Card>
+</CardGroup>

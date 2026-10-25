@@ -1,38 +1,53 @@
 ---
 title: "OpenRouter"
-description: "Connect OpenRouter and choose an AI model in Enconvo."
+description: "Chat with OpenRouter models in Enconvo using your own OpenRouter API key."
 ---
 
-Use **OpenRouter** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+OpenRouter routes one API key to models from many companies. Add your key to Enconvo to use those models in chats, Agents, and AI Commands. OpenRouter bills the usage to your own account.
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **OpenRouter**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Steps>
+  <Step title="Get an API key">
+    Create a key in the [OpenRouter](https://openrouter.ai/).
+  </Step>
+  <Step title="Add it to Enconvo">
+    Open **Settings → AI Model → OpenRouter**. Under **Authentication**, paste the key into **API Key**, then click **Validate**.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
-## Provider options
+To keep a second OpenRouter key, for example one for work, click **Add New Provider** and create another profile.
 
-The model picker lists models available through OpenRouter. Image and video generation have their own OpenRouter providers in their respective settings categories. Features such as tool use and image input depend on the selected model.
+## Models and options
 
-The provider definition includes: **Model Name**, **Temperature**, **Google Search Tool**, **URL Context Tool**. Some controls appear only for models or authentication methods that support them.
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
+| **Google Search Tool** | Lets Gemini models ground answers in Google Search. Off by default. |
+| **URL Context Tool** | Lets Gemini models read the pages at links in your message. Off by default. |
 
-## Use it in a conversation
+To use a different model in one chat, pick it from that chat's model picker.
 
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
-
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+Image and video generation have their own OpenRouter providers under **Settings → Image Generation** and **Settings → Video Generation**. Tool calls and image input depend on the model you pick.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in your OpenRouter account. |
+| A model is missing | Click **Refresh** beside **Model Name** to reload the list. To add a model yourself, use **Manage Models**. |
+| Images or tools fail | Pick a model that supports image input or tool calls. |
+| Rate or usage limit errors | Check usage and limits in your OpenRouter account, or switch to another provider for now. |
+| Replies are slow | Try a smaller model, a shorter input, or lower reasoning effort. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Auto Route" icon="route" href="/providers/auto-route">Let Enconvo pick the model for each message.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

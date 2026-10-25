@@ -1,65 +1,130 @@
 ---
 title: "Knowledge Base"
-description: "Collect documents, notes, webpages, and linked folders, then use them in conversations."
+description: "Collect documents, notes, web pages, and folders, then search them and ask about them in chat."
 ---
 
-A Knowledge Base holds material you want Enconvo to retrieve later. Use it for reference documents, project notes, captured webpages, and spoken notes. [Memory](/ai/memory) serves a different purpose: information an Agent retains across conversations.
+A knowledge base holds material you want Enconvo to find later: reference documents, project notes, saved web pages, and spoken notes. Agents search it when you point at it, or when a question needs what it holds. [Memory](/ai/memory) is different: it holds short facts your Agents keep about you across chats.
 
-## Create and open a knowledge base
+## Open the Knowledge Base
 
-1. Open **KnowledgeBase** from Settings, or search for **Create Knowledge Base** in SmartBar.
-2. Give it a clear name and review its provider settings.
-3. Open the knowledge base and use **Add** to import material.
-4. Wait for processing to finish, then open an item to inspect the extracted content.
+- In the Chat Window, click **Knowledge Base** in the sidebar.
+- Or open **Settings → KnowledgeBase** and click a knowledge base.
+- Or choose **Show Knowledge Base Window** from Enconvo's menu bar menu. It opens the Knowledge Base in the Chat Window.
 
-Use the knowledge base switcher to keep unrelated projects separate. Within a knowledge base, folders organize items; grid and list views provide different ways to browse them.
+In the Chat Window, click the knowledge base's name at the top to see all your knowledge bases: each one's size, what was added this week, what needs attention, and which ones AI clients can search.
+
+## Create a knowledge base
+
+1. Click **New Knowledge Base** in the overview of all knowledge bases or in **Settings → KnowledgeBase**, or search for **Create Knowledge Base** in the SmartBar.
+2. Give it a clear **Name**. Add a **Description** of what goes in it; Agents read it to decide when to search there.
+3. Under **Start with**, choose **Empty**, **A Folder** (indexed and kept in sync), or **Files**.
+4. Turn on **Let AI clients search it** if you want MCP clients such as Claude or Cursor to reach it.
+5. Click **Create**. With a folder or files, the button reads **Create and Import** or **Create and Add**.
+
+Use separate knowledge bases to keep unrelated projects apart. Within a knowledge base, folders organize items.
 
 ## Add content
 
 | Entry | Use it for |
 | --- | --- |
-| **Add → Files** | Supported documents, images, audio, or video from your Mac |
 | **Add → Note** | A new editable Markdown note |
+| **Add → Files** | Supported documents, images, audio, or video from your Mac |
 | **Add → Single Web Page** | Content from one URL |
-| **Add → Youtube Video** | A video and its available captions |
-| **Import Folder** | A local folder with its structure and optional synchronization |
+| **Add → Youtube Video** | A video and its captions |
+| **Add → Post** | A post from X, Reddit, Hacker News, Bluesky, Zhihu, and more |
+| **Add → Import Folder…** | A local folder with its structure, optionally kept in sync |
+| **Add → New Folder…** | A folder to organize items |
 | Drag or paste files into the knowledge base | Fast import from Finder |
 | [Quick Capture](/features/quick-capture) | Save the current app's content |
 | [Voice Note](/features/voice-notes) | Record and save a spoken note |
 
-Document loaders support common text, Markdown, PDF, Office, EPUB, and structured-data formats. Images need OCR; audio/video needs transcription. Parsing quality and supported formats depend on the selected loader and providers. Check the import preview and each item's processing status for files that are skipped or fail.
+Document loaders support common text, Markdown, PDF, Office, EPUB, and structured-data formats. Images are read with OCR, and audio and video are transcribed. Parsing quality and supported formats depend on the selected loader and providers. Check the import preview and each item's status for files that are skipped or fail.
+
+## Browse and find items
+
+- **Grid**, **List**, and **Map** switch the view. The list is a table with **Type**, **Tags**, **Folder**, **Status**, and **Added** columns. The map shows each item linked to the ones closest in meaning.
+- The **Library** menu above your items switches between **All items**, **Recently Added**, **Untagged**, and **Needs Attention**, with their counts. A dot shows when something needs attention.
+- **Filter**, **Tags**, and **Types** narrow what's shown.
+- In the list, tick rows to move, tag, reindex, delete, or chat about them together.
 
 ## Linked folders
 
-1. Choose **Import Folder** from the folder area or empty-state action.
-2. Select a source folder, review file counts and skipped files, and confirm.
-3. Open its folder inspector to review the source path, synchronization status, and controls.
-4. Choose **Sync Now**, or turn on **Auto-sync** to follow changes while Enconvo runs.
+1. Choose **Add → Import Folder…**.
+2. Select a source folder, review the file counts and skipped files, and confirm.
+3. Select the folder and show its details to see the source path, sync status, and controls.
+4. Click **Sync Now**, or turn on **Auto-sync** to follow changes while Enconvo runs.
 
-The source folder remains on disk. New and changed files are imported; deleted source files are removed from the linked knowledge base content. Hidden files, unsupported formats, and files above the import size limit are skipped. Enconvo's folder sync does not edit the source files.
+The source folder stays on disk. New and changed files are imported, and files you delete from the source are removed from the knowledge base. Hidden files, unsupported formats, and files over 50 MB are skipped. Enconvo's folder sync never edits the source files.
 
-If a source drive is disconnected, restore access or relink the folder before syncing. A missing source is handled separately from an intentionally deleted file. See [Knowledge Base Deep Dive](/advanced/knowledge-base-advanced) for processing and sync troubleshooting.
+If the source drive is unplugged or the folder moved, the folder shows **Source folder not found** and nothing is removed. Reconnect the drive, or click **Relink…** and pick the new location. See [How Knowledge Bases Work](/advanced/knowledge-base-advanced) for processing and sync troubleshooting.
 
-## Ask questions using your sources
+## Ask about your sources
 
-Attach a knowledge base or a specific item using the context picker available in your chat or SmartBar. Review the attached source before submitting; the picker's available entries are the source of truth, rather than typing a special `@kb` command.
+- **In the Knowledge Base**: click **Ask** beside **Items** at the top. It's the same chat as the Chat Window: the knowledge base is attached to your first question and searched again for follow-ups, and the chat is saved with your other chats. Click **New** to start a new question.
+- **In any chat**: type **@** and pick a knowledge base or one of its items from the list. It stays above the message box for follow-up questions, where you can remove it. Click its chip to open it in the Knowledge Base.
 
 Try:
 
 > Using the attached project notes, list the decisions about authentication and cite the source for each decision.
 
-An Agent with knowledge tools can search and read available material. Retrieval selects relevant passages rather than sending every document. Open cited items to verify important details. If a passage is missing, attach the specific document or inspect whether it finished processing.
+An Agent searches and reads the material it needs. Retrieval picks relevant passages instead of sending every document. Open cited items to verify important details. If a passage is missing, mention the specific item, or check that it finished indexing.
+
+## Knowledge base settings
+
+Click the gear (**Knowledge Base Settings**) in the Knowledge Base header.
+
+| Section | What's there |
+| --- | --- |
+| **General** | The knowledge base's **Name** and **Description** |
+| **Index & Search** | Items that need attention, the search model, and **Reindex…** to rebuild the whole index |
+| **Sources & Capture** | Linked folders with **Sync Now**, **Auto-sync**, and **Relink…**, plus shortcuts to Quick Capture, Voice Note, and the Chrome extension |
+| **AI Clients (MCP)** | Whether AI clients can search this knowledge base. See [Knowledge Base MCP](/advanced/knowledge-base-mcp). |
+| **Advanced** | The **Knowledge base ID** and **Delete knowledge base** |
+
+The Default and Memory knowledge bases can't be deleted.
 
 ## Edit and maintain
 
-Open a note to edit its Markdown. Use item and folder menus to rename, organize, export, or remove content where those actions are offered. Read the removal confirmation: removing knowledge base content and deleting a source file are different operations.
+Open a note to edit its Markdown. Use the item and folder menus to rename, move, tag, or remove content. Read the removal confirmation: removing an item from a knowledge base and deleting a source file are different operations, and removing a whole linked folder never touches the files on disk.
 
-When an item fails, inspect whether extraction or embedding failed before retrying. A document may be readable before all search indexing is complete. Changing an embedding provider can require rebuilding embeddings; see the deep-dive guide before changing a populated knowledge base.
+<Warning>
+For an item that comes from a linked folder, the item menu reads **Move to Trash**. It moves the real file on disk to the Trash, then the item leaves the knowledge base.
+</Warning>
+
+When an item fails, check whether extraction or indexing failed before you retry. A document may be readable before its search indexing is complete.
+
+Every knowledge base uses the same search model, set under **Search** in **Settings → Memory**. It runs on this Mac or on Enconvo Cloud, and switching between them keeps your search index. **Search Settings…** in **Index & Search** opens it.
 
 ## Connect another AI app
 
-Open the knowledge base's **Settings → Connect AI Clients (MCP)** to expose selected knowledge bases to a local MCP client. This is a separate, opt-in, read-only service. Follow [Knowledge Base MCP](/advanced/knowledge-base-mcp) for setup and visibility controls.
+Open **Knowledge Base Settings → AI Clients (MCP)** to let local MCP clients search the knowledge bases you choose. This is a separate, opt-in, read-only service. Follow [Knowledge Base MCP](/advanced/knowledge-base-mcp) for setup and sharing controls.
 
 ## Data handling
 
-Knowledge base files and indexes are stored locally. Selected cloud OCR, transcription, embedding, reranking, or chat providers can receive the content needed for their work. Local storage does not imply that provider processing is offline. Review [Privacy & Security](/configuration/privacy-security) and the selected providers before importing sensitive material.
+Knowledge base files and indexes are stored locally. Cloud OCR, transcription, embedding, reranking, or chat providers you select can receive the content they need for their work. When the search model runs on Enconvo Cloud, the text being indexed or searched is sent there. Storing files locally doesn't mean provider processing is offline. Review [Privacy and Security](/configuration/privacy-security) and your providers before importing sensitive material.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| An item shows an indexing error | Open **Library → Needs Attention**, check whether extraction or indexing failed, then reindex the item. |
+| A linked folder says **Source folder not found** | Reconnect the drive, or click **Relink…** and choose the folder's new location. |
+| An answer misses a document | Check that the document finished indexing, then mention it directly with **@**. |
+| New content isn't indexed | If the search model runs on Enconvo Cloud, sign in. Until you do, new content isn't indexed and search only finds matching words. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Memory" icon="brain" href="/ai/memory">
+    Facts your Agents keep about you across chats.
+  </Card>
+  <Card title="Quick Capture" icon="bookmark" href="/features/quick-capture">
+    Save the app in front with one keystroke.
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/advanced/knowledge-base-mcp">
+    Let Claude, Cursor, and other MCP clients search it.
+  </Card>
+  <Card title="How Knowledge Bases Work" icon="gears" href="/advanced/knowledge-base-advanced">
+    Processing, indexing, and sync in depth.
+  </Card>
+</CardGroup>

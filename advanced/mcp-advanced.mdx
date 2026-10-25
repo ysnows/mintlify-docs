@@ -1,13 +1,17 @@
 ---
-title: "Creating Custom MCP Servers"
-description: "Build a small local MCP tool and connect it to Enconvo."
+title: "Build an MCP Server"
+description: "Write a small local MCP server, connect it to Enconvo, and give your Agent its tools."
 ---
 
-A custom MCP server exposes tools that an Enconvo Agent can call. Start with a small local server, verify its inputs and result, then add the service-specific work you need. For installing existing servers, see [MCP setup](/features/mcp).
+This page is for developers who want to give an Enconvo Agent tools of their own. A custom MCP server exposes tools that an Enconvo Agent can call. Start with a small local server, verify its inputs and result, then add the service-specific work you need.
 
-## A minimal local server
+To install a server someone else made, see [MCP Servers](/features/mcp). To ship your server so it also installs in Codex and Claude Code, package it as a plugin with `--template mcp` (see [Plugin Formats](/extensions/plugin-formats#one-package-for-enconvo-codex-and-claude-code)).
 
-This example uses the TypeScript SDK's **1.x JavaScript API**, pinned to 1.29.0. SDK major versions can use different imports and setup; consult the [official MCP server guide](https://modelcontextprotocol.io/docs/develop/build-server) when choosing another version.
+## Before you start
+
+You need Node.js and npm. This example uses the TypeScript SDK's **1.x JavaScript API**, pinned to 1.29.0. SDK major versions can use different imports and setup; consult the [official MCP server guide](https://modelcontextprotocol.io/docs/develop/build-server) when choosing another version.
+
+## Write a minimal local server
 
 ```sh
 mkdir hello-mcp
@@ -39,7 +43,20 @@ A stdio server waits for protocol messages; starting it in a terminal does not d
 
 ## Connect it to Enconvo
 
-Open **Settings → Plugins → MCP Servers**, add a server, and select **stdio**. Set the command to your Node executable and the argument to the absolute path of `server.mjs`.
+<Steps>
+  <Step title="Add the server">
+    Open **Settings → MCP Servers** and click **Add server**. Give it a **Server name**, such as `hello-mcp`.
+  </Step>
+  <Step title="Set how it starts">
+    Choose **STDIO**. In **Command**, enter `node`. In **Arguments**, enter the absolute path of `server.mjs`. If Enconvo cannot find Node, use its absolute executable path.
+  </Step>
+  <Step title="Save and check it">
+    Click **Save**. Confirm the server connects and exposes `greet`.
+  </Step>
+  <Step title="Try it">
+    Make it available to your Agent and ask it to greet “Ada.” The expected tool result is `Hello, Ada!`.
+  </Step>
+</Steps>
 
 Equivalent configuration:
 
@@ -50,7 +67,7 @@ Equivalent configuration:
 }
 ```
 
-Replace the example path with your file's actual path. If Enconvo cannot find Node, use its absolute executable path. Confirm the server connects and exposes `greet`, then make it available to your Agent and ask it to greet “Ada.” The expected tool result is `Hello, Ada!`.
+Replace the example path with your file's actual path.
 
 ## Design useful tools
 
@@ -62,18 +79,29 @@ Replace the example path with your file's actual path. If Enconvo cannot find No
 
 ## Remote servers and authentication
 
-For a remote server, use the HTTP or SSE transport offered by its setup instructions and the corresponding Enconvo form. The server URL must be the MCP endpoint rather than an ordinary website URL. Complete any supported authorization flow and confirm the connection before enabling its tools.
+For a remote server, use the HTTP or SSE transport offered by its setup instructions and the corresponding Enconvo form (**HTTP** or **SSE** instead of **STDIO**). The server URL must be the MCP endpoint rather than an ordinary website URL. Complete any supported authorization flow and confirm the connection before enabling its tools.
 
 Remote transport, authentication discovery, and session behavior depend on the server and protocol version. Use the official SDK and protocol documentation for implementation details rather than inventing an `auth` manifest that Enconvo does not consume.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Process exits immediately | Executable path, dependencies, syntax errors, and stderr |
-| Connected but no tool appears | Registration, tool enablement, and the selected Agent |
-| Invalid protocol response | Accidental stdout logging or launching the wrong program |
-| Schema validation error | The actual input shape and SDK version |
-| Remote connection failure | Endpoint URL, transport, authentication, and network access |
+| Process exits immediately | Check the executable path, dependencies, syntax errors, and stderr |
+| Connected but no tool appears | Check the tool's registration, that the tool is enabled, and the selected Agent |
+| Invalid protocol response | Look for accidental stdout logging, or the wrong program being launched |
+| Schema validation error | Compare the actual input shape with the SDK version you use |
+| Remote connection failure | Check the endpoint URL, transport, authentication, and network access |
 
 For exposing Enconvo's own documents to another AI client, use the built-in [Knowledge Base MCP server](/advanced/knowledge-base-mcp); a custom server is not required.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">
+    Install and manage MCP servers in Enconvo
+  </Card>
+  <Card title="Plugin Formats" icon="box" href="/extensions/plugin-formats">
+    Package a server as a plugin for Enconvo, Codex and Claude Code
+  </Card>
+</CardGroup>

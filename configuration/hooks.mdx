@@ -1,45 +1,15 @@
 ---
 title: "Hooks"
-description: "Run commands or webhooks automatically when EnConvo events happen"
+description: "Run a shell command or send a webhook automatically when an Agent starts, uses a tool, or finishes."
 ---
 
-## Overview
+Hooks run a shell command or send an HTTP request when something happens in Enconvo, such as an agent starting, completing, failing, or using a tool. You set them up in a JSON file, so you can add notifications, logs, local automation, or integrations without building an extension.
 
-Hooks let you run a shell command or send an HTTP request when something happens
-inside EnConvo, such as an agent starting, completing, failing, or using a tool.
-They are configured with a JSON file, so you can add notifications, logs, local
-automation, or integrations without building an extension.
+<Note>
+Most hooks are fire-and-forget: they run in the background and don't block Enconvo. `PreToolUse`, `Stop`, and `SubagentStop` are the exception during agent runs. The agent waits for them, so they can block a tool call or send the agent back to work. See [Blocking hooks](#blocking-hooks).
+</Note>
 
-<Tip>
-Most hooks are fire-and-forget: they run in the background and do not block
-EnConvo. `PreToolUse`, `Stop`, and `SubagentStop` are the exception during
-agent runs — the agent waits for them, so they can block a tool call or send the
-agent back to work. See [Blocking Hooks](#blocking-hooks).
-</Tip>
-
-## Config File
-
-Create your hooks config at:
-
-```text
-~/.enconvo/hooks.json
-```
-
-EnConvo also reads the legacy file at `~/.config/enconvo/hooks.json` when the
-new file does not exist. If both files exist, `~/.enconvo/hooks.json` wins.
-
-The file is checked again whenever an event fires, so you can edit hooks while
-EnConvo is running. No restart is required.
-
-## Manage Hooks in Settings
-
-Open **Settings → Hooks** to inspect hooks from `~/.enconvo/hooks.json`.
-The settings panel groups entries by event, lets you toggle an entry on or off,
-and can open the JSON file for editing. Toggling writes `enabled: false` or
-`enabled: true` on that hook entry without changing the command or webhook
-definition.
-
-## Quick Start
+## Quick start
 
 <Steps>
   <Step title="Create the hooks folder">
@@ -68,14 +38,30 @@ definition.
   </Step>
 
   <Step title="Trigger an agent">
-    Start any agent or chat command. When its status changes, EnConvo runs the
+    Start any agent or chat command. When its status changes, Enconvo runs the
     configured command and appends a line to `/tmp/enconvo-hooks.log`.
   </Step>
 </Steps>
 
-## How Hooks Work
+## Config file
 
-When an event fires, EnConvo:
+Hooks live in:
+
+```text
+~/.enconvo/hooks.json
+```
+
+Enconvo also reads the legacy file at `~/.config/enconvo/hooks.json` when the new file doesn't exist. If both files exist, `~/.enconvo/hooks.json` wins.
+
+The file is read again whenever an event fires, so you can edit hooks while Enconvo is running. You don't need to restart.
+
+## Manage hooks in Settings
+
+Open **Settings → Hooks** to see the hooks in `~/.enconvo/hooks.json`, grouped by event. Turn an entry on or off with its switch, or click **Open hooks.json** to edit the file. Turning an entry off or on writes `enabled: false` or `enabled: true` on that entry, without changing its command or webhook.
+
+## How hooks work
+
+When an event fires, Enconvo:
 
 1. Loads `~/.enconvo/hooks.json`.
 2. Falls back to `~/.config/enconvo/hooks.json` only if the new file is absent.
@@ -84,12 +70,9 @@ When an event fires, EnConvo:
 5. Skips entries where `enabled` is `false`.
 6. Runs every configured hook concurrently.
 
-Hook event names follow the Claude Code and Codex lifecycle set:
-`SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`,
-`PostToolUse`, `Stop`, and `SubagentStop`. The old EnConvo event names and old flat JSON shape are still readable
-for existing installs, but new writes use the wrapped Codex-style format.
+Hook event names follow the Claude Code and Codex lifecycle set: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop`, and `SubagentStop`. The old Enconvo event names and the old flat JSON shape still work for existing installs, but new writes use the wrapped Codex-style format.
 
-## Configuration Reference
+## Configuration reference
 
 ```json
 {
@@ -116,10 +99,9 @@ for existing installs, but new writes use the wrapped Codex-style format.
 | `enabled` | boolean | No | Set to `false` to keep the entry in config but skip execution. Defaults to `true`. |
 | `hooks` | array | Yes | Command and HTTP hooks to execute. |
 
-### Command Hook
+### Command hook
 
-A command hook runs a shell command. EnConvo writes the event payload to the
-command's stdin as JSON.
+A command hook runs a shell command. Enconvo writes the event payload to the command's stdin as JSON.
 
 ```json
 {
@@ -135,7 +117,7 @@ command's stdin as JSON.
 | `command` | string | - | Shell command to execute. |
 | `timeout` | number | `30000` | Timeout in milliseconds. |
 
-### HTTP Hook
+### HTTP hook
 
 An HTTP hook sends the event payload as the JSON request body.
 
@@ -159,11 +141,9 @@ An HTTP hook sends the event payload as the JSON request body.
 | `headers` | object | `{}` | Additional request headers. |
 | `timeout` | number | `30000` | Timeout in milliseconds. |
 
-## Blocking Hooks
+## Blocking hooks
 
-During an agent or bot run, three events run as blocking hooks. The agent waits
-for every matching hook (they run in parallel) before it continues, and reads
-their result the same way Claude Code and Codex do.
+During an agent or bot run, three events run as blocking hooks. The agent waits for every matching hook (they run in parallel) before it continues, and reads their result the same way Claude Code and Codex do.
 
 | Event | When | What the hook can do |
 |-------|------|----------------------|
@@ -174,8 +154,7 @@ their result the same way Claude Code and Codex do.
 A hook decides in one of two ways:
 
 - **Exit code 2** blocks. The text the command writes to stderr is the reason.
-- **Exit code 0 with JSON on stdout.** Any other output, exit code, error, or
-  timeout decides nothing, and the run continues as if the hook were not there.
+- **Exit code 0 with JSON on stdout.** Any other output, exit code, error, or timeout decides nothing, and the run continues as if the hook weren't there.
 
 ```json
 {
@@ -190,7 +169,7 @@ A hook decides in one of two ways:
 | JSON output | Effect |
 |-------------|--------|
 | `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: the call does not run. The model sees `permissionDecisionReason` as the tool result and can choose another way. |
-| `hookSpecificOutput.permissionDecision: "ask"` | Treated as `deny`. EnConvo has no confirmation prompt for hooks yet. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Treated as `deny`. Enconvo has no confirmation prompt for hooks yet. |
 | `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: the call runs. |
 | `hookSpecificOutput.updatedInput` | `PreToolUse`: the call runs with this input instead of the model's. |
 | `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: the agent keeps working, with `reason` as its next instruction. On `PreToolUse` it blocks the call. |
@@ -198,23 +177,15 @@ A hook decides in one of two ways:
 
 HTTP hooks decide with a 2xx response whose body is the same JSON.
 
-When several hooks match, a deny wins over ask, which wins over allow; the
-reasons are joined, and the last `updatedInput` is used.
+When several hooks match, a deny wins over ask, which wins over allow. The reasons are joined, and the last `updatedInput` is used.
 
-A `Stop` hook can send the agent back at most 5 times in one turn. On the second
-and later checks, `stop_hook_active` is `true`, so a hook can let the agent stop
-once its instruction has been followed. `Stop` blocking only applies when the
-agent finishes normally; a failed or stopped run still fires `Stop` in the
-background.
+A `Stop` hook can send the agent back at most 5 times in one turn. On the second and later checks, `stop_hook_active` is `true`, so a hook can let the agent stop once its instruction has been followed. `Stop` blocking applies only when the agent finishes normally; a failed or stopped run still fires `Stop` in the background.
 
-<Warning>
-The agent waits for blocking hooks, so a slow `PreToolUse` hook slows every tool
-call and a slow `Stop` hook delays the end of the turn. Keep them fast, set a
-short `timeout`, or run slow work in the background (`command &`).
-</Warning>
+<Tip>
+The agent waits for blocking hooks, so a slow `PreToolUse` hook slows every tool call, and a slow `Stop` hook delays the end of the turn. Keep them fast, set a short `timeout`, or run slow work in the background (`command &`).
+</Tip>
 
-Blocking hooks receive the regular [event payload](#event-payload) plus the
-Claude Code fields at the top level:
+Blocking hooks receive the regular [event payload](#event-payload) plus the Claude Code fields at the top level:
 
 ```json
 {
@@ -231,11 +202,9 @@ Claude Code fields at the top level:
 }
 ```
 
-`Stop` and `SubagentStop` receive `stop_hook_active` and
-`last_assistant_message` instead of the tool fields. Command hooks run in the
-agent's working directory.
+`Stop` and `SubagentStop` receive `stop_hook_active` and `last_assistant_message` instead of the tool fields. Command hooks run in the agent's working directory.
 
-### Block a Dangerous Command
+### Block a dangerous command
 
 ```bash
 #!/bin/bash
@@ -260,7 +229,7 @@ fi
 }
 ```
 
-### Make the Agent Run Tests Before Finishing
+### Make the agent run tests before finishing
 
 ```bash
 #!/bin/bash
@@ -269,10 +238,9 @@ fi
 echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
 ```
 
-## Event Payload
+## Event payload
 
-Command hooks receive this JSON on stdin. HTTP hooks receive the same JSON as
-the request body.
+Command hooks receive this JSON on stdin. HTTP hooks receive the same JSON as the request body.
 
 ```json
 {
@@ -292,12 +260,14 @@ the request body.
 |-------|-------------|
 | `event` | Short event name. |
 | `fullEvent` | Internal event name with the `event-` prefix. |
-| `sourceEvent` | Original EnConvo event that produced this hook event, when the event is mapped for Codex compatibility. |
+| `sourceEvent` | Original Enconvo event that produced this hook event, when the event is mapped for Codex compatibility. |
 | `sourceFullEvent` | Original internal event name with the `event-` prefix. |
 | `params` | Event-specific payload. |
 | `timestamp` | Unix timestamp in milliseconds. |
 
-## Available Events
+Background hooks get the Claude Code fields too: `hook_event_name`, `session_id` when the event has one, and, for tool events, `tool_name`, `tool_input`, and `tool_use_id`.
+
+## Available events
 
 | Event | Params | When |
 |-------|--------|------|
@@ -309,15 +279,11 @@ the request body.
 | `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | An agent, chat, or bot run reaches a terminal status. Blocking when an agent finishes normally. |
 | `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | A subagent is about to finish. Blocking. Subagents do not fire `Stop`. |
 
-<Note>
-Legacy EnConvo names such as `run_status_changed` and
-`agent_tool_step_changed` still work, so existing hook files do not need to be
-migrated immediately.
-</Note>
+Legacy Enconvo names such as `run_status_changed` and `agent_tool_step_changed` still work, so existing hook files don't need to be migrated right away.
 
 ## Recipes
 
-### macOS Notification on Agent Failure
+### macOS notification when an agent fails
 
 ```json
 {
@@ -336,7 +302,7 @@ migrated immediately.
 }
 ```
 
-### Log Agent Status Changes
+### Log agent status changes
 
 ```json
 {
@@ -355,7 +321,7 @@ migrated immediately.
 }
 ```
 
-### Log Agent Tool Calls
+### Log agent tool calls
 
 ```json
 {
@@ -393,7 +359,7 @@ migrated immediately.
 }
 ```
 
-### Custom Script
+### Custom script
 
 Create a script that reads the event payload from stdin:
 
@@ -438,38 +404,25 @@ chmod +x ~/.enconvo/hooks/on-status-change.sh
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="My hook did not run">
-    Confirm that `~/.enconvo/hooks.json` is valid JSON, the top-level key matches
-    the event name, and the command works when run manually. If you still have
-    `~/.config/enconvo/hooks.json`, remember that it is ignored when the new file
-    exists.
-  </Accordion>
+| Problem | What to do |
+| --- | --- |
+| A hook didn't run | Check that `~/.enconvo/hooks.json` is valid JSON, that the top-level key matches the event name, and that the command works when you run it yourself. If you still have `~/.config/enconvo/hooks.json`, it's ignored while the new file exists. |
+| You're not sure whether hooks block Enconvo | Only `PreToolUse`, `Stop`, and `SubagentStop` block, during agent runs. Every other hook is fire-and-forget. If any hook fails or times out, Enconvo logs the failure and continues as if the hook weren't there. |
+| A command can't find a script or binary | Use absolute paths. Shell `~` expansion works when the command runs through a shell, but absolute paths are easier to debug. |
 
-  <Accordion title="How do I test a script manually?">
-    Pipe a sample payload into the script:
-    ```bash
-    echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
-    ```
-  </Accordion>
+### Test a script by hand
 
-  <Accordion title="Do hooks block EnConvo?">
-    Only `PreToolUse`, `Stop`, and `SubagentStop` during agent runs, which the
-    agent waits for. Every other hook is fire-and-forget. If any hook fails or
-    times out, EnConvo logs the failure and continues as if the hook were not
-    there.
-  </Accordion>
+Pipe a sample payload into the script:
 
-  <Accordion title="Should commands use absolute paths?">
-    Prefer absolute paths for scripts and binaries. Shell `~` expansion works
-    when the command is executed through a shell, but absolute paths are easier
-    to debug.
-  </Accordion>
-</AccordionGroup>
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Related
 
 <CardGroup cols={2}>
   <Card title="Agents" icon="robot" href="/ai/agents">
-    Learn about EnConvo agents and custom bots
+    Learn about Enconvo agents and custom bots
   </Card>
   <Card title="Extension API Reference" icon="code" href="/extensions/extension-api-reference">
     Build extensions that emit or listen to events

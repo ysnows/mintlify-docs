@@ -1,17 +1,24 @@
 ---
 title: "Image Generation"
-description: "Generate and edit images with a configured image provider."
+description: "Ask an Agent to create an image, or to change one you attach, with the image provider you choose."
 ---
 
-Configure image creation under **Settings → Global Providers Settings → Image Generation**. The image provider is separate from the model used for ordinary chat.
+Ask an Agent in chat to make an image, or to change an image you attach. Enconvo sends the request to the image provider you set in **Settings → Image Generation**, which is separate from the model you chat with.
 
-## Generate an image
+## Before you start
 
-1. Choose a provider and model in Image Generation settings and configure its access.
-2. Use an Agent with image-generation tools, or the image-generation command available in your build.
-3. Describe the subject, composition, style, and intended use.
-4. Choose size, aspect ratio, or quality only from options supported by that model.
-5. Wait for completion, open the result, and save the output you need.
+1. Open **Settings → Image Generation** and pick a provider.
+2. Set its **Credential Provider** (the key or account it uses) and its **Model Name**.
+3. Click **Set as Default**.
+
+The Enconvo Cloud providers, **OpenAI (Enconvo Cloud)** and **Google Gemini (Enconvo Cloud)**, need no API key of your own.
+
+## Create an image
+
+1. In a chat with an Agent, describe the subject, composition, style, and what the image is for.
+2. Ask for a size, aspect ratio, or quality only when the model supports it.
+3. Wait for the image. Generation can take longer than a text reply.
+4. Open the result and save the image you want to keep.
 
 Example:
 
@@ -23,12 +30,29 @@ Leave the top third clear for a title.
 
 ## Edit an image
 
-Attach the source image and describe the specific changes. Choose a model that supports image editing/reference input. State what should stay consistent, and review the result for unintended changes.
+1. Attach the source image to your message.
+2. Describe the specific changes, and say what should stay the same.
+3. Check the result for changes you didn't ask for.
 
-The [image provider catalog](/providers/catalog#image-generation) includes OpenAI, Gemini, xAI, OpenRouter, Kie.ai, Topview, Azure, Together, and supported Cloud variants. Capabilities are model-specific; a provider name alone does not guarantee every editing mode.
+Use a model that supports image editing or reference images.
+
+## Providers
+
+The [image provider catalog](/providers/catalog#image-generation) includes OpenAI, Gemini, xAI, OpenRouter, Kie.ai, Topview, Azure, Together, and their Enconvo Cloud versions where offered. What a provider can do depends on the model: a provider's name alone doesn't promise every editing mode.
 
 ## Troubleshooting
 
-Check access, model availability, supported input formats, and the provider error. Generation can take longer than a text reply. If an edit ignores the attachment, confirm that the chosen model accepts image input and that the file was attached to the request.
+| Problem | What to do |
+| --- | --- |
+| The image doesn't generate | Check the provider's access and model, then read the provider's error |
+| An edit ignores your image | Check that the model accepts image input and that the file is attached to the message |
+| The input file is rejected | Check that the provider supports the file's format |
 
-For an inline diagram or interactive explanation, see [Visual Answers](/features/visual-answers). For compression, see [Media Utilities](/features/media-tools).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Visual Answers" icon="chart-simple" href="/features/visual-answers">Diagrams and interactive widgets in chat.</Card>
+  <Card title="Video Generation" icon="film" href="/ai/video-generation">Turn a prompt or an image into a clip.</Card>
+  <Card title="Media Utilities" icon="photo-film" href="/features/media-tools">Compress images, video, and audio.</Card>
+  <Card title="Provider Catalog" icon="list" href="/providers/catalog#image-generation">Every image provider and its settings.</Card>
+</CardGroup>

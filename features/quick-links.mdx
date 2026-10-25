@@ -1,20 +1,67 @@
 ---
-title: "Quick Links"
-description: "Open a website or browser search with a command."
+title: "Quicklinks"
+description: "Open a web search, website, file, folder, or deeplink from SmartBar with one command."
 ---
 
-Quick Links turns a search query or configured URL into a browser action. Built-in commands include **Google Search in Browser**, **YouTube Search in Browser**, and **Twitter/X Search in Browser**.
+Quicklinks turn a web search, a web address, a file or folder, or an app's deeplink into a command you run from SmartBar. Placeholders fill in the link with what you type, the clipboard, the selected text, or the date. Enconvo comes with Google, YouTube, and X searches ready to use.
 
-## Search from SmartBar
+Quicklinks open a destination. [Web Search](/ai/web-search) instead brings search results into an AI answer, and [Browser Use](/features/browser-control) lets an Agent work in web pages.
 
-1. Open SmartBar and find the browser-search command you want.
-2. Enter the search text as the command's input.
-3. Run the command and check the result in your default browser.
+## Search the web from SmartBar
 
-Quick Links opens a destination. [Web Search](/ai/web-search) instead supplies search results to an AI response, and [Browser Control](/features/browser-control) lets an Agent interact with pages.
+1. Open SmartBar and find **Google Search in Browser**, **YouTube Search in Browser**, or **Twitter/X Search in Browser**.
+2. Type your search text as the command's input. Selected text works too.
+3. Run the command. The search opens in your default browser.
 
-## Configure a link
+## Create a quicklink
 
-Open **Settings → Plugins → Quick Links** and select **Quick Link** or a search command. Review its URL template and supported input variables before saving your own configuration. Test with ordinary text first, including spaces or punctuation.
+1. Run **Create Quicklink** from SmartBar.
+2. Enter a **Name**, such as Search GitHub.
+3. Enter the **Link**: a web address, a file or folder path, or a deeplink. Click **Insert Placeholder** to add one, such as `https://github.com/search?q={argument}`.
+4. To open it in a particular app, enter an app name such as Safari, an app path, or a bundle id in **Open With**. Leave it empty to use the default app.
+5. Click **Save**. Search for the quicklink's name in SmartBar to run it.
 
-If the destination is wrong, check the command's template and input. If the browser does not open, check your default browser and whether the command is installed.
+When you run a quicklink, the text you typed or selected fills its first argument. If a required argument is still empty, Enconvo asks for it before opening the link.
+
+| Placeholder | Filled with |
+| --- | --- |
+| `{argument name="Query"}` | A value you type when the quicklink opens |
+| `{clipboard}` | The text on the clipboard |
+| `{selection}` | The text selected in the app you're using |
+| `{date}`, `{time}`, `{datetime}` | The current date, time, or both |
+| `{date format="yyyy-MM-dd"}` | The date in the format you give |
+| `{uuid}` | A new unique ID |
+
+Test a new link with ordinary text first, including spaces and punctuation.
+
+## Manage your quicklinks
+
+Run **Search Quicklinks** from SmartBar to see every quicklink. From there you can open, edit, duplicate, or delete one, and click **New** to add another.
+
+The **More** menu has **Import Quicklinks…**, which reads Raycast quicklink and settings exports, and **Export to Downloads**. A Raycast settings export asks for the passphrase you chose when you exported it.
+
+## Settings
+
+Open **Settings → Plugins → Quicklinks**. Each search command also has its own **Link**, such as `https://www.google.com/search?q={query}`, that you can change.
+
+| Setting | What it changes |
+| --- | --- |
+| **Open in New Window** | Opens web quicklinks in a new browser window. Works with Chrome, Edge, Brave, Vivaldi, Opera, Chromium, Firefox, and Zen; Safari, Arc, and Orion open the link as usual. Off by default |
+| **When There's No Selected Text** | What a `{selection}` link does when nothing is selected: **Ask for it** (the default) or **Use the clipboard** |
+| **Confirm Before Deleting** | Asks before you delete a quicklink. On by default |
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The wrong page opens | Check the quicklink's **Link** and its placeholders, then try it with plain text |
+| The browser doesn't open | Check your default browser, the quicklink's **Open With**, and that the command is installed |
+| A `{selection}` link asks for text | Nothing was selected. Select the text first, or set **When There's No Selected Text** to **Use the clipboard** |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">Find and run any command.</Card>
+  <Card title="Web Search" icon="globe" href="/ai/web-search">Bring search results into an AI answer.</Card>
+  <Card title="Browser Use" icon="window-maximize" href="/features/browser-control">Let an Agent work in web pages.</Card>
+</CardGroup>

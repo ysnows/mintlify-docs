@@ -1,30 +1,46 @@
 ---
 title: "Transcription"
-description: "Turn an existing audio or video file into a searchable transcript."
+description: "Turn an audio or video file you already have into a searchable transcript."
 ---
 
-Use Transcription for media you already have. **Recordings** stores captured meetings; **Live Captioning** stores captioning sessions. These views share the same recording-detail experience but show different sources.
+Use Transcription for media you already have, such as an interview or a lecture video. Meetings you record live in **Recordings**, and captioning sessions in **Live Captioning**. All three share the same recording view but list different sources.
 
 ## Import a file
 
-1. Open **Settings → Transcription → Transcription Models** and select a provider.
-2. Open **Transcription** and choose **Import File**, or the audio/video import action.
-3. Select a supported file and wait for extraction and transcription to finish.
-4. Open the item and review the transcript and processing status.
-5. Correct important speaker names, terms, and figures before using the result.
+1. Choose a model in **Settings → Transcription Models**.
+2. Open **Settings → Transcription**, click **Add**, and choose **Audio** or **Video**. On an empty list, click **Import File**. You can also drop audio files, video files, or folders onto the page.
+3. Wait for extraction and transcription to finish. Several files are transcribed one at a time in the background.
+4. Open the item and review the transcript and its processing status.
+5. Correct important speaker names, terms, and figures before you use the result.
 
-You can also run the **Transcribe** command. Its settings include output format, speaker diarization, and transcription provider.
+You can also run the **Transcribe** command. Its settings include **Output Format**, **Speaker Diarization**, and **Transcription Provider**.
 
-## Outputs and follow-up
+## Use the transcript
 
-Open a saved item's transcript and available summary/chat views. Ask questions about the transcript rather than assuming every detail was recognized correctly. The selected provider and command determine timestamp, structured-output, and diarization support.
+Open a saved item to read the transcript, its summary, and **Ask AI**. Ask questions about the transcript instead of assuming every detail was recognized correctly. The provider and command you use decide whether you get timestamps, structured output, and speaker diarization.
 
-For vocabulary and speaker naming, see [Speech Assets](/configuration/speech-assets). For later retrieval with other documents, see [Knowledge Base](/ai/knowledge-base).
+For vocabulary and speaker names, see [Dictionary and Speakers](/configuration/speech-assets). To find the transcript later along with your other documents, see [Knowledge Base](/ai/knowledge-base).
 
-## Processing failures
+## When transcription fails
 
-Current builds distinguish transcription failures from “no speech.” Read the error and available diagnostic details. A problem can come from audio extraction, provider file limits, account access, or the service itself; title generation and search indexing can fail separately from transcription.
+Enconvo tells a transcription failure apart from a file with no speech. Read the error and its diagnostic details. A failure can come from audio extraction, the provider's file limits, account access, or the service itself. Title generation and search indexing can fail separately from transcription.
 
-If the transcript is already saved, check whether the failed stage is only a title or indexing step before importing the same file again. Keep the original media until you have verified the transcript.
+If the transcript is already saved, check whether only the title or indexing step failed before you import the same file again. Keep the original media until you have checked the transcript.
 
-See [Speech Recognition](/ai/speech-recognition) for choosing a file-capable provider.
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| Transcription failed | Read the error and its details. If the file is too large or too long for the service, split it or choose a model that supports longer files. If a video's audio can't be read, export it as a WAV or MP3 file and transcribe that. |
+| Only the title or search indexing failed | The transcript is saved, so don't import the file again. Use **Retry index** when indexing failed. |
+| Speakers aren't separated | Choose a provider that supports speaker diarization, or turn on **Speaker Diarization** in the **Transcribe** command. |
+| **These files are already in Transcription** | The files were imported before. Open the existing items. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Speech Recognition" icon="wave-square" href="/ai/speech-recognition">Choose a provider that handles files.</Card>
+  <Card title="Meeting Recording" icon="record-vinyl" href="/features/meeting-recording">Record a meeting and transcribe it as people talk.</Card>
+  <Card title="Live Captioning" icon="closed-captioning" href="/features/live-captioning">See realtime subtitles while audio plays.</Card>
+  <Card title="Dictionary and Speakers" icon="book" href="/configuration/speech-assets">Teach terms and name the voices in transcripts.</Card>
+</CardGroup>

@@ -1,22 +1,17 @@
 ---
-title: "Connect AI Clients to Knowledge Base"
-description: "Let local AI clients search selected Enconvo knowledge bases."
+title: "Knowledge Base MCP"
+description: "Let Claude, Cursor, Codex, and other MCP clients on your Mac search and read the knowledge bases you share."
 ---
 
-Enconvo can serve your knowledge bases to MCP-compatible AI clients on the same Mac. This is separate from **Settings → Plugins → MCP Servers**, which adds external tools to Enconvo's Agents.
-
-<Note>
-This feature is available in builds that include **Connect AI Clients (MCP)**. If it is absent, check your [update channel](/configuration/updates).
-</Note>
+Enconvo can serve your knowledge bases to MCP-compatible AI clients on the same Mac. Clients can search and read the knowledge bases you share, and nothing else; access is read-only. This is separate from **Settings → MCP Servers**, which adds external tools to Enconvo's Agents.
 
 ## Connect a client
 
-1. Open the **Knowledge Base** window.
-2. Open its **Settings → Connect AI Clients (MCP)** dialog.
-3. Enable the Knowledge Base MCP server.
-4. Review **MCP visible** for every knowledge base you want the client to access. Dictation History is hidden by default.
-5. Copy the setup instructions for your client from the dialog. Use **Streamable HTTP** for clients that support it.
-6. Ask the client to list knowledge bases, then search one and read a matching item.
+1. Open the [Knowledge Base](/ai/knowledge-base) and click the gear (**Knowledge Base Settings**), then **AI Clients (MCP)**.
+2. Turn on **Enable Knowledge Base MCP**. It's off by default, and while it's off, connected clients are refused.
+3. Choose what clients can see. **Share this knowledge base with AI clients** covers the one you have open, and **Shared knowledge bases** lists them all. Dictation History and Memory are hidden until you turn them on.
+4. Under **Connect a client**, pick your client (Claude Code, Cursor, Codex, or Claude Desktop) and copy its setup.
+5. Ask the client to list knowledge bases, then search one and read a matching item.
 
 The local endpoint is:
 
@@ -24,7 +19,7 @@ The local endpoint is:
 http://localhost:54535/knowledge_base/mcp
 ```
 
-Keep Enconvo running while the client uses the endpoint. Clients that require a stdio bridge should use the client-specific instructions shown in the dialog.
+It uses the Streamable HTTP transport. Keep Enconvo running while the client uses it. Claude Desktop connects through a small bridge, `mcp-remote`, so its setup needs Node.js; follow the client-specific instructions shown in the dialog.
 
 ## Available tools
 
@@ -35,22 +30,36 @@ Keep Enconvo running while the client uses the endpoint. Clients that require a 
 | `item_list` | List items in a visible knowledge base |
 | `item_read` | Read indexed item text in pages |
 
-The tools are read-only. This endpoint does not expose general Memory or Recordings tools. Reading an item can return its source path or URL as metadata.
+The tools are read-only. This endpoint doesn't expose general Memory or Recordings tools. Reading an item can return its source path or URL as metadata.
 
 ## Access and processing
 
-The server accepts loopback connections only and does not require a token. Enabling it allows local processes to access the knowledge bases you make visible. A connected AI client can send returned content to its own model provider; review that client's configuration as well.
+The server accepts loopback connections only and doesn't require a token. Turning it on lets local processes read the knowledge bases you share. A connected AI client can send what it gets back to its own model provider, so review that client's settings as well.
 
-Search uses the knowledge base's configured embedding provider and can incur that provider's normal usage. “Local endpoint” does not mean every part of retrieval and answering runs offline.
+Search uses the embedding model set under **Search** in **Settings → Memory**. When it runs on Enconvo Cloud, the search text is sent there. "Local endpoint" doesn't mean every part of retrieval and answering runs offline.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Connection refused | Enconvo and its local API must be running |
-| Forbidden / 403 | Server switch, local connection, and supported client configuration |
-| Knowledge base not found | Its **MCP visible** setting; hidden and missing bases look the same to clients |
-| Opening the URL in a browser shows 405 | A browser GET is not an MCP initialization request; connect with an MCP client |
-| Incomplete long document | Ask the client to request further pages with `item_read` |
+| Connection refused | Make sure Enconvo and its local API are running. |
+| Forbidden / 403 | Check that **Enable Knowledge Base MCP** is on, that the client connects from this Mac, and that its configuration matches the dialog. |
+| Knowledge base not found | Turn the knowledge base on under **Shared knowledge bases**. Hidden and missing knowledge bases look the same to clients. |
+| Opening the URL in a browser shows 405 | A browser GET isn't an MCP request. Connect with an MCP client. |
+| A long document comes back incomplete | Ask the client to request further pages with `item_read`. |
 
-Disable the server to stop access, or hide individual knowledge bases to narrow what clients can retrieve.
+To stop all access, turn off **Enable Knowledge Base MCP**. To narrow what clients can retrieve, turn off individual knowledge bases under **Shared knowledge bases**.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Knowledge Base" icon="book" href="/ai/knowledge-base">
+    Build the knowledge bases clients will search.
+  </Card>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">
+    Add external tools to Enconvo's own Agents.
+  </Card>
+  <Card title="CLI and Local API" icon="terminal" href="/advanced/cli-local-api">
+    Other ways to reach Enconvo from your Mac.
+  </Card>
+</CardGroup>

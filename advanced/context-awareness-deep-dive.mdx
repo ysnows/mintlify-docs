@@ -1,202 +1,114 @@
 ---
-title: "Context Awareness Deep Dive"
-description: "How Enconvo understands your screen and provides relevant assistance"
+title: "How Context Awareness Works"
+description: "See what Enconvo reads from the app you were using, when it reads it, and which permissions and settings control it."
 ---
 
-## Overview
+This page explains what sits behind [Context Awareness](/features/context-awareness): the items Enconvo can read from your Mac, how it reads each one, and how you decide what goes into a message. Read it when you want to control what reaches a model, or when context you expect doesn't appear.
 
-Context Awareness is the foundation of EnConvo's intelligent assistance. Instead of asking you to explain what you are working on, EnConvo observes your active environment -- the application you are using, the text you have selected, the URL you are viewing, and the files you are working with -- and uses this information to provide relevant, targeted help.
+Context Awareness doesn't watch your screen in the background. It reads context when you open SmartBar or when you add an item yourself, from the app you were using just before.
 
-This guide explains how context awareness works under the hood, what data is collected, and how to configure it.
+## What Enconvo can read
 
-<Note>
-For basic usage, see the [Context Awareness introduction](/features/context-awareness). This guide covers the technical details and advanced configuration.
-</Note>
+Each kind of context is an item that can be added to a message.
 
-## How It Works
+| Context item | What it holds | How Enconvo reads it |
+|---|---|---|
+| **Selected Text** | The text selected in the app | Accessibility |
+| **Current Application Content** | The window's title and text, the document's address when the app gives one, and a screenshot of the window | Accessibility and a window capture |
+| **Browser Current Tab URL** | The front tab's address, its title and the page's text | Apple Events; see [Browsers](#browsers) |
+| **Finder Selected Items** | The files and folders selected in Finder, as paths | Apple Events |
+| **Finder Current Directory URL** | The folder open in the front Finder window | Apple Events |
+| **Clipboard Text** | The text on the clipboard | The clipboard, only when you add it |
+| **User Select Area Screenshot** | An area of the screen you select | Screen capture |
+| **Current Application Screenshot** | The app you were using | Screen capture |
+| **Current Screen Screenshot** | The whole screen | Screen capture |
+| **Live Screen Screenshot** | The screen as it is now, without Enconvo's windows | Screen capture |
 
-### Accessibility API
+Enconvo reads paths for Finder items, not the files' contents.
 
-EnConvo reads screen content through macOS Accessibility APIs (the same APIs used by screen readers and assistive technologies). When you grant EnConvo Accessibility permission, it can:
+### Browsers
 
-- Detect the frontmost application
-- Read the title of the active window
-- Access selected text in supported applications
-- Identify the current URL in web browsers
-- Read file paths from Finder selections
+- **Address and title**: read over Apple Events from Safari, Chrome, Edge, Arc and other Chromium browsers. Firefox doesn't give its tab's address, so Enconvo can't read it.
+- **Page text**: Safari gives it directly. For other browsers, Enconvo reads the window through Accessibility, which works only while the browser is the frontmost app.
 
-This is a read-only, event-driven system. EnConvo listens for focus changes and selection events rather than continuously scanning your screen.
+### Other apps
 
-### Context Detection Pipeline
+Code editors, text editors and every other app get **Current Application Content**: the window's title, the text Accessibility exposes, the document's address when the app gives one, and a screenshot of the window. How much text that is depends on the app.
 
-When you invoke EnConvo (via SmartBar, Dynamic Island, App Sidebar, or keyboard shortcut), the system collects context through this pipeline:
+## When SmartBar opens
 
-```
-User triggers EnConvo
-  → Detect frontmost application (bundle ID, app name)
-  → Read active window title
-  → Check for selected text (Accessibility API)
-  → If browser: extract current URL and page content
-  → If Finder: read selected file paths
-  → If code editor: detect language, file path, project
-  → Assemble context object
-  → Pass to AI along with user query
-```
+When you open SmartBar, it checks three sources in the app you were using. **Settings → Context Awareness** sets what happens with each one:
 
-### Context Resolution Time
+| Source | Default | What it picks up |
+|---|---|---|
+| **Selected Text** | **Attach** | Text selected in the app you were using |
+| **Finder Selection** | **Suggest** | Files and folders selected in Finder |
+| **Current Browser Page** | **Suggest** | The page open in Safari, Chrome, Arc, Edge or another Chromium browser |
 
-Context is captured at the moment you trigger EnConvo. The system does not continuously monitor your screen -- it takes a snapshot when needed. This means:
+- **Attach** adds the item to the input as soon as SmartBar opens.
+- **Suggest** lists it above the commands, so you add it with one click. A suggested page's text is read only when you click it.
+- **Off** leaves the source alone.
 
-- Context reflects what is on screen when you press the hotkey
-- Switching apps after triggering EnConvo does not change the captured context
-- Each new query captures fresh context
+Only SmartBar uses these settings. Commands you run on a selection always receive the selected text.
 
-## Context Types
+## Add context yourself
 
-### Active Application
+1. In SmartBar, type `#`.
+2. Type a few letters to filter the list of context items.
+3. Pick one. Enconvo reads it and adds it to your message.
 
-EnConvo detects the frontmost application and adapts its behavior accordingly.
+To use another character, change **Context** in **Settings → SmartBar**, under **Search**. The same group sets `@` for commands, `$` for skills and `>` for recent tasks.
 
-| Application Category | Context Gathered | AI Behavior |
-|---------------------|-----------------|-------------|
-| **Web Browsers** (Safari, Chrome, Arc, Firefox) | URL, page title, visible page content | Offers summarization, translation, content extraction |
-| **Code Editors** (VS Code, Xcode, JetBrains) | Programming language, file path, selected code | Provides debugging help, code explanations, refactoring |
-| **Finder** | Selected files, current directory path | File operations, content analysis, organization |
-| **Text Editors** (TextEdit, Notes, Pages) | Selected text, document content | Writing assistance, grammar, tone adjustment |
-| **Other Applications** | Window title, screenshot (when requested) | General assistance based on visible content |
+## Permissions
 
-### Selected Text
+| Permission | Needed for |
+|---|---|
+| **Accessibility** | Selected text, window content, and page text from browsers other than Safari |
+| **Automation** | Finder items and browser pages. macOS asks the first time Enconvo reads each app |
+| **Screen Recording** (Screen & System Audio Recording) | Screenshots and the window capture in **Current Application Content** |
 
-When you select text in any application before invoking EnConvo, the selected text is automatically included as context. This is the most common context type -- select some code, a paragraph, or an error message, then ask the AI about it.
+Grant them in **System Settings → Privacy & Security**. Enconvo notices a change to Accessibility on its own. See [Permissions](/configuration/permissions) for the full list.
 
-### Screen Content
+## Context and tokens
 
-The `#screen` context modifier captures a screenshot of your current screen. This is processed through EnConvo's vision capabilities to understand visual content like charts, diagrams, error dialogs, or UI elements that cannot be read through text-based APIs.
+Context counts against the model's context window. Page text and screenshots are the largest items, and they can:
 
-### Clipboard
-
-The `#clipboard` modifier includes the current clipboard content. This is useful when you have copied something and want to ask about it without pasting it into the input field.
-
-### Browser Content
-
-For web browsers, EnConvo can read:
-
-- **URL**: The full URL of the active tab
-- **Page title**: The document title
-- **Page content**: The visible text content of the page (extracted via the browser extension or Accessibility API)
-
-### File Context
-
-When working in Finder or when files are selected, EnConvo can access:
-
-- File paths and names
-- File types and sizes
-- For supported formats: file content (with your confirmation)
-
-## Configuration
-
-### Enabling Context Sources
-
-Configure which context sources are active in **Settings** -> **Context Awareness**:
-
-| Source | Default | Description |
-|--------|---------|-------------|
-| **Active app detection** | On | Detect the frontmost application |
-| **Selected text** | On | Include highlighted text |
-| **Browser URL** | On | Read current browser URL |
-| **Browser content** | On | Read page content from browsers |
-| **Clipboard** | Off | Include clipboard automatically |
-
-### Application Exclusion List
-
-You may want to exclude specific applications from context awareness for privacy reasons. For example, you might exclude a password manager or a private messaging app.
-
-1. Go to **Settings** -> **Context Awareness**
-2. Click **Exclusions**
-3. Add applications to the exclusion list
-4. EnConvo will not read context from excluded applications
-
-### Manual Context Modifiers
-
-Use `#` prefix modifiers to manually control what context is included in your query:
-
-| Modifier | Description |
-|----------|-------------|
-| `#screen` | Capture and include current screen content |
-| `#finder` | Include current Finder file selection |
-| `#clipboard` | Include clipboard content |
-| `#browser` | Include current browser tab content |
-| `#xcode` | Include current Xcode project context |
-| `#safari` | Include current Safari tab specifically |
-
-These modifiers override the automatic context detection, letting you be explicit about what information the AI should consider.
-
-## Context in AI Conversations
-
-### How Context is Used
-
-When context is available, it is included in the AI prompt as additional information. The AI can:
-
-- Reference the context directly in its response
-- Use context to understand ambiguous queries ("Fix this" -- fix what? The selected code)
-- Provide more specific suggestions based on what you are working on
-- Avoid asking clarifying questions when the answer is visible on screen
-
-### Context Priority
-
-When multiple context sources are available, they are prioritized:
-
-1. **Explicitly requested context** (`#screen`, `#browser`, etc.) -- highest priority
-2. **Selected text** -- included when present
-3. **Active application context** -- when enabled and available
-4. **Clipboard** -- only when explicitly requested or auto-enabled
-
-### Token Usage
-
-Context data consumes tokens from the AI model's context window. Larger context (full page content, screenshots) uses more tokens, which may:
-
-- Increase response latency
-- Increase API costs for cloud models
-- Leave less room for conversation history
+- Make replies slower
+- Cost more with cloud models
+- Leave less room for the conversation's history
 
 <Tip>
-For long conversations, use specific context modifiers rather than including everything. Asking `#browser summarize this page` is more efficient than including full page content with every message.
+In a long chat, add a page or a screenshot only to the message that needs it, instead of attaching it every time.
 </Tip>
 
 ## Privacy and data flow
 
 Captured context can become part of a saved conversation or knowledge base item. Model requests and selected OCR, embedding, transcription, or other tool providers may receive relevant content. Review [Privacy & Security](/configuration/privacy-security) for the distinction between local storage and provider processing.
 
-A local chat model alone does not make every tool offline. Check the whole flow, including browser access, captures, and provider-based processing. App exclusions and macOS permissions reduce available context; they are not a promise that every third-party app field can be classified as sensitive.
+A local chat model alone does not make every tool offline. Check the whole flow, including browser access, captures, and provider-based processing. macOS permissions reduce the context available; they are not a promise that every third-party app field can be classified as sensitive.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="Context not detected">
-    Ensure EnConvo has **Accessibility** permission in **System Settings** -> **Privacy & Security** -> **Accessibility**. Restart EnConvo after granting permission.
-  </Accordion>
-  <Accordion title="Browser URL not captured">
-    The browser content feature works best with the EnConvo browser extension installed. Without the extension, EnConvo falls back to Accessibility API which may not capture URL content in all browsers.
-  </Accordion>
-  <Accordion title="Selected text not included">
-    Not all applications expose selected text through the Accessibility API. If selected text is not detected, try using `#clipboard` after copying the text instead.
-  </Accordion>
-  <Accordion title="Context from wrong application">
-    Context is captured at the moment you trigger EnConvo. If you switch applications quickly before the hotkey registers, the context may come from the wrong app. Wait for the previous app to be fully focused before triggering.
-  </Accordion>
-</AccordionGroup>
+| Problem | What to do |
+|---|---|
+| No selected text or window content | Turn on Enconvo in **System Settings → Privacy & Security → Accessibility**. Some apps don't expose their text through Accessibility; copy the text and add **Clipboard Text** with `#` instead. |
+| No browser page or Finder items | Turn on Enconvo for that app in **System Settings → Privacy & Security → Automation**. |
+| No address from Firefox | Firefox doesn't give its tab's address. Use another browser, or copy the address. |
+| A page comes without its text | Outside Safari, page text is read only while the browser is frontmost. Open SmartBar from the browser. |
+| Context comes from the wrong app | Context comes from the app you were using when SmartBar opened. Wait until the app you want is in front, then open SmartBar. |
+| Screenshots fail | Turn on Enconvo in **System Settings → Privacy & Security → Screen & System Audio Recording**. |
 
-## Related Features
+## Related
 
 <CardGroup cols={2}>
-  <Card title="Context Awareness Basics" icon="eye" href="/features/context-awareness">
-    Introduction to context awareness
+  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">
+    Add context to a message in everyday use
   </Card>
   <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
-    Use context in SmartBar queries
+    Ask with context from any app
   </Card>
-  <Card title="App Sidebar" icon="sidebar" href="/features/app-sidebar">
-    Per-app AI context
+  <Card title="Permissions" icon="shield-check" href="/configuration/permissions">
+    What each macOS permission is for
   </Card>
   <Card title="OCR" icon="text" href="/ai/ocr">
     Extract text from screen content

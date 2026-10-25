@@ -1,24 +1,59 @@
 ---
 title: "Memory"
-description: "Review and maintain facts an Agent can reuse."
+description: "See, correct, and control what your Agents remember about you across chats."
 ---
 
-Memory stores reusable information for Agents, such as preferences or facts that should carry beyond one reply. It is different from a conversation transcript and from a knowledge base of documents.
+Memory holds short facts your Agents keep across chats, such as your preferences, facts about you, and decisions you made. Every Agent shares the same Memories and sees them at the start of each chat, pinned ones first. Memory is different from a chat transcript and from a [knowledge base](/ai/knowledge-base) of documents.
 
-## Review memory
+## How Memories are saved
 
-1. Open **Settings → Memory → Memory**.
-2. Search or filter by the categories, types, and Agents shown in the interface.
-3. Open a memory to review its content and associated information.
+Agents save Memories as they learn about you. With **Learn from chats automatically** on, Enconvo reviews a chat once it goes quiet: three minutes after the last message, or once six new messages wait. It keeps what will matter in later chats, and a Memory card with **Undo** appears at the end of that chat.
+
+Learning skips secrets, group chats, and one-off tasks. Memory stays out of IM group chats, where other people read the replies.
+
+To add one yourself, open **Settings → Memory**, click **Open Memories**, and choose **Add → Memory**.
+
+## Review and edit Memories
+
+1. Open **Settings → Memory** and click **Open Memories**.
+2. Use **Filter**, **Tags**, and **Types** to narrow the list, or switch between **Grid**, **List**, and **Map**.
+3. Open a Memory to review its content and the chat it was learned from.
 4. Edit inaccurate or outdated facts, or delete them after reviewing the confirmation.
+5. To show a Memory to Agents in every chat, right-click it and choose **Pin**.
 
-The management interface also supports adding a memory directly. Keep entries concise, factual, and specific about who or what they concern.
+Keep entries concise, factual, and specific about who or what they concern.
+
+## Concepts and the map
+
+In **Open Memories**, choose **Map** to see your Memories grouped under the people, projects, places, and topics they are about. Each of these is a Concept.
+
+1. Click a Concept to see its overview, its Memories, and related Concepts.
+2. Click **Ask about this** to start a chat about it.
+3. To file Memories that are still waiting, click the **File … now** button, which shows how many are waiting. **Rebuild** files every Memory again: Concepts keep their names, links are made again, and empty ones go.
+4. **Remove Concept** removes the Concept and its links. Its Memories stay.
+
+Memory Tidy files new and changed Memories under Concepts in the background. When you ask about a Concept, Agents read it whole, and when you correct one in chat, they rename or remove it. Recall also finds Memories filed under a person, project, or topic you name, even when their words differ from your question.
+
+## Settings
+
+Open **Settings → Memory**.
+
+| Setting | What it does |
+| --- | --- |
+| **Memory** (switch at the top) | Turns Memory on or off for every Agent. When it's off, nothing is learned, tidied, or recalled, and your Memories are kept for when you turn it back on. |
+| **Learn from chats automatically** | Saves facts about you, your preferences, and how you like things done. **Recently learned** lists what it kept, with **Undo**. |
+| **Tidy up Memories** | While your Mac is idle, merges duplicates, keeps the newer of two Memories that disagree, updates plans whose date has passed, and pins what Agents must never miss. Every change keeps the earlier version. |
+| **How often** | Tidies **Daily** or **Weekly**. **Tidy Now** runs it at once. |
+| **Earlier tidies** | Undo anything Tidy changed in the last 90 days. |
+| **Recall** | Where Agents look when a reply needs something you said or saved: **Memories** (always on), **Chat history**, **Recordings**, and **Knowledge bases**. |
+| **Search** | The embedding model that indexes Memories, chats, recordings, and knowledge bases: **This Mac** or **Enconvo Cloud**. |
+| **Memory model** | The light model that learning and tidying run on, billed like any other request on its provider. |
 
 ## Use memory deliberately
 
-Check the Agent's memory configuration when testing whether a fact should be reused. A fact in one Agent's context is not proof that every other Agent or chat will use it. Verify with a new, ordinary request rather than assuming memory capture or retrieval happened automatically.
+An Agent with **Enable Memory** turned off in its own settings doesn't use Memory. To test whether a fact is reused, start a new chat and ask an ordinary question that needs it, instead of assuming it was saved or recalled.
 
-Do not store credentials or sensitive information simply to avoid re-entering it. Model requests can include retrieved memory, depending on the Agent and provider configuration.
+Don't store credentials or sensitive information just to avoid typing it again. Model requests can include recalled Memories, depending on the Agent and provider settings.
 
 ## Memory, knowledge, and capture
 
@@ -30,4 +65,25 @@ Do not store credentials or sensitive information simply to avoid re-entering it
 | Content visible in another app | [Quick Capture](/features/quick-capture) |
 | A temporary discussion | [Chat](/ai/chat) |
 
-If an answer uses an old fact, inspect the stored memory and current conversation context. Correct the underlying entry rather than only correcting one reply.
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| An answer uses an old fact | Find the Memory in **Open Memories** and correct or delete it, rather than only correcting one reply. Also check the current conversation's context. |
+| An Agent doesn't remember anything | Check that **Memory** is on in **Settings → Memory** and that the Agent's **Enable Memory** is on. IM group chats never use Memory. |
+| Enconvo saved something you didn't want | Click **Undo** on the Memory card at the end of the chat, or under **Recently learned** in **Settings → Memory**. |
+| Tidy changed a Memory you wanted | Open **Earlier tidies** in **Settings → Memory** and undo the change. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Knowledge Base" icon="book" href="/ai/knowledge-base">
+    Documents and reference material your Agents can search.
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Set up the Agents that use your Memories.
+  </Card>
+  <Card title="Chat Window" icon="comments" href="/ai/chat">
+    Where Memory cards appear after a chat.
+  </Card>
+</CardGroup>

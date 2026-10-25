@@ -5,6 +5,8 @@ description: "Install Enconvo, Codex, Claude Code and portable plugins from the 
 
 Most people install plugins from the plugin store on Enconvo's **Plugins** page. Enconvo also installs plugins from other places, including the Codex and Claude Code plugins their developers publish on GitHub and in plugin marketplaces. See [Plugin Formats](/extensions/plugin-formats) for the packages Enconvo reads.
 
+To install from the app, read [From the Plugins page](#from-the-plugins-page) and [From a chat](#from-a-chat). The rest of the page is for developers and power users: installing from Terminal, adding plugin marketplaces, updating and uninstalling, and sharing a plugin of your own.
+
 <Warning>
 Only plugins in the Enconvo store are reviewed by Enconvo. A plugin from anywhere else can run programs on your Mac through its MCP servers, so install it only from a source you trust.
 </Warning>
@@ -23,7 +25,7 @@ Click **Add** on the **Plugins** page:
 | **New skill…** | Opens Skills settings, to write a skill of your own. |
 | **Developer guide** | Opens [Developing Extensions](/extensions/developing). |
 
-What you've added is under **Installed**, at the top of the **Enconvo** tab: the Connectors you've connected and the plugins you installed or made, by name. Click **Installed** to see all of them. Plugins that come with Enconvo aren't listed there. PopBar extensions have their own **PopBar Extensions** tab, with Enconvo's reviewed catalog; see [PopBar extensions](/features/popbar#popbar-extensions).
+What you've added is under **Installed**, at the top of the **Enconvo** tab: the Connectors you've connected and the plugins you installed or made, by name. Click **Installed** to see all of them. Plugins that come with Enconvo aren't listed there. PopBar extensions have their own **PopBar** tab, with Enconvo's reviewed catalog; see [PopBar extensions](/features/popbar#popbar-extensions).
 
 ### Add from GitHub
 
@@ -94,26 +96,13 @@ npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
 - **Settings**: a plugin with required settings, such as an API key, installs and then asks for them. `plugin install` names them; fill them in on the plugin's page.
 - **Enconvo plugins from source**: when a GitHub repository or folder holds an Enconvo plugin that hasn't been built, `plugin install` builds it first. A folder is built in place, after `npm install`.
 - **Onboarding**: when a plugin names an onboarding skill, Enconvo offers to run it after the first install.
-- **Signing in**: when a plugin's MCP servers need you to sign in, as Notion's or Figma's do, the Plugins page shows **Sign in** as soon as it installs. Enconvo opens the server's sign-in page in your browser and offers the next server once that one connects. `plugin install` names the servers instead. A sign-in you skip waits in **Settings > MCP**.
+- **Signing in**: when a plugin's MCP servers need you to sign in, as Notion's or Figma's do, the Plugins page shows **Sign in** as soon as it installs. Enconvo opens the server's sign-in page in your browser and offers the next server once that one connects. `plugin install` names the servers instead. A sign-in you skip waits in **Settings → MCP Servers**.
 - **Hooks**: a plugin's [hooks](/extensions/plugin-formats#hooks) install turned off, because they run commands. `--preview` lists them; allow them with the **Allow hooks** switch on the plugin's page. Hooks you allowed stay on through updates that don't change them.
 - **Dependencies**: when a Claude Code plugin from a marketplace needs other plugins, Enconvo installs them with it (see [Plugin marketplaces](#plugin-marketplaces)). `--preview` lists them and says which are already installed, which would install, and which can't. A dependency the marketplace entry declares from a marketplace that isn't allowed stops the install; one the plugin's own `plugin.json` declares is left out and the install goes on. Their hooks stay off, and uninstalling the plugin keeps them until you prune them (see [Uninstalling](#uninstalling)).
 - **Using it**: as in Codex, type `@` in a chat and pick the plugin, or click one of the prompts under **Try asking** on its page. Either way the chat gets the plugin attached. Every installed plugin is in the `@` menu, including a Codex or Claude Code plugin that names no category.
 - **Same name**: installing again from the same source updates the plugin. If a plugin with the same name is already installed from somewhere else, such as the store, Enconvo leaves it alone and asks you to uninstall it first.
 
 When Enconvo isn't running, `plugin install` can still install an Enconvo plugin from GitHub by building it. For anything else, open Enconvo and try again.
-
-### Uninstalling
-
-Uninstall a plugin from its menu or its page on the Plugins page, which asks you to confirm first, or from Terminal:
-
-```bash
-npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
-npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
-npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
-npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
-```
-
-Pruning removes only plugins that were installed because another plugin needed them, once no installed plugin needs them, as `claude plugin prune` does in Claude Code. A plugin you installed yourself is never pruned, and installing a dependency again yourself makes it yours. In Terminal, Enconvo lists what it will remove and asks first; add `-y` to skip the question, which `--prune` needs when it can't ask. The Plugins page's uninstall doesn't prune yet.
 
 ## Plugin marketplaces
 
@@ -130,6 +119,10 @@ npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
 
 `refresh` also answers to `upgrade` (Codex's name) and `update` (Claude Code's), and `--ref v2` is the same as `acme/plugins@v2`.
 
+On the Plugins page, open **Add → Add from GitHub…** and paste the marketplace's address, or pick one you've added under **Your marketplaces**.
+
+Enconvo keeps a copy of a marketplace from GitHub or git, and reads a folder marketplace where it is. Removing a marketplace keeps the plugins you installed from it.
+
 ### Marketplaces you added in Codex or Claude Code
 
 If you've added marketplaces in Codex or Claude Code on this Mac, or Codex has fetched its OpenAI Curated marketplace, `marketplace list` shows the ones Enconvo doesn't have yet, and `import` adds them, so you don't type their addresses again:
@@ -141,17 +134,21 @@ npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official   
 
 Enconvo finds them in Codex's `~/.codex/config.toml`, its copy of OpenAI Curated, and its personal `~/.agents/plugins/marketplace.json`, and in Claude Code's list of known marketplaces. It only reads those files and changes nothing in either app. OpenAI Curated is added from `openai/plugins` on GitHub. It leaves out the other marketplaces that come with Codex, which hold plugins for Codex's own tools, and Claude Code marketplaces added from the web address of a `marketplace.json` file, which Enconvo doesn't add. When both apps have a marketplace of the same name, it offers Codex's.
 
-A marketplace's plugins can come from a folder in the marketplace, another GitHub repository, a git address, a folder in a git repository, npm, or a zip on the web (Claude Code's `archive` source). A plugin a Codex marketplace marks `NOT_AVAILABLE` can't be installed.
-
 Codex marketplaces such as OpenAI Curated list only each plugin's name and where it comes from. For a plugin in the marketplace's own folder, Enconvo shows the title, description, category and developer from the plugin's manifest, as Codex does, and the agent finds it by what it does as well as by name. What a marketplace entry says itself comes first.
 
 Some of OpenAI Curated's plugins, such as Gmail, Google Drive, Outlook and Teams, work only when you sign in to Codex with ChatGPT, so Codex doesn't offer them to people who sign in with an API key. Enconvo doesn't sign in to ChatGPT either, so it shows them as needing a ChatGPT sign-in, doesn't install them, and the agent doesn't offer them. For those services, add the provider's own MCP server or a Connector instead.
+
+### Where a marketplace's plugins come from
+
+A marketplace's plugins can come from a folder in the marketplace, another GitHub repository, a git address, a folder in a git repository, npm, or a zip on the web (Claude Code's `archive` source). A plugin a Codex marketplace marks `NOT_AVAILABLE` can't be installed.
 
 A folder source written as `./plugins/notes` is read from the top of the marketplace. A bare name such as `notes` is read from the folder `metadata.pluginRoot` names, as in Claude Code, and needs that field.
 
 A download from GitHub, npm or the web can take up to three minutes; if it takes longer, Enconvo stops it and asks you to check your connection.
 
 A zip, whether you paste its link or a marketplace lists it, downloads only from a public https address, through at most five redirects. When the marketplace gives its `sha256`, a download that doesn't match is refused. The plugin can sit at the top of the zip or inside one folder.
+
+### Claude Code marketplace entries
 
 Claude Code marketplace entries work with a plugin's own `plugin.json` the way Claude Code reads them:
 
@@ -162,9 +159,7 @@ Claude Code marketplace entries work with a plugin's own `plugin.json` the way C
 - A marketplace's `renames` are followed. A plugin installed under its old name keeps updating under the new one, and installing by the old name finds it. A name renamed to `null` was removed from the marketplace, and Enconvo says so. If the plugin's own manifest changed its name too, Enconvo asks you to uninstall the old plugin and install the new one, because Enconvo names a plugin after its manifest.
 - A plugin's `dependencies`, in its entry or its `plugin.json`, install with it. Each is a name (`"formatter"`), a name and marketplace (`"formatter@acme-tools"`), either followed by a `^` range (`"formatter@acme-tools@^2.1"`), or `{ "name", "marketplace", "version" }` with a semver range. A dependency comes from the plugin's own marketplace unless it names another one, and another marketplace has to be listed in `allowCrossMarketplaceDependenciesOn` by the marketplace you installed from. A dependency with a `version` range installs at the highest release tag (`<plugin>--v<version>`) in that range, and in the ranges other installed plugins put on it, from the plugin's own repository or, for a plugin inside the marketplace, the marketplace's (a marketplace folder counts when it's in a git repository). With no such tag, a plugin inside the marketplace installs as the marketplace has it, and one in its own repository is refused. Ranges no single version satisfies refuse the install, and updates stay inside the ranges. A dependency that's already installed is left as it is, and one outside its `version` range gets a warning.
 
-On the Plugins page, open **Add → Add from GitHub…** and paste the marketplace's address, or pick one you've added under **Your marketplaces**.
-
-Enconvo keeps a copy of a marketplace from GitHub or git, and reads a folder marketplace where it is. Removing a marketplace keeps the plugins you installed from it.
+### Check a marketplace before you share it
 
 Before you share a marketplace, check it and every plugin in it. The rules are the ones `claude plugin validate` applies, plus Codex's for an `.agents/plugins/marketplace.json`; see [Validation Codes](/extensions/validation-codes#marketplaces). An error means Claude Code can't add the marketplace or install the plugin, even though it may still list it: a field of the wrong type in an entry, `renames` that don't lead to a plugin, `relevance` signals it refuses, or a marketplace name that looks like one of Anthropic's own, such as `claude-plugins-hub`. A warning covers what Claude Code ignores, such as a misspelled field, and names Claude Desktop rejects.
 
@@ -186,6 +181,19 @@ npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # only if it came
 ```
 
 It checks first. When nothing is newer, it says the plugin is already at its latest version and changes nothing; otherwise it updates the plugin the way the Updates list does.
+
+## Uninstalling
+
+Uninstall a plugin from its menu or its page on the Plugins page, which asks you to confirm first, or from Terminal:
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+Pruning removes only plugins that were installed because another plugin needed them, once no installed plugin needs them, as `claude plugin prune` does in Claude Code. A plugin you installed yourself is never pruned, and installing a dependency again yourself makes it yours. In Terminal, Enconvo lists what it will remove and asks first; add `-y` to skip the question, which `--prune` needs when it can't ask. The Plugins page's uninstall doesn't prune yet.
 
 ## Publish your own
 

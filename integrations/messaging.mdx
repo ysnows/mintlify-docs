@@ -1,51 +1,95 @@
 ---
-title: "Messaging Channels"
-description: "Connect an Enconvo Agent to Telegram or Discord and control incoming access."
+title: "IM Channels"
+description: "Connect a Telegram or Discord bot to an Enconvo Agent, and choose who can talk to it."
 ---
 
-Current built-in IM Channel providers are **Telegram** and **Discord**. Configure them in **Settings → Agents → IM Channels**. Each channel provider binds to at most one Agent; one Agent can serve multiple channel providers.
+IM Channels let people talk to an Enconvo Agent from Telegram or Discord. Each channel is a bot bound to one Agent: incoming messages go to that Agent, and it writes the replies. One Agent can serve several channels, but each channel serves at most one Agent. Set them up in **Settings → IM Channels**.
+
+## Before you start
+
+- Create a bot on the platform and copy its bot token (see [Telegram](#telegram) and [Discord](#discord) below).
+- Keep Enconvo running and the Mac online while the bot is listening.
+
+<Note>
+The free plan runs one IM bot at a time. An Enconvo Cloud plan or a lifetime license runs more. See [Plans and Pricing](/pricing).
+</Note>
 
 ## Add a channel
 
-1. Open **IM Channels** and add a provider for Telegram or Discord.
-2. Give the connection an identifiable name.
-3. Enter the platform's **Bot Token** in its password field.
-4. Choose **bind agent** to select the Agent that should handle incoming messages.
-5. Review access controls, then enable the channel.
-6. Confirm that its connection status is **Connected** and send a test message from an allowed account.
+<Steps>
+  <Step title="Add the channel">
+    Open **Settings → IM Channels**, click **Add New Channel**, and pick **Telegram** or **Discord**.
+  </Step>
+  <Step title="Name it">
+    Give the channel a name you'll recognize.
+  </Step>
+  <Step title="Paste the bot token">
+    Paste the platform's bot token into **Bot Token**.
+  </Step>
+  <Step title="Choose the Agent">
+    In **bind agent**, choose the Agent that handles incoming messages.
+  </Step>
+  <Step title="Turn it on">
+    Review who can use the bot (for Telegram, **Access Control**), then turn on **Enable Channel**.
+  </Step>
+  <Step title="Test it">
+    Click **Check Connection** and make sure the channel shows **Connected**. Then send a test message from an allowed account.
+  </Step>
+</Steps>
 
-Keep Enconvo running and the Mac online while the bot is listening. The Agent's model and tool configuration determine the replies it can produce.
+The bound Agent's model and tools decide what the bot can answer.
 
 ## Telegram
 
-Create a bot with Telegram's **BotFather** and copy its bot token. Open the channel's **Access Control** before enabling it. The default pairing policy requires a new user to share a pairing code for approval; review pending requests and approve only the intended users.
+Create a bot with Telegram's **BotFather** and copy its bot token. Before you turn the channel on, open its **Access Control**:
 
-If the bot works in a direct chat but not a group, review Telegram's bot privacy and group permissions as well as the channel's access policy. A token alone does not grant permission to every conversation.
+| Control | What it does |
+| --- | --- |
+| **Policy** | **Pairing Required** (the default): a new user shares a pairing code and waits for your approval. **Open (Everyone)**: anyone who finds the bot can use it. |
+| **Pending Requests** | **Approve** or **Deny** each user who asked to pair. Approve only the people you mean to. |
+| **Allowed Users** | The users you approved. **Remove** takes one off the list; they need to pair again to use the bot. |
+
+If the bot works in a direct chat but not in a group, check Telegram's bot privacy and group permissions as well as the channel's access policy. A token alone doesn't give the bot access to every conversation.
 
 ## Discord
 
-Create an application and bot in the Discord Developer Portal, invite it to the intended server, and grant the permissions and intents required for the messages it should receive and send. Paste its bot token into the Discord provider and bind an Agent.
+Create an application and a bot in the Discord Developer Portal. Invite the bot to your server, and give it the permissions and intents it needs to receive and send the messages you want. Paste its bot token into the Discord channel and bind an Agent.
 
-If it connects but does not reply, check the target channel's permissions and whether the bot receives that type of message. Keep access limited to the intended server and channels.
+If it connects but doesn't reply, check the channel's permissions on Discord and whether the bot receives that type of message. Keep the bot limited to the server and channels you mean.
 
 ## Sessions and replies
 
-Incoming conversations are routed to chat sessions for the bound Agent. Reply context follows that conversation; it is not one shared transcript for every connected user. Changing the bound Agent reconnects the channel so subsequent messages go to the selected Agent.
+Each incoming conversation gets its own chat session with the bound Agent. Replies follow that conversation; connected users don't share one transcript. Changing the bound Agent restarts the channel, so later messages go to the new Agent.
 
-Use a dedicated Agent with appropriate instructions and tools for a public or team bot. Review which tools it can invoke before making it available to other people.
+For a public or team bot, use a dedicated Agent with fitting instructions and tools. Review which tools it can use before you let other people reach it.
 
 ## Scheduled delivery
 
-[Scheduled Tasks](/workflows/scheduled-jobs) can deliver results to a configured IM chat. Select the destination explicitly and use the task's run history to distinguish a generation failure from a delivery failure.
+[Automations](/workflows/scheduled-jobs) can send their results to an IM chat you set up. Choose the destination yourself, and use the task's run history to tell a failed run from a failed delivery.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Disconnected | Bot token, network, enabled state, and Enconvo running |
-| Connected but silent | Agent binding, provider access, platform permissions, and pairing policy |
-| Wrong assistant behavior | The bound Agent's instructions, tools, and model |
-| Telegram user cannot connect | Pending pairing request and allowed users |
-| Replies stop after quitting Enconvo | The local listener needs the app and runtime to remain running |
+| Disconnected | Check the bot token, the network, that **Enable Channel** is on, and that Enconvo is running. |
+| Connected but silent | Check the bound Agent, the Agent's model provider, the platform's permissions, and the pairing policy. |
+| The bot answers the wrong way | Check the bound Agent's instructions, tools, and model. |
+| A Telegram user can't connect | Look for their pairing request under **Pending Requests**, and check **Allowed Users**. |
+| A second bot won't start | The free plan runs one IM bot at a time. Turn the other bot off, or upgrade. |
+| Replies stop after you quit Enconvo | The bot listens through Enconvo on your Mac, so the app must keep running. |
 
-This built-in channel page does not provide Slack or Feishu setup. If you use those services through another plugin or MCP server, follow that integration's own guide.
+IM Channels set up only Telegram and Discord. If you reach Slack or Feishu through another plugin or an MCP server, follow that integration's own guide.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Set up the Agent that answers your bot.
+  </Card>
+  <Card title="Automations" icon="clock" href="/workflows/scheduled-jobs">
+    Send scheduled results to an IM chat.
+  </Card>
+  <Card title="Plans and Pricing" icon="credit-card" href="/pricing">
+    What each plan includes.
+  </Card>
+</CardGroup>

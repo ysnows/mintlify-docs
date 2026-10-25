@@ -1,38 +1,53 @@
 ---
 title: "Anthropic"
-description: "Connect Anthropic and choose an AI model in Enconvo."
+description: "Chat with Claude models in Enconvo using an Anthropic API key or your Claude plan."
 ---
 
-Use **Anthropic** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+Use Anthropic's Claude models in chats, Agents, and AI Commands. Connect with an Anthropic API key, which Anthropic bills per request, or sign in with your Claude plan.
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **Anthropic**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Steps>
+  <Step title="Get an API key">
+    Create a key in the [Anthropic Console](https://console.anthropic.com/).
+  </Step>
+  <Step title="Add it to Enconvo">
+    Open **Settings → AI Model → Anthropic**. Under **Authentication**, choose **API Key**, paste the key, then click **Validate**.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
-## Provider options
+<Tip>
+Have a Claude plan? Choose **Claude Subscription** under **Authentication** instead and click **Connect**. See [Claude Subscription](/providers/anthropic_subscription).
+</Tip>
 
-Choose **API Key** or **Claude Subscription** in Authentication. See [Claude Subscription](/providers/anthropic_subscription) for connecting an account. Reasoning controls depend on the selected model.
+To keep a second Anthropic key, click **Add New Provider** and create another profile.
 
-The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
+## Models and options
 
-## Use it in a conversation
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
+| **API Base Url** | In the credential. The default is `https://api.anthropic.com`. Change it only to use an Anthropic-compatible service. |
 
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
-
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+Reasoning controls in the chat depend on the model you pick. To use a different model in one chat, pick it from that chat's model picker.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in the Anthropic Console. |
+| A model is missing | Click **Refresh** beside **Model Name**. To add a model yourself, use **Manage Models**. |
+| Rate or usage limit errors | Check usage and limits in the Anthropic Console, or switch to another provider for now. |
+| Replies are slow | Try a smaller model, a shorter input, or lower reasoning effort. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Claude Subscription" icon="user-check" href="/providers/anthropic_subscription">Use your Claude plan instead of an API key.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

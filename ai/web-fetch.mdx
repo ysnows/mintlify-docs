@@ -1,29 +1,62 @@
 ---
-title: "Read Web Pages"
-description: "Fetch a URL as context or import web material into a knowledge base."
+title: "Web Fetch"
+description: "Have your Agent read a web page from its URL, or keep the page in a knowledge base."
 ---
 
-Use Web Fetch when you already have a URL and want the Agent to read its content. Use [Web Search](/ai/web-search) when you need to discover relevant pages.
+Use Web Fetch when you already have a URL and want the Agent to read the page. Every Agent can read a link you give it; you choose the service that fetches it. Use [Web Search](/ai/web-search) when you need to find relevant pages first.
 
-## Read a page
+## Choose a provider
 
-1. Open **Settings → Global Providers Settings → Web Fetch** and choose a provider.
-2. Paste the URL into your Agent conversation and ask a specific question about it.
-3. Check the retrieved content and source before relying on the answer.
+1. Open **Settings → Web Fetch**.
+2. Pick a provider and click **Set as Default**.
 
 | Provider | Use |
 | --- | --- |
-| Local Fetch | Retrieve content through local fetching, with browser-assisted options |
-| Jina AI Link Reader | Retrieve readable content through Jina |
-| Firecrawl Link Reader | Retrieve content through Firecrawl |
-| Enconvo Cloud Plan | Use the Cloud link-reading service |
+| **Local Fetch** | Fetch pages on your Mac for free, with optional browser-assisted fetching |
+| **Jina AI Link Reader** | Retrieve readable content through Jina |
+| **Firecrawl Link Reader** | Retrieve content through Firecrawl |
+| **DeepSeek** | Read pages as Markdown with your DeepSeek API key |
+| **DeepSeek (Enconvo Cloud)** | Read pages as Markdown through Enconvo Cloud, no API key needed |
+| **Enconvo Cloud Plan** | Use the Cloud link-reading service |
 
-A provider that retrieves a public URL does not automatically have access to your signed-in browser session. For authenticated or interactive pages, use the supported [Browser Extension](/features/browser-extension) or [Browser Control](/features/browser-control) flow.
+## Read a page
+
+1. Paste the URL into your conversation and ask a specific question about it.
+2. Check the retrieved content and source before relying on the answer.
+
+## Pages behind a login
+
+With **Local Fetch**, **Browser-Assisted Fetching** can read a page through a Chromium-family browser that has the Enconvo Companion extension.
+
+| Option | What it does |
+| --- | --- |
+| **Auto** (default) | Reuses a matching tab you already have open, fully rendered and with your login. Uses a temporary background tab when a direct fetch fails or the page needs JavaScript. |
+| **Off** | Direct HTTP only |
+| **Always** | Always fetches through the browser |
+
+Without a connected browser, Local Fetch makes a direct HTTP request. The other providers fetch the public URL and don't have your signed-in browser session. For interactive pages, use the [Browser Extension](/features/browser-extension) or [Browser Use](/features/browser-control).
 
 ## Keep web content
 
-Add supported URLs or crawled content to a [Knowledge Base](/ai/knowledge-base) when you want to retrieve it later. Review the imported pages and indexing status; web pages can change after import.
+Add a URL with **Add → Single Web Page** in a [Knowledge Base](/ai/knowledge-base) when you want to find it later. Check the imported page and its indexing status; web pages can change after you import them.
 
 ## Troubleshooting
 
-For empty content, check that the page is readable without extra interaction and whether browser-assisted fetching is needed. Login screens, blocked requests, dynamically loaded content, and unsupported sites can prevent extraction. Ask the Agent to identify what it actually retrieved instead of inferring missing page contents.
+| Problem | What to do |
+| --- | --- |
+| The content comes back empty | Check that the page is readable without extra interaction, or use **Local Fetch** with **Browser-Assisted Fetching**. Login screens, blocked requests, dynamically loaded content, and unsupported sites can prevent extraction. |
+| The answer describes things that aren't on the page | Ask the Agent to show what it actually retrieved, instead of guessing at missing content. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Web Search" icon="magnifying-glass" href="/ai/web-search">
+    Find pages when you don't have a URL.
+  </Card>
+  <Card title="Browser Extension" icon="puzzle-piece" href="/features/browser-extension">
+    Connect your browser to Enconvo.
+  </Card>
+  <Card title="Knowledge Base" icon="book" href="/ai/knowledge-base">
+    Keep web pages to search later.
+  </Card>
+</CardGroup>

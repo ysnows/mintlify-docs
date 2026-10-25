@@ -1,17 +1,17 @@
 ---
 title: "Agents"
-description: "Create an assistant with instructions, models, and tools."
+description: "Create an assistant with its own instructions, model, and tools, and choose when it asks before it acts."
 ---
 
-An Agent combines instructions, a model, and tools for a particular kind of work. Open **Settings → Agents → Agent List** to manage Agents.
+An Agent combines instructions, a model, and tools for one kind of work. Make one when you keep giving the same instructions, or when a job needs a particular set of tools. Manage your Agents in **Settings → Agent List**.
 
 ## Create an Agent
 
-1. Choose **New Agent** or run **Create Agent** from SmartBar.
+1. In **Settings → Agent List**, click **New Agent**, or run **Create Agent** from SmartBar.
 2. Give it a clear name and purpose.
-3. In **Definition**, describe what it should do, what input it needs, and how it should present results.
-4. Choose its model and configure the tools and context sources it needs.
-5. Save, open a new conversation with it, and test a small representative task.
+3. Under **Instructions**, describe what it should do, what input it needs, and how it should present results.
+4. Choose its model, and set up the tools and context sources it needs.
+5. Save, start a new chat with it, and test a small, typical task.
 
 Example instruction:
 
@@ -22,24 +22,26 @@ For action items, preserve the owner and due date if stated;
 otherwise mark them as unspecified.
 ```
 
-## Choose tools deliberately
+## Choose tools
+
+Give the Agent only the tools its job needs:
 
 | Need | Capability |
 | --- | --- |
 | Read and edit documents | [File tools](/ai/file-tools) |
 | Find current information | [Web Search](/ai/web-search) and [Web Fetch](/ai/web-fetch) |
-| Work in websites | [Browser Control](/features/browser-control) |
+| Work in websites | [Browser Use](/features/browser-control) |
 | Operate desktop apps | [Computer Use](/features/computer-use) |
 | Search your material | [Knowledge Base](/ai/knowledge-base) |
 | Reuse a procedure | [Skills](/configuration/skills) |
 | Connect an external service | [MCP Servers](/features/mcp) |
 | Run code | [Code Runner](/ai/code-runner) |
 
-A model must support the required tool and input capabilities. Tools also need their own credentials, access, and setup. An Agent instruction does not itself grant a missing permission.
+The model must support the tools and input types you choose. Tools also need their own credentials, access, and setup, and an instruction can't grant a permission the Agent doesn't have.
 
 ## Approve actions
 
-The **Permissions** chip next to the run mode sets when an Agent stops to ask before it acts. It appears in Agent mode in the chat window, SmartBar, the app sidebar, and the Dynamic Island, and every one of them changes the same setting for that Agent, so a change in one shows in the others:
+The **Permissions** chip next to the run mode sets when an Agent stops to ask before it acts. It appears in Agent mode in the Chat Window, SmartBar, the App Sidebar, and the Dynamic Island. All of them change the same setting for that Agent, so a change in one shows in the others.
 
 | Mode | Asks before |
 | --- | --- |
@@ -47,11 +49,39 @@ The **Permissions** chip next to the run mode sets when an Agent stops to ask be
 | **Approve for me** (default) | Only actions that look potentially unsafe, such as deleting files, sending messages, publishing, or paying |
 | **Full access** | Nothing. The Agent acts without asking |
 
-Reading files, searching, and looking at the screen never ask. The question appears in the window the chat runs in; if that window is not showing the chat (for example it is hidden, or it is the Inline Panel), it moves to the Dynamic Island. If nobody answers it there within 30 seconds, your paired iPhone gets a reminder notification, even when the chat's window is still open behind the app you're using. If you close the island's card without answering, click the waiting step in the island's chat to see the options again. Questions the Agent asks you work the same way. Choose **Yes, allow once**, **Yes, and don't ask again** for the rest of that chat (remembered even after Enconvo restarts), or type what the Agent should do instead. While a chat waits, it shows **Waiting for approval** instead of running in the chat window's list, SmartBar's recent chats, and the Dynamic Island, and the iPhone app's chat list marks it **Needs approval**. Subagents ask in their parent chat, and the question says a subagent is asking and which task it is working on. Scheduled tasks, workflows, and IM channels run without asking, because nobody is at the window to answer.
+Reading files, searching, and looking at the screen never ask.
+
+### Where the question appears
+
+The question appears in the window the chat runs in. If that window isn't showing the chat (for example, it's hidden, or it's the Inline Panel), the question moves to the Dynamic Island. If nobody answers there within 30 seconds, your paired iPhone gets a reminder notification, even when the chat's window is still open behind the app you're using.
+
+If you close the island's card without answering, click the waiting step in the island's chat to see the options again. Questions the Agent asks you work the same way.
+
+### Answer it
+
+- **Yes, allow once** lets this one action run.
+- **Yes, and don't ask again** allows it for the rest of that chat, and is remembered even after Enconvo restarts.
+- Or type what the Agent should do instead.
+
+While a chat waits, it shows **Waiting for approval** instead of running in the Chat Window's list, SmartBar's recent chats, and the Dynamic Island. The iPhone app's chat list marks it **Needs approval**.
+
+Subagents ask in their parent chat, and the question says that a subagent is asking and which task it's working on. Scheduled tasks, workflows, and IM channels run without asking, because nobody is at the window to answer.
 
 ## Subagents
 
-In Agent mode, an Agent can split a task into parts and start up to six subagents that work at the same time, each in its own conversation, and it answers once they report back. It does this only when splitting clearly helps, such as several independent searches, or when you ask. If an AI error such as a rate limit stops a subagent partway, the Agent still gets what it found so far and can let it continue once the error clears. A card in the chat lists each subagent by its task, with an icon showing whether it is running, waiting for your approval, done, or failed, and a running subagent's row also shows what it is doing right now; click a row to open that subagent's conversation, whose Workspace panel and `@` file search show the working folder of the chat that started it (in SmartBar and the Dynamic Island its work opens in place). You can also type in a subagent's conversation: it answers you there, can ask you questions, asks for approval in that conversation, and keeps working in the same folder. The Agent that started it waits while it answers you, and then sees its newest answer. In the chat window's sidebar, a chat's subagents are listed under it, and a button on the chat's row folds the list. Every subagent starts in a role:
+In Agent mode, an Agent can split a task into parts and start up to six subagents that work at the same time, each in its own conversation. It answers once they report back. It does this only when splitting clearly helps, such as several independent searches, or when you ask. If an AI error such as a rate limit stops a subagent partway, the Agent still gets what it found so far, and can let it continue once the error clears.
+
+### Follow and talk to subagents
+
+A card in the chat lists each subagent by its task, with an icon that shows whether it's running, waiting for your approval, done, or failed. A running subagent's row also shows what it's doing right now.
+
+- Click a row to open that subagent's conversation. Its Workspace panel and `@` file search show the working folder of the chat that started it. In SmartBar and the Dynamic Island, its work opens in place.
+- Type in a subagent's conversation to talk to it. It answers you there, can ask you questions, asks for approval in that conversation, and keeps working in the same folder. The Agent that started it waits while it answers you, and then sees its newest answer.
+- In the Chat Window's sidebar, a chat's subagents are listed under it, and a button on the chat's row folds the list.
+
+### Subagent roles
+
+Every subagent starts in a role:
 
 | Role | What it does |
 | --- | --- |
@@ -60,11 +90,17 @@ In Agent mode, an Agent can split a task into parts and start up to six subagent
 | **One of your Agents** | Runs as that Agent, with its own instructions, tools, and model, in the same working folder as the chat that started it |
 | **A project helper** | Defined by the project in `.claude/agents`, `.codex/agents`, or `.enconvo/agents`, in the working folder or a folder above it up to the repository root. Works as the Agent that started it, following the helper's own instructions. It uses only the tools the file lists, only reads when the file says so, and uses the helper's model when your model provider offers it |
 
-To choose one yourself, type `@` in an Agent-mode chat and pick it from the **Subagents** group, which lists the project's helpers, **Explorer**, and a general **Subagent**. The Agent starts that Subagent for your message, writes it the task, and answers once it reports back. Your own Agents stay in the menu's Agents group.
+To choose one yourself, type `@` in an Agent-mode chat and pick it from the **Subagents** group, which lists the project's helpers, **Explorer**, and a general **Subagent**. The Agent starts that subagent for your message, writes it the task, and answers once it reports back. Your own Agents stay in the menu's Agents group.
 
 Describe each Agent clearly in its settings: the Agent that splits the work reads those descriptions to decide which one fits a task.
 
-Project helpers use the same files as Claude Code subagents and Codex agent roles, so a repository that already has them needs no extra setup. A Claude Code file (Markdown with `name` and `description` in its frontmatter) is read-only when it sets `permissionMode: plan` or lists only reading tools such as `Read`, `Grep`, and `Glob`; a Codex file (TOML with `description` and `developer_instructions`) is read-only with `sandbox_mode = "read-only"`. When the provider does not offer the helper's model, the helper uses the chat's model instead.
+### Project helpers
+
+Project helpers use the same files as Claude Code subagents and Codex agent roles, so a repository that already has them needs no extra setup.
+
+- A Claude Code file (Markdown with `name` and `description` in its frontmatter) is read-only when it sets `permissionMode: plan`, or lists only reading tools such as `Read`, `Grep`, and `Glob`.
+- A Codex file (TOML with `description` and `developer_instructions`) is read-only with `sandbox_mode = "read-only"`.
+- When the provider doesn't offer the helper's model, the helper uses the chat's model instead.
 
 A Claude Code file's `tools` and `disallowedTools` decide which of the Agent's tools the helper may use. Enconvo matches each name to its own tool:
 
@@ -77,16 +113,33 @@ A Claude Code file's `tools` and `disallowedTools` decide which of the Agent's t
 | `WebSearch`, `WebFetch` | Search the web and read web pages |
 | `mcp__github__get_issue`, `mcp__github` | Use one tool, or every tool, of a connected MCP server |
 
-With no `tools` line, the helper has every tool except the ones `disallowedTools` names. A call outside the list is not run, and the helper is told which tools it has. Every helper can still load skills and ask you questions. In an `.enconvo/agents` file, you can also list Enconvo tools by their API path, such as `browser-use/*`.
+With no `tools` line, the helper has every tool except the ones `disallowedTools` names. A call outside the list isn't run, and the helper is told which tools it has. Every helper can still load skills and ask you questions. In an `.enconvo/agents` file, you can also list Enconvo tools by their API path, such as `browser-use/*`.
 
 ## Ways to reach an Agent
 
-Use Chat Window, SmartBar, or the Dynamic Island. Configure **Voice Trigger** to dispatch spoken requests to selected Agents. [Live Voice](/features/live-voice) provides conversation, and [Avatars](/features/avatar) add a desktop character. [IM Channels](/integrations/messaging) connects messaging apps. [Scheduled Tasks](/workflows/scheduled-jobs) can run an Agent later.
+- Chat with it in the [Chat Window](/ai/chat), [SmartBar](/features/smartbar), the [App Sidebar](/features/app-sidebar), or the [Dynamic Island](/features/dynamic-island).
+- Set up **Voice Command** to send spoken requests to the Agents you choose. See [Dictation](/features/dictation).
+- Talk with it through [Live Talk](/features/live-voice), or give it a desktop character with an [Avatar](/features/avatar).
+- Connect messaging apps with [IM Channels](/integrations/messaging).
+- Run it later with [Automations](/workflows/scheduled-jobs).
 
 ## Defaults and continuity
 
-Review [model defaults](/ai/model-selection-guide) when changing an Agent used by multiple conversations or channels. Configure [Memory](/ai/memory) when you want reusable facts, and organize documents in a knowledge base rather than putting everything into the instruction.
+Check the [model defaults](/ai/model-selection-guide) before you change an Agent that several chats or channels use. Set up [Memory](/ai/memory) for facts the Agent should reuse, and keep documents in a knowledge base instead of putting everything into the instructions.
 
-## Improve a failing Agent
+## Troubleshooting
 
-Inspect the tool error or missing input first. Test the same request without optional tools to isolate model access, then add capabilities one at a time. For actions that modify files or external systems, review the requested destination and effect.
+| Problem | What to do |
+| --- | --- |
+| A request fails | Read the tool error, or look for missing input, first. |
+| You can't tell whether the model or a tool is at fault | Try the same request with optional tools turned off, then add tools back one at a time. |
+| An action will change files or an outside service | Check the destination and the effect before you approve it. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Chat Window" icon="comments" href="/ai/chat">Hold conversations with your Agents.</Card>
+  <Card title="Skills" icon="star" href="/configuration/skills">Teach an Agent a reusable procedure.</Card>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">Connect external services as tools.</Card>
+  <Card title="Hooks" icon="anchor" href="/configuration/hooks">Run your own commands when an Agent acts.</Card>
+</CardGroup>

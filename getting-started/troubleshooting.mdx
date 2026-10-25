@@ -1,388 +1,78 @@
 ---
 title: "Troubleshooting"
-description: "Solutions to common issues and how to get help"
+description: "Fix common problems with answers, shortcuts, voice, permissions, and integrations, and send diagnostics when you're stuck."
 ---
 
-## Overview
+Find your problem below and try the fix in the right column. Most problems come down to a provider that isn't connected, a missing macOS permission, or an old copy of the app. If nothing here helps, [send diagnostics](#send-diagnostics) and ask on Discord.
 
-This guide covers the most common issues users encounter with EnConvo and how to resolve them. If your issue is not listed here, reach out on our [Discord community](https://discord.gg/jYsdVRRK2k).
+## Try these first
 
-## Node.js Process Issues
+1. **Quit and reopen Enconvo.** Choose **Quit** from the Enconvo menu bar icon, then open Enconvo from **Applications**.
+2. **Update.** Choose **Check for Updates** from the menu bar icon.
+3. **Check the model.** Open **Settings → AI Model** and make sure the provider you use is connected. If you're not sure, sign in to your Enconvo account and use [Auto Route](/providers/auto-route).
+4. **Check permissions.** Open **Settings → Permissions** and turn on what the feature needs. See [Permissions](/configuration/permissions).
 
-EnConvo uses a Node.js process for extension execution. If extensions fail to load or respond, the Node.js service may need attention.
+## Answers and models
 
-### Symptoms
+| Problem | What to do |
+| --- | --- |
+| No answer, or an error about the provider | Open the provider in **Settings → AI Model** and click **Validate**. For a plan sign-in, open the account card's menu and click **Reconnect**. |
+| An error about limits, quota, or points | Check the provider's usage page, or **Settings → Points Usage** for Enconvo Cloud. Switch to another provider for now. |
+| Every cloud provider fails | Check your internet connection. Behind a proxy, check **Use System Network Proxy Preferences** under **Network Proxy** in **Settings → General**. |
+| Answers are slow | Pick a smaller or faster model, attach less context, or lower the reasoning effort. Local models slow down with long inputs. |
+| One model fails, others work | The problem is with that model or provider. Pick another model in the chat's model picker. |
+| Ollama or LM Studio doesn't connect | Make sure the server is running and **BaseUrl** matches its address, then click **Refresh** beside **Model Name**. See [Ollama](/providers/ollama) or [LM Studio](/providers/lm-studio). |
 
-- Extensions do not respond
-- Chat messages hang with no response
-- "Connection failed" errors
-- SmartBar opens but commands do not execute
+## Shortcuts and windows
 
-### Solutions
+| Problem | What to do |
+| --- | --- |
+| A shortcut does nothing | Another app may use the same keys, such as Spotlight, Raycast, or Alfred. Change one of them in **Settings → Shortcut**. |
+| Shortcuts stopped working after an update | Quit and reopen Enconvo. If that doesn't help, turn Accessibility off and on for Enconvo in System Settings. |
+| You can't find the app | Enconvo lives in the menu bar. Click its icon, or press **⇧⌘D** for SmartBar. |
 
-<AccordionGroup>
-  <Accordion title="Restart the Node.js service">
-    1. Click the EnConvo menu bar icon
-    2. Select "Restart Node.js Service"
-    3. Wait 5-10 seconds for the service to reinitialize
+## Selected text and the screen
 
-    This resolves most connection issues.
-  </Accordion>
-  <Accordion title="Check the socket connection">
-    The Unix Domain Socket file should exist at:
-    ```
-    ~/.config/Enconvo/.macopilot.socket
-    ```
-    If this file is missing, restart EnConvo completely (Quit → Relaunch).
-  </Accordion>
-  <Accordion title="Kill orphaned Node.js processes">
-    If the Node.js process is stuck, terminate it manually:
-    ```bash
-    # Find EnConvo-related Node.js processes
-    ps aux | grep -i enconvo | grep node
+| Problem | What to do |
+| --- | --- |
+| PopBar doesn't appear, or Enconvo can't read the selected text | Turn on Accessibility for Enconvo in **System Settings → Privacy & Security → Accessibility**. If it's already on, turn it off, wait two seconds, turn it back on, and reopen Enconvo. Secure fields and some custom editors don't share their text. |
+| Screenshots, OCR, or screen context fail | Turn on Enconvo in **System Settings → Privacy & Security → Screen & System Audio Recording**, then reopen Enconvo. |
+| A permission is on but has no effect after an update | Remove Enconvo from that list in System Settings with **−**, add it again, and reopen Enconvo. |
 
-    # Kill the process (replace PID with the actual process ID)
-    kill -9 <PID>
-    ```
-    Then restart EnConvo.
-  </Accordion>
-  <Accordion title="Check Node.js version">
-    EnConvo requires Node.js 18+. Check your version:
-    ```bash
-    node --version
-    ```
-    If you have an older version, update via [nodejs.org](https://nodejs.org) or:
-    ```bash
-    brew install node
-    ```
-  </Accordion>
-</AccordionGroup>
+## Voice and audio
 
-## Extension Loading Failures
+| Problem | What to do |
+| --- | --- |
+| Dictation hears nothing | Check Microphone permission, and the microphone selected in **Settings → Dictation**. |
+| Dictation is wrong or slow | Try another speech model in **Settings → Dictation Models**. Add names and terms to **Settings → Dictionary**. |
+| Read Aloud is silent | Check your Mac's volume and output device. Try **System** in **Settings → Text-to-Speech**; it needs no key and works offline. |
 
-### Symptoms
+See [Dictation](/features/dictation) and [Speech recognition](/ai/speech-recognition) for more.
 
-- "Extension not found" error
-- Extension appears in list but does not work
-- "Failed to load command" message
+## Knowledge Base
 
-### Solutions
+| Problem | What to do |
+| --- | --- |
+| Documents don't finish indexing | Check the embedding provider in **Settings → KnowledgeBase**, and that the file type is supported. |
+| Searches find nothing | Make sure the knowledge base is attached to the chat. Lower the score threshold or raise the number of results in the knowledge base's settings. |
+| A large knowledge base is slow | Split it into smaller knowledge bases by topic, or add a reranker. |
 
-<AccordionGroup>
-  <Accordion title="Reinstall the extension">
-    1. Settings → Plugins → Find the plugin
-    2. Uninstall it
-    3. Reinstall from the Extension Store
-  </Accordion>
-  <Accordion title="Check extension path">
-    Extensions are installed to:
-    ```
-    ~/.config/enconvo/extension/{extensionName}/
-    ```
-    Verify the extension directory exists and contains a `package.json`:
-    ```bash
-    ls ~/.config/enconvo/extension/{extensionName}/
-    ```
-  </Accordion>
-  <Accordion title="Clear extension cache">
-    Remove the extension's cached build artifacts:
-    ```bash
-    rm -rf ~/.config/enconvo/extension/{extensionName}/node_modules
-    ```
-    Then restart EnConvo to trigger a rebuild.
-  </Accordion>
-  <Accordion title="Check for version incompatibility">
-    Some extensions require a minimum EnConvo version. Check the extension's `package.json`:
-    ```json
-    "minAppVersion": "1.8.8"
-    ```
-    Update EnConvo if your version is older.
-  </Accordion>
-</AccordionGroup>
+See [Knowledge Base](/ai/knowledge-base) and [Knowledge Base settings](/advanced/knowledge-base-advanced).
 
-## AI Model Issues
+## Browser, apps, and plugins
 
-### No Response from AI
+| Problem | What to do |
+| --- | --- |
+| Enconvo can't control your browser | Install the Enconvo Companion extension from **Settings → Browser Use**, then restart the browser. See [Browser extension](/features/browser-extension). |
+| An Agent can't use your apps | Turn on the permissions **Settings → Computer Use** asks for. See [Computer Use](/features/computer-use). |
+| A plugin command fails | Open **Settings → Plugins**, check the plugin's settings and credentials, and update Enconvo. |
 
-<AccordionGroup>
-  <Accordion title="Verify API key">
-    1. Settings → Key Management
-    2. Find your provider (OpenAI, Anthropic, etc.)
-    3. Click "Validate" to test the key
-    4. If validation fails, re-enter your API key
-  </Accordion>
-  <Accordion title="Check network connection">
-    Cloud AI providers require internet access:
-    ```bash
-    # Test connectivity to OpenAI
-    curl -s https://api.openai.com/v1/models -H "Authorization: Bearer YOUR_KEY" | head -20
+## Send diagnostics
 
-    # Test connectivity to Anthropic
-    curl -s https://api.anthropic.com/v1/messages -H "x-api-key: YOUR_KEY" | head -20
-    ```
-  </Accordion>
-  <Accordion title="Check proxy settings">
-    If you use a proxy, configure it in Settings → Network → HTTP Proxy. Some corporate networks block AI API endpoints.
-  </Accordion>
-  <Accordion title="Check API quota">
-    You may have exhausted your API quota or hit rate limits. Check your provider's dashboard:
-    - OpenAI: [platform.openai.com/usage](https://platform.openai.com/usage)
-    - Anthropic: [console.anthropic.com](https://console.anthropic.com)
-    - Google: [aistudio.google.com](https://aistudio.google.com)
-  </Accordion>
-  <Accordion title="Try a different model">
-    Switch to a different model or provider temporarily to isolate the issue. If other models work, the problem is specific to the original model or provider.
-  </Accordion>
-</AccordionGroup>
+When Enconvo freezes, crashes, or keeps misbehaving, send diagnostic logs to the Enconvo team. Choose **Submit Diagnostics…** from the menu bar icon, or open **Settings → Diagnostics**. Enconvo removes personal details, such as file names, email addresses, keys, and the text of your prompts, before anything leaves your Mac, and shows you exactly what was sent. See [Privacy and security](/configuration/privacy-security#analytics-and-diagnostics).
 
-### Slow Responses
+## Get help
 
-- **Large context**: Reduce the amount of context being sent (fewer tools, smaller knowledge base results)
-- **Model selection**: Smaller models (e.g., GPT-4o-mini, Claude 3.5 Haiku) respond faster
-- **Local models**: Local models on Apple Silicon may be slow with large contexts. Consider using cloud providers for long conversations
-
-### Ollama/Local Model Issues
-
-<AccordionGroup>
-  <Accordion title="Ollama not connecting">
-    1. Verify Ollama is running:
-       ```bash
-       ollama list
-       ```
-    2. Check the server URL in Settings matches Ollama's address (default: `http://localhost:11434`)
-    3. Restart Ollama:
-       ```bash
-       ollama serve
-       ```
-  </Accordion>
-  <Accordion title="Model not found">
-    Pull the model first:
-    ```bash
-    ollama pull llama3.2
-    ```
-    Then refresh the model list in EnConvo: Settings → AI Models → Ollama → Refresh
-  </Accordion>
-</AccordionGroup>
-
-## Audio & Microphone Issues
-
-### Dictation Not Working
-
-<AccordionGroup>
-  <Accordion title="Check microphone permission">
-    1. System Settings → Privacy & Security → Microphone
-    2. Ensure EnConvo is listed and enabled
-    3. If not listed, trigger dictation once -- macOS will prompt for permission
-  </Accordion>
-  <Accordion title="Check input device">
-    1. Settings → Voice → Input Device
-    2. Select the correct microphone
-    3. Test with macOS Sound preferences to verify the mic works
-  </Accordion>
-  <Accordion title="Check dictation provider">
-    1. Settings → Voice → Dictation Provider
-    2. Try the "Microsoft (Enconvo Cloud Plan) Free" provider -- it requires no API key
-    3. If using a custom provider, verify the API key
-  </Accordion>
-</AccordionGroup>
-
-### TTS (Read Aloud) Not Working
-
-<AccordionGroup>
-  <Accordion title="Check TTS provider">
-    Settings → Voice → TTS Provider. Try "macOS System TTS" as a fallback -- it requires no API key and works offline.
-  </Accordion>
-  <Accordion title="Check audio output">
-    Verify your Mac's audio output is not muted and the volume is up. Try playing audio in another app to confirm.
-  </Accordion>
-</AccordionGroup>
-
-## Keyboard Shortcut Issues
-
-### Shortcut Does Not Work
-
-<AccordionGroup>
-  <Accordion title="Check for conflicts">
-    Another app may have claimed the same shortcut. Common conflicts:
-    - **Spotlight** (`Cmd + Space`)
-    - **Alfred/Raycast** (various shortcuts)
-    - **macOS Screenshots** (`Cmd + Shift + 3/4/5`)
-    - **Other productivity tools**
-
-    Change EnConvo's shortcut in Settings, or disable the conflicting shortcut in the other app.
-  </Accordion>
-  <Accordion title="Grant Accessibility permission">
-    Global shortcuts require Accessibility permission:
-    1. System Settings → Privacy & Security → Accessibility
-    2. Find EnConvo in the list and enable it
-    3. If already enabled, try toggling it off and on
-    4. Restart EnConvo
-  </Accordion>
-  <Accordion title="Restart EnConvo">
-    Shortcut registration can sometimes fail. Quit and relaunch EnConvo.
-  </Accordion>
-</AccordionGroup>
-
-## Accessibility Permission Issues
-
-### Selected Text Not Detected
-
-EnConvo needs Accessibility permission to read selected text for PopBar and context awareness.
-
-<Steps>
-  <Step title="Open System Settings">
-    System Settings → Privacy & Security → Accessibility
-  </Step>
-  <Step title="Enable EnConvo">
-    Toggle EnConvo on. If it is already on, toggle it off, wait 2 seconds, then toggle it back on.
-  </Step>
-  <Step title="Restart EnConvo">
-    Quit and relaunch EnConvo for the permission change to take effect.
-  </Step>
-  <Step title="Verify">
-    Select text in any app and check if PopBar appears or if SmartBar context detection works.
-  </Step>
-</Steps>
-
-### Screen Recording Permission
-
-Screenshot OCR and screen context require Screen Recording permission:
-
-1. System Settings → Privacy & Security → Screen & System Audio Recording (or Screen Recording)
-2. Enable EnConvo
-3. Restart EnConvo
-
-<Warning>
-On macOS Ventura (13) and later, you may need to remove and re-add EnConvo from the Accessibility and Screen Recording lists if permissions are not taking effect after an app update.
-</Warning>
-
-## Knowledge Base Issues
-
-<AccordionGroup>
-  <Accordion title="Documents not being indexed">
-    - Check the embedding provider is configured and working (Settings → Knowledge Base → Embedding Model)
-    - Verify the document format is supported (PDF, TXT, MD, DOCX, HTML, etc.)
-    - Check the console logs for indexing errors
-  </Accordion>
-  <Accordion title="Search returns no results">
-    - Ensure the knowledge base is selected in the chat context
-    - Try lowering the Score Threshold in Knowledge Base settings
-    - Increase the Top K Results count
-    - Re-index the knowledge base if documents were recently added
-  </Accordion>
-  <Accordion title="Knowledge base is large and slow">
-    - Consider splitting into multiple smaller, topic-focused knowledge bases
-    - Enable a Reranker provider to improve result quality without increasing Top K
-    - Use smaller embedding models for faster indexing
-  </Accordion>
-</AccordionGroup>
-
-## Browser Control Issues
-
-<AccordionGroup>
-  <Accordion title="Cannot connect to browser">
-    1. Install the [Enconvo Companion extension](https://chrome.google.com/webstore/detail/enconvo-companion) in your browser
-    2. Ensure the browser supports the Companion extension (Chrome, Edge, Brave, Arc, Vivaldi, Opera, Firefox)
-    3. Restart the browser after installing the extension
-  </Accordion>
-  <Accordion title="Firefox support">
-    Firefox is supported through the Companion extension. If it does not connect, confirm the extension is enabled, restart Firefox, and check that localhost access is not blocked.
-  </Accordion>
-</AccordionGroup>
-
-## Viewing Logs
-
-Logs are essential for diagnosing issues that are not covered above.
-
-### Extension Logs
-
-View logs from individual extensions:
-1. Enable Developer Mode: Settings → Advanced → Developer Mode → On
-2. Open the log viewer in the debug panel
-3. Logs show real-time extension output, errors, and JSON-RPC messages
-
-### System Logs
-
-View EnConvo's system-level logs in macOS Console:
-
-```bash
-# View recent EnConvo logs
-log show --predicate 'subsystem == "com.frostyeve.enconvo"' --last 1h
-
-# Stream live logs
-log stream --predicate 'subsystem == "com.frostyeve.enconvo"'
-```
-
-### Node.js Server Logs
-
-The Node.js server logs to stdout. When running in development:
-
-```bash
-# Check if the Node.js server is running
-ps aux | grep enconvo | grep node
-```
-
-## Submitting a Bug Report
-
-If you cannot resolve an issue, submit a bug report:
-
-<Steps>
-  <Step title="Gather information">
-    Collect:
-    - EnConvo version (Settings → About)
-    - macOS version
-    - Steps to reproduce the issue
-    - Error messages (screenshots or text)
-    - Relevant logs
-  </Step>
-  <Step title="Report on Discord">
-    Join [discord.gg/jYsdVRRK2k](https://discord.gg/jYsdVRRK2k) and post in the #bug-reports channel with:
-    - Description of the issue
-    - Steps to reproduce
-    - Expected vs actual behavior
-    - Your collected information
-  </Step>
-  <Step title="Report on GitHub">
-    For extension-specific bugs, open an issue on the relevant [GitHub repository](https://github.com/enconvo):
-    - Include the extension name and version
-    - Attach relevant log snippets
-    - Describe your configuration
-  </Step>
-</Steps>
-
-<Tip>
-The more detail you provide in bug reports, the faster the issue can be diagnosed. Screenshots, log snippets, and exact reproduction steps are extremely helpful.
-</Tip>
-
-## Common Quick Fixes
-
-For reference, here is a summary of the most effective quick fixes:
-
-| Issue | Quick Fix |
-|-------|-----------|
-| Extensions not responding | Menu Bar → Restart Node.js Service |
-| AI not responding | Settings → Key Management → Validate key |
-| Shortcuts not working | System Settings → Accessibility → Toggle EnConvo |
-| PopBar not appearing | System Settings → Accessibility → Enable EnConvo |
-| OCR not working | System Settings → Screen Recording → Enable EnConvo |
-| Dictation failing | Settings → Voice → Try "Microsoft Free" provider |
-| Ollama not connecting | Run `ollama serve` in Terminal |
-| Extension missing | Reinstall from Extension Store |
-| Everything broken | Quit EnConvo → Relaunch |
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Settings Reference" icon="gear" href="/configuration/settings-reference">
-    Review all configurable settings
-  </Card>
-  <Card title="Privacy & Security" icon="shield" href="/configuration/privacy-security">
-    Understand data handling
-  </Card>
-  <Card title="Discord Community" icon="discord" href="https://discord.gg/jYsdVRRK2k">
-    Get help from the community
-  </Card>
-  <Card title="FAQ" icon="circle-question" href="/faq">
-    Frequently asked questions
-  </Card>
-</CardGroup>
+- Ask on [Discord](https://discord.gg/jYsdVRRK2k). Include your Enconvo version (**Settings → About**), your macOS version, what you did, and what happened.
+- Report a problem or suggest a feature with **Feedback** in the menu bar menu.
+- Check the [FAQ](/faq) for quick answers.

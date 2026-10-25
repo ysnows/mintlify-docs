@@ -1,55 +1,76 @@
 ---
 title: "Privacy and Security"
-description: "Understand which data stays local and which services process your requests."
+description: "See where your requests go, what stays on your Mac, and how to control context, credentials, tools, analytics, and diagnostics."
 ---
 
-Enconvo combines local storage, macOS capabilities, and optional online services. Where your data is processed depends on the feature, selected provider, enabled tools, and connected integrations.
+Enconvo stores your data on your Mac and uses online services for the features and providers you choose. Where a request goes depends on the feature, the provider you pick, the tools you turn on, and the integrations you connect. This page shows each flow and the controls for it.
 
-## Where content is processed
+## Where your content goes
 
-| Action | Data involved |
+| Action | What is sent, and where |
 | --- | --- |
-| Cloud AI chat | Prompt, conversation context, and selected attachments sent for model processing |
-| Cloud speech recognition | Captured audio sent to the selected speech service |
-| Cloud text-to-speech | Text sent to the selected voice service |
-| Cloud embeddings or reranking | Document/query content needed for retrieval |
-| Web search or fetch | Search query or URL sent to the selected service or website |
-| Local model inference | Model processing on the Mac after required resources are downloaded |
-| Browser or computer tools | Content and actions available through that tool's granted access |
-| IM channel | Messages exchanged with the connected messaging service and Agent |
+| Cloud AI chat | Your prompt, the conversation context, and the attachments you add, to the model provider |
+| Cloud speech recognition | Captured audio, to the speech service you picked |
+| Cloud text-to-speech | Text, to the voice service you picked |
+| Cloud embeddings or reranking | The document and query content needed for retrieval |
+| Web search or fetch | The search query or URL, to the search service or website |
+| Local model inference | Stays on your Mac: the model runs there once its files are downloaded |
+| Browser or computer tools | Whatever content and actions the tool's granted access allows |
+| IM channel | Messages between the connected messaging service and the Agent |
+| Sync | Your chats, settings, and knowledge bases, to your Enconvo account or your iCloud, once you turn Sync on. API keys leave your Mac only encrypted, once you turn them on. |
 
-Using a local chat model alone does not make every tool offline. A web search, remote MCP tool, cloud transcription provider, or cloud embedding model may still send content over the network.
+A local chat model alone doesn't make every tool offline. A web search, a remote MCP tool, a cloud transcription provider, or a cloud embedding model still sends content over the network.
 
-## Control context
+## Control what you send
 
-Review attachments and context sources before submitting a request. Appshots, screenshots, selected text, clipboard content, and browser pages can contain information beyond the sentence you intend to ask about.
+Look over attachments and context before you send a request. Appshots, screenshots, selected text, clipboard content, and browser pages can hold more than the sentence you mean to ask about.
 
-Use [Context Awareness](/features/context-awareness) to choose sources. Grant [macOS permissions](/configuration/permissions) for the features you use and revoke access through System Settings when no longer needed.
+Choose your context sources in [Context Awareness](/features/context-awareness). Grant [macOS permissions](/configuration/permissions) only for the features you use, and revoke them in System Settings when you no longer need them.
 
 ## Credentials
 
-API keys and account connections are managed through provider Authentication and [Credential Management](/configuration/credentials). Treat local Enconvo configuration, backups, exported settings, and support logs as sensitive. Do not include keys or account tokens in prompts, screenshots, or shared diagnostic files.
+You manage API keys and account sign-ins on each provider's **Authentication** section and in [Credential Management](/configuration/credentials). Treat your local Enconvo configuration, backups, exported settings, and support logs as sensitive, and keep keys and account tokens out of prompts, screenshots, and shared files.
 
-Provider profiles can share credentials across several capabilities. Review all consumers before deleting or replacing a profile. Revoke a compromised key through the provider itself; removing a local profile is not the same as revoking a server-side credential.
+A provider profile can share its credentials across several features. Check every feature that uses a profile before you delete or replace it.
+
+<Warning>
+Removing a key from Enconvo doesn't revoke it. If a key leaks, revoke it on the provider's own site.
+</Warning>
 
 ## Tools and integrations
 
-An Agent can act through enabled tools. Browser control, computer use, shell execution, file edits, Gmail, and external MCP servers have different effects and access. Review the Agent's tools and the proposed action when working with important data.
+An Agent can act through the tools you turn on. Browser control, computer use, shell commands, file edits, Gmail, and external MCP servers each reach different things. Check the Agent's tools, and the action it proposes, when it works with important data.
 
-Extension worker isolation is not a guarantee that an extension cannot access local files or networks. Install tools from sources you trust and review their configuration.
+Running an extension in its own worker doesn't stop it from reaching your local files or the network. Install tools from sources you trust and check their configuration.
 
 ## Local AI clients
 
-[Knowledge Base MCP](/advanced/knowledge-base-mcp) is opt-in and accepts local connections. Its visibility switches control which knowledge bases are exposed. A local client may send retrieved content to its own AI provider; configure that client too.
+[Knowledge Base MCP](/advanced/knowledge-base-mcp) is off until you turn it on, and accepts local connections. Its visibility switches choose which knowledge bases it exposes. A local client may send what it retrieves to its own AI provider, so set up that client with care too.
 
-## Usage analytics and diagnostics
+## Analytics and diagnostics
 
-Enconvo records product usage events. The analytics identity is a device client identifier; analytics events are designed not to include email addresses, conversation text, or media payloads. Diagnostic logs are a separate surface and can include operational details needed to explain failures.
+Enconvo records product usage events under a device ID, not your account. The events are designed to leave out email addresses, conversation text, and media. To stop sharing them, turn off **Share anonymous product analytics** under **Privacy** in **Settings → General**. Crash and freeze reports are sent only while that switch is on, and carry none of your content.
 
-When sharing a report, inspect it first and remove private prompts, paths, keys, account information, and document contents that are not needed to diagnose the problem.
+Diagnostic logs are separate from analytics. When Enconvo freezes, crashes, or misbehaves, send them to the Enconvo team with **Submit Diagnostics…** in the menu bar menu, or from **Settings → Diagnostics**:
+
+- Before anything leaves your Mac, Enconvo takes out personal details, such as your home folder's name, file names, email addresses, API keys, tokens, links, IP addresses, and the text of prompts and replies.
+- A report carries a random ID made only for diagnostics, not your account or email. Only the Enconvo team can read it, and it's deleted after a set number of days.
+- Logs can still name the apps, commands, and models you used.
+- The page shows exactly what was sent, and lets you withdraw or delete each report.
+
+When you share a log or screenshot some other way, look it over first and remove private prompts, paths, keys, account details, and document contents that aren't needed.
 
 ## Keep or remove local data
 
-Use each feature's own history, knowledge-base, recording, and credential controls to manage its data. Read deletion confirmations and keep backups of anything you need. Removing the app does not necessarily remove its configuration and data, and removing local data does not delete copies already processed by an external service.
+Each feature manages its own data: chat history, knowledge bases, recordings, and credentials each have their own controls. Read deletion confirmations, and keep backups of anything you need.
 
-For provider retention and account policies, consult the provider you selected. This guide describes Enconvo's data flows; it does not replace those providers' policies.
+Removing the app doesn't always remove its configuration and data. Removing local data doesn't delete copies an external service already processed. For a provider's retention and account policies, see that provider: this page covers Enconvo's data flows, not theirs.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="macOS Permissions" icon="shield" href="/configuration/permissions">What each permission lets Enconvo do.</Card>
+  <Card title="Credentials" icon="key" href="/configuration/credentials">API keys, sign-ins, and shared profiles.</Card>
+  <Card title="Context Awareness" icon="eye" href="/features/context-awareness">Choose what context goes with a request.</Card>
+  <Card title="Enconvo Account" icon="user" href="/configuration/account">Sync, and what it keeps on your computers.</Card>
+</CardGroup>

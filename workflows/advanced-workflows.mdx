@@ -1,25 +1,21 @@
 ---
 title: "Advanced Workflows"
-description: "Branching, loops, output contracts, subworkflows, per-task models, and complete example workflows"
+description: "Branch, loop, retry, get structured results, switch models per step, and compose workflows, with complete examples to copy."
 ---
 
-## Overview
+Use these features when a straight list of steps isn't enough: run a step only when a condition holds, repeat a step over a list, keep a run going when one step fails, get structured results, and call one workflow from another. Complete example workflows are at the end. If you're new to the `agent-workflow/v1` format, start with [Creating Workflows](/workflows/creating-workflows).
 
-This page covers the control-flow and reliability features of the
-`agent-workflow/v1` DSL, plus complete examples. Shell paths and tool/provider availability must match your Mac before running them. If
-you're new to the DSL, start with [Creating Workflows](/workflows/creating-workflows).
+Shell paths and tool or provider availability must match your Mac before you run these examples.
 
-In the Visual editor you don't need to write these by hand: the step inspector's
-[Behavior](/workflows/creating-workflows#step-behavior) section sets `if`,
-`else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs`, and the
-output schema from plain-language choices.
+<Tip>
+In the Visual editor you don't need to write these by hand: the step inspector's [Behavior](/workflows/creating-workflows#step-behavior) section sets `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs`, and the output schema from plain-language choices.
+</Tip>
 
 ## Branching
 
-### `if` — conditional tasks
+### Run a step only if a condition is true (`if`)
 
-Attach `if:` to run a task only when a condition is true. When the condition is
-false, the task **and everything downstream of it** cascade-skip:
+Attach `if:` to run a step only when a condition is true. When the condition is false, the step and everything downstream of it skip:
 
 ```yaml
 jobs:
@@ -30,14 +26,11 @@ jobs:
       command: ./deploy.sh
 ```
 
-Conditions are template expressions evaluated for truthiness — for example
-`inputs.score >= 60`, `steps.check.output.exitCode == 0`, or a plain boolean
-input.
+Conditions are template expressions evaluated for truthiness, for example `inputs.score >= 60`, `steps.check.output.exitCode == 0`, or a plain boolean input.
 
-### `else_of` — the else branch
+### Run the other branch (`else_of`)
 
-`else_of:` runs a task only when the referenced task was condition-skipped. It's
-the "else" side of an `if`:
+`else_of:` runs a step only when the step it names was skipped by its condition. It's the "else" side of an `if`:
 
 ```yaml
 jobs:
@@ -51,12 +44,9 @@ jobs:
       command: osascript -e 'display notification "deploy skipped"'
 ```
 
-### `run_when: always` — join and cleanup
+### Join and clean up (`run_when: always`)
 
-A task with `needs` normally skips if any dependency skipped, and the run stops
-if a required dependency fails. `run_when: always` overrides both — the task runs
-as long as its dependencies have finished, whether they succeeded, skipped, or
-failed. Use it for joins and cleanup:
+A step with `needs` normally skips if any dependency skipped, and the run stops if a required dependency fails. `run_when: always` overrides both: the step runs as long as its dependencies have finished, whether they succeeded, skipped, or failed. Use it for joins and cleanup:
 
 ```yaml
 jobs:
@@ -72,13 +62,14 @@ jobs:
       value: Build finished; inspect its status in Runs.
 ```
 
-### `enabled: false` — turn a step off
+### Turn a step off (`enabled: false`)
 
-`enabled: false` keeps a step in the workflow but skips it on every run. Unlike
-a skipped condition, a step that is off does not skip what comes after it: its
-dependents still run, and anything that reads its output gets an empty value.
-Its `else_of` step skips too. Remove the key (or set it to `true`) to turn the
-step back on. In the editor, use **Turn off step** in the inspector.
+`enabled: false` keeps a step in the workflow but skips it on every run. Unlike a skipped condition, a step that is off doesn't skip what comes after it:
+
+- Its dependents still run, and anything that reads its output gets an empty value.
+- Its `else_of` step skips too.
+
+Remove the key (or set it to `true`) to turn the step back on. In the editor, use **Turn off step** in the inspector.
 
 ```yaml
 jobs:
@@ -95,11 +86,9 @@ jobs:
 
 ## Loops
 
-### `foreach` — fan out over a list
+### Repeat for each item in a list (`foreach`)
 
-`foreach:` runs the task once per item. Inside, `{{ item }}` is the current
-element and `{{ index }}` is its position. Downstream tasks receive the collected
-array of outputs:
+`foreach:` runs the step once per item. Inside, `{{ item }}` is the current element and `{{ index }}` is its position. Downstream steps receive the collected array of outputs:
 
 ```yaml
 inputs:
@@ -121,16 +110,11 @@ jobs:
         {% endfor %}'
 ```
 
-`foreach` also accepts an inline array, and it composes with the other executors
-(a `foreach` of `tool:` calls, of subworkflows, and so on). An empty list
-produces an empty result and downstream tasks still run.
+`foreach` also accepts an inline array, and it works with every kind of step: a `foreach` of `tool:` calls, of subworkflows, and so on. An empty list produces an empty result, and downstream steps still run.
 
-### `loop` — repeat until a condition holds
+### Repeat until a condition holds (`loop`)
 
-`loop:` repeats a task. `until:` is checked after each round against `output`
-(that round's result); `{{ round }}` is the round number and `{{ last }}` is the
-previous round's output. Exhausting `maxRounds` without satisfying `until` fails
-the task.
+`loop:` repeats a step. `until:` is checked after each round against `output`, that round's result. `{{ round }}` is the round number and `{{ last }}` is the previous round's output. If `maxRounds` runs out before `until` is met, the step fails.
 
 ```yaml
 jobs:
@@ -143,7 +127,7 @@ jobs:
         maxRounds: 10
 ```
 
-Omit `until` to loop a fixed number of times:
+Leave out `until` to loop a fixed number of times:
 
 ```yaml
 jobs:
@@ -157,11 +141,11 @@ jobs:
 
 ## Reliability
 
-- **`retries`** — retry a failed task. Either a count (`retries: 2`) or an object
-  (`retries: { maxAttempts: 3, delayMs: 500 }`).
-- **`required: false`** — a failure of this task does **not** abort the run;
-  downstream tasks continue.
-- **`timeoutMs`** — kill a shell task that runs too long.
+| Field | What it does |
+| --- | --- |
+| `retries` | Retries a failed step. Use a count (`retries: 2`) or an object (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | A failure of this step doesn't abort the run; downstream steps continue. |
+| `timeoutMs` | Stops a shell step that runs too long. |
 
 ```yaml
 jobs:
@@ -181,11 +165,7 @@ jobs:
 
 ## Output contracts
 
-Attach an `output_schema` (a JSON Schema object) to a `prompt` or `agent` task to
-enforce the shape of the reply. You do **not** need to describe the JSON format in
-the prompt text — the requested shape is provided to the generation step, and the reply is parsed
-and validated before downstream steps use it. Configure `retries` to retry a
-failed step; a reply that still fails validation fails the step.
+Attach an `output_schema` (a JSON Schema object) to a `prompt` or `agent` step to enforce the shape of the reply. You don't need to describe the JSON format in the prompt text: the requested shape is given to the model, and the reply is parsed and validated before downstream steps use it. Set `retries` to retry a failed step; a reply that still fails validation fails the step.
 
 ```yaml
 jobs:
@@ -211,31 +191,19 @@ jobs:
       value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
 ```
 
-## Per-task model overrides
+## Per-step model overrides
 
-`prompt` and `agent` tasks accept optional `provider:` and `model:` to switch the
-LLM for that task only. This is a **run-scoped** override — your saved model
-configuration is untouched. Use a cheap model for bulk steps and a stronger one
-where it matters:
+`prompt` and `agent` steps accept optional `provider:` and `model:` to switch the model for that step only. The switch lasts for the run; your saved model configuration is untouched. Use a cheap model for bulk steps and a stronger one where it matters.
 
-Set `provider` to the installed provider command name and `model` to a model ID
-shown by that provider in your current build. For example, copy both values from
-your working provider configuration into the prompt step. Model availability
-and permissions are account-specific; the examples on this page use your
-configured default model.
-
+Set `provider` to the installed provider command name and `model` to a model ID shown by that provider in your current build. For example, copy both values from your working provider configuration into the prompt step. Model availability and permissions are account-specific; the examples on this page use your configured default model.
 
 <Note>
-`provider` is a provider command (e.g. `enconvo_ai`, `open_ai`, `ollama`) and
-`model` is a model id for that provider. Both are only valid on `prompt`/`agent`
-tasks.
+`provider` is a provider command (for example `enconvo_ai`, `open_ai`, or `ollama`) and `model` is a model ID for that provider. Both are valid only on `prompt` and `agent` steps.
 </Note>
 
 ## Subworkflows
 
-Compose workflows with `uses: workflow`, either by `workflowId:` (a saved
-workflow) or an inline `workflow:` block. The task's output is the child run
-result — reference the child's task outputs via `output.outputs['job.step']`:
+Compose workflows with `uses: workflow`, either by `workflowId:` (a saved workflow) or with an inline `workflow:` block. The step's output is the child run result. Reference the child's step outputs with `output.outputs['job.step']`:
 
 ```yaml
 jobs:
@@ -266,23 +234,21 @@ jobs:
 
 | Reference | Where |
 |---|---|
-| `{{ inputs.x }}` | Anywhere — workflow inputs |
-| `{{ steps.<id>.output }}` | Anywhere — a previous step in the same job |
+| `{{ inputs.x }}` | Anywhere: workflow inputs |
+| `{{ steps.<id>.output }}` | Anywhere: a previous step in the same job |
 | `{{ jobs.<job>.<step>.output }}` | A completed step in a dependency job |
-| `{{ item }}` / `{{ index }}` | Inside a `foreach` task |
-| `{{ round }}` / `{{ last }}` | Inside a `loop` task |
+| `{{ item }}` / `{{ index }}` | Inside a `foreach` step |
+| `{{ round }}` / `{{ last }}` | Inside a `loop` step |
 | `{{ now }}` | Current timestamp |
 | `{{ env.HOME }}` | Process environment variables |
 
-Templates support Nunjucks filters (`| trim`, `| int`, `| dump`, `| default(...)`,
-`{% for %}`, etc.), which is how you reshape data between tasks.
+Templates support Nunjucks filters (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}`, and others), which is how you reshape data between steps.
 
 ## Complete examples
 
-### Research → summarize → report
+### Research, summarize, and report
 
-Search the web, summarize the findings, and assemble a Markdown report. Note the
-sequential steps within one job — no `needs` wiring required:
+Search the web, summarize the findings, and assemble a Markdown report. The steps run in order within one job, so no `needs` wiring is required:
 
 ```yaml
 version: agent-workflow/v1
@@ -386,10 +352,10 @@ jobs:
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Creating workflows" icon="pen-to-square" href="/workflows/creating-workflows">
-    The editor, the editing assistant, and each executor.
+  <Card title="Creating Workflows" icon="pen-to-square" href="/workflows/creating-workflows">
+    The editor, the editing assistant, and every step type.
   </Card>
-  <Card title="Introduction" icon="book-open" href="/workflows/introduction">
-    The task model and how workflows are run.
+  <Card title="Workflows" icon="book-open" href="/workflows/introduction">
+    Jobs, steps, and how workflows are run.
   </Card>
 </CardGroup>

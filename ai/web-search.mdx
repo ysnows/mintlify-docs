@@ -1,18 +1,37 @@
 ---
 title: "Web Search"
-description: "Find current sources and use them in an Agent response."
+description: "Let your Agent search the web for current information and cite its sources."
 ---
 
-Web Search supplies current search results to Enconvo. Configure it independently from the model that writes the answer.
+Web Search gives your Agents current results from the web. Every Agent can search; you choose the search service it uses, separately from the model that writes the answer.
+
+## Choose a search provider
+
+1. Open **Settings → Web Search**.
+2. Pick a provider. The Enconvo Cloud options need no API key; for most others, add your key for that service.
+3. Click **Set as Default**.
+
+| Provider | Notes |
+| --- | --- |
+| **Enconvo Cloud** | No API key needed |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search through Enconvo Cloud, no API key needed |
+| **Gemini** | Grounding with Google Search through a Gemini model |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Search with your own key for that service |
+| **DeepSeek** | DeepSeek Search with your DeepSeek API key |
+| **xAI X Search** | Searches X posts, profiles, and threads, with an xAI API key or xAI sign-in |
+| **xAI X Search (Enconvo Cloud)** | X search through the Enconvo Cloud Plan |
+
+See [Provider Catalog](/providers/catalog#web-search) for the full list. Some models also have built-in grounding or search options in their own provider settings.
 
 ## Search with an Agent
 
-1. Open **Settings → Global Providers Settings → Web Search** and configure a provider.
-2. Enable the needed search tool for your Agent.
-3. Ask a specific question, including a date range or geography when relevant.
-4. Open the cited sources and check that they support the answer.
+1. Ask a specific question. Include a date range or a place when it matters.
+2. The Agent searches and answers with links to its sources.
+3. Open the cited sources and check that they support the answer.
 
-Example: “Find the official release notes for this library's latest stable version and summarize breaking changes with links.”
+Try:
+
+> Find the official release notes for this library's latest stable version and summarize breaking changes with links.
 
 ## Choose the right web capability
 
@@ -21,11 +40,27 @@ Example: “Find the official release notes for this library's latest stable ver
 | Discover relevant sources | Web Search |
 | Read a known URL | [Web Fetch](/ai/web-fetch) |
 | Open results in your browser | [Quick Links](/features/quick-links) |
-| Interact with a signed-in website | [Browser Control](/features/browser-control) |
-| Search X posts/profiles/threads | xAI X Search provider with supported access |
-
-See [Provider Catalog](/providers/catalog#web-search) for available search services. Some models also expose built-in grounding/search options in their own provider settings.
+| Interact with a signed-in website | [Browser Use](/features/browser-control) |
+| Search X posts, profiles, or threads | **xAI X Search** provider |
 
 ## Troubleshooting
 
-If sources are missing, check that the Agent actually used search rather than answering from the model alone. For provider errors, verify the selected search credential and account allowance. For a result behind a login or an interactive page, use a supported browser flow; fetching a public URL does not grant authenticated access.
+| Problem | What to do |
+| --- | --- |
+| The answer has no sources | Check that the Agent searched instead of answering from the model alone. Ask it to search the web. |
+| The provider reports an error | Check the provider's credential and your account's allowance with that service. |
+| The result is behind a login or on an interactive page | Use a supported browser flow such as [Browser Use](/features/browser-control). Fetching a public URL doesn't give access to your signed-in session. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Web Fetch" icon="link" href="/ai/web-fetch">
+    Read a page you already have the URL for.
+  </Card>
+  <Card title="Browser Use" icon="globe" href="/features/browser-control">
+    Work with signed-in and interactive websites.
+  </Card>
+  <Card title="Provider Catalog" icon="list" href="/providers/catalog#web-search">
+    Every web search provider Enconvo supports.
+  </Card>
+</CardGroup>

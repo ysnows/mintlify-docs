@@ -1,30 +1,39 @@
 ---
 title: "SmartBar"
-description: "Ask, launch commands, and attach context from anywhere on your Mac."
+description: "Ask an Agent a question or run a command from any app with one shortcut."
 ---
 
-SmartBar is a compact launcher for conversations and commands. Open it with your configured shortcut, commonly **Shift + Command + D**.
+SmartBar is a launcher you open from any app to ask an Agent a question or run a command. Press **⇧⌘D**, type, and press Return. Reach for it when you want a quick answer and then get back to what you were doing.
 
-## Make a request
+For other jobs, use the [Chat Window](/ai/chat) for long conversations and files, the [App Sidebar](/features/app-sidebar) to work beside one app, [PopBar](/features/popbar) to act on selected text, or the [Dynamic Island](/features/dynamic-island) and [Desktop Pet](/features/pet) for a small entry point that stays on screen. [Window Management](/features/window-management) compares them all.
 
-1. Open SmartBar and type a question.
-2. Select an Agent or model when needed.
-3. Attach the relevant context rather than assuming the Agent sees every open app.
-4. Submit and follow the response or tool progress.
-5. Copy the result or continue the conversation.
+## Ask a question
 
-## Commands, context, and recent tasks
+1. Press **⇧⌘D**, or the hotkey you set in **Settings → SmartBar**.
+2. Type your question. Pick another Agent or model first if you need one.
+3. Attach the context the Agent needs. It doesn't see every open app; see [Add context](#add-context).
+4. Press Return and follow the answer or the tool progress.
+5. Copy the result, or type a follow-up to continue the conversation.
 
-The trigger characters are configurable under **Settings → Primary Function Area → SmartBar**. The default fields are:
+## Search with trigger characters
 
-| Input | Purpose |
+Type one of these characters in SmartBar to search one kind of item:
+
+| Type | To |
 | --- | --- |
 | `@` | Search commands |
-| `#` | Pick context sources |
-| `>` | Find recent tasks |
-| `/` | Open actions such as model and reasoning selection |
+| `#` | Add context |
+| `$` | Use a skill |
+| `>` | Show recent tasks |
+| `/` | Open actions, such as model and reasoning selection |
 
-Choose from the picker rather than typing an assumed tool identifier. Installed commands and available contexts can vary. See [Writing Toolkit](/features/writing-tools), [Quick Links](/features/quick-links), and [Context Awareness](/features/context-awareness).
+You can change the first four under **Search** in **Settings → SmartBar**. `/` can't be changed.
+
+Pick items from the list that opens instead of typing a name from memory: the list shows the commands and context sources you actually have. See [Writing Toolkit](/features/writing-tools), [Quick Links](/features/quick-links), and [Context Awareness](/features/context-awareness).
+
+## Add context
+
+SmartBar can pick up the selected text, the Finder selection, and the current browser page when it opens. Choose **Attach**, **Suggest**, or **Off** for each one in **Settings → Context Awareness**. To add anything else, type `#` and pick a source.
 
 ## Choose a layout
 
@@ -32,26 +41,53 @@ Choose from the picker rather than typing an assumed tool identifier. Installed 
   <img src="/images/guides/smartbar-layout.jpg" alt="Input Only, Input and Toolbar, and Full Panel SmartBar layout choices" />
 </Frame>
 
-| Layout | Initial appearance |
+**Layout** in **Settings → SmartBar** sets what you see when SmartBar opens:
+
+| Layout | What opens |
 | --- | --- |
-| Input Only | Just the input field |
-| Input and Toolbar | Input, quick actions, model picker, and voice controls |
-| Full Panel | Also show the command list when opened |
+| **Input Only** | Just the input field |
+| **Input and Toolbar** | The input, plus quick actions, the model picker, and voice controls |
+| **Full Panel** | All of that, plus the list below the input |
 
-These settings control how SmartBar opens. Command lists and results still appear when you type or run a command.
+With **Full Panel**, **Initial State View** sets what the list shows before you type: **Recommended Prompts** or **Command List**. In every layout, the list and results still appear once you type or run a command.
 
-## Useful settings
+## Settings
 
-Choose the **Default Agent**, initial state, context behavior, navigation bindings, and conversation-clearing behavior on the SmartBar settings page. **Shake to Dynamic Island** lets you hand off the floating interaction using the supported gesture when enabled.
+Open **Settings → SmartBar**.
 
-Per-chat model and reasoning behavior is described in [Model Selection](/ai/model-selection-guide). Changing a default is not the same as changing every existing chat.
+| Setting | What it changes |
+| --- | --- |
+| **Hotkey** | Opens and closes SmartBar from any app. The default is **⇧⌘D**. |
+| **Default Agent** | The Agent that answers what you type. |
+| **Auto Clear Conversation** | Starts a new conversation when SmartBar opens after being closed this long, from **Never** to **Every time it opens**. |
+| **Layout** | What you see when SmartBar opens (see above). |
+| **Appearance** | Light or dark glass for SmartBar and the App Sidebar, or **Follow App**. |
+| **Auto-switch Input Source** | Switches to this input source while you type in SmartBar, and back when it closes. |
+| **Navigation Bindings** | Control-key shortcuts for moving through lists and text: **macOS** (⌃N ⌃P ⌃F ⌃B) or **Vim** (⌃J ⌃K ⌃L ⌃H). |
+| **Search** | The trigger characters for commands, context, skills, and recent tasks. |
+
+Changing a default doesn't change every existing chat. [Model Selection](/ai/model-selection-guide) explains how each chat keeps its own model and reasoning choice.
 
 ## Voice and calculations
 
-Use the microphone for [Dictation](/features/dictation). Use Live Talk for [Live Voice](/features/live-voice); current builds hand SmartBar calls to the Dynamic Island.
+Click the microphone to speak your question with [Dictation](/features/dictation). For a spoken back-and-forth, start [Live Talk](/features/live-voice); a call you start from SmartBar moves to the Dynamic Island.
 
-Type a simple arithmetic expression such as `2+3*4` to use the calculator result. Check the displayed result and action before copying it.
+Type an arithmetic expression, such as `2+3*4`, and SmartBar shows the result. Check the result and the action it offers before you copy it.
 
 ## Troubleshooting
 
-If SmartBar does not open, check its hotkey and competing shortcuts. If an app or selected text is missing from context, check [Permissions](/configuration/permissions). If results fail, inspect the selected provider and the reported error. See [Updates](/configuration/updates) when a documented control is missing from your build.
+| Problem | What to do |
+| --- | --- |
+| SmartBar doesn't open | Check **Hotkey** in **Settings → SmartBar**, and look for another app that uses the same shortcut. |
+| An app or the selected text is missing from the context | Check [Permissions](/configuration/permissions) and **Settings → Context Awareness**. |
+| A request fails | Check the selected provider and read the error it reports. |
+| A control on this page is missing | Your build may be older than this guide. See [Updates](/configuration/updates). |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Chat Window" icon="comments" href="/ai/chat">Longer conversations with history, projects, and files.</Card>
+  <Card title="Dynamic Island" icon="window-maximize" href="/features/dynamic-island">A compact input at the top of your screen.</Card>
+  <Card title="Context Awareness" icon="layer-group" href="/features/context-awareness">Choose what context Enconvo picks up.</Card>
+  <Card title="Keyboard Shortcuts" icon="keyboard" href="/configuration/keyboard-shortcuts">Change the shortcuts that open each window.</Card>
+</CardGroup>

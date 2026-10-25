@@ -1,7 +1,9 @@
 ---
 title: "AI Model and Voice Plugins"
-description: "Add your own AI model or text-to-speech provider to Enconvo's pickers with a plugin."
+description: "Build a plugin that adds your own AI model or text-to-speech voice to Enconvo's pickers, then test and publish it."
 ---
+
+This guide is for developers who want a model or voice service of their own in Enconvo. You build a provider plugin, see it in the model picker and the voice list, and publish it.
 
 A provider plugin adds a service Enconvo already has a picker for. Once it is installed, its AI model shows up in the model picker next to OpenAI, Anthropic and the rest, and its voice shows up in the text-to-speech voice list. Chats, agents, read-aloud and workflows then use it exactly like a built-in provider.
 
@@ -346,9 +348,9 @@ npm run dev
 
 `npm run dev` builds the plugin into Enconvo and rebuilds it whenever you save.
 
-1. Open the plugin's page in Enconvo's Settings and enter the API key.
+1. Open **Settings → Plugins**, open **Acme AI**, and enter the API key in its settings.
 2. Open the model picker in a chat. Acme AI is listed with the other providers; pick a model and send a message. The reply streams in as your `_stream` yields it.
-3. In the text-to-speech settings, pick Acme AI Voice and play a voice preview, or select some text and read it aloud.
+3. In **Settings → Text-to-Speech**, pick **Acme AI Voice** and play a voice preview, or select some text and read it aloud.
 
 If something fails, the error your provider throws is shown in the chat or the preview, so put the API's status and message in it, as the examples do.
 
@@ -362,3 +364,14 @@ npx enconvo plugin publish -m "First release"
 <Tip>
 The **Plugin Development Guide** plugin in Enconvo's plugin store carries this guide as a skill, so an agent in Enconvo can help you build a provider plugin.
 </Tip>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Developing Extensions" icon="code" href="/extensions/developing">
+    Set up, build and publish any plugin
+  </Card>
+  <Card title="Extension API Reference" icon="book" href="/extensions/extension-api-reference">
+    `LLMProvider`, `TTSProvider` and the rest of the SDK
+  </Card>
+</CardGroup>

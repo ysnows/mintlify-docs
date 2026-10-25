@@ -1,7 +1,9 @@
 ---
 title: "Validation Codes"
-description: "What each problem `enconvo plugin validate`, `scan`, `pack` and `publish` report means, how severe it is, and how to fix it."
+description: "Look up a problem that `enconvo plugin validate`, `scan`, `pack` or `publish` reports: what it means, how severe it is, and how to fix it."
 ---
+
+This reference is for plugin developers who got a code from `plugin validate`, `plugin scan`, `plugin pack` or `plugin publish`. Search the page for the code, or use [Find a code](#find-a-code) to go to its section.
 
 `plugin validate` checks a plugin folder or `.zip`, or a [marketplace](#marketplaces) and the plugins in it, without uploading anything. `plugin pack` and `plugin publish` run the same checks first. Each problem has a code; OpenAI's plugin portal uses the same codes for the rules it shares with Enconvo.
 
@@ -20,6 +22,17 @@ error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md de
 ```
 
 `validate` exits with status 1 when there is an error, so you can run it in CI.
+
+## Find a code
+
+| You're checking | Sections |
+|---|---|
+| How severe a finding is | [Severity](#severity) |
+| The manifest and its listing | [Text fields](#text-fields), [Addresses and colors](#addresses-and-colors), [Manifests](#manifests), [Images and other files](#images-and-other-files), [Enconvo manifest fields](#enconvo-manifest-fields) |
+| A plugin's parts | [Skills](#skills), [Claude Code agents and commands](#claude-code-agents-and-commands), [Claude Code settings and channels](#claude-code-settings-and-channels), [MCP servers and apps](#mcp-servers-and-apps), [Hooks](#hooks), [Claude Code components](#claude-code-components) |
+| The package and its catalog | [Archives](#archives), [Marketplaces](#marketplaces), [Packing and publishing](#packing-and-publishing), [Updates](#updates) |
+| Store review and OpenAI's portal | [Review materials](#review-materials), [OpenAI's final submission](#openais-final-submission), [Codes only OpenAI's portal reports](#codes-only-openais-portal-reports) |
+| What `plugin scan` reports | [MCP server scan](#mcp-server-scan), [Domain verification](#domain-verification) |
 
 ## Severity
 
@@ -147,6 +160,21 @@ These apply to the listing's images (`logo`, `composerIcon`, `logoDark`, `compos
 | `svg_dimensions_not_square`, `svg_dimensions_too_small` | portal | The SVG has to be square and at least 48 pixels. |
 | `raster_image_decode_failed`, `raster_image_extension_content_mismatch` | portal | The image can't be read, or its contents don't match its extension. |
 | `raster_image_not_square`, `raster_image_dimensions_too_small`, `raster_image_dimensions_too_large` | portal | The image has to be square, from 48 to 4,096 pixels. |
+
+## Enconvo manifest fields
+
+These check an Enconvo plugin's `package.json`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_name_format` | error | `name` uses only letters, digits, dots, dashes and underscores. |
+| `plugin_version_not_semver`, `plugin_min_app_version_not_semver` | error | `version` or `minAppVersion` isn't a version number like `1.2.0`. |
+| `plugin_title_missing` | error | `title` isn't set. |
+| `plugin_description_missing` | warning | `description` isn't set. |
+| `screenshots_too_many` | error | More than 8 images in `metadata/`. |
+| `screenshot_file_ignored` | warning | A file in `metadata/` isn't an image and is left out. |
+| `image_file_unreadable` | error | You don't have permission to read `metadata/` or an image in it. |
+| `store_link_not_https` | warning | A link in `interface` (`websiteURL`, `supportURL`, `privacyPolicyURL`, `termsOfServiceURL`) isn't an `https://` address without a user name or password, of up to 2,048 characters, so the store page leaves it out. |
 
 ## Skills
 
@@ -371,18 +399,40 @@ When you validate a `.zip`, these are errors. When you validate a folder, `valid
 | `marketplace_plugin_manifest_missing` (warning) | A Codex marketplace plugin without `.codex-plugin/plugin.json`. |
 | `marketplace_policy_missing`, `marketplace_policy_invalid`, `marketplace_category_missing` | A Codex entry needs `policy.installation` (`AVAILABLE`, `INSTALLED_BY_DEFAULT` or `NOT_AVAILABLE`), `policy.authentication` (`ON_INSTALL` or `ON_USE`) and a `category`. A missing one is a warning; a wrong value is an error. |
 
-## Enconvo `package.json`
+## Packing and publishing
 
 | Code | Severity | Meaning |
 |---|---|---|
-| `plugin_name_format` | error | `name` uses only letters, digits, dots, dashes and underscores. |
-| `plugin_version_not_semver`, `plugin_min_app_version_not_semver` | error | `version` or `minAppVersion` isn't a version number like `1.2.0`. |
-| `plugin_title_missing` | error | `title` isn't set. |
-| `plugin_description_missing` | warning | `description` isn't set. |
-| `screenshots_too_many` | error | More than 8 images in `metadata/`. |
-| `screenshot_file_ignored` | warning | A file in `metadata/` isn't an image and is left out. |
-| `image_file_unreadable` | error | You don't have permission to read `metadata/` or an image in it. |
-| `store_link_not_https` | warning | A link in `interface` (`websiteURL`, `supportURL`, `privacyPolicyURL`, `termsOfServiceURL`) isn't an `https://` address without a user name or password, of up to 2,048 characters, so the store page leaves it out. |
+| `plugin_path_missing` | error | The folder doesn't exist. |
+| `plugin_build_missing` | error | Build the Enconvo plugin first (`npm run build`). |
+| `plugin_format_not_packable` | error | A desktop extension is packed with `npx @anthropic-ai/mcpb pack`. |
+| `plugin_format_not_publishable` | error | The store takes Enconvo, Codex, Claude Code and portable plugins; share a desktop extension's `.mcpb` file instead. |
+| `plugin_version_missing` | error | The store needs a version. |
+| `plugin_package_too_large` | error | The package is over 50 MB. |
+| `plugin_readme_too_large` | warning | The README is over 64 KB, so the store page leaves it out. |
+| `store_icon_missing` | warning | The plugin has no icon the store can show (PNG, JPEG, WebP or GIF up to 5 MB) in `interface.logo` or the other `interface` logos, or in a Claude Code plugin's `icon`, so it shows a default icon. |
+
+## Updates
+
+An update replaces the whole plugin, on OpenAI's portal as in Enconvo and Codex. To check a new version as an update, give `validate` or `pack` the release before it, as a `.zip` or a folder: the zip `plugin pack` made, or the one OpenAI's portal gives you with **Download release ZIP** in the published version's **…** menu.
+
+```sh
+npx -p @enconvo/api enconvo plugin validate --openai --previous my-plugin-1.0.0.zip
+npx -p @enconvo/api enconvo plugin pack --openai --previous my-plugin-1.0.0.zip
+```
+
+Only what changed counts; the previous release's own problems aren't reported. `validate --json` lists the skills and MCP servers it compares under `components`.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `plugin_previous_unreadable` | error | The previous release isn't there, or it isn't a plugin; the message gives its first error. |
+| `plugin_name_mismatch` | portal | The plugin's `name` changed. OpenAI's portal takes an update only under the published plugin's name, and Enconvo and Codex install a renamed plugin as another plugin. |
+| `plugin_version_unchanged` | warning, also with `--openai` | The `version` is the previous release's. OpenAI's portal asks you to confirm before it reuses a published version, and Enconvo's store doesn't take one. |
+| `plugin_id_changed` | warning | The previous release has an `id` (`extensions["com.openai"].id`, or `id` in `.codex-plugin/plugin.json`) and this version has another one or none. Managed plugin catalogs know the plugin by the id they gave it, so keep it. OpenAI's portal keeps its own identity for an uploaded ZIP. |
+| `plugin_version_not_higher` | warning | The version is lower than the previous release's, or differs from it only in build metadata (`1.0.0+2`). Enconvo's store takes only a higher version. Checked when both are version numbers like `1.2.0`. |
+| `mcp_server_added_to_skills_plugin` | portal | The previous release has no MCP server and this version adds one. OpenAI's portal takes an MCP server only in a plugin's first ZIP. Checked for a plugin with a `plugin.json`; Enconvo's store takes the change. |
+| `mcp_server_url_changed` | portal | A remote MCP server's URL changed. OpenAI's update flow can't move a published server: ask OpenAI's support to change it, or keep the old URL. A URL with a variable, such as `${MCP_URL}`, isn't compared. Checked for a plugin with a `plugin.json`. |
+| `plugin_components_removed` | warning | This version leaves out skills or MCP servers the previous release has, so the update removes them for everyone who installed it. |
 
 ## Review materials
 
@@ -428,28 +478,6 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 | `screenshot_dimensions_unsupported` | warning, only with `--openai` | A screenshot isn't exactly 706 pixels wide and 400 to 860 pixels tall. |
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded` and, from `plugin scan --openai`, `screenshots_not_allowed`.
-
-## Updates
-
-An update replaces the whole plugin, on OpenAI's portal as in Enconvo and Codex. To check a new version as an update, give `validate` or `pack` the release before it, as a `.zip` or a folder: the zip `plugin pack` made, or the one OpenAI's portal gives you with **Download release ZIP** in the published version's **…** menu.
-
-```sh
-npx -p @enconvo/api enconvo plugin validate --openai --previous my-plugin-1.0.0.zip
-npx -p @enconvo/api enconvo plugin pack --openai --previous my-plugin-1.0.0.zip
-```
-
-Only what changed counts; the previous release's own problems aren't reported. `validate --json` lists the skills and MCP servers it compares under `components`.
-
-| Code | Severity | Meaning |
-|---|---|---|
-| `plugin_previous_unreadable` | error | The previous release isn't there, or it isn't a plugin; the message gives its first error. |
-| `plugin_name_mismatch` | portal | The plugin's `name` changed. OpenAI's portal takes an update only under the published plugin's name, and Enconvo and Codex install a renamed plugin as another plugin. |
-| `plugin_version_unchanged` | warning, also with `--openai` | The `version` is the previous release's. OpenAI's portal asks you to confirm before it reuses a published version, and Enconvo's store doesn't take one. |
-| `plugin_id_changed` | warning | The previous release has an `id` (`extensions["com.openai"].id`, or `id` in `.codex-plugin/plugin.json`) and this version has another one or none. Managed plugin catalogs know the plugin by the id they gave it, so keep it. OpenAI's portal keeps its own identity for an uploaded ZIP. |
-| `plugin_version_not_higher` | warning | The version is lower than the previous release's, or differs from it only in build metadata (`1.0.0+2`). Enconvo's store takes only a higher version. Checked when both are version numbers like `1.2.0`. |
-| `mcp_server_added_to_skills_plugin` | portal | The previous release has no MCP server and this version adds one. OpenAI's portal takes an MCP server only in a plugin's first ZIP. Checked for a plugin with a `plugin.json`; Enconvo's store takes the change. |
-| `mcp_server_url_changed` | portal | A remote MCP server's URL changed. OpenAI's update flow can't move a published server: ask OpenAI's support to change it, or keep the old URL. A URL with a variable, such as `${MCP_URL}`, isn't compared. Checked for a plugin with a `plugin.json`. |
-| `plugin_components_removed` | warning | This version leaves out skills or MCP servers the previous release has, so the update removes them for everyone who installed it. |
 
 ## Codes only OpenAI's portal reports
 
@@ -535,16 +563,3 @@ domain verification:
 ```
 
 One URL that serves the token is enough. `scan` exits with status 1 when none does (`domain_challenge_mismatch`).
-
-## Packing and publishing
-
-| Code | Severity | Meaning |
-|---|---|---|
-| `plugin_path_missing` | error | The folder doesn't exist. |
-| `plugin_build_missing` | error | Build the Enconvo plugin first (`npm run build`). |
-| `plugin_format_not_packable` | error | A desktop extension is packed with `npx @anthropic-ai/mcpb pack`. |
-| `plugin_format_not_publishable` | error | The store takes Enconvo, Codex, Claude Code and portable plugins; share a desktop extension's `.mcpb` file instead. |
-| `plugin_version_missing` | error | The store needs a version. |
-| `plugin_package_too_large` | error | The package is over 50 MB. |
-| `plugin_readme_too_large` | warning | The README is over 64 KB, so the store page leaves it out. |
-| `store_icon_missing` | warning | The plugin has no icon the store can show (PNG, JPEG, WebP or GIF up to 5 MB) in `interface.logo` or the other `interface` logos, or in a Claude Code plugin's `icon`, so it shows a default icon. |

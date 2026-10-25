@@ -1,15 +1,19 @@
 ---
-title: "Dictation and Voice Trigger"
-description: "Insert speech as text or send it to an Agent."
+title: "Dictation and Voice Command"
+description: "Type with your voice in any app, or hold a key and ask your Agent to do something."
 ---
 
 import { YouTubePlayer } from '/snippets/youtube-player.mdx';
 
-Dictation turns speech into text in the app you are using. **Voice Trigger / Voice Command** sends a spoken request to an Agent. [Live Voice](/features/live-voice) is a separate two-way conversation feature.
+Dictation turns what you say into text wherever you are typing, in any app. Voice Command sends what you say to your Agent, which answers out loud and can act for you. For a back-and-forth spoken conversation, use [Live Talk](/features/live-voice) instead.
 
 The video tutorial below covers Dictation from start to finish in under 5 minutes: hold or tap the right Command key and talk, let it read names off your screen, teach it a name in the Dictionary, clean up or translate what you say, and choose the speech model, including one that runs on your Mac.
 
 <YouTubePlayer videoId="wqYet4Kdono" title="How to Use Dictation in Enconvo | Step-by-Step Tutorial" />
+
+## Before you start
+
+Enconvo needs Microphone permission to hear you. To type text into another app, it can also need Accessibility permission. See [Permissions](/configuration/permissions).
 
 ## Dictate into an app
 
@@ -19,71 +23,112 @@ The video tutorial below covers Dictation from start to finish in under 5 minute
 4. For something longer, tap the right **Command** key once and speak as long as you need, then click the check mark on the recording pill.
 5. Review the inserted text, especially names, dates, and numbers.
 
-The right Command key is the default. To change the hotkey or gesture mode, open **Settings → Dictation**. Microphone permission is needed to capture audio. Inserting text into another app can require Accessibility permission.
+The right Command key is the default. To change the key or how you press it, open **Settings → Dictation → Dictation Hotkey**.
 
 ## Use names on your screen
 
 With **Settings → Dictation → Sense current app content** on, Dictation reads the app you are dictating into and spells names the way they appear there, such as a sender's name in the message you are replying to. The setting is on by default.
 
-## Clean up, Polish, and Translate
+## Clean up or translate as you speak
 
-Click the **Clean up** icon on the recording pill to choose what happens to your words:
+Click the **Clean up** icon on the recording pill to choose what happens to your words before they are inserted:
 
-- **Polish** removes filler words and false starts and keeps what you meant.
-- **Translate** types what you say in another language, for example speak Chinese and get English.
-- **On-Device Cleanup** cleans the text up with a model on your Mac.
+- **Polish** removes filler words and false starts, and fixes typos and punctuation, in your own words.
+- **Translate** types what you say in your Response Language, or in English if you already speak it.
+- **On-Device Cleanup** cleans the text up with a model on your Mac, offline. It appears when your Mac can run it, and its model downloads once.
 
-Click the icon again to move to the next mode.
+Click the icon again to move to the next option, or press **⌃⌥⌘I** (**Switch while dictating**). To pick the option that starts selected, or to add your own with a name, a prompt, and a model, open **Settings → Dictation** and use the **Clean up** section.
+
+<Note>
+Polish, Translate, and options you add use your AI model, so the recognized text goes to that model's provider even when recognition ran on your Mac. On-Device Cleanup keeps it on your Mac.
+</Note>
 
 ## Choose a speech model
 
-1. Open **Settings → Dictation** and click **Change** next to the current model.
+1. Open **Settings → Dictation** and click **Change** next to **Speech Model**.
 2. Pick from cloud models, models that run on your Mac, and models that use your own API key.
 3. Click **Local** to see the on-device models. They work offline, and your voice stays on your Mac.
 4. Select a model. A local model loads in a few seconds.
 
-You can also configure providers under **Settings → Dictation → Dictation Models**.
-
-## Post-actions
-
-Dictation can run configured commands after recognition, such as **Dictation Polish** or **Dictation Translate** from Writing Toolkit. Review the post-action selection when the inserted text differs from the raw transcript. A post-action using a cloud model can send recognized text to that provider even if recognition itself was local.
-
-## Send speech to an Agent
-
-1. Open **Settings → Agents → Voice Trigger**.
-2. Configure **Triggered Agent**, its hotkey, and **Session Timeout**.
-3. Invoke the gesture and speak a complete instruction.
-4. End recording and review the Agent's progress and result.
-
-Voice Command can reuse the latest triggered Agent session within the configured timeout. It does not work by matching only a fixed set of phrases; the selected Agent interprets the request with its available tools.
+You can also open **Settings → Dictation Models** directly. Dictation, Voice Command, Live Talk, meeting recording, file transcription, and live captions each have their own speech model setting. A provider suited to batch files may not be the best choice for streaming input. See [Speech Recognition](/ai/speech-recognition) and the [provider catalog](/providers/catalog#speech-recognition).
 
 ## Teach it a name
 
 A name that is not on your screen can still come out wrong, for example "Lumen" for a project called "Lumyn".
 
 1. Open **Settings → Dictionary** and click **New word**.
-2. Type the correct word, then what Dictation heard instead.
+2. Type the correct word, then what Dictation heard instead in **Heard as**.
 3. Click **Save**, and dictate the name again.
 
-See [Dictionary](/configuration/speech-assets) for more about custom vocabulary and provider language and hot-word settings.
+See [Dictionary and Speakers](/configuration/speech-assets) for more about custom vocabulary and provider language and hot-word settings.
 
-## History
+## Review past dictations
 
-Open **Dictation History** to revisit past recognized text.
+Open **Settings → Dictation History** to revisit past recognized text. From there you can search, copy, play the recording, transcribe a dictation again, and add a word to your Dictionary.
 
-## Choose recognition separately
+## Talk to your Agent with Voice Command
 
-Dictation, recording, file transcription, and live captions have separate model settings. A provider suited to batch files may not be the best choice for streaming input. The [Speech Recognition](/ai/speech-recognition) guide and [provider catalog](/providers/catalog#speech-recognition) explain those categories.
+Voice Command is push-to-talk for your Agent. It answers on the Dynamic Island and out loud, does quick things such as opening an app at once, and hands bigger requests to your Agent as a task. It does not match a fixed set of phrases: it works out what you asked for.
+
+<Steps>
+  <Step title="Hold the key and talk">
+    Hold the right **Option** key and say what you need. Your words show on the Dynamic Island. You can also tap the key once to start.
+  </Step>
+  <Step title="Send">
+    Let go of the key, or tap it again if you tapped to start.
+  </Step>
+  <Step title="Get the answer">
+    The answer shows under your words, and is read aloud while **Speak replies** is on. A task it starts runs on that Agent's own model and tools.
+  </Step>
+</Steps>
+
+Press the key again to stop the answer, or press **Esc** to cancel while you are still talking. The Dynamic Island's microphone button works too.
+
+Set it up in **Settings → Voice Command**:
+
+| Setting | What it changes |
+| --- | --- |
+| **Hotkey** | The key you hold or tap. The right Option key by default. |
+| **Listen** | The speech model that hears you (Soniox by default), plus the **Microphone** and **Language**, which follow Dictation unless you choose your own. |
+| **Think** | The model that answers you (Enconvo Fast by default). Tasks it starts run on their Agent's own model. |
+| **Answer** | **Speak replies** and the voice it answers in. With **Speak replies** off, answers only show on the Dynamic Island. |
+| **Send a screenshot** | Sends the screen you're on with each request, so the Agent sees what you see. Enconvo windows are left out. |
+| **Quick Actions** | **Manage** opens **Settings → Quick Actions**, which lists the things Voice Command and Live Talk do at once, and lets you turn them off or make your own. |
+
+## Settings
+
+These are in **Settings → Dictation**:
+
+| Setting | What it changes |
+| --- | --- |
+| **Dictation Hotkey** | The key that starts Dictation, and whether you hold it, tap it, or both. |
+| **Play sound effects** | Plays a sound when Dictation starts and ends. |
+| **Microphone** | The microphone Dictation records from. |
+| **Dictation Language** | **Default** keeps the speech model's own setting; **Auto-detect** lets it recognize the language. |
+| **Silence other audio while recording** | Pauses or mutes other apps while you dictate, and brings their audio back when you finish. |
+| **Sense current app content** | Reads the app you're in to spell names and terms, and gives Polish and Translate context. |
+| **Edit selected text by voice** | With text selected as you start, say how to change it and the selection is rewritten. |
+| **Press Return after dictation** | Presses Return after the text is inserted. |
+| **Copy dictated text to the clipboard** | Also copies the recognized text. |
+| **When you switch apps while dictating** | Where the text goes when another app is in front by the time Dictation finishes. Asks by default. |
+| **App Rules** | Changes any of these steps for specific apps or websites. |
+| **Save dictation history** | Keeps each dictation's recording and text, for as long as **Keep history for** says. |
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| No microphone input | Microphone permission and selected input device |
-| Text appears but is not inserted | Accessibility, focused field, and whether the app accepts paste |
-| Wrong text after recognition | Post-actions, language hints, and vocabulary |
-| Slow result after stopping | Streaming versus batch model behavior |
-| Agent receives the wrong conversation | Triggered Agent and Session Timeout |
-| Another feature owns the microphone | Finish Live Voice or microphone recording first |
+| No microphone input | Check Microphone permission and the microphone selected in **Settings → Dictation**. |
+| Text appears but is not inserted | Check Accessibility permission, click in the text field, and make sure the app accepts paste. |
+| Wrong text after recognition | Check the **Clean up** option in use, **Dictation Language**, and your [Dictionary](/configuration/speech-assets). |
+| Slow result after stopping | Batch models wait for the whole recording. Choose a model that streams. |
+| Another feature owns the microphone | Finish Live Talk or a recording first. |
 
-Use [Voice Notes](/features/voice-notes) to save speech directly into a knowledge base.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Live Talk" icon="phone" href="/features/live-voice">Have a spoken conversation with your Agent.</Card>
+  <Card title="Voice Notes" icon="microphone" href="/features/voice-notes">Save speech straight into a knowledge base.</Card>
+  <Card title="Dictionary and Speakers" icon="book" href="/configuration/speech-assets">Teach speech features your words and names.</Card>
+  <Card title="Speech Recognition" icon="wave-square" href="/ai/speech-recognition">Choose the speech model for each feature.</Card>
+</CardGroup>

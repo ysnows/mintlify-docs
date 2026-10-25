@@ -1,32 +1,68 @@
 ---
 title: "Meeting Recording"
-description: "Record a meeting, review its transcript, and extract follow-ups."
+description: "Record a meeting or lecture, then review its transcript, summary, and follow-ups."
 ---
 
-Meeting recording captures a session for transcription and later review. Choose the recording model separately from your dictation or file-transcription model.
+Recordings captures a meeting or lecture from your microphone, the call's audio, or both, and writes the transcript as people talk. Afterwards you can read a summary, name the speakers, and ask questions about what was said. The recording model is set separately from your Dictation and file Transcription models.
 
-## Record a session
+## Before you start
 
-1. Open **Settings → Recording → Recording Models** and configure a provider.
-2. Open **Recordings** and choose **Start Recording**, or run **Start to Record (Meeting/Lecture)**.
-3. Review the recording panel's audio sources and controls. Grant microphone or system-audio access as required.
-4. Start recording and confirm that the intended audio is being captured.
-5. Stop when finished, then open the saved item under Recordings.
+- Choose a transcription model in **Settings → Recording Models**.
+- macOS asks for Microphone and system-audio access the first time you record them. Allow both for the sources you use.
 
-Make sure participants know about recording and follow the requirements applicable to your meeting.
+<Note>
+Make sure participants know about the recording, and follow the requirements that apply to your meeting.
+</Note>
+
+## Record a meeting
+
+<Steps>
+  <Step title="Open a new recording">
+    Open **Settings → Recordings** and click **New recording**, or run **Start to Record (Meeting/Lecture)**.
+  </Step>
+  <Step title="Choose the audio sources">
+    Choose the **Microphone**, then what **Call audio** to record: **Off** records only your microphone, **All apps** records everything your Mac plays, and **One app** records only the meeting app's sound. Open the meeting app first to pick it. Check the **Transcription** model, and turn on **Live Translation** if the model offers it.
+  </Step>
+  <Step title="Start recording">
+    Click **Start recording**, and check that words appear in the live transcript.
+  </Step>
+  <Step title="Stop">
+    Click **Stop** when you finish, then open the saved item under **Recordings**.
+  </Step>
+</Steps>
+
+While you record, you can pause and resume, add notes, and press **⌘B** to bookmark a moment. The recording is saved as you go, so nothing is lost if Enconvo quits.
+
+To change the sources later, click the arrow next to **New recording** and choose **Choose audio sources…**. In the same menu, **Meeting reminder** asks on the Dynamic Island whether to record when a Zoom, Teams, FaceTime, or WeChat call starts.
 
 ## Review the result
 
-Inspect the transcript and any available summary or chat view. Check who said what, especially when voices overlap. Use speaker naming controls to improve labels and [Dictionary](/configuration/speech-assets) for recurring terms.
+Open a recording to see its **Transcript** beside **Summary** and **Ask AI**.
 
-Ask the Agent to separate decisions, open questions, and action items. Require an explicit owner and deadline only when they were actually stated in the meeting.
+- **Transcript**: check who said what, especially where voices overlap. Click a speaker label to name that speaker; Enconvo then recognizes the voice in new recordings. Use the [Dictionary](/configuration/speech-assets) for recurring terms.
+- **Summary**: an overview, the key points, decisions, and action items, written by AI from the transcript.
+- **Ask AI**: ask about the recording. When you ask for follow-ups, ask for an owner and deadline only where the meeting stated one.
 
-## Failure recovery
+## When a step fails
 
-Read the saved item's processing status. Transcription, title generation, and search indexing are separate stages; a later-stage error does not necessarily mean the audio or transcript is lost. Use copyable diagnostic details when reporting an error, after checking for private information.
+Transcription, title generation, and search indexing are separate stages. An error in a later stage does not mean the audio or transcript is lost. Long recordings take a few minutes, and processing goes on if you leave the page.
 
-If audio is missing, check the selected source and macOS capture permissions. If the microphone is busy, finish Dictation or Live Voice before starting microphone capture.
+Read the recording's processing status and use **Retry transcription** or **Retry index** on the step that failed. When you report a problem, **Copy details for support** copies the reference and log location support asks for, without the recording. Check it for private information before you send it.
 
-## Related modes
+## Troubleshooting
 
-Use [Transcription](/features/transcription) for an existing file, [Live Captioning](/features/live-captioning) for realtime subtitles, and [Voice Notes](/features/voice-notes) for a short spoken note saved into a knowledge base.
+| Problem | What to do |
+| --- | --- |
+| Audio is missing | Check the selected sources and macOS capture permissions. |
+| The microphone is busy | Finish Dictation or Live Talk before you start recording. |
+| **No transcription model is ready** | Choose a model in **Settings → Recording Models**. |
+| A processing step failed | Retry that step from the recording's processing status. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Transcription" icon="file-audio" href="/features/transcription">Transcribe an audio or video file you already have.</Card>
+  <Card title="Live Captioning" icon="closed-captioning" href="/features/live-captioning">See realtime subtitles while audio plays.</Card>
+  <Card title="Voice Notes" icon="microphone" href="/features/voice-notes">Save a short spoken note into a knowledge base.</Card>
+  <Card title="Dictionary and Speakers" icon="book" href="/configuration/speech-assets">Teach terms and name the voices in recordings.</Card>
+</CardGroup>

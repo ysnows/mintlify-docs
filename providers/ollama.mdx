@@ -1,32 +1,55 @@
 ---
 title: "Ollama"
-description: "Connect Enconvo to Ollama on your Mac or local network."
+description: "Chat with models that Ollama serves on your Mac or on another computer."
 ---
 
-Use Ollama to serve models locally or from another computer on your network. The model server must be running and have a compatible model available.
+Use Ollama to run models on your own hardware, on this Mac or on another computer on your network. Enconvo sends chats to the Ollama server, so no provider account is needed.
 
-## Connect on the same Mac
+## Connect on this Mac
 
-1. Start Ollama and download a model using its own model-management tools.
-2. Open **Settings → AI Model → Ollama**.
-3. Configure its credential/server URL. The default preset uses `http://127.0.0.1:11434`.
-4. Select a model from the available list and try a short text-only request.
-5. Select that model in an Agent or conversation when you want to use it.
+<Steps>
+  <Step title="Start Ollama">
+    Install [Ollama](https://ollama.ai/), start it, and download a model with Ollama's own tools.
+  </Step>
+  <Step title="Point Enconvo at it">
+    Open **Settings → AI Model → Ollama**. Under **Authentication**, keep **BaseUrl** at `http://127.0.0.1:11434` unless you changed Ollama's port.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
 ## Connect to another computer
 
-Use the server computer’s LAN address instead of `127.0.0.1` or `localhost`; those names always refer to the computer running Enconvo. Configure the model server to accept connections on its local-network interface, and enable Enconvo under **System Settings → Privacy & Security → Local Network** if macOS blocks access.
+1. On the other computer, set Ollama to accept connections from your network, not only from itself.
+2. In Enconvo, set **BaseUrl** to that computer's network address, keeping the port and path. `127.0.0.1` and `localhost` always mean the Mac running Enconvo.
+3. If macOS blocks the connection, turn on Enconvo in **System Settings → Privacy & Security → Local Network**.
 
-Keep the port and API path appropriate to your server. Allow access only on networks and interfaces you intend to use.
+Only open the server to networks you trust.
+
+## Models and options
+
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list from the server. |
+| **Response Timeout** | How long to wait for the server to start or continue a reply. The default is **No limit**; long prompts can take many minutes on your own hardware before the first word. |
 
 ## Troubleshooting
 
-| Error | Check |
+| Problem | What to do |
 | --- | --- |
-| Connection refused | Server is running, address/port are correct, and LAN listening is enabled if remote |
-| Host/network unreachable | Network reachability and macOS Local Network permission |
-| Empty model list | Model is downloaded/loaded and server endpoint is compatible |
-| Tool calls or images fail | The selected model supports those capabilities |
-| Out of memory | Choose a smaller model or reduce context and concurrent workloads |
+| Connection refused | Check that Ollama is running and that **BaseUrl** has the right address and port. For another computer, check that it accepts network connections. |
+| Network unreachable | Check the network, and the **Local Network** permission in System Settings. |
+| The model list is empty | Load or download a model in Ollama, then click **Refresh**. |
+| A reply gives up partway | Set **Response Timeout** to a longer value or **No limit**. |
+| Tools or images fail | Pick a model that supports tool calls or image input. |
+| Out of memory | Pick a smaller model, or shorten the input. |
 
-Local model inference does not make remote tools offline. See [Local Models](/ai/local-llm) for the full processing chain.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Local models" icon="microchip" href="/ai/local-llm">Keep a whole task on your Mac, not only the chat model.</Card>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/providers/mlx">Run models in Enconvo itself, with no server.</Card>
+  <Card title="LM Studio" icon="server" href="/providers/lm-studio">Use models served by LM Studio.</Card>
+  <Card title="Permissions" icon="shield" href="/configuration/permissions">Local Network and other macOS permissions.</Card>
+</CardGroup>

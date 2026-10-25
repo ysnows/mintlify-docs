@@ -1,40 +1,57 @@
 ---
-title: "X.AI-GROK"
-description: "Connect X.AI-GROK and choose an AI model in Enconvo."
+title: "xAI (Grok)"
+description: "Chat with Grok models in Enconvo using an xAI API key or your Grok plan."
 ---
 
-Use **X.AI-GROK** as an AI Model provider in Enconvo. The available model list comes from the installed provider and your account access; select a model in the app rather than relying on a fixed list in this guide.
+Use xAI's Grok models in chats, Agents, and AI Commands. Connect with an xAI API key, which xAI bills per request, or sign in with your Grok plan. It's listed as **X.AI-GROK** in Settings.
 
 ## Connect
 
-1. Open **Settings → Global Providers Settings → AI Model**.
-2. Select **X.AI-GROK**, or use **Add New Provider** to create another profile.
-3. Configure the provider’s **Authentication** using your own account or API key, following the available method on that page.
-4. Validate the credential if a validation action is offered.
-5. Choose the model or deployment, then select this provider in your Agent or conversation and send a short text request.
+<Steps>
+  <Step title="Get an API key">
+    Create a key in the xAI console; the [xAI quickstart](https://docs.x.ai/docs/quickstart#creating-an-api-key) shows how.
+  </Step>
+  <Step title="Add it to Enconvo">
+    Open **Settings → AI Model → X.AI-GROK**. Under **Authentication**, choose **API Key**, paste the key, then click **Validate**.
+  </Step>
+  <Step title="Pick a model">
+    Choose a model in **Model Name** and send a short message. A reply means the connection works.
+  </Step>
+</Steps>
 
-## Provider options
+<Tip>
+Have a Grok plan? Choose **Grok Subscription** under **Authentication** instead and click **Connect**.
+</Tip>
 
-The provider offers **API Key** and **Grok Subscription** authentication in supported categories. xAI also has separate providers for image, video, speech, and X Search; configure each capability in its own category.
+To keep a second xAI key, click **Add New Provider** and create another profile.
 
-The iPhone app can use a Grok plan in Phone chats too: on the iPhone, open **Settings → AI Model → xAI**, choose the Grok card under **Authentication**, and tap **Sign in with Grok**. See [Phone Chats](/integrations/iphone-phone-chats).
+## Models and options
 
-The provider definition includes: **Model Name**, **Temperature**. Some controls appear only for models or authentication methods that support them.
+| Setting | What it does |
+| --- | --- |
+| **Model Name** | The model this provider uses. **Refresh** beside it reloads the list; **Manage Models** (the gear) adds or restores models. |
+| **API Base Url** | In the credential. The default is `https://api.x.ai/v1`. |
 
-## Use it in a conversation
+xAI also has its own providers for text-to-speech, image generation, transcription, video generation, and X Search. They share this profile's key or Grok sign-in; pick each one in its own Settings page.
 
-Select the model from the conversation’s model menu. Review reasoning and tool support for the selected model before running an Agent task. A text-only request is a useful connection check before adding images, documents, or tools.
+## On the iPhone
 
-Provider profiles share credentials across their supported categories. See [Credentials and Provider Profiles](/configuration/credentials) before renaming, deleting, or changing a shared key.
+The iPhone app can use a Grok plan in Phone chats too. On the iPhone, open **Settings → AI Model → xAI**, choose the Grok card under **Authentication**, and tap **Sign in with Grok**. See [Phone Chats](/integrations/iphone-phone-chats).
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Authentication failure | Correct profile, authentication method, and account access |
-| Model unavailable | Current model picker and access granted to your account |
-| Tool or image request fails | Selected model capabilities and enabled Agent tools |
-| Rate or usage limit | Provider account usage, or Cloud usage if using an Enconvo Cloud provider |
-| Slow response | Input size, selected model, reasoning setting, and provider availability |
+| **Validate** fails | Paste the whole key again and check that it is active in the xAI console. |
+| A model is missing | Click **Refresh** beside **Model Name**. To add a model yourself, use **Manage Models**. |
+| The Grok sign-in stops working | Open the account card's menu and click **Reconnect**. |
+| Rate or usage limit errors | Check usage in your xAI account, or switch to another provider for now. |
 
-See the [provider capability catalog](/providers/catalog) for other categories and [Model Selection](/ai/model-selection-guide) for choosing a model by task.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Phone Chats" icon="mobile" href="/integrations/iphone-phone-chats">Use Grok in the iPhone app's own chats.</Card>
+  <Card title="Credentials and profiles" icon="key" href="/configuration/credentials">Keep several keys, and see what a shared key affects.</Card>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog">Every provider, grouped by the feature it powers.</Card>
+</CardGroup>

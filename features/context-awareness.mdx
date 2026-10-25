@@ -1,95 +1,81 @@
 ---
 title: "Context Awareness"
-description: "How EnConvo understands your screen and provides relevant assistance"
+description: "Choose what the SmartBar picks up from the app you were using, and add more context with #."
 ---
 
 import { YouTubePlayer } from '/snippets/youtube-player.mdx';
 
-## Overview
-
-Context Awareness is EnConvo's core technology that enables it to understand what you're working on and provide relevant, intelligent assistance. Instead of asking you to explain your context, EnConvo sees and understands your screen, active applications, and current tasks.
+Context is what goes along with your question: the text you selected, the files selected in Finder, the page open in your browser, or a screenshot. The SmartBar can pick some of it up as it opens, and you can add more by typing `#`. The Agent then answers about what you're looking at, without you explaining it.
 
 <YouTubePlayer videoId="VKhyKibToAw" title="Context Awareness Overview & Demo" />
 
-## How It Works
+## Choose what the SmartBar picks up
 
-EnConvo uses advanced screen analysis to understand:
+1. Open **Settings → Context Awareness**.
+2. Under **When the Smart Bar Opens**, set each source to **Attach**, **Suggest**, or **Off**.
+3. Switch to another app, select something, and open the SmartBar to see the result.
 
-### 1. Active Application Detection
-EnConvo knows which application you're using and adapts its responses accordingly:
+| Source | What it adds | Default |
+| --- | --- | --- |
+| **Selected Text** | Text selected in the app you were using | **Attach** |
+| **Finder Selection** | Files and folders selected in Finder | **Suggest** |
+| **Current Browser Page** | The page open in Safari, Chrome, Arc, Edge, or another Chromium browser | **Suggest** |
 
-| Application | Context Provided |
-|-------------|-----------------|
-| Web Browser | Current URL, page title, visible content |
-| Code Editor | Programming language, file path,  code content |
-| Finder | Selected files, current directory |
-| Other Apps | Current window content & Screenshot |
+**Attach** adds the source to the input as soon as the SmartBar opens. **Suggest** lists it above the commands, so you add it with one click. **Off** leaves it out.
 
+Only the SmartBar uses these settings. Commands you run on a selection always receive the selected text. The first time you add Finder or browser context, macOS asks whether Enconvo may control that app.
 
-### 2. More Contextual responses
-Based on context, EnConvo can provide more contextual responses:
-- Coding? Offers debugging help, documentation lookup, etc.
-- Writing? Suggests grammar fixes, tone improvements, etc.
-- Browsing? Provides summaries, translations, etc.
+## Add context with #
 
-## Manual Context Control
-<Tip>
- Use `#` prefix to add context to your queries.
-</Tip>
+1. In the SmartBar, type `#`.
+2. Type a word to narrow the list, such as `#screen`, `#finder`, `#clipboard`, or `#browser`.
+3. Pick a source. It's added to your message.
+4. Type your question and send it.
 
-### Context Modifiers
+| Source | What it adds |
+| --- | --- |
+| **Selected Text** | The text selected in the current window |
+| **Clipboard Text** | The text on the clipboard |
+| **Current Application Content** | The text of the app in front |
+| **Current Application Screenshot** | A screenshot of the app in front |
+| **Current Screen Screenshot** | A screenshot of the whole screen |
+| **Live Screen Screenshot** | A screenshot of the screen without Enconvo's windows |
+| **User Select Area Screenshot** | A screenshot of a region you select |
+| **Finder Selected Items** | The files and folders selected in Finder |
+| **Finder Current Directory URL** | The folder open in Finder |
+| **Browser Current Tab URL** | The address of the browser's current tab |
 
-Use these prefixes for specific context types:
+Your open windows are listed too, so you can add a window from another app. To use a different character than `#`, change **Context** under **Search** in **Settings → SmartBar**.
 
-```
-#screen - Include current screen content
-#finder - Include current Finder selection
-#clipboard - Include clipboard content
-#browser - Include current browser tab
-#... (and more)
-```
+## What to ask
 
-## Privacy & Security
+With the browser page attached, ask Enconvo to summarize the page, translate it, or pull out the key information. With Finder files attached, ask it to describe the files, suggest how to organize them, help with a batch rename, or analyze their contents.
 
-<Warning>
-Context attached to a request may be sent to the chosen model or processing provider. Automatic capture and background features have their own controls; review the active sources and provider settings before working with sensitive content.
-</Warning>
+<Note>
+Context you attach goes to the model that answers, or to the provider that processes it. Review what's attached and your provider settings before you work with sensitive content.
+</Note>
 
+## Troubleshooting
 
-### Exclusions
-Configure apps or content to exclude from context:
+| Problem | What to do |
+| --- | --- |
+| Selected text isn't attached | Check that **Selected Text** is set to **Attach**, and check [Permissions](/configuration/permissions). |
+| Finder or browser context is missing | Allow Enconvo to control that app when macOS asks. If you declined, allow it in [Permissions](/configuration/permissions). |
+| Typing `#` doesn't open the list | Check the **Context** character in **Settings → SmartBar**. |
 
-1. Go to Settings → Context Awareness
-2. Add applications to the exclusion list
-
-
-
-### App-Specific Actions
-
-<AccordionGroup>
-  <Accordion title="Web Browsers (Safari, Chrome, Arc)">
-    - Summarize current page
-    - Translate page content
-    - Extract key information
-    - Save to knowledge base
-  </Accordion>
-  <Accordion title="Finder">
-    - Describe selected files
-    - Organize suggestions
-    - Batch rename help
-    - Content analysis
-  </Accordion>
-</AccordionGroup>
-
-
-## Related Features
+## Related
 
 <CardGroup cols={2}>
   <Card title="SmartBar" icon="magnifying-glass" href="/features/smartbar">
-    Use context in SmartBar queries
+    Use context in SmartBar queries.
   </Card>
-  <Card title="OCR Features" icon="text" href="/ai/ocr">
-    Extract text from images
+  <Card title="Appshots" icon="window-maximize" href="/features/appshots">
+    Add the app window in front with one hotkey.
+  </Card>
+  <Card title="Screen Doodle" icon="pen" href="/features/screen-doodle">
+    Mark up the screen before you ask.
+  </Card>
+  <Card title="OCR" icon="text" href="/ai/ocr">
+    Extract text from images.
   </Card>
 </CardGroup>
-

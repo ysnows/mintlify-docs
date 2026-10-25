@@ -1,28 +1,54 @@
 ---
 title: "Video Generation"
-description: "Create video from text or an input image."
+description: "Turn a text prompt or an image into a short video clip."
 ---
 
-Use **Text to Video** or **Image to Video** with a configured video-generation provider. Video settings are separate from image generation and ordinary AI chat.
+**Text to Video** makes a clip from a description, and **Image to Video** brings an image to life. Both use the video provider you set in **Settings → Video Generation**, which is separate from image generation and from the model you chat with.
 
-## Create a clip
+<Warning>
+Each clip uses the provider's credits or your Cloud points, and can take a while. Start with a short clip when you try a new provider.
+</Warning>
 
-1. Open **Settings → Global Providers Settings → Video Generation** and configure a provider/model.
-2. Run **Text to Video**, or use **Image to Video** with a source image.
-3. Describe the subject, action, camera behavior, and desired scene.
-4. Choose the duration, resolution, and other options supported by that model.
-5. Wait for the generation job to finish, then preview and save the result.
+## Before you start
 
-Start with a short clip when testing a new provider; generation can take time and use the selected provider's credit or Cloud points.
+1. Open **Settings → Video Generation** and pick a provider.
+2. Set its **Credential Provider** (the key or account it uses) and its **Model Name**.
+3. Click **Set as Default**.
 
-## Providers and input support
+The Enconvo Cloud providers, **xAI (Enconvo Cloud)** and **Google Gemini (Enconvo Cloud)**, need no API key of your own.
 
-The [video provider catalog](/providers/catalog#video-generation) includes xAI, Gemini, OpenRouter, Kie.ai, Topview, and supported Cloud variants. Different models accept different inputs and resolutions. For example, Grok Imagine Video 1.5 adds a 1080p option that the base Grok Imagine Video model does not support.
+## Create a clip from text
 
-An image-to-video request should specify what moves and what stays consistent. If the model accepts only one image or a limited duration, use those constraints in the request.
+1. Open SmartBar, type your description, and run **Text to Video**. Describe the subject, the action, how the camera moves, and the scene.
+2. Wait while it shows **Generating video...**.
+3. Preview the clip in the result, then paste it, copy it, or show it in Finder.
+
+## Animate an image
+
+1. Attach the source image, and describe what moves and what stays the same.
+2. Run **Image to Video**. It needs both a description and at least one image.
+3. Preview the clip and save it.
+
+If the model accepts only one image or a limited length, write your request within those limits.
+
+## Providers and options
+
+The [video provider catalog](/providers/catalog#video-generation) includes xAI, Gemini, OpenRouter, Kie.ai, Topview, and their Enconvo Cloud versions. Models accept different inputs and resolutions. For example, Grok Imagine Video 1.5 adds a 1080p option that the base Grok Imagine Video model doesn't have.
+
+**Text to Video** and **Image to Video** use the model's default length and resolution. To choose them, ask an Agent in chat to make the clip, and ask only for options the model supports.
 
 ## Troubleshooting
 
-If submission fails, check account access and supported request options. If a submitted job is still processing, inspect its status rather than immediately submitting another paid generation. Keep the input and returned error/status when asking for help, without sharing credentials.
+| Problem | What to do |
+| --- | --- |
+| The request fails to submit | Check the provider's access and the options you asked for |
+| The clip is still processing | Check its status before you start another paid generation |
+| You need help with a failed clip | Keep your input and the error or status it returned, and share them without your credentials |
 
-For downloading, extracting audio, or compressing a completed clip, see [Media Utilities](/features/media-tools).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Image Generation" icon="image" href="/ai/image-generation">Create or edit an image in chat.</Card>
+  <Card title="Media Utilities" icon="photo-film" href="/features/media-tools">Download, compress, or pull the audio from a clip.</Card>
+  <Card title="Provider Catalog" icon="list" href="/providers/catalog#video-generation">Every video provider and its settings.</Card>
+</CardGroup>

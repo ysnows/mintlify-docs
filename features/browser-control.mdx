@@ -1,54 +1,90 @@
 ---
-title: "Browser Control"
-description: "Read and operate real browser tabs through the Enconvo Companion extension."
+title: "Browser Use"
+description: "Let an Agent read and work in your real browser tabs, with the sign-ins your browser already has."
 ---
 
-Browser Control lets an Agent work with browser tabs that have the Enconvo Companion extension connected. It can read a page, click controls, fill fields, inspect results, and manage tabs using the browser's existing sign-in state.
+Browser Use lets an Agent work in browser tabs that have the Enconvo Companion extension connected. It can read a page, click controls, fill in fields, check the result, and manage tabs, all with the sign-ins your browser already has. Reach for it when a task needs a website you're signed in to.
 
 ## Set up
 
-1. Install [Enconvo Companion from the Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in a supported Chromium browser, or use the appropriate extension package for your browser.
-2. Keep Enconvo and the browser running.
-3. Open the extension popup and confirm its **Connected** status.
-4. Check the Agent's browser tool access and any website approval requested by the extension.
-5. Start with a read-only task, such as “Read this page and summarize the main points.”
+<Steps>
+  <Step title="Install the extension">
+    Install [Enconvo Companion from the Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in a supported Chromium browser, or click **Install Browser Companion** in **Settings → Browser Use**. For other browsers, use the extension package made for that browser.
+  </Step>
+  <Step title="Keep both running">
+    Keep Enconvo and the browser open.
+  </Step>
+  <Step title="Check the connection">
+    Click the extension's icon. The popup shows **Connected** and the browser's name.
+  </Step>
+  <Step title="Check access">
+    Make sure the Agent you'll use has the browser tools, and approve any website the extension asks about.
+  </Step>
+  <Step title="Try a read-only task">
+    Start with something that changes nothing, such as "Read this page and summarize the main points."
+  </Step>
+</Steps>
 
-See [Browser Extension](/features/browser-extension) for connected-browser status, targeting, and approval behavior. Safari does not use the Chromium companion extension; use the supported route for your browser rather than assuming every browser has identical capabilities.
+Safari doesn't use the Chromium extension. In Safari, [Computer Use](/features/computer-use) clicks and types on the screen instead, so not every browser can do the same things. See [Browser Extension](/features/browser-extension) for the popup, connected browsers, tab targeting, and website approvals.
 
-## Manual Chromium installation
+## Work in a specific tab
 
-If your build provides the unpacked extension, open `chrome://extensions` (or your browser's equivalent), enable Developer mode, choose **Load unpacked**, and select `~/.enconvo/chrome_extension/`. Restart Enconvo if its bundled extension folder has not yet been prepared.
-
-## Work with a specific tab
-
-Name the browser and intended page in your request. For example:
+Name the browser and the page in your request:
 
 > In Edge, read the current documentation tab and list the three setup steps. Keep the page open.
 
-The Agent inspects page state, chooses an element, acts, and checks the resulting state. Page references can change after navigation or dynamic updates; a fresh snapshot helps recover when an element is no longer available.
+The Agent reads the page, picks an element, acts, and checks what changed. Page elements can change after a navigation or a live update. If the Agent loses an element, ask it for a fresh look at the page.
 
-## Available operations
+## What it can do
 
 | Area | Examples |
 | --- | --- |
 | Navigation | Open a URL, go back or forward, reload, wait for a condition |
 | Reading | Page state, visible text, attributes, screenshots, selected content |
 | Interaction | Click, type, fill, select, press keys, scroll, drag |
-| Browser organization | Inspect and manage tabs, windows, and connected sessions |
+| Browser organization | See and manage tabs, windows, and connected sessions |
 | Advanced tools | Page evaluation, cookies, storage, history, and browser-specific inspection |
 
-Capabilities and website access vary by browser, page, extension version, and enabled tools. Browser-internal pages and restricted content may not be accessible. Browser control can act on your real account; specify whether a task should only prepare a draft or also submit it.
+What works depends on the browser, the page, the extension version, and the tools you turned on. Browser pages such as `chrome://` and other restricted content may be out of reach.
 
-## Configuration and diagnostics
+<Warning>
+Browser Use acts on your real accounts. Say whether a task should only prepare a draft or also submit it.
+</Warning>
 
-Choose the default browser in Computer Use preferences, or name a browser in the task. The `browser-use/status` Local API route reports connection state. Developers can inspect the installed route schemas under **Settings → Developer → APIs** rather than relying on a fixed list of action names.
+## Settings
+
+| Setting | Where | What it changes |
+| --- | --- | --- |
+| **Default Browser** | **Settings → Browser Use**, then **Settings** in the **⋯** menu | The browser tasks use when you don't name one. **Auto (System Default)** follows your Mac's default browser. |
+| **Browser Extensions** | **Settings → Browser Use** | Lists the browsers that have the extension, each **Connected** or **Disconnected**. |
+
+You can also name a browser in the task itself.
+
+For developers, the `browser-use/status` Local API route reports the connection state, and **Settings → APIs** lists the installed routes and their schemas.
 
 ## Troubleshooting
 
-- **Not connected:** verify that the extension is enabled and Enconvo is running; inspect the popup status. The companion connects locally on port 11225.
-- **Wrong browser or tab:** explicitly name the target and request a fresh page state.
-- **Click or fill fails:** inspect the updated page; a dialog, navigation, or embedded frame may have changed the target.
-- **Blank screenshot:** make the target tab visible and wait for page content to load.
-- **Website asks to sign in:** complete the site's normal login flow; an existing browser profile does not guarantee a valid session for every site.
+| Problem | What to do |
+| --- | --- |
+| Not connected | Check that the extension is turned on and Enconvo is running, and look at the popup. The extension connects to Enconvo on this Mac through port 11225. |
+| Wrong browser or tab | Name the browser and the page, and ask for a fresh look at the page. |
+| A click or fill fails | Look at the page as it is now. A dialog, a navigation, or an embedded frame may have moved the target. |
+| The screenshot is blank | Bring the tab to the front and wait for the page to load. |
+| The website asks you to sign in | Sign in to the site as usual. Being signed in to the browser doesn't mean every site's session is still valid. |
 
-Use [Computer Use](/features/computer-use) for native macOS apps, file dialogs, and desktop controls.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Browser Extension" icon="puzzle-piece" href="/features/browser-extension">
+    The popup, connected browsers, and website safety.
+  </Card>
+  <Card title="Computer Use" icon="computer-mouse" href="/features/computer-use">
+    Native Mac apps, file dialogs, and desktop controls.
+  </Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">
+    Choose which tools an Agent can use.
+  </Card>
+  <Card title="CLI and Local APIs" icon="terminal" href="/advanced/cli-local-api">
+    Call Browser Use routes from scripts.
+  </Card>
+</CardGroup>

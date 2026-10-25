@@ -1,34 +1,51 @@
 ---
 title: "macOS Permissions"
-description: "Grant the permissions required by the features you use."
+description: "See which macOS permissions Enconvo uses, grant the ones a feature needs, and fix capture or typing that stops working."
 ---
 
-Open **Settings → General → Permissions** in Enconvo to review feature access. macOS permission names can vary by system version; use **System Settings → Privacy & Security** for the system controls.
+Some Enconvo features need access that macOS asks you to approve, such as seeing your screen or typing into other apps. **Settings → Permissions** lists each permission, what it powers, and whether it's granted. Text chat needs none of them, so grant each one when you start using a feature that needs it.
 
-| Permission | Features that need it |
+## Grant a permission
+
+1. Open **Settings → Permissions**.
+2. Find the permission and click **Grant**.
+3. macOS shows its prompt, or opens the matching pane in **System Settings → Privacy & Security**. For Accessibility and Input Monitoring, turn on Enconvo's switch in that pane yourself.
+4. If macOS asks you to, quit and reopen Enconvo.
+5. Back in Enconvo, the row shows **Granted**. Try the feature again.
+
+The page checks again on its own when you come back to it. Click **Refresh** to check right away.
+
+## What each permission is for
+
+| Permission | Used for |
 | --- | --- |
-| Accessibility | Selected-text access, inserting text, and app interaction |
-| Screen Recording / Screen & System Audio Recording | Screen context, OCR captures, Appshots, and screen/system-audio capture |
-| Microphone | Dictation, voice notes, microphone recording, and Live Voice |
-| Automation | Controlling apps through supported macOS integrations |
-| Notifications | macOS banners for completed Agent sessions |
-| Local Network | Connecting to model servers on another computer in your network |
+| Accessibility | Reading app interfaces, clicking, typing, and window control: Computer Use, PopBar, selected text, and inserting text |
+| Screen Recording | Screenshots that let agents see app content: Computer Use, Appshots, screen context, and OCR captures. macOS may call it Screen & System Audio Recording, and it also covers system-audio capture. |
+| Input Monitoring | Global keyboard input for PopBar, hotkeys, and double-modifier triggers while other apps are in front |
+| Microphone | Dictation, Voice Command, Voice Note, meeting recording, live captioning, and Live Talk |
+| Notifications | A macOS notification when an Agent session finishes or needs your attention |
+| Camera | Live camera photos from the SmartBar camera toggle |
+| Location | Local weather in the Dynamic Island, and location context for agents |
+| Automation | Controlling other apps with Apple Events: reading browser tabs, Finder selections, Mail, Messages, and System Events |
+| Local Network | Connecting to model servers on another computer in your network. It isn't on the Permissions page; find it in **System Settings → Privacy & Security → Local Network**. |
 
-## Enable a feature
+Calendar, Reminders, Notes, Mail, and the other Apple apps connect on the **Plugins** page instead. See [Apple apps](/integrations/apple-ecosystem).
 
-1. Try the feature and read its permission explanation.
-2. Open the corresponding macOS permission pane.
-3. Enable access for the Enconvo app you use.
-4. Follow macOS instructions to quit and reopen the app if requested.
-5. Try a small example again.
+## Troubleshooting
 
-You can grant permissions as needed. Text-only chat does not require every screen and microphone capability.
+| Problem | What to do |
+| --- | --- |
+| A permission is on, but capture still fails | Quit and reopen Enconvo, then try again. Make sure you turned on the Enconvo app you're running, not an older copy. |
+| Dictation shows text but doesn't insert it | Check Accessibility, and check that the target field accepts typing or paste. |
+| A hotkey works only inside Enconvo | Check Input Monitoring and Accessibility. See [Keyboard Shortcuts](/configuration/keyboard-shortcuts) for hotkeys that clash with other apps. |
+| A model server on another computer doesn't connect | Check Local Network, and check that the server listens on its network address. |
+| No banner when an Agent finishes | Check Notifications here, macOS Focus, and **Send a system notification** in [Notifications](/configuration/notifications). |
 
-## Common problems
+## Related
 
-- **A permission is enabled but capture fails:** quit and reopen Enconvo, then retry. Make sure you enabled the running app rather than an older copy.
-- **Dictation produces text but cannot insert it:** check Accessibility and that the target field accepts typing/paste.
-- **A remote local model server fails:** check Local Network permission and whether the server listens on its LAN interface.
-- **No completion banner:** check macOS notifications and Focus as well as Enconvo's notification setting.
-
-Related: [Troubleshooting](/getting-started/troubleshooting), [Privacy and Security](/configuration/privacy-security).
+<CardGroup cols={2}>
+  <Card title="Troubleshooting" icon="circle-question" href="/getting-started/troubleshooting">Fixes for common problems.</Card>
+  <Card title="Privacy and Security" icon="shield-halved" href="/configuration/privacy-security">What each kind of access lets Enconvo see and do.</Card>
+  <Card title="Computer Use" icon="hand-pointer" href="/features/computer-use">The feature that uses Accessibility and Screen Recording most.</Card>
+  <Card title="Dictation" icon="microphone" href="/features/dictation">Speak in any app; needs Microphone and Accessibility.</Card>
+</CardGroup>

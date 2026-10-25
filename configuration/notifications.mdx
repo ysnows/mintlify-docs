@@ -1,30 +1,62 @@
 ---
 title: "Notifications"
-description: "Choose how Enconvo tells you an Agent has finished."
+description: "Choose how Enconvo tells you an Agent has finished, and hold questions and finished tasks during quiet hours."
 ---
 
-Open **Settings → Agents → Notifications** to control what happens when an Agent session finishes.
-
-| Setting | Result |
-| --- | --- |
-| Open the Dynamic Island | Automatically expand the island when a session started there finishes |
-| Send a system notification | Post a macOS notification when a session finishes |
-
-Clicking a completion notification reopens the session in the window it started from.
+Enconvo can tell you when an Agent session finishes by opening the Dynamic Island, by posting a macOS notification, or both. You set this up in **Settings → Notifications**, along with quiet hours for the times you don't want to be interrupted.
 
 <Frame caption="Agent completion settings for Dynamic Island expansion and system notifications.">
   <img src="/images/guides/notifications.jpg" alt="Agent completion settings for Dynamic Island expansion and system notifications" />
 </Frame>
 
-## Configure notifications
+## Set up completion alerts
 
-1. Open the Notifications page and review the permission notice.
-2. If needed, allow Enconvo notifications in macOS.
-3. Set the two completion controls independently.
-4. Start a short Agent request and check the result when it finishes.
+1. Open **Settings → Notifications**.
+2. If the page says **Notifications are turned off for Enconvo**, click **Enable**, or allow Enconvo in **System Settings → Notifications**.
+3. Under **On session completion**, turn each switch on or off. They work independently.
+4. Start a short Agent request and wait for it to finish.
 
-macOS Focus and notification settings can suppress banners even when Enconvo's setting is enabled.
+| Setting | What it does |
+| --- | --- |
+| **Open the Dynamic Island** | When a session you started from the Dynamic Island finishes, the island expands to show the result. |
+| **Send a system notification** | Posts a macOS notification when a session finishes. Click the notification to reopen the session in the window it started from. |
+
+macOS Focus and notification settings can hide banners even when these switches are on.
+
+## Quiet hours
+
+Quiet hours hold Agent questions, Mail Alerts, and finished tasks until the quiet time ends, on this Mac and on your paired iPhone. Nothing is approved for you while they wait.
+
+1. In **Settings → Notifications**, find **Updates (Outreach)**.
+2. Turn on **Quiet hours**, then set **Starts** and **Ends**.
+3. Choose what still gets through:
+
+| Setting | What it does |
+| --- | --- |
+| **Let approvals through** | Approval requests still reach you during quiet hours. |
+| **Let questions through** | Agent questions still reach you during quiet hours. |
+
+The Enconvo menu bar menu also has **Quiet Hours**, and **Pause Updates for 1 Hour** for a short break.
 
 ## Scheduled results
 
-A system notification is different from sending a scheduled result to Telegram or another IM chat. Configure result delivery in a [scheduled task](/workflows/scheduled-jobs)'s editor. A scheduled task can also post its own Mac notification when a run finishes (**Notify me when it runs**); that notification follows the **Send a system notification** setting too. Check the run history for both execution and delivery status.
+A system notification is different from sending a scheduled task's result to Telegram or another IM chat. You set result delivery in the [scheduled task](/workflows/scheduled-jobs)'s editor.
+
+A scheduled task can also post its own Mac notification when it runs (**Notify me when it runs**). That notification follows **Send a system notification** too. The task's run history shows whether each run worked and whether its result was delivered.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| No banner when a session finishes | Check that **Send a system notification** is on, that macOS allows notifications from Enconvo, and that Focus isn't hiding them. |
+| The Dynamic Island didn't open | **Open the Dynamic Island** applies only to sessions you started from the Dynamic Island. |
+| A question or finished task arrived late | Quiet hours may have held it. Turn on **Let questions through**, or change **Starts** and **Ends**. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Dynamic Island" icon="bolt" href="/features/dynamic-island">Start sessions and see their results at the top of the screen.</Card>
+  <Card title="Automations" icon="clock" href="/workflows/scheduled-jobs">Run an Agent later and deliver its result.</Card>
+  <Card title="iPhone App" icon="mobile" href="/integrations/iphone-app">Get notified on your phone when a chat finishes.</Card>
+  <Card title="macOS Permissions" icon="shield" href="/configuration/permissions">The Notifications permission and the others Enconvo uses.</Card>
+</CardGroup>

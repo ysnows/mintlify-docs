@@ -1,35 +1,53 @@
 ---
 title: "Files and Folders"
-description: "Let an Agent find, read, and edit local files."
+description: "Let an Agent find, read, and edit the files on your Mac."
 ---
 
-Enconvo's file tools help an Agent work with files in its allowed directories. Enable only the tools needed for the task in the Agent's settings and give the Agent an explicit folder or file to work with.
+File tools let an Agent find files, search inside them, read them, and edit them. Point the Agent at a folder or a file and ask in plain words; it picks the right tool and shows you what it used.
+
+## Before you start
+
+- **Working folder:** an Agent's **Working Folder**, in the **Definition** part of its settings, is where relative paths start.
+- **Approvals:** the **Permissions** chip in the chat decides when the Agent asks first. With **Ask for approval**, it asks before it edits files outside the working folder. Reading and searching never ask. See [Approve actions](/ai/agents#approve-actions).
 
 ## Start with a read-only task
 
-1. Open the Agent's settings and review its file tools and directory access.
-2. In the conversation, identify a folder or attach the file you want to use.
+1. In the Agent's settings, check its file tools and its **Working Folder**.
+2. In the chat, name a folder or attach the file you want to use.
 3. Ask a bounded question, such as “Find Markdown files in this project and summarize the README.”
-4. Review the files and tool output the Agent used before asking it to make changes.
+4. Look at the files and tool output the Agent used before you ask it to change anything.
 
-| Tool | Purpose |
+## What each tool does
+
+| Tool | What it does |
 | --- | --- |
-| Glob | Find files by path pattern, such as `**/*.md` |
-| Grep | Search text inside files, with file patterns and line numbers |
-| Read File | Read text or extract supported document/media content |
-| Edit File | Replace matching text and return a diff |
-| Write File | Create a file or replace its complete contents |
+| Glob | Finds files by path pattern, such as `**/*.md`, newest first |
+| Grep | Searches the text inside files, with file patterns and line numbers |
+| Read File | Reads text files, pulls the text out of documents, and reads images, audio, and video |
+| Edit File | Replaces exact text in a file and reports the lines it changed |
+| Write File | Creates a file, or replaces all of its contents |
 
 <Warning>
-Write File can overwrite an existing file. Use a copy or version control for important documents, and review the destination and requested changes before approving an action.
+Write File can overwrite an existing file without warning. Keep a copy or use version control for important documents, and check the destination and the change before you approve it. The files an Agent changes in a chat are listed in the side panel's **Changes** tab, with **Undo**.
 </Warning>
 
 ## Documents and media
 
-Reading a PDF, Office document, image, audio file, or video can invoke parsing, OCR, or transcription rather than returning raw bytes. Supported formats and processing depend on the installed tools and configured providers. See [OCR](/ai/ocr), [Transcription](/features/transcription), and [Knowledge Base](/ai/knowledge-base).
+Reading a PDF, an Office document, an image, an audio file, or a video can run parsing, OCR, or transcription instead of returning raw bytes. For audio and video, the Agent reads the transcript. Which formats work depends on the installed tools and the providers you set up. See [OCR](/ai/ocr), [Transcription](/features/transcription), and [Knowledge Base](/ai/knowledge-base).
 
 ## Troubleshooting
 
-For an access error, check the Agent's allowed directories and macOS permissions. For an empty extraction, confirm the file type and parser support. A scanned PDF may need OCR. For an edit that cannot match the requested text, have the Agent read the current file again before editing.
+| Problem | What to do |
+| --- | --- |
+| An access error | Check the Agent's **Working Folder**, the **Permissions** chip, and the macOS permissions |
+| A document reads as empty | Check the file type and whether it can be parsed. A scanned PDF may need OCR |
+| An edit can't find the text it should replace | Ask the Agent to read the current file again before it edits |
 
-[Code Runner](/ai/code-runner) executes code and shell commands; file tools can inspect and edit without requiring a shell for every operation.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Code Runner" icon="terminal" href="/ai/code-runner">Run code and shell commands. File tools inspect and edit without a shell.</Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">Set an Agent's tools and when it asks first.</Card>
+  <Card title="OCR" icon="font" href="/ai/ocr">Read the text in images and scans.</Card>
+  <Card title="Knowledge Base" icon="book" href="/ai/knowledge-base">Search your own documents.</Card>
+</CardGroup>

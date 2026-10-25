@@ -1,26 +1,47 @@
 ---
 title: "Claude Subscription"
-description: "Connect a supported Anthropic account through provider Authentication."
+description: "Sign in with your Claude plan to use Claude models in Enconvo without an API key."
 ---
 
-Connect your supported Anthropic account through Enconvo’s provider Authentication controls. Available capabilities and limits depend on your account and the service’s current access rules.
+If you pay for Claude, sign in with that plan instead of creating an API key. Requests use your plan's allowance, and Enconvo shows how much is left.
 
 ## Connect
 
-1. Open **Settings → AI Model → Anthropic**.
-2. In **Authentication**, select **Claude Subscription**.
-3. Click **Connect** and complete the account’s sign-in and authorization flow.
-4. Return to Enconvo and check that the intended account is connected.
-5. Select an available model and try a short request.
+<Steps>
+  <Step title="Choose the subscription">
+    Open **Settings → AI Model → Anthropic**. Under **Authentication**, choose **Claude Subscription**.
+  </Step>
+  <Step title="Sign in">
+    Click **Connect**, sign in to your Claude account in the browser, and allow access. Come back to Enconvo when the browser says you're done.
+  </Step>
+  <Step title="Pick a model">
+    Check that the account card shows the right account, choose a model in **Model Name**, and send a short message.
+  </Step>
+</Steps>
 
-## Account status and usage
+## Check your usage
 
-Use the account card’s menu to **Reconnect** or **Refresh usage** when those actions are available. **% left** describes remaining allowance; a reset countdown indicates when the reported window resets. Unavailable usage data is not a promise of unlimited access.
+The account card shows how much of the five-hour and weekly allowances is left (**% left**), per model when Anthropic reports it, and when each resets. Open the card's menu for:
 
-The account card can show the remaining five-hour and weekly allowances, including per-model allowances when returned by the service.
+- **Refresh usage**: fetch the latest numbers.
+- **Reconnect**: sign in again, for example to switch accounts.
+
+When Anthropic doesn't report usage, the card says **Usage unavailable** with the reason. That doesn't mean the plan has no limit.
 
 ## Troubleshooting
 
-If sign-in fails, follow the provider’s error and check that you connected the intended account. If a model or capability is unavailable, confirm it appears for that account in the current picker. If a usage window is exhausted, wait for its reported reset or choose another access method you have configured.
+| Problem | What to do |
+| --- | --- |
+| Sign-in fails | Read the error Anthropic gave, then click **Connect** again. Make sure you sign in to the account that has the plan. |
+| A chat says a usage limit was reached | The message names the limit and when it resets. Wait, or switch **Authentication** to **API Key** for now. |
+| Enconvo asks you to try again in a moment | Anthropic was busy renewing the sign-in. Wait a moment and send again; you don't need to reconnect. |
+| A model is missing | Your plan decides the models. Click **Refresh** beside **Model Name**. |
 
-A subscription connection is distinct from an API key. Switching Authentication changes the access method used by that provider. See [Credentials](/configuration/credentials) for shared profiles and [Pricing](/pricing) for the difference between app licensing, Cloud usage, and provider billing.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Anthropic with an API key" icon="key" href="/providers/anthropic">Pay per request instead of using a plan.</Card>
+  <Card title="Credentials and profiles" icon="id-card" href="/configuration/credentials">See what a shared sign-in affects.</Card>
+  <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Pick a model by task, and see where defaults are set.</Card>
+  <Card title="Pricing" icon="receipt" href="/pricing">How app licenses, Cloud points, and provider bills differ.</Card>
+</CardGroup>

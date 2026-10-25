@@ -1,46 +1,68 @@
 ---
 title: "Code Runner"
-description: "Run shell commands and interact with persistent terminal sessions from an Agent."
+description: "Let an Agent run shell commands, scripts, builds, and development servers in a real terminal on your Mac."
 ---
 
-Code Runner gives an Agent a real terminal on your Mac. Use it for builds, tests, scripts, package tools, and development servers. Enable the tool for the Agent you are using; installed command-line programs and your account permissions determine what can run.
+Code Runner gives an Agent a real terminal on your Mac. Use it for builds, tests, scripts, package tools, and development servers. The programs you have installed and your account's permissions decide what can run.
 
-## Start with a small command
+<Warning>
+Commands run for real, with full access to your files and the network; Code Runner isn't a sandbox. Review any command that installs software, changes files, or affects an online service before it runs.
+</Warning>
 
-Give the Agent a directory and a specific task:
+## Before you start
+
+- Turn on Code Runner for the Agent you're using.
+- The **Permissions** chip in the chat decides when the Agent asks first. **Ask for approval** asks before it runs a command, and **Approve for me** asks only for actions that look unsafe. See [Approve actions](/ai/agents#approve-actions).
+
+## Run a command
+
+Give the Agent a folder and a specific task:
 
 > In my sample project, run the existing test command and report the result. Do not change files.
 
-The Agent should show command output and distinguish successful completion from a command that is still running. Use [File Tools](/ai/file-tools) for reading, editing, and searching files.
+The Agent shows the command's output and tells you whether it finished or is still running. To read, edit, and search files, the Agent uses [file tools](/ai/file-tools) instead.
 
-## Terminal sessions
+## How commands run
 
-All execution modes use a pseudo-terminal, so a command that asks for input can be answered without starting a new process.
+Every command runs in a pseudo-terminal, so a command that asks for input can be answered without starting a new process.
 
-| Mode | Intended use |
+| Mode | Use it for |
 | --- | --- |
-| **oneshot** | Commands expected to finish, such as tests, builds, or a script |
-| **long_running** | Servers, watchers, and processes waiting for an external event |
-| **interactive** | REPLs, terminal applications, and interactive CLI sessions |
+| **oneshot** | Commands that finish on their own, such as tests, builds, or a script |
+| **long_running** | Servers, watchers, and processes that wait for an outside event |
+| **interactive** | REPLs, terminal apps, and interactive command-line sessions |
 
-A result with `status: running` and a `session_id` means the process continues. The Agent can **read** output, **write** input, or **stop** that session. Starting another command is not a substitute for answering a prompt in the existing session.
+A result with `status: running` and a `session_id` means the process keeps going. The Agent can **read** its output, **write** input to it, or **stop** it. To answer a prompt, the Agent writes to that session; starting another command doesn't answer it.
 
-## Working directory and time limits
+## Working folder and time limits
 
-The tool accepts `workDir` for the command's working directory and uses the user's shell with project and Python virtual-environment setup. Separate command launches do not share temporary shell variables unless they are in the same running session.
+Commands run in `workDir` when the Agent sets it, and in the chat's working folder otherwise. They use your shell, with your project and Python virtual environment set up. Separate commands don't share temporary shell variables unless they run in the same session.
 
-The initial wait is separate from the command's hard timeout. Current oneshot commands default to a 30-minute hard deadline; the initial response can arrive much earlier while work continues. Use long-running mode for a server or watcher rather than treating it as a failed oneshot command.
+The first wait is separate from the command's hard time limit. A oneshot command waits up to 30 seconds for its result; if it's still running then, the Agent gets the output so far while the work continues. The command is stopped after 30 minutes by default. For a server or a watcher, use long_running mode instead of treating it as a oneshot command that failed.
 
-## Output compression
+## Settings
 
-**Enable RTK** in the Code Runner command preferences compresses verbose output for the Agent. If an important detail is missing, ask for a more focused command or the relevant log section. Truncated output is not proof that the command succeeded.
+Open **Settings → Plugins → Code Runner**.
+
+| Setting | What it changes |
+| --- | --- |
+| **Enable RTK** | Compresses long command output before the Agent reads it, so it uses fewer tokens. On by default |
+
+If a detail you need is missing from compressed output, ask for a more focused command or the relevant part of the log. Cut-off output doesn't prove the command succeeded.
 
 ## Troubleshooting
 
-- **Command not found:** verify the program is installed and available in the shell environment.
-- **Waiting for input:** continue the existing session and answer its prompt.
-- **Permission denied:** check the target path and macOS permissions.
-- **Timed out:** inspect the last output; use the appropriate execution mode before retrying.
-- **Server still running:** stop its session when it is no longer needed.
+| Problem | What to do |
+| --- | --- |
+| Command not found | Check that the program is installed and available in your shell |
+| The command waits for input | Have the Agent answer the prompt in the same session |
+| Permission denied | Check the target path and the macOS permissions |
+| The command timed out | Read the last output, and pick the right mode before you run it again |
+| A server keeps running | Have the Agent stop its session when you no longer need it |
 
-Commands execute with real filesystem and network access. Review commands that install software, change files, or affect external services before running them. Code Runner does not make those operations a sandbox simulation.
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Files and Folders" icon="folder-open" href="/ai/file-tools">Let an Agent find, read, and edit files.</Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">Set an Agent's tools and when it asks first.</Card>
+</CardGroup>

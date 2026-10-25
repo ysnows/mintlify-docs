@@ -1,36 +1,51 @@
 ---
 title: "Speech Recognition"
-description: "Configure speech models for dictation, recording, files, and captions."
+description: "Choose the speech model each voice feature uses: Enconvo Cloud, your own key, or a model on your Mac."
 ---
 
-Enconvo uses separate speech-model settings for different jobs. Choose the recognition model in the feature you are actually using.
+Each voice feature in Enconvo has its own speech model setting, so you can pick a fast streaming model for Dictation and a different one for long files. Choose the model in the feature you are actually using.
 
-| Feature | Settings entry | Guide |
+| Feature | Where to set it | Guide |
 | --- | --- | --- |
-| Speech inserted as text | Dictation Models | [Dictation](/features/dictation) |
-| Meeting or lecture recording | Recording Models | [Meeting Recording](/features/meeting-recording) |
-| Existing audio/video file | Transcription Models | [Transcription](/features/transcription) |
-| Realtime subtitles | Captioning Model | [Live Captioning](/features/live-captioning) |
+| Speech typed as text | **Settings → Dictation Models** | [Dictation](/features/dictation) |
+| Voice Command | **Settings → Voice Command → Listen** | [Voice Command](/features/dictation) |
+| Live Talk calls | **Settings → Live Talk → Listen** | [Live Talk](/features/live-voice) |
+| Meeting or lecture recording | **Settings → Recording Models** | [Meeting Recording](/features/meeting-recording) |
+| An existing audio or video file | **Settings → Transcription Models** | [Transcription](/features/transcription) |
+| Realtime subtitles | **Settings → Captioning Model** | [Live Captioning](/features/live-captioning) |
 
 ## Choose a model
 
-Open the corresponding model settings, choose a provider, and review language and model options. Cloud Plan variants use your Enconvo account; direct providers use their own configured access. Local MLX and CoreML options process recognition on-device after required models are available.
+1. Open the setting for your feature from the table above.
+2. On a Dictation, Recording, Transcription, or Captioning model page, filter the list with **All**, **Enconvo Cloud**, **Local**, or **Custom Providers**. In Voice Command and Live Talk, **Listen** shows the recommended models first, then any other speech model.
+3. Pick a model, then review its language and model options.
 
-See the [complete speech-provider catalog](/providers/catalog#speech-recognition) for the declared providers, including cloud services and local Parakeet, Qwen, Whisper, SenseVoice, Paraformer, and Nemotron variants. Hardware and availability depend on the selected runtime and build.
+**Enconvo Cloud** models use your Enconvo account, with no API key. **Custom Providers** use your own API key with that provider. **Local** models (MLX and Core ML) recognize speech on your Mac once their model is downloaded.
 
-## Match capabilities to the task
+The [speech provider catalog](/providers/catalog#speech-recognition) lists every declared provider, including cloud services and local Parakeet, Qwen, Whisper, SenseVoice, Paraformer, and Nemotron variants. Hardware and availability depend on the runtime and your build.
 
-- **Streaming:** produces partial text during recording; use a realtime-capable model.
-- **Batch transcription:** processes a file after capture/upload.
-- **Language hints and hot words:** guide recognition when the provider supports them.
-- **Speaker diarization:** separates voices; it does not guarantee the correct person's name.
-- **Live translation:** only offered by supported providers/models, with source and target options.
-- **Timestamps and structured output:** depend on the provider and transcription output format.
+## Match the model to the task
 
-## Verify with a small sample
+| Capability | What to know |
+| --- | --- |
+| Streaming | Produces partial text while you talk. Use a realtime model when you want words to appear as you speak. |
+| Batch transcription | Processes a file after capture or upload. |
+| Language hints and hot words | Guide recognition when the provider supports them. |
+| Speaker diarization | Separates voices. It does not guarantee the right person's name. |
+| Live translation | Offered only by some providers and models, with source and target languages. |
+| Timestamps and structured output | Depend on the provider and the transcription output format. |
 
-Test a short recording with the language, microphone, and terms you actually use. Review the result before processing a long meeting. For a failure, read the error for file-size, format, extraction, account, or network details.
+## Test with a short sample
 
-Model downloads can be much larger than the app. Check the actual download size and free space instead of assuming every local speech model has the same requirements.
+Record a short sample with the language, microphone, and terms you actually use, and review it before you process a long meeting. If it fails, read the error for file size, format, extraction, account, or network details.
 
-Related: [Speech Assets](/configuration/speech-assets), [Permissions](/configuration/permissions), [Local Models](/ai/local-llm).
+Local model downloads can be much larger than the app. Check the actual download size and your free space; local speech models don't all need the same.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Dictionary and Speakers" icon="book" href="/configuration/speech-assets">Teach speech features your words and names.</Card>
+  <Card title="Permissions" icon="shield" href="/configuration/permissions">Microphone and system-audio access.</Card>
+  <Card title="Local Models" icon="microchip" href="/ai/local-llm">Run models on your Mac.</Card>
+  <Card title="Provider catalog" icon="table" href="/providers/catalog#speech-recognition">Every speech provider Enconvo offers.</Card>
+</CardGroup>
