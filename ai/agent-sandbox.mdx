@@ -1,0 +1,96 @@
+---
+title: "Agent Sandbox"
+description: "Let an Agent run commands that can change only its working folder, can't read your keys, and can't control other apps."
+---
+
+The Sandbox limits what an Agent's commands can do on your Mac. With it on, a command the Agent runs can change files only in its working folder and temp, can't read your saved keys and passwords, and can't control other apps. Turn it on for an Agent that runs code, installs packages, or works through files it didn't write, so that a wrong or misled command can't harm your computer or send your secrets away.
+
+<Note>
+The Sandbox covers the commands an Agent runs in [Code Runner](/ai/code-runner). Email, the browser, Computer Use, Connectors, and MCP tools keep their own approvals.
+</Note>
+
+## Turn on the Sandbox
+
+1. Start a chat with the Agent in Agent mode.
+2. Click the **Permissions** chip next to the run mode.
+3. Turn on **Sandbox**, below the Permission modes. Click **How it works** under it to open this page.
+
+While the Sandbox is on, the chip shows a small box after its name. The setting belongs to the Agent, like its Permission mode, so it stays on for the Agent's new chats, and every place that shows the chip changes the same setting.
+
+When a sandboxed Agent calls another Agent, the Agent it calls runs its commands in the Sandbox too, even if its own switch is off. In an Agent team's chat, the chip sets the team's mode and the switch is hidden: each member keeps its own Sandbox setting.
+
+## What a sandboxed command can do
+
+| | Allowed | Refused |
+| --- | --- | --- |
+| Change files | The working folder, the folders of the chat's Project, and temp | Everywhere else. Shell startup files, SSH settings, git hooks and config, launch agents, and Enconvo's settings stay unchanged even inside the working folder, and so do other apps' preferences |
+| Read files | Everything else | SSH and cloud keys (`~/.ssh`, `~/.aws`, `~/.kube`, `~/.gnupg`), keychains, browser profiles and cookies, the sign-in tokens of command-line tools such as `gh`, Wrangler, and Vercel, and Enconvo's settings and saved credentials |
+| Network | The internet and your local network | Enconvo's own local ports, SSH on this Mac, and the sockets of other programs such as editors, chat apps, browsers, SSH agents, and Docker |
+| Programs | Starting programs such as `git`, `node`, and `python` | Controlling other apps (`osascript`), opening apps or files (`open`), and setting up programs to run later (`launchctl`, `crontab`, `at`) |
+| Environment | The usual variables | Variables whose names or values look like secrets, such as API keys and tokens |
+
+Reads are refused for keys because the network stays open: keeping your secrets unreadable is what keeps them from leaving your Mac.
+
+## How it works with each Permission mode
+
+The Permission mode decides what a sandboxed command asks you:
+
+| Permission mode | With the Sandbox on |
+| --- | --- |
+| **Ask for approval** | Commands run in the Sandbox and still ask before they run |
+| **Approve for me** | Commands run in the Sandbox without asking. Only commands that look unsafe, such as deleting files or publishing, ask |
+| **Full access** | Commands run in the Sandbox without asking. Only changes that could harm your computer ask |
+
+In every mode, Full access included, Enconvo asks before a command that could harm your computer: deleting your home folder or a top-level folder, changing your shell startup files, SSH keys, or git hooks, reading saved keys, or changing a git setting that runs programs. That question offers only **Allow once** and **Deny**.
+
+With the Sandbox off, Approve for me also checks a command whose effect the rules can't tell, such as a build or a script, with a quick AI check of what you asked for, and asks you when you might not expect it to run. With the Sandbox on, that check is skipped: the Sandbox already limits what the command can do.
+
+## When the Sandbox stops a command
+
+The step says what the Sandbox stopped, for example **Sandbox stopped a write to /usr/local/lib**, and the Agent is told the same, so it can try another way instead of repeating the command.
+
+- **Run it outside once.** While the run is going, the stopped step offers **Run outside**. Click it to run that one command outside the Sandbox. The step then shows **Ran outside the sandbox**.
+- **The Agent can ask too.** When a command needs to run outside, the Agent asks **Run outside the sandbox?** with **Allow once** and **Deny**. Nothing is remembered: the next command runs in the Sandbox again. In Full access, a command runs outside without asking.
+- **Runs nobody watches stay inside.** Scheduled tasks, workflows, IM channels, and Local API calls have nobody to approve, so their commands never run outside the Sandbox.
+- **No Sandbox, no command.** If the Sandbox can't start, the command doesn't run.
+
+## How the Sandbox works
+
+Enconvo runs each command under macOS's own sandbox, Seatbelt, the system behind the App Sandbox that Mac App Store apps run in. Enconvo writes the rules for each command when it starts:
+
+1. **The rules.** They allow everything, then refuse what the table above lists: writes outside the writable folders, reads of credential files, Apple Events and opening apps, and connections to Enconvo and to other programs' sockets.
+2. **The kernel enforces them.** macOS applies the rules to the command and to every program it starts, so a script, an installer, or a program written to get around them is held to the same rules.
+3. **Before the command starts,** Enconvo removes the variables that look like secrets from its environment, gives it a temp folder of its own, and finds the git repositories in its writable folders, so their hooks and config stay read-only.
+4. **When the kernel refuses something,** it logs what it stopped. Enconvo reads that log to tell you and the Agent what was stopped and where.
+
+Because the kernel enforces the rules, they hold however the command is written: the Sandbox doesn't depend on recognizing a risky command, as the approval rules do.
+
+## What the Sandbox doesn't cover
+
+- The shell steps of a workflow the Agent starts don't run in the Sandbox yet, so they ask first, as a command run outside it does. Scripts that other plugins run aren't sandboxed yet either; they ask as they would with the Sandbox off.
+- A command can read the environment of other programs you started, which no macOS rule covers. The Sandbox keeps secrets out of the command's own environment only.
+- A git repository the command creates carries its own settings.
+- A local service on another port could pass a request on to Enconvo. Only Enconvo's own ports are refused.
+- When a command tries to open an app, macOS may start the app paused before it refuses. The app never runs, and it goes away when you quit it in Activity Monitor or log out.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| A step says **Sandbox stopped a write to** a folder outside the project | The command writes outside the working folder. Ask the Agent to keep its work in the working folder, or click **Run outside** to run that command once |
+| A global install fails (`npm install -g`, `pip install` without a virtual environment, `brew install`) | These write outside the working folder. Ask the Agent to install into the project, for example with a virtual environment, or click **Run outside** |
+| A command that signs in fails (`git push` over SSH, `gh`, `aws`) | The Sandbox keeps your keys unreadable. Click **Run outside** for that command, or turn the Sandbox off for this Agent |
+| `ps` or `top` fails | macOS doesn't start these programs in a sandbox. Click **Run outside** |
+| A command that opens a file or an app does nothing | The Sandbox keeps commands from opening apps. Click **Run outside**, or ask the Agent for the file's path and open it yourself |
+| A scheduled task's command fails | Scheduled tasks never run commands outside the Sandbox. Keep the task's work in its working folder, or turn the Sandbox off for that Agent |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents#approve-actions">
+    Choose when an Agent asks before it acts.
+  </Card>
+  <Card title="Code Runner" icon="terminal" href="/ai/code-runner">
+    Run commands, scripts, and development servers.
+  </Card>
+</CardGroup>
