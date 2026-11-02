@@ -17,7 +17,7 @@ Enconvo for Linux is in beta and ships on the **Beta** update channel. It is bui
 
 ## Requirements
 
-- **64-bit Intel/AMD (x86-64) or ARM (arm64)**.
+- **64-bit Intel/AMD (x86-64).** There is no ARM build yet.
 - **Ubuntu 22.04, Debian 12, RHEL 9, Amazon Linux 2023, or newer.** Rocky Linux and AlmaLinux 9 count as RHEL 9. Older systems can't run Enconvo: their C library is too old.
 - **Memory:** we recommend at least 2 GB free, and 4 GB if the agent will use a browser.
 - **A normal user account.** Run Enconvo as yourself, not as root, because its agent runs commands with that user's rights. On a server, create a user just for Enconvo.
@@ -26,29 +26,26 @@ Enconvo for Linux is in beta and ships on the **Beta** update channel. It is bui
 
 The Beta comes in three forms: a `.deb` for Debian and Ubuntu, an `.rpm` for Fedora, RHEL, Rocky, AlmaLinux and openSUSE, and a portable `.tar.gz` for anything else.
 
-These commands find the newest Beta and download it. For ARM, set `ARCH=arm64`.
+These commands find the newest Beta and download it.
 
 <Tabs>
   <Tab title="Debian, Ubuntu">
     ```bash
-    ARCH=x64
-    FEED=https://file.enconvo.com/linux-$ARCH/beta
+    FEED=https://file.enconvo.com/linux-x64/beta
     FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo_[^"]*\.deb')
     curl -fLO "$FEED/$FILE"
     ```
   </Tab>
   <Tab title="Fedora, RHEL, Rocky, AlmaLinux, openSUSE">
     ```bash
-    ARCH=x64
-    FEED=https://file.enconvo.com/linux-$ARCH/beta
+    FEED=https://file.enconvo.com/linux-x64/beta
     FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo-[^"]*\.rpm')
     curl -fLO "$FEED/$FILE"
     ```
   </Tab>
   <Tab title="Portable .tar.gz">
     ```bash
-    ARCH=x64
-    FEED=https://file.enconvo.com/linux-$ARCH/beta
+    FEED=https://file.enconvo.com/linux-x64/beta
     FILE=$(curl -fsSL $FEED/latest.json | grep -o 'Enconvo-[^"]*\.tar\.gz')
     curl -fLO "$FEED/$FILE"
     tar xzf "$FILE"
