@@ -15,6 +15,10 @@ Use a deeplink when you want to see the answer and keep chatting, for example fr
 
 Keep Enconvo running. All three ways go through the app on your Mac and use the same models and settings as when you run the Agent or AI Command yourself.
 
+## Copy it from Settings
+
+Each AI Command's page under Where to use it, and each Agent's page under Used by, has a **Link, CLI and API** row. Click **Show**, type the text, add files with the paperclip, and pick the window a link opens in. The row writes the deeplink, the `enconvo` command and the `curl` call for you; click Copy next to the one you need.
+
 ## Find the command key
 
 Each way names the Agent or AI Command by its command key, `<extension>|<command>`:
@@ -96,7 +100,7 @@ The app serves the same runs over HTTP at `http://localhost:54535`, for apps and
 Ask an Agent:
 
 ```bash
-curl -X POST http://localhost:54535/api/agent/call \
+curl --noproxy localhost -X POST http://localhost:54535/api/agent/call \
   -H "Content-Type: application/json" \
   -d '{"agentId": "agent|main", "message": "Plan my day", "context_files": ["/Users/me/Desktop/chart.png"]}'
 ```
@@ -108,7 +112,7 @@ curl -X POST http://localhost:54535/api/agent/call \
 Run an AI Command:
 
 ```bash
-curl -X POST http://localhost:54535/api/ai-command/run \
+curl --noproxy localhost -X POST http://localhost:54535/api/ai-command/run \
   -H "Content-Type: application/json" \
   -d '{"command_key": "writing_package|translate", "input_text": "今天天气很好", "files": []}'
 ```
@@ -117,7 +121,7 @@ curl -X POST http://localhost:54535/api/ai-command/run \
 { "result": "The weather is really nice today." }
 ```
 
-File paths must be absolute. A failed run answers with an HTTP error and `{ "error": "<why>" }`. The local API only listens on this Mac.
+`--noproxy localhost` keeps a proxy set in your shell from catching the request. File paths must be absolute. A failed run answers with an HTTP error and `{ "error": "<why>" }`. The local API only listens on this Mac.
 
 ## Related
 
