@@ -1,0 +1,97 @@
+---
+title: "Computers and SSH Hosts"
+description: "Let your agents work on your other computers and on servers you reach over SSH, and control who can reach this Mac."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Your agents can work on more than this Mac. Add a server you sign in to with SSH, mention it in a chat, and ask, the way you'd ask about your own Mac: the Agent runs the commands there and answers here. Nothing is installed on the server. Your other computers that run Enconvo can be paired the same way.
+
+The video below adds an SSH host from your SSH config, asks the Agent to read a log on it, and shows who can reach this Mac.
+
+<YouTubePlayer videoId="ojtTTtqTod4" title="Computers and SSH Hosts in Enconvo" />
+
+## Before you start
+
+- You need a server you can sign in to with `ssh` from this Mac: a host in `~/.ssh/config`, or an address you can type as `user@host`. Enconvo uses this Mac's own `ssh` and keys. If the server asks for a password or a passphrase, `ssh` asks through Enconvo, and Enconvo keeps none of it.
+- For a server on your local network, allow Enconvo in **System Settings → Privacy & Security → Local Network**.
+
+## What Connections lists
+
+Open **Settings → Connections**. It has three lists:
+
+| List | What it holds |
+| --- | --- |
+| **Phones** | The iPhone and Android apps paired with this Mac. See [iPhone App](/integrations/iphone-app). |
+| **Computers** | Your other computers that run Enconvo, paired with this Mac. Click **Pair a computer** to add one. |
+| **SSH hosts** | Servers your agents reach over SSH, with nothing installed there. |
+
+Click a phone or a computer to open its own page, with what it can do on this Mac.
+
+## Add an SSH host
+
+1. Open **Settings → Connections** and, under **SSH hosts**, click **Add a host**.
+2. The list shows the hosts in your `~/.ssh/config`. Pick one, such as `build-server`, or type `user@host` (or `user@host:port`).
+3. Click **Connect**. Enconvo tests the connection: it reaches the host, checks the host key, signs in, and runs a command.
+4. Under **Before each command**, choose how the Agent asks before it runs a command there:
+   - **Follow the chat**: asks as the chat's Permission mode says. See [Approve actions](/ai/agents#approve-actions).
+   - **Always ask**: asks before every command.
+5. Click **Add host**.
+
+The host now shows under **SSH hosts**, and in every chat's `@` menu.
+
+The first time Enconvo sees a server's host key, check the key with whoever runs the server, then click **Trust and connect**. On a Linux server, the dialog also offers **Also install Enconvo there**, which pairs the server as a computer. Leave it off to install nothing.
+
+## Ask the Agent to work on a host
+
+1. In a chat, type `@` and the start of the host's name. Your computers and SSH hosts are listed under **Computers**.
+2. Pick the host. It goes into the message as a chip.
+3. Ask what you want done there, and send. For example:
+
+   ```text
+   @build-server What errors are in ~/app/logs/app.log? Just read it, don't change anything.
+   ```
+
+The Agent runs the commands on the host over SSH, asking first as you chose for that host. Each command step names the host it ran on. The answer comes back in the chat.
+
+To see what it ran, click **Worked for** above the answer. The fold lists each command.
+
+You can mention a paired computer the same way. The Agent hands the task to that computer's own agent, or runs commands there when that computer allows Terminal for this Mac.
+
+## Change a host's settings
+
+Under **SSH hosts**, click a host to open its page:
+
+| Setting | What it does |
+| --- | --- |
+| **Agents can use it** | Off keeps the host in the list but out of every chat. |
+| **Before each command** | **Follow the chat** or **Always ask**. |
+| **Copy files** | Lets agents copy files to and from the host with `scp`. |
+| **Starts in** | The folder commands start in. Empty means the login folder. |
+
+The page's **⋯** menu has **Test connection** and **Remove host…**. Removing a host forgets it in Enconvo. Your `~/.ssh/config` and the server stay as they are.
+
+## See who can reach this Mac
+
+**Who can reach this Mac**, in **Settings → Connections**, shows how many phones and computers can reach this Mac.
+
+To cut them all off at once, click **Stop all access** and confirm. Your phones and other computers can no longer reach any of your Macs, and what they have running there stops. Click **Turn access back on** when you want them back.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The test can't reach a server on your local network | macOS is holding the connection for its Local Network permission. Click **Allow Local Network for Enconvo**, or turn on Enconvo in **System Settings → Privacy & Security → Local Network**, then try again. |
+| The test says the server refused your key | Check `IdentityFile` for the host in `~/.ssh/config`, or add the key with `ssh-add`. |
+| The server answered with a different host key | It may have been rebuilt, or something may sit between you and it. If it was rebuilt, remove the old key in Terminal with `ssh-keygen -R` followed by the server's address, then try again. |
+| The host isn't in the `@` menu | Open the host's page and turn on **Agents can use it**. |
+| `~/.ssh/config` has no hosts | Type the address as `user@host` in **Add a host**. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="iPhone App" icon="mobile" href="/integrations/iphone-app">Pair a phone, the first list in Connections.</Card>
+  <Card title="Agents" icon="robot" href="/ai/agents">Permission modes and how the Agent asks before it acts.</Card>
+  <Card title="Computer Use" icon="computer-mouse" href="/features/computer-use">Let the Agent use apps on this Mac.</Card>
+  <Card title="Chat Window" icon="message" href="/ai/chat">Where you mention a host and read the answer.</Card>
+</CardGroup>
