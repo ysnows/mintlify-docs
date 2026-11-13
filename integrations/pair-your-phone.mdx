@@ -1,0 +1,90 @@
+---
+title: "Pair with your phone"
+description: "Pair the Enconvo iPhone or Android app with a Mac, a Windows PC, a Linux desktop, or a Linux server with only a terminal."
+---
+
+The Enconvo app on your phone pairs with each of your computers, so their projects and chats are on the phone. A chat you open from the phone keeps running on that computer, with its files, apps and agents. The phone reaches the computer through the Enconvo relay, and messages are end-to-end encrypted.
+
+Each computer pairs with the phone on its own. Pairing two computers with each other (for example a Linux laptop with your Mac) doesn't add either one to the phone: pair the phone with each computer you want to use from it.
+
+## Before you start
+
+- **Get the app.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play, or the APK. **Settings → Connections** on your computer has a download code for each.
+- **Use one account.** Sign the phone app and the computer in to the same Enconvo account. Only phones on your account can pair.
+- **Keep the computer on and Enconvo running.** The phone reaches a computer only while Enconvo runs there.
+
+## Mac, Windows, or a Linux desktop
+
+The steps are the same on all three.
+
+<Steps>
+  <Step title="Show the pairing code on the computer">
+    Click the device switcher at the bottom of the sidebar, then **Add a device → Pair a phone**. Or open **Settings → Connections** and select **Show pairing code**. A QR code appears. It works once and lasts five minutes.
+  </Step>
+  <Step title="Scan it with the phone">
+    In the Enconvo app, open **Remote**, tap **Pair a Mac**, and point the camera at the code. You can also scan it with the phone's own camera app: the code opens Enconvo, and you confirm there.
+  </Step>
+  <Step title="Use the computer from the phone">
+    The phone pairs in a moment and shows the computer. With more than one computer paired, switch between them from **Remote**.
+  </Step>
+</Steps>
+
+If the code expires, select **Show a new code** and scan again.
+
+## A Linux server with only a terminal
+
+A server has no window to show the code, so the command line prints it. This needs Enconvo 2.5.15 Beta 1 or later. Follow [Install on a server](/getting-started/linux#install-on-a-server) first.
+
+<Steps>
+  <Step title="Sign the server in">
+    ```bash
+    enconvo login
+    ```
+    Approve the code it prints at `enconvo.com/device`.
+  </Step>
+  <Step title="Keep Enconvo running">
+    ```bash
+    enconvo service install
+    ```
+    The phone reaches the server only while Enconvo runs there.
+  </Step>
+  <Step title="Print the pairing code">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    It draws a QR code in the terminal, with a link under it, and says when it expires. The code works once and lasts five minutes.
+  </Step>
+  <Step title="Scan it or open the link">
+    Scan the code with the phone's camera, or open the link on the phone. Confirm in the Enconvo app, and the server shows up on the phone.
+  </Step>
+</Steps>
+
+- **Over SSH**: the code is drawn in your own terminal, so it works over SSH too. If it wraps, widen the window or open the link instead.
+- **Sign-in**: typed in your own terminal, the code also signs the phone app in, so send it only to your own phone. Piped or saved output, or a command an agent runs, prints only the link, which doesn't sign the app in: sign the app in to the same account first.
+- **Expired**: run `enconvo companion pair --phone` again.
+
+## Manage paired phones
+
+**Settings → Connections** on each computer lists its paired phones.
+
+| To | Do this |
+|---|---|
+| Pair another phone | Show a new code and scan it with that phone. A computer can have up to 10 paired phones. |
+| Remove a phone | Select **Remove** next to it. That phone can no longer reach this computer. |
+| Start over | Select **Reset connection**. Every phone is removed and has to pair again. |
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| A computer isn't on the phone | Pair the phone with that computer itself. Pairing it with another computer doesn't add it. |
+| **This code expired** | Show a new code, or run the command again, and scan within five minutes. |
+| **Sign in to pair a phone** | Sign the computer in to Enconvo. On a server, run `enconvo login`. |
+| The server says it isn't signed in | Run `enconvo login`, then `enconvo companion pair --phone` again. |
+| The phone shows the server as offline | Check that Enconvo runs there: `enconvo service install`, and `sudo loginctl enable-linger "$USER"` if it stops when you log out. |
+
+## Next steps
+
+- [iPhone App](/integrations/iphone-app): what you can do from your phone, with a video tutorial.
+- [Linux (Beta)](/getting-started/linux): install Enconvo on a desktop or a server.
+- [Computers and SSH hosts](/integrations/computers-and-ssh-hosts): pair your computers with each other.
