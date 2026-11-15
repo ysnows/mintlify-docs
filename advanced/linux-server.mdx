@@ -1,0 +1,159 @@
+---
+title: "Configure Enconvo on a Linux server"
+description: "Choose the models, agents and plugins of an Enconvo running on a Linux server: in its web UI, from its command line, or with Sync from your Mac."
+---
+
+This page is for you if your Mac added a Linux server under **Settings → Connections** and installed Enconvo there. The server runs Enconvo without a screen, and your Mac opens its chats but not its settings. You can set the server up in three ways: in its web UI, from its command line, or by syncing your Mac's setup to it.
+
+## What your Mac shares with the server
+
+Pairing lets your Mac use the server's chats, agents and files. It doesn't share settings. The server keeps its own models, agents, plugins and API keys, and doesn't copy them from your Mac.
+
+- Settings and API keys don't open from your Mac. You change them on the server.
+- Out of the box, the server's agents use the default model. On a new install that's Enconvo Cloud, on the account the server signed in with, so its chats use your Cloud points.
+- To switch the model of one agent quickly, use the model picker in a server chat on your Mac. It sets the model, reasoning effort and speed for that agent on the server. A provider that needs an API key needs that key on the server first.
+
+## Open the server's web UI
+
+The server can serve the Chat Window and Settings as a website, so you can use Settings in your Mac's browser. The install from your Mac doesn't turn it on. Turn it on once over SSH.
+
+<Steps>
+  <Step title="Turn on the web UI">
+    Connect to the server with `ssh` and run:
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    This rewrites the Enconvo service with the web UI on and restarts it. It listens on `127.0.0.1` only, so nothing outside the server can reach it. When you run `enconvo service install` again, the service runs with the options of the new run only.
+  </Step>
+  <Step title="Open a tunnel from your Mac">
+    In Terminal on your Mac, use the same host name you use with `ssh`:
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    Leave it running while you use the web UI. Press Control-C to close it.
+  </Step>
+  <Step title="Open the web UI">
+    Open `http://127.0.0.1:54580` in your Mac's browser. Settings work as on your Mac: pick models under **Settings → AI Model**, add plugins under **Settings → Plugins**, and enter API keys there too.
+  </Step>
+</Steps>
+
+`enconvo service url` on the server prints the web UI's address.
+
+### Reach it without a tunnel
+
+To open the web UI from other computers without SSH, bind it to the network:
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+The web UI then needs a connection token. Run `enconvo service url` to print the address with it, ending in `?tkn=`. Open that link once and your browser keeps the token. Behind a reverse proxy, add `--web-url https://enconvo.example.com` with the address the proxy serves, or `--web-host <name>` for another name the server is reached by. Both need the token too.
+
+<Warning>
+  The token gives whoever has it your Enconvo account on the server and every file its user can read. Keep the link private, keep the port behind a firewall or VPN, and prefer the SSH tunnel. To replace the token, delete `~/.config/enconvo/.support/windows-shell/web-token` on the server and run `systemctl --user restart enconvo`.
+</Warning>
+
+## Configure from the command line
+
+Every installed plugin's routes are `enconvo` commands on the server: `enconvo <plugin> <route> --flags`, or `--input-json` for the whole request. Add `-h` at any level to see what's there:
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+Quote keys that contain `|`, such as `'agent|main'`. Unquoted, the shell reads `|` as a pipe.
+
+### Models
+
+List the server's model providers. Each one's `commandKey`, such as `llm|enconvo_ai`, is the value you set:
+
+```bash
+enconvo llm list_providers
+```
+
+Set the default model, which every agent set to the default uses:
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+Set the model of one agent. The main agent is `agent|main`; `enconvo agent list` shows the others' `command_key`:
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+Set the value to `default` to follow the default model again. `enconvo config preferences 'agent|main'` lists every setting an agent has.
+
+To undo one setting, name it:
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  `enconvo config reset` without `--keys` resets every setting of that key, and for an agent or command it also deletes its workspace data. This can't be undone.
+</Warning>
+
+`config get` shows stored API keys and tokens as `[hidden]`. Enter API keys in the web UI's Settings rather than with `config set`, so they don't land in your shell history.
+
+### Plugins
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install` takes a GitHub `owner/repo`, a git URL, an `https` link to a `.zip`, `npm:<package>`, a folder, or `<plugin>@<marketplace>`. Plugins that need a screen are hidden on a server.
+
+### Agents
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+`enconvo agent -h` lists the rest, such as deleting or pausing an agent.
+
+## Use your Mac's setup with Sync
+
+Sync copies your Mac's settings to the server through your Enconvo account. It's part of Enconvo Cloud plans and lifetime licenses.
+
+1. On your Mac, open **Settings → Sync**, turn on **Sync across computers**, and choose **Enconvo account** under **Storage**. A Linux server can't reach iCloud.
+2. In the server's web UI, open **Settings → Sync** and turn on **Sync across computers**.
+3. Under **What syncs**, choose what to bring over on both computers, such as **Settings**, **Plugins** and **Skills**.
+4. To bring your API keys too, turn on **API Keys** on both. It's off by default. Your Mac then shows a code: check that the server shows the same one, then click **Allow**.
+
+What belongs to one computer stays there: hotkeys, folder paths and working folders, sign-ins, Automations and messaging bots. See [Sync your Macs](/configuration/account#sync-your-macs) for what each choice covers.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| `enconvo: command not found` | Open a new SSH session. The install adds Enconvo's folder to `PATH` in your shell profile, which a session open before the install hasn't read. |
+| `enconvo service url` prints no address | Enconvo isn't running, or runs without the web UI. Run `enconvo service install --web 127.0.0.1:54580` again. |
+| The browser can't open `127.0.0.1:54580` | Check that the tunnel is still open, then check the service with `systemctl --user status enconvo` and its log with `journalctl --user -u enconvo`. |
+| The web UI asks for its connection token | Open the full link `enconvo service url` prints, with `?tkn=` at the end. |
+| `service install` says Enconvo is already running for this user | Your Mac started Enconvo as a background process, which it does when the server doesn't keep user services running after you log out. Run `sudo loginctl enable-linger $USER`, run `enconvo service install --web 127.0.0.1:54580` again, then restart the server so the service takes over. |
+| `service install` says systemd isn't available | Run `enconvo --headless --web 127.0.0.1:54580` under your own process manager instead. |
+| Chats use a different model than on your Mac | The server has its own models. Check `enconvo config get llm --includes selected`, or turn on Sync. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="CLI and Local API" icon="terminal" href="/advanced/cli-local-api">
+    Run Enconvo's commands from Terminal and scripts
+  </Card>
+  <Card title="Account and Sync" icon="rotate" href="/configuration/account#sync-your-macs">
+    Keep settings the same on every computer
+  </Card>
+</CardGroup>
