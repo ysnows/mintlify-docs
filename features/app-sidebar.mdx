@@ -19,6 +19,10 @@ The video below shows App Sidebar in 2.5.13: open it beside Chrome with **⌃⌘
 2. Press **⌃⌘E**, run **Show App Sidebar** from Enconvo, or click the handle beside the app window.
 3. Ask a specific question, and check the attached context before you send.
 
+The handle stays hidden until you move the pointer near the right edge of an app window, and it shows and hides the moment the pointer arrives or leaves. Point at the handle to see a card about the page you're on, such as a video's length and captions. To keep the handle always visible, turn off **Show handle only at window edge** in **Settings → App Sidebar** or in the handle's right-click menu. On the Finder desktop, the handle appears with or without Finder windows open.
+
+In Agent mode, the **Permissions** chip sets when the Agent asks before it acts, and its **Sandbox** switch keeps the Agent's commands to the working folder. See [Agent Sandbox](/configuration/sandbox).
+
 The hotkey is set in **Settings → App Sidebar**. Earlier versions used **⇧⌘T**; if you never changed it, Enconvo moved it to **⌃⌘E**. See [Keyboard Shortcuts](/configuration/keyboard-shortcuts) to change it.
 
 ## What the sidebar can see
@@ -37,7 +41,19 @@ Try asking “Explain the selected paragraph,” “Help me rewrite this draft m
 
 On a web page, a new sidebar chat opens on a card for the page. A video's card shows its length, whether it has captions, and how many chapters it has. Under the card are starters made for the site. On YouTube they are **Summarize this video**, **List the key moments with timestamps**, and **Show the transcript**. Click one to send it.
 
-In an answer about a video, each time is a link. Click it, and the video jumps to that moment.
+In an answer about a video, each time is a link, in the text and in a timeline alike. Click it, and the video jumps to that moment. A video's chapters on its card are links too.
+
+The card also shows what can be read on other pages, such as an article's length or a PDF's pages, and the sidebar reads the page ahead so the first answer starts sooner. It reads your tab as it is: it never reloads or changes the page, opens a second tab, or shows the browser's debugging bar.
+
+For a YouTube video without captions, pick **Transcribe the audio**. Enconvo transcribes the video's audio and summarizes it with timestamps.
+
+If you move to another page during a chat, a **Now on** row appears. Click it to ask about the new page.
+
+Built-in profiles with their own starters cover YouTube, Bilibili, GitHub, Reddit, Hacker News, X, Amazon, Gmail, Outlook, and Stack Overflow. Their answers stick to the content the page makes available.
+
+### Chromium browsers without the extension
+
+Beside Chrome, Edge, Brave, Arc, or another Chromium browser without the [Enconvo Companion extension](/features/browser-control), the sidebar shows a card with an **Install** button. Once the extension connects, the card turns into the page card.
 
 ### Settings for a site
 
@@ -55,7 +71,15 @@ Once you change something, the pill shows **Yours**.
 
 ### Files in Finder
 
-Select files in Finder, then press **⌃⌘E**. The starters follow what you selected. For images they are **Compress the selected images**, **Convert the selected images to JPEG**, and **Resize the selected images**. Compressing writes new copies with `-compressed` in the name next to the originals, and leaves the originals as they were.
+Select files in Finder, then press **⌃⌘E**. The starters follow what you selected. For images they are **Compress the selected images**, **Convert the selected images to JPEG**, and **Resize the selected images**.
+
+The sidebar can compress, convert, and resize images, compress PDFs, convert video and audio, zip and unzip, and batch rename the selected files. Each job writes new copies next to the originals, such as a copy with `-compressed` in its name, and leaves the originals as they were. The result shows in a card with the sizes before and after and **Reveal in Finder**. A file already done with the same settings is kept and marked **Already done** instead of done again. An unsupported format gets a clear message.
+
+### Insert into the app
+
+Finder, chat apps such as WeCom and Teams, git clients such as SourceTree, code editors such as Windsurf, terminals, notes apps, Pages, and Word have built-in profiles with starters of their own.
+
+In these apps, an answer can have an **Insert** button. Click it to put a reply, a commit message, or a command into the app's text field. Insert never sends or runs it: you check it and press Return yourself. When the sidebar can't find a field to insert into, it tells you.
 
 ### Per-app and per-site presets
 
@@ -82,6 +106,7 @@ Open **Settings → App Sidebar**.
 | **Enable App Sidebar** | Shows the handle beside app windows and turns on the hotkey. When it's off, both are gone. |
 | **Default Agent** | The Agent that answers in the sidebar. |
 | **Hide for all apps** | Hides the sidebar's handle in every app. |
+| **Show handle only at window edge** | Keeps the handle hidden until you move the pointer to the right edge of a window. On by default. |
 | **Hide App Side Bar Handle when the below application is at front** | Apps where the handle stays hidden. |
 | **Hotkey** | Opens the sidebar for the app in front. The default is **⌃⌘E**. |
 
@@ -90,6 +115,9 @@ Open **Settings → App Sidebar**.
 | Problem | What to do |
 | --- | --- |
 | The sidebar doesn't attach to the app | Bring the app window to the front and open the sidebar again. |
+| You can't find the handle | Move the pointer to the window's right edge, or turn off **Show handle only at window edge**. |
+| The page card is missing in a Chromium browser | Install the Enconvo Companion extension from the card's **Install** button. |
+| **Insert** isn't offered | The app has no text field the sidebar can identify. Copy the answer instead. |
 | Text from the app is missing | Check Accessibility in [Permissions](/configuration/permissions), the apps that hide the handle, and the attached context. |
 | You need more room for history or files | Continue in the [Chat Window](/ai/chat). |
 

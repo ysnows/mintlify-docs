@@ -6,13 +6,14 @@ description: "Let an Agent run shell commands, scripts, builds, and development 
 Code Runner gives an Agent a real terminal on your Mac. Use it for builds, tests, scripts, package tools, and development servers. The programs you have installed and your account's permissions decide what can run.
 
 <Warning>
-Commands run for real, with full access to your files and the network; Code Runner isn't a sandbox. Review any command that installs software, changes files, or affects an online service before it runs.
+Commands run for real, with your account's access to your files and the network, unless you turn on the Agent's **Sandbox**. Review any command that installs software, changes files, or affects an online service before it runs.
 </Warning>
 
 ## Before you start
 
 - Turn on Code Runner for the Agent you're using.
 - The **Permissions** chip in the chat decides when the Agent asks first. **Ask for approval** asks before it runs a command, and **Approve for me** asks only for actions that look unsafe. See [Approve actions](/ai/agents#approve-actions).
+- To keep the Agent's commands to the working folder and away from your keys and other apps, turn on **Sandbox** in the same chip. See [Agent Sandbox](/configuration/sandbox).
 
 ## Run a command
 
@@ -33,6 +34,17 @@ Every command runs in a pseudo-terminal, so a command that asks for input can be
 | **interactive** | REPLs, terminal apps, and interactive command-line sessions |
 
 A result with `status: running` and a `session_id` means the process keeps going. The Agent can **read** its output, **write** input to it, or **stop** it. To answer a prompt, the Agent writes to that session; starting another command doesn't answer it.
+
+## Wait for something to finish
+
+When a task has to wait, such as for a build to write its output or a server to start, the Agent uses the **Wait For** tool instead of a shell loop. It waits for one of these, with no command running:
+
+- A file to appear
+- A line in a log file
+- A process or a command's session to end
+- A port to open, or an address to answer
+
+The wait shows in the chat's background tasks. The Agent is told when it's met, fails, or times out, and can do other work meanwhile.
 
 ## Working folder and time limits
 
@@ -55,8 +67,8 @@ If a detail you need is missing from compressed output, ask for a more focused c
 | Problem | What to do |
 | --- | --- |
 | Command not found | Check that the program is installed and available in your shell |
-| The command waits for input | Have the Agent answer the prompt in the same session |
-| Permission denied | Check the target path and the macOS permissions |
+| The command waits for input | Have the Agent answer the prompt in the same session. A command waiting for input nobody can give ends at once |
+| Permission denied | Check the target path and the macOS permissions. With the Sandbox on, click the line under the step to see what it stopped |
 | The command timed out | Read the last output, and pick the right mode before you run it again |
 | A server keeps running | Have the Agent stop its session when you no longer need it |
 

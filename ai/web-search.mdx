@@ -13,15 +13,47 @@ Web Search gives your Agents current results from the web. Every Agent can searc
 
 | Provider | Notes |
 | --- | --- |
-| **Enconvo Cloud** | No API key needed |
-| **DeepSeek (Enconvo Cloud)** | DeepSeek Search through Enconvo Cloud, no API key needed |
+| **Auto** | Searches with the chat model's own web search, and falls back to another provider when the model has none. See [Search with the model's own search](#search-with-the-models-own-search). |
+| **Enconvo Cloud** | Free for every signed-in account, no API key needed |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search through Enconvo Cloud, free for every signed-in account |
 | **Gemini** | Grounding with Google Search through a Gemini model |
 | **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Search with your own key for that service |
+| **Parallel** | Parallel's AI search index, which returns each page's most relevant passages, with your Parallel API key |
+| **PipeLLM** | Google results through your [PipeLLM](/providers/pipellm) key |
 | **DeepSeek** | DeepSeek Search with your DeepSeek API key |
 | **xAI X Search** | Searches X posts, profiles, and threads, with an xAI API key or xAI sign-in |
 | **xAI X Search (Enconvo Cloud)** | X search through the Enconvo Cloud Plan |
 
-See [Provider Catalog](/providers/catalog#web-search) for the full list. Some models also have built-in grounding or search options in their own provider settings.
+The provider list marks the free options. See [Provider Catalog](/providers/catalog#web-search) for the full list. Some models also have built-in grounding or search options in their own provider settings.
+
+## Search with the model's own search
+
+With **Auto**, each search runs on the web search of the model the chat uses, when that model has one: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai, and OpenRouter. It uses the key or sign-in you connected for that model, and the model's vendor bills it.
+
+When the model has no search of its own, or its search fails, Auto uses the **Fallback search**, which is **Enconvo Cloud** unless you pick another provider.
+
+| Setting | What it does |
+| --- | --- |
+| **Search route** | Shows which search runs for the chat model, and what happens on failure. |
+| **Prefer the model's own search** | On by default. Turn it off to always use the fallback search. |
+| **Fallback search** | The provider used when the model has no search or it fails. |
+
+In the chat, each web search step says which search answered, and why Auto fell back when it did.
+
+## Use Parallel
+
+1. Get an API key from [Parallel](https://platform.parallel.ai).
+2. Add it in **Settings → Credential Management → Parallel**.
+3. In **Settings → Web Search**, pick **Parallel** and choose a **Search Mode**:
+
+| Search Mode | Use it for |
+| --- | --- |
+| **Turbo** | The quickest answers. It reads only English and Japanese queries. |
+| **Fast** | Most searches. The default. |
+| **Basic** | Longer passages from each page. |
+| **Advanced** | The deepest search. It takes about 3 seconds and costs more. |
+
+Parallel charges each search to your Parallel account.
 
 ## Search with an Agent
 
@@ -49,6 +81,7 @@ Try:
 | --- | --- |
 | The answer has no sources | Check that the Agent searched instead of answering from the model alone. Ask it to search the web. |
 | The provider reports an error | Check the provider's credential and your account's allowance with that service. |
+| Auto used the fallback search | The chat model has no web search of its own, or its search failed. The search step in the chat says which. |
 | The result is behind a login or on an interactive page | Use a supported browser flow such as [Browser Use](/features/browser-control). Fetching a public URL doesn't give access to your signed-in session. |
 
 ## Related

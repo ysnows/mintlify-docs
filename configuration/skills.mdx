@@ -22,6 +22,9 @@ Open **Settings → Skills**. Every Agent shares these skills, and each Agent ca
 - The cards at the top count **All skills**, the ones that are **On, never used**, the ones **In more than one folder**, and the ones that are **Off**. Click a card to list just those.
 - Each row shows **Where it is** (built in, or the folder or app it comes from) and when it was **Last used**. Turn off the skills your Agents don't need with the switch at the end of the row, or select several and turn them off together.
 - **Add from GitHub** installs a skill from a repository, and **Import** adds one from a folder on your Mac. See [Install skills](#install-skills).
+- **Your skills** lists the skills you made, by where they came from: **Recorded**, **Learned**, **Script**, **Written**, or **Installed**. Click one to see its **Steps**, **Gotchas**, and **History**. See [Skills with saved steps](#skills-with-saved-steps).
+
+In the Chat Window, you can also open Skills right in the window from **Plugins** in the icon rail.
 
 ## What a skill looks like
 
@@ -68,6 +71,8 @@ Type `/` followed by the skill name in SmartBar or chat:
 
 This is the most reliable way: you get exactly the skill you want. To list only skills, type `$`.
 
+The skills of plugins you installed are in the `/` and `$` menus too, named `plugin:skill` as in Claude Code.
+
 ### Let Enconvo pick
 
 When you don't name a skill, Enconvo matches your request to the most relevant skill by its `description`:
@@ -76,6 +81,8 @@ When you don't name a skill, Enconvo matches your request to the most relevant s
 2. Enconvo scans all available skill descriptions
 3. The `meeting-notes` skill matches ("...format raw meeting transcripts into structured notes with action items...")
 4. The skill is activated and its instructions guide the response
+
+Matching goes by meaning, not just shared keywords, so a request worded differently from the description, or written in another language, still finds the skill. To make sure an Agent always sees a skill, pin it in the Agent's **Tools & Skills** settings; see [Agents](/ai/agents).
 
 ### Write descriptions that match well
 
@@ -336,6 +343,30 @@ The URL can point to a subfolder, so you can install one skill from a larger rep
 2. Choose a folder that holds skill subfolders, each with a `SKILL.md`.
 
 Enconvo adds the folder to the places it reads skills from, and its skills are shared by all Agents. To stop using the folder, choose it in the source menu, then **Remove folder**. The folder itself stays on disk.
+
+## Skills with saved steps
+
+Every saved Workflow is also a skill with its own `SKILL.md`, and a skill can keep the steps of a task it has done before. When you run such a skill, its saved steps run first, without the main model, which is faster and cheaper. A step that no longer fits, such as a button that moved, is repaired from the skill's own notes and screenshots. Only when that fails does an Agent do the task from `SKILL.md`.
+
+In **Your skills**, a skill marked **Runs its saved steps first** has steps; one marked **Instructions only** doesn't. Each skill's **History** shows how its runs went and what it learned, and you can restore an earlier version.
+
+### Turn a recording into a skill
+
+You can turn a recording of a task you did into a skill. Each recorded action becomes a checked step, and its screenshot is kept for repairs. The skill stays a **Draft** until a run of it works.
+
+### Run a script as a step
+
+A skill can keep a [Code Mode](/configuration/code-mode) script in its own `scripts` folder and run it as one of its steps, so a task that makes many tool calls runs as one step.
+
+## Let skills learn how you work
+
+Skills can learn how you like tasks done, the way Memories learn facts. Open **Settings → Memory** and turn on **Learn how-tos**:
+
+- When you correct how a task was done, or a step had to be repaired, the skill learns it at once. The chat shows a **Learned** note with **Undo**.
+- When a task comes up a second time, it becomes a new skill.
+- Memory Review and Memory Tidy look after skills too.
+
+Under **When it changes steps**, choose **Use right away**, or **Ask me first** so a change to a skill's steps waits for you to click **Apply** on its note. Gotchas still go in at once either way. Payments, sending, and deleting always ask you first, and keys and passwords are never learned.
 
 ## Manage skills
 

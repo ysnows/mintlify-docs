@@ -3,7 +3,13 @@ title: "macOS Permissions"
 description: "See which macOS permissions Enconvo uses, grant the ones a feature needs, and fix capture or typing that stops working."
 ---
 
-Some Enconvo features need access that macOS asks you to approve, such as seeing your screen or typing into other apps. **Settings → Permissions** lists each permission, what it powers, and whether it's granted. Text chat needs none of them, so grant each one when you start using a feature that needs it.
+Some Enconvo features need access that macOS asks you to approve, such as seeing your screen or typing into other apps. **Settings → Permissions** lists each permission, what it powers, and whether it's granted. Text chat needs none of them, so Enconvo doesn't ask at launch: it asks the first time you use a feature that needs a permission, and says which feature asked.
+
+## When Enconvo asks
+
+When you use a feature that needs a permission you haven't granted, Enconvo opens its permission window, names the feature, and offers **Open System Settings**. You can also pick **Not now**.
+
+To stop a feature from asking, tick **Don't ask again for** that feature in the window. The feature then won't ask until you change it on the Permissions page. For Screen Recording, when access only waits for a restart, the window offers **Relaunch**.
 
 ## Grant a permission
 
@@ -14,6 +20,17 @@ Some Enconvo features need access that macOS asks you to approve, such as seeing
 5. Back in Enconvo, the row shows **Granted**. Try the feature again.
 
 The page checks again on its own when you come back to it. Click **Refresh** to check right away.
+
+## See which features use a permission
+
+Under each permission, **Used by** lists the features that need it and whether each one will ask:
+
+| State | Meaning |
+| --- | --- |
+| **Asks when used** | The feature asks for the permission the next time you use it. |
+| **Declined · asks on hotkey** | You declined; the feature asks again only when you press its hotkey. |
+| **Won't ask** | You chose **Don't ask again**. Click it to go back to **Asks when used**. |
+| **Off** or **Plugin off** | The feature, or the plugin it belongs to, is turned off. |
 
 ## What each permission is for
 
@@ -36,6 +53,8 @@ Calendar, Reminders, Notes, Mail, and the other Apple apps connect on the **Plug
 | Problem | What to do |
 | --- | --- |
 | A permission is on, but capture still fails | Quit and reopen Enconvo, then try again. Make sure you turned on the Enconvo app you're running, not an older copy. |
+| A feature never asks for the permission it needs | Check its row under **Used by**. If it says **Won't ask**, click it, or grant the permission with **Grant**. |
+| Screen Recording shows granted but capture still fails | Click **Relaunch** in the permission window, or quit and reopen Enconvo. |
 | Dictation shows text but doesn't insert it | Check Accessibility, and check that the target field accepts typing or paste. |
 | A hotkey works only inside Enconvo | Check Input Monitoring and Accessibility. See [Keyboard Shortcuts](/configuration/keyboard-shortcuts) for hotkeys that clash with other apps. |
 | A model server on another computer doesn't connect | Check Local Network, and check that the server listens on its network address. |

@@ -15,9 +15,27 @@ The video below shows the whole flow in under 2 minutes: bring in Agents with @,
 
 1. In any chat, type `@` and the start of an Agent's name, then press Return to pick it from the list. Add as many Agents as the job needs.
 2. Describe what each one should do, and send. For example: "@Researcher find three facts about the Kyoto bamboo grove, then @Writer turn them into a short post."
-3. The lead answers with a Work plan: the **Goal**, what must be true for it to be done, what it leaves out, and one task for each member. A task that needs another one's result waits for it.
+3. The lead answers with a Work plan: the **Goal**, what must be true for it to be done (**Done when**), what it leaves out, and one task for each member. Each task gets the goal and these lines word for word. A task that needs another one's result waits for it, and starts with that task's unmerged work merged in.
 4. If the plan waits for you, check it, then click **Start**, **Change plan**, or **Drop**. Members start when you start the plan.
 5. When the tasks finish, the plan card shows each result, and the lead says whether the goal is met.
+
+A task can go to any of your Agents or Coding agents as a teammate, even one that isn't a member of a Project. Name it in your request, and choose its reasoning effort if you want it to think harder or answer faster.
+
+When a plan with Codex starts, Enconvo asks for folder access first, so the run doesn't stop for it after you've walked away.
+
+## Follow a running plan
+
+While a plan runs, a line above the chat shows its goal, progress, cost, and time. Click it to open the run view: each task's steps, what it found, the proof it gives, the cost by member, and why a task didn't get through.
+
+Some results wait for you before the plan goes on. Click **Pass on** to accept a held result or a review finding, or **Send back** to have the member fix it.
+
+## Read the result
+
+When a plan ends, the result card leads with what it came to and your next step. Below are each task's full results. Coding tasks have a **Merge** button, and a line names any tasks still to merge.
+
+The lead checks each **Done when** line and says which tasks show it's met. An independent check flags any claim the tasks don't clearly show. If the goal isn't met yet, the lead can go on with more plans for the same goal, up to five, under one budget.
+
+The lead may also suggest up to three lessons for later runs to plan for. Keep or drop each one: only the ones you keep reach [Memory](/ai/memory).
 
 ## Follow the Board
 
@@ -26,11 +44,13 @@ Click **Board** at the top of the chat to see its tasks as cards. Each task has 
 | Control | What it does |
 | --- | --- |
 | **All** / **Needs you** | Show every task, or only the ones waiting for you. |
-| **Group by** | Group the cards, for example by chat. |
+| **Group by** | Group the cards, for example by idea or by **Chat**. |
 | **Display** | Change what each card shows. |
 | **Search tasks or T-12** | Find a task by its words or its number. |
 
-**Board** in the sidebar shows the tasks from all your chats, with a count of the ones that need you.
+**Board**, in the **···** menu on the sidebar's icon rail, shows the tasks from all your chats. A chat with tasks lists them under its row in the sidebar too.
+
+If a task's check and fix rounds keep finding the same problem, the rounds stop instead of trying again. A check that can't run says so, instead of sending working code back.
 
 ## Projects
 
@@ -39,7 +59,21 @@ A Project groups related chats around one folder, and the folder's `AGENTS.md` b
 - Enter a **Project name** to make a new folder in Documents, or click **Use an existing folder** or **Clone a repository**.
 - Under **Start from**, pick **Blank** or a team: **Research Desk**, **Content Studio**, **App Builders**, or **Trip Planner**.
 
-In a Project with members, the lead plans each goal, the members build it, and a review or test checks it. Members can include coding agents such as Claude Code and Codex. Each coding task works in its own copy of the code, and the plan's result card has a **Merge** button for when you're ready. Members can't push or merge themselves; only Enconvo merges and pushes.
+### Clone a repository
+
+1. In **Create project**, click **Clone a repository**.
+2. Paste a GitHub URL, `owner/name`, or any Git address. If you're signed in to GitHub, you can also pick one of your repositories from the list.
+3. Click **Clone**. The repository is copied into a new folder, and it opens as a Project.
+
+### Who does the work
+
+In a Project with members, the lead plans each goal, the members build it, and a review or test checks it. Members can include Coding agents such as Claude Code and Codex. Each coding task works in its own copy of the code, and the plan's result card has a **Merge** button for when you're ready.
+
+Claude Code, Codex, Grok Build, or Antigravity can lead a Project. With members, a Coding agent lead plans their work in a Work plan and reads their results, like any other lead. In a Project without members, it does the work itself in the chat, with no Work plan or Board tasks, until you add members.
+
+In a Project's Lead chat, you can hand part of a request to a model by name, such as Opus 5.5, or name an Agent and a model together, such as Claude Code on Opus 5.5. The lead can also start Subagents for its own work. A Project can run its goals and tasks through workflows of its own: see [Use your own workflows](/ai/projects#use-your-own-workflows).
+
+Members can't start plans, approve things, change settings, install software, or use your sign-ins. Coding agent members can't push, move other branches, or remove worktrees: only Enconvo merges and pushes. Full access in a Project's Lead chat and its tasks works as it does in any other chat. For the Board, Ideas, and a Project's settings, see [Projects and the Board](/ai/projects).
 
 ## Troubleshooting
 
@@ -47,11 +81,14 @@ In a Project with members, the lead plans each goal, the members build it, and a
 | --- | --- |
 | Pressing Return sent the message instead of picking the Agent | Wait for the Agent list to appear under the input before you press Return. |
 | A task is stuck in **Needs you** | Open the task, or the chat, and answer the question or approval it's waiting for. |
-| A coding agent can't start | Install it and sign in first. See [Agents](/ai/agents). |
+| A coding agent can't start | Install it and sign in first. See [Coding Agents](/ai/coding-agents). |
+| A Codex plan stops to ask for folder access | Answer the folder access question when the plan starts, so the run can go on without you. |
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Agents" icon="robot" href="/ai/agents">What each Agent is made of, and subagents.</Card>
   <Card title="Chat Window" icon="message" href="/ai/chat">Where you start a job and follow its plan.</Card>
+  <Card title="Projects and the Board" icon="diagram-project" href="/ai/projects">Ideas, the Project's team, and merging finished work.</Card>
+  <Card title="Coding Agents" icon="code" href="/ai/coding-agents">Claude Code, Codex, and the other Coding agents a plan can use.</Card>
 </CardGroup>

@@ -110,7 +110,7 @@ jobs:
         {% endfor %}'
 ```
 
-`foreach` also accepts an inline array, and it works with every kind of step: a `foreach` of `tool:` calls, of subworkflows, and so on. An empty list produces an empty result, and downstream steps still run.
+`foreach` also accepts an inline array, and it works with every kind of step: a `foreach` of `tool:` calls, of subworkflows, and so on. An empty list produces an empty result, and downstream steps still run. When one item fails, the step starts no new items, unless it's marked `required: false`.
 
 ### Repeat until a condition holds (`loop`)
 
@@ -146,6 +146,8 @@ jobs:
 | `retries` | Retries a failed step. Use a count (`retries: 2`) or an object (`retries: { maxAttempts: 3, delayMs: 500 }`). |
 | `required: false` | A failure of this step doesn't abort the run; downstream steps continue. |
 | `timeoutMs` | Stops a shell step that runs too long. |
+
+A step that stays quiet for 20 minutes is stopped and run once more. A run you stop reads **Cancelled**, not failed.
 
 ```yaml
 jobs:

@@ -18,7 +18,7 @@ Enconvo stores your data on your Mac and uses online services for the features a
 | Local model inference | Stays on your Mac: the model runs there once its files are downloaded |
 | Browser or computer tools | Whatever content and actions the tool's granted access allows |
 | IM channel | Messages between the connected messaging service and the Agent |
-| Sync | Your chats, settings, and knowledge bases, to your Enconvo account or your iCloud, once you turn Sync on. API keys leave your Mac only encrypted, once you turn them on. |
+| Sync | Your chats, settings, knowledge bases, and artifacts, to your Enconvo account or your iCloud, once you turn Sync on. API keys leave your Mac only encrypted, once you turn them on. |
 
 A local chat model alone doesn't make every tool offline. A web search, a remote MCP tool, a cloud transcription provider, or a cloud embedding model still sends content over the network.
 
@@ -55,13 +55,25 @@ An Agent can act through the tools you turn on. Browser control, computer use, s
 
 Running an extension in its own worker doesn't stop it from reaching your local files or the network. Install tools from sources you trust and check their configuration.
 
+The **Permissions** chip in a chat decides when the Agent asks before it acts. At **Full access**, it acts without asking, including calls and messages to your friends and teammates, and asks only before changes that could harm your computer. See [Why Enconvo asks before a command](/configuration/sandbox#why-enconvo-asks-before-a-command).
+
+To keep an Agent's shell commands to its working folder and away from your keys, saved credentials, and other apps, turn on its **Sandbox**. See [Agent Sandbox](/configuration/sandbox). To keep Computer Use out of certain apps, use **App Access** in **Settings → Computer Use**; see [Computer Use](/features/computer-use).
+
+Web Fetch can't be redirected by a public page to your Mac or your local network.
+
+## Sign-in links
+
+A sign-in link from a web page can't switch Enconvo to another account on its own. Unless Enconvo started the sign-in itself, it asks first and shows the account the link confirms and the one it would replace. Agents, coding agents, and scheduled tasks can't start a sign-in or open a sign-in link.
+
 ## Local AI clients
 
 [Knowledge Base MCP](/advanced/knowledge-base-mcp) is off until you turn it on, and accepts local connections. Its visibility switches choose which knowledge bases it exposes. A local client may send what it retrieves to its own AI provider, so set up that client with care too.
 
 ## Analytics and diagnostics
 
-Enconvo records product usage events under a device ID, not your account. The events are designed to leave out email addresses, conversation text, and media. To stop sharing them, turn off **Share anonymous product analytics** under **Privacy** in **Settings → General**. Crash and freeze reports are sent only while that switch is on, and carry none of your content.
+Enconvo records product usage events under a device ID, not your account. The events are designed to leave out email addresses, conversation text, and media. To stop sharing them, turn off **Share anonymous product analytics** in the first-run guide, or under **Privacy** in **Settings → General**. A choice you made before stays as it is. Crash and freeze reports are sent only while that switch is on, and carry none of your content.
+
+Enconvo doesn't keep a copy of your AI requests, your messages, or what you type in its logs on your Mac.
 
 Diagnostic logs are separate from analytics. When Enconvo freezes, crashes, or misbehaves, send them to the Enconvo team with **Submit Diagnostics…** in the menu bar menu, or from **Settings → Diagnostics**:
 
@@ -74,7 +86,7 @@ When you share a log or screenshot some other way, look it over first and remove
 
 ## Keep or remove local data
 
-Each feature manages its own data: chat history, knowledge bases, recordings, and credentials each have their own controls. Read deletion confirmations, and keep backups of anything you need.
+Each feature manages its own data: chat history, knowledge bases, recordings, and credentials each have their own controls. Read deletion confirmations, and keep backups of anything you need. Deleting a chat also deletes the pictures and files you attached to it, unless another chat still shows them.
 
 Removing the app doesn't always remove its configuration and data. Removing local data doesn't delete copies an external service already processed. For a provider's retention and account policies, see that provider: this page covers Enconvo's data flows, not theirs.
 

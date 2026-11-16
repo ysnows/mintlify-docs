@@ -1,0 +1,108 @@
+---
+title: "Coding Agents"
+description: "Chat with Claude Code, Codex, Grok Build, Antigravity, Muse Code, and Grok Bot inside Enconvo, and choose which Enconvo features they can use."
+---
+
+Coding agents are the AI coding tools you already use, such as Claude Code and Codex, run inside Enconvo chats. Use one when the work is code in a project folder: it edits files with diffs, runs commands, and asks before it acts, while Enconvo keeps the chat, its history, and its approvals in the Chat Window, SmartBar, and your phone.
+
+| Coding agent | Made by | Runs |
+| --- | --- | --- |
+| **Claude Code** | Anthropic | On your Mac, signed in with Claude |
+| **Codex** | OpenAI | On your Mac, signed in with ChatGPT |
+| **Grok Build** | xAI | On your Mac, signed in with Grok |
+| **Antigravity** | Google | On your Mac, signed in with Google |
+| **Muse Code** | Meta | On your Mac, signed in with Meta, or on its local model |
+| **Grok Bot** | xAI | In xAI's cloud, through a routine you connect |
+
+## Before you start
+
+Each coding agent has its own page in **Settings → Agent List**. Click it to see its **Status**:
+
+1. If it shows **Not installed**, click **Install**, or run the command shown in Terminal and click **Check again**. A version that's too old shows **Update**.
+2. Under **Account**, click **Sign in with Claude**, **Sign in with ChatGPT**, **Sign in with Grok**, **Sign in with Google**, or **Sign in with Meta**. Enconvo uses the same sign-in as the agent's own command line in Terminal.
+
+When the Claude Code or Codex sign-in ends within ten days, the agent's page, the **Updates** list, and a Project's Board say so, with **Sign in again**. A Board task whose Coding agent is signed out waits as **Held** and runs again once you sign in.
+
+Muse Code running on its local model needs no Meta sign-in. Grok Bot needs a routine instead; see [Connect Grok Bot](#connect-grok-bot).
+
+## Chat with a coding agent
+
+1. In the Chat Window, pick the coding agent from the Agent cards or the Agent menu.
+2. Choose the project folder it works in.
+3. Type your request and send. Its steps, diffs, and commands stream into the chat, and its approval questions show as cards for you to answer.
+
+The chat's approvals follow Enconvo's [Permission mode](/ai/agents#approve-actions). At **Full access**, a new Claude Code chat starts in **Bypass permissions** (where Claude Code's own settings allow it) and a new Codex chat in **Full access**, so neither asks before it acts.
+
+In a worktree chat, the side panel's **Pull request** tab (**⌃⇧P**) shows the branch's pull request on GitHub, or creates one. See [Chat Window](/ai/chat#read-and-reuse-replies).
+
+To pick up an earlier session, choose **Resume a previous session**. Sessions you started in the agent's own command line are listed too, under the names you gave them.
+
+You can also hand a chat you started with Mavis to a coding agent by continuing in a new chat with it. Other Agents can use coding agents as subagents, and a Project can give them tasks or have one lead the Project. See [Subagents](/ai/agents#subagents) and [Projects](/ai/projects).
+
+### Claude Code: effort, fast mode, and Ultracode
+
+The effort picker in a Claude Code chat sets its reasoning effort. When the session supports it, the picker also shows **Fast mode** and an **Ultracode** switch. Ultracode turns on workflow orchestration for the rest of the session at whatever effort you pick, and stays on when you change the effort. Typing `/effort ultracode` does the same. In a new chat, you can set fast mode and Ultracode before the first message.
+
+### Codex: warnings
+
+Codex's warnings stay out of the conversation. Type `/warnings` to list them.
+
+### Muse Code: continue in Terminal
+
+To continue a Muse Code chat in Terminal, choose **Continue in Terminal**, or **Copy command** to copy it. The chat opens with `muse resume` in its folder. When you quit Muse Code there and send from Enconvo again, the turns you ran in Terminal come back into the chat.
+
+Muse Code's approval questions show the change an edit would make. When you deny a step, what you type with **Deny** goes to Muse Code in the same turn, so it can act on it right away. Its skills and `/compact` are in the `/` menu.
+
+<Note>
+Muse Code's Contributor mode is on by default, which lets Meta train its models on your prompts and code. Enconvo leaves it as it is; turn it off in Muse Code's own settings.
+</Note>
+
+## Choose what a coding agent can use in Enconvo
+
+Coding agents can use Enconvo's plugins in their chats, such as messaging your Enconvo Agents, image and video creation, memory, the browser, and Computer Use. On the agent's page in **Settings → Agent List**, under **Enconvo Capabilities**:
+
+- Turn off **Enconvo Capabilities** to keep that agent away from all of Enconvo's plugins.
+- Or click **Customize** next to **Plugins** and turn off one plugin at a time. A plugin that's off is hidden from that agent, and its calls are refused.
+
+The change applies to the agent's open chats too. Coding agent chats in a client's Workspace stay entirely inside that Workspace.
+
+## Connect Grok Bot
+
+Grok Bot runs in xAI's cloud. Enconvo sends each message to a Webhook routine you make in Grok Bot, and shows the reply in the chat, even when it arrives late.
+
+1. In Grok Bot, create a routine with a Webhook trigger.
+2. Open **Grok Bot** in **Settings → Agent List**, click **Copy** next to **Routine instructions**, and paste them into the routine.
+3. Add the routine's webhook URL and key as the credential on the same page, then click **Test**. The test waits for the routine's reply for up to about 90 seconds.
+
+Until the routine is connected, the agent picker shows Grok Bot as **Not set up**. Every message uses your Grok Bot plan's weekly usage. **Stop** only stops Enconvo waiting: the routine's run goes on in the cloud, and a reply that comes later is still added to the chat.
+
+A message can be up to 32,000 characters. Attached files and images stay on your Mac; only the text is sent.
+
+### Let Grok Bot call Enconvo
+
+With Enconvo's MCP server, Grok Bot can reply to your chats, notify your Mac and your paired phones, and ask an Agent on your Mac to run a task.
+
+1. On Grok Bot's page, under **Grok Bot calling Enconvo**, click **Connect**. You need to be signed in to your Enconvo account.
+2. In Grok Bot, open **Plugins**, add the **Server URL** shown, and sign in with your Enconvo account when Grok Bot asks.
+
+Each request to an Agent on your Mac waits for your approval, unless you turn on **Always allow ask_mac**. Requests stay listed in the **Grok Bot on this Mac** chat. Click **Disconnect** to stop Grok Bot from calling Enconvo; disconnecting, or your Mac going offline, withdraws a request still waiting.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| A chat says the agent isn't signed in | Open the agent's page in **Settings → Agent List** and click **Sign in again**. A Mavis chat or app that called the agent gets the same sign-in error, and its Board tasks wait as **Held** until you sign in. |
+| The agent shows **Not installed** or a version that's too old | Click **Install** or **Update** on its page, then **Check again**. |
+| Muse Code says Enconvo needs an update | Update Enconvo to work with the newer Muse Code. |
+| Grok Bot shows **Not set up** | Add the routine's webhook URL and key on Grok Bot's page and click **Test**. |
+| Grok Bot's test says too many messages | The routine or Enconvo is turning away too many messages for now. Try again later. |
+| A Muse Code chat open in Terminal won't send | Quit Muse Code in Terminal to bring its turns back, then send from Enconvo. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents">Subagents, roles, and approvals.</Card>
+  <Card title="Projects" icon="folder" href="/ai/projects">Give coding tasks to a team in one folder.</Card>
+  <Card title="Chat Window" icon="comments" href="/ai/chat">Start, steer, and organize chats.</Card>
+  <Card title="Hooks" icon="anchor" href="/configuration/hooks">Run your own commands when an Agent acts.</Card>
+</CardGroup>

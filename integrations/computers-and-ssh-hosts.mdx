@@ -23,10 +23,12 @@ Open **Settings → Connections**. It has three lists:
 | List | What it holds |
 | --- | --- |
 | **Phones** | The iPhone and Android apps paired with this Mac. See [iPhone App](/integrations/iphone-app). |
-| **Computers** | Your other computers that run Enconvo, paired with this Mac. Click **Pair a computer** to add one. |
+| **Computers** | Your other computers that run Enconvo, paired with this Mac. Each is listed once, with which way it controls. Click **Pair a computer** to add one. See [Your Other Computers](/integrations/other-computers). |
 | **SSH hosts** | Servers your agents reach over SSH, with nothing installed there. |
 
 Click a phone or a computer to open its own page, with what it can do on this Mac.
+
+You can also add a host, pair a computer or pair a phone from the Chat Window: click the device switcher at the bottom of the sidebar, then **Add a device**.
 
 ## Add an SSH host
 
@@ -58,6 +60,21 @@ To see what it ran, click **Worked for** above the answer. The fold lists each c
 
 You can mention a paired computer the same way. The Agent hands the task to that computer's own agent, or runs commands there when that computer allows Terminal for this Mac.
 
+In the chat, a command run on a host or another computer reads **Ran a command**, and each step names the machine.
+
+## Let agents work on a paired computer
+
+In **Settings → Connections**, click a computer under **Computers** to open its page. Two switches decide what agents in chats here may do with it:
+
+| Switch | What it does |
+| --- | --- |
+| **Agents** | Add its agents to Projects, or hand a chat to one. The task runs on that computer, and anything its agent wants to do asks you there first. |
+| **Commands** | Agents in chats here may run commands on it, asking as the chat's Permission mode says. |
+
+A dimmed switch means the other computer hasn't allowed it: turn on **Agents** or **Terminal** for this Mac on that computer. Turning off **Commands** also stops commands through an SSH host for the same computer.
+
+To let another computer's agents use this Mac's screen and browser directly, turn on **Agent control** on that computer's page here. See [Your Other Computers](/integrations/other-computers#hand-work-to-another-computer).
+
 ## Change a host's settings
 
 Under **SSH hosts**, click a host to open its page:
@@ -85,13 +102,15 @@ To cut them all off at once, click **Stop all access** and confirm. Your phones 
 | The test says the server refused your key | Check `IdentityFile` for the host in `~/.ssh/config`, or add the key with `ssh-add`. |
 | The server answered with a different host key | It may have been rebuilt, or something may sit between you and it. If it was rebuilt, remove the old key in Terminal with `ssh-keygen -R` followed by the server's address, then try again. |
 | The host isn't in the `@` menu | Open the host's page and turn on **Agents can use it**. |
+| A wrong password or passphrase | The box opens again and says it didn't work. Type it again. |
+| A computer has two SSH hosts | The first host stays linked to the computer, and its page shows that one. Removing it links the other. |
 | `~/.ssh/config` has no hosts | Type the address as `user@host` in **Add a host**. |
 
 ## Related
 
 <CardGroup cols={2}>
+  <Card title="Your Other Computers" icon="laptop" href="/integrations/other-computers">Pair a computer and use its chats, screen and files.</Card>
   <Card title="iPhone App" icon="mobile" href="/integrations/iphone-app">Pair a phone, the first list in Connections.</Card>
   <Card title="Agents" icon="robot" href="/ai/agents">Permission modes and how the Agent asks before it acts.</Card>
   <Card title="Computer Use" icon="computer-mouse" href="/features/computer-use">Let the Agent use apps on this Mac.</Card>
-  <Card title="Chat Window" icon="message" href="/ai/chat">Where you mention a host and read the answer.</Card>
 </CardGroup>

@@ -27,6 +27,8 @@ Plugins add commands, providers, tools, and API routes to Enconvo. Open **Settin
 
 A plugin's page lists its commands and their settings. When you open a command's settings from somewhere else in Enconvo, you land on that command inside its plugin.
 
+When a plugin has a view in the Chat Window, such as [Email](/integrations/email), its page has an **Open** button that opens that view there, so what lives inside it, such as adding a mailbox, is one click away. A plugin with several views gets an **Open** menu instead.
+
 ## The Plugins page
 
 | Tab | What it shows |
@@ -60,6 +62,13 @@ To bring in a plugin from outside the catalog, use **Create plugin** or the **Ad
 | Connect external tools | [MCP Servers](/features/mcp) |
 | Add reusable Agent instructions | [Skills](/configuration/skills) |
 
+Some plugins in the store bring a whole service's tools and guidance:
+
+- **Shopify** lets the agent manage your Shopify store with Shopify's official CLI, showing you each change before it makes it. It works across several stores. The agent asks which store when you don't name one, names the store in every change it shows, and runs a change meant for several stores once per store.
+- **Expo** brings the Expo team's official skills and the Expo MCP Server, in place of the older read-only Expo Connector. The agent builds, upgrades, and ships Expo and React Native apps, reads your EAS builds, logs, crashes, and reviews, and starts builds and submissions only after you approve each one. An Expo sign-in you already made carries over.
+
+**Obsidian**, **Tailscale**, and **Cloudflare** are Plugin Store plugins too: install them from the Plugins page. A copy you already had keeps working and updates itself. Agents know from the start which of the Obsidian, Tailscale, Cloudflare, and Shopify plugins you have installed.
+
 The [Built-in Command Catalog](/extensions/built-in-extensions) lists the documented command families. The store entries and installed plugins in your build can differ from it.
 
 ## Commands, providers, and tools
@@ -72,6 +81,17 @@ Installing a plugin doesn't always make its provider the default, or turn on eve
 
 In SmartBar, use the command picker (`@` by default) or search for a command's title. The `/` action menu does something else; it isn't a prefix for plugin names.
 
+## Use several accounts in a Connector
+
+Connectors that sign in on your Mac, such as Notion, Webflow, and Linear, can hold more than one account.
+
+- On the Connector's page, select **Connect another account** to add one. **Connected accounts** lists them all.
+- Select **Make default** on the account agents should send or create with. Agents read from every account.
+- Name an account in a request, such as "send it from my work address", and the agent uses that one.
+- **Disconnect** removes one account; **Disconnect all accounts** removes them all.
+
+In a client's Workspace, each Connector keeps its own default account, shown as **Default in** and the Workspace's name. The agent uses that client's account there unless you name another.
+
 ## Turn off, update, or remove
 
 On a plugin's page:
@@ -80,6 +100,18 @@ On a plugin's page:
 - The **⋯** menu has **Settings**, **Check for updates**, and **Uninstall**. Plugins that come with Enconvo can't be uninstalled.
 
 Before you uninstall a plugin, check the Agents, workflows, and custom commands that use it. Resetting a command restores its settings. Resetting a shared provider can also change credentials that other features use; see [Credentials](/configuration/credentials).
+
+## Share a plugin
+
+You can share a plugin you made, or one whose folder is on this Mac, with a link anyone you give it to can install.
+
+1. On the plugin's page, click **Share…**. Sign in to your Enconvo account if Enconvo asks.
+2. Under **Who can install**, choose **Anyone with the link** or **Plugin store**.
+3. Click **Publish**, then **Copy link** and send the link.
+
+Enconvo checks and reviews each version before the link installs it, and the link opens the plugin's page on enconvo.com. Each person who installs it gets a copy of their own; its data, your keys, and your sign-ins stay on your Mac.
+
+To change a shared plugin, click **Share…** again: send a newer version, change **Who can install**, or click **Stop sharing**. The link stops working, and people who installed the plugin keep their copy. If the review declines a version, **Share…** shows why and offers **Fix in chat**. To share a [Space](/features/spaces), see [Share a Space](/features/spaces#share-a-space).
 
 ## Build your own
 

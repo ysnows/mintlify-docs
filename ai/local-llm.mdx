@@ -32,6 +32,22 @@ A local chat model alone doesn't keep everything on your Mac. Speech recognition
 
 Set the server to accept network connections, and set Enconvo's **BaseUrl** to that computer's address. `localhost` always means the Mac running Enconvo. If macOS blocks the connection, turn on Enconvo in **System Settings → Privacy & Security → Local Network**.
 
+## Use another model server
+
+For a server such as llama.cpp, vLLM, KoboldCpp, or text-generation-webui, click **Add New Provider** at the bottom of **Settings → AI Model** and choose **OpenAI Compatible**. Paste the server's address as the base URL; Enconvo accepts it with or without `/v1`, and with the full endpoint pasted. Leave the API key empty when the server doesn't check one.
+
+## Long chats on a small context
+
+Local servers often run a model with a smaller context than the model allows. Enconvo reads the context Ollama, llama.cpp, LM Studio, KoboldCpp, and text-generation-webui really run with, and compacts the chat to fit. On a small context, it summarizes a long chat in parts. To give the model more room, raise the context length in the server's own settings.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The model forgets the start of a long chat | The server runs a small context. Raise the context length in the server's settings, or start a new chat. |
+| The model ignores tools or images | It doesn't take them, so Enconvo answers without them. Pick a model that supports tool calls or image input. |
+| The connection fails | Read the error: Enconvo shows the server's own message and names the cause. Check that the server is running and that the address and port are right. |
+
 ## Related
 
 <CardGroup cols={2}>

@@ -59,7 +59,12 @@ Deleting a workflow stops its run first if it is running. The [automations](/wor
 
 ## Start a new workflow
 
-Select **New workflow** to open a dialog with these ways to start. When you don't have any workflows yet, the workflow list offers the same starts right there: **Describe what it should do**, **Blank workflow**, and the templates.
+Select **New workflow** to open a dialog with these ways to start. First choose what kind of workflow it is:
+
+- **Task workflow**: how one kind of task gets done.
+- **Team workflow**: how a goal goes from plan to done, with several members. Its templates include **Plan, build, review** and **One member**.
+
+When you don't have any workflows yet, the workflow list offers the same starts right there: **Describe what it should do**, **Blank workflow**, and the templates.
 
 | Start | How |
 | --- | --- |
@@ -67,6 +72,10 @@ Select **New workflow** to open a dialog with these ways to start. When you don'
 | Start from a template | Pick **Blank**, **Research a topic**, **Summarize a web page**, **Notes from a YouTube video**, **Write and read aloud**, or **Tour of step kinds** (a shell command, a tool, a prompt, and an agent, with two jobs running side by side). Every template is a complete workflow you can run right away. |
 | Import a file | Select **Choose file…**, or drop a `.yaml`, `.yml`, or `.json` workflow file anywhere on the dialog, for example one a teammate shared. It is saved as a new workflow, so it never replaces one you already have. If its title matches one in your list, it's named like a copy, such as "News copy". If the file isn't a valid workflow, the dialog stays open and tells you why. |
 | Paste it | Paste a workflow's YAML or JSON, such as one shared in a chat, into the description box. **Build it** becomes **Import it**, and the workflow is created exactly as pasted. |
+
+### Built-in workflows
+
+Workflows that come with Enconvo open read-only. To change one, select **Make a copy** and edit the copy.
 
 ### Share a workflow
 
@@ -82,6 +91,13 @@ Both include changes you haven't saved yet when you use them from the editor.
 <Frame caption="The Visual editor shows parallel jobs, sequential steps, and the selected step's configuration.">
   <img src="/images/guides/workflow-visual.jpg" alt="Actual Enconvo workflow graph with two parallel jobs and a step inspector" />
 </Frame>
+
+The editor has two ways to look at the same workflow:
+
+- **Visual**: the steps as cards on a canvas, with parallel jobs side by side.
+- **Steps**: the steps listed top to bottom with their conditions, repeats, and parallel steps. Use the **Add** menu between two steps to insert one there.
+
+Select **Guide** in the header for a plain-words explanation of the workflow in your language.
 
 1. Select **Visual** in the editor toolbar.
 2. Use **Add step here** between nodes to insert a step, or **Add parallel job** for a separate branch. The step list opens with **Recently used**, the last few steps and tools you picked, so the ones you add often are one click away. A plugin with many tools lists its first eight; select **Show N more** to see the rest, or type to search.
@@ -143,6 +159,7 @@ When you delete or paste steps, a notice says what changed; select Undo in it to
 
 - To jump to a step in a large workflow, press **⌘F** or select the search button on the canvas, type part of the step's name, ID, tool, or text, and pick it. The step is selected and brought into view.
 - Use the zoom controls in the bottom-right corner of the canvas. Select the zoom level to return to 100%.
+- Select **Find step**, or press **⌘F** on the canvas, and type part of a step's name to select that step and bring it into view. It works in read-only built-in workflows too.
 - Press **⌘S** to save from anywhere in the editor, in Visual or YAML, even while typing in a step's settings.
 - Press **⌘↩** to run the workflow; it is saved first if it has changes. In the YAML editor, the assistant, and other multi-line fields, select **Run** instead.
 - While a run is in progress, **Run** becomes **Stop**. After you select it, it shows **Stopping…** until the run has stopped.
@@ -273,13 +290,14 @@ The run shown on the canvas is marked **Showing**. Select a row to show that run
 
 - When an automation's last run failed, hover **Last run failed** to see why, or select it to open that run on the canvas and see which step failed.
 - Turn an automation off or on with its switch, or select the pencil to change its schedule.
-- Choose **Add schedule** to create an automation with this workflow already picked and its inputs filled in from **Run inputs**.
+- Choose **Add schedule** to open the form right there, with this workflow already picked and its inputs filled in from **Run inputs**.
+- Select **Delete** on a schedule to remove that automation.
 
 Scheduled runs use the saved workflow, so save your changes before the next run. Every automation is also listed in **Automations** in the Chat Window sidebar; see [Automations](/workflows/scheduled-jobs).
 
 ## Edit YAML
 
-Saving writes the workflow to `~/.enconvo/workflows/<id>.yaml`. Select **YAML** to work with the same document as source. The **Valid** or **Invalid** badge and the **Validate** action help find malformed definitions. Use letters, digits, and underscores for job and step IDs, and start with a letter or underscore. When you switch back to **Visual**, **⌘Z** takes back your YAML edits in one step.
+Saving writes the workflow to `~/.enconvo/workflows/<id>.yaml`. Select **YAML** to work with the same document as source. The editor checks as you type: an error names its line and column, and a warning marks fields that do nothing. The **Valid** or **Invalid** badge and the **Validate** action check the whole document. Use letters, digits, and underscores for job and step IDs, and start with a letter or underscore. When you switch back to **Visual**, **⌘Z** takes back your YAML edits in one step.
 
 ```yaml
 version: agent-workflow/v1
@@ -373,7 +391,7 @@ Use `uses: transform` with a `value` to combine inputs or previous outputs witho
 
 ### Subworkflow
 
-Use `uses: workflow` with a saved `workflowId`, or an inline `workflow` document, to run a reusable child process. See [Advanced Workflows](/workflows/advanced-workflows#subworkflows).
+Use `uses: workflow` with a saved `workflowId`, or an inline `workflow` document, to run a reusable child process. In the Visual editor, pick the saved workflow by name and fill in the inputs it asks for in a form. A Subworkflow step with no workflow picked doesn't pass; it stops the run and says what's missing. See [Advanced Workflows](/workflows/advanced-workflows#subworkflows).
 
 ### Approval
 
@@ -383,7 +401,7 @@ Use `uses: workflow` with a saved `workflowId`, or an inline `workflow` document
   message: "Post this summary to the team? {{ inputs.text }}"
 ```
 
-Enconvo asks you the `message` and waits for your answer, up to 24 hours unless the step sets `timeoutMs`. Approved, the steps after it run. Declined or unanswered, it is skipped like a false condition: the steps after it skip, and its `else_of` step runs. `steps.confirm.output.feedback` holds what you typed when you declined. Put it right before a step that sends, posts, deletes, or pays.
+Enconvo asks you the `message` with **Approve** and **Decline**, and waits for your answer, up to 24 hours unless the step sets `timeoutMs`. Approved, the steps after it run. Declined or unanswered, it is skipped like a false condition: the steps after it skip, and its `else_of` step runs. `steps.confirm.output.feedback` holds what you typed when you declined. Put it right before a step that sends, posts, deletes, or pays. When you select **Try again** after declining, the new run is told what you declined and why. Declining an approval inside a subworkflow stops the whole run, not only the subworkflow.
 
 ### Judge
 
@@ -409,7 +427,7 @@ Jev, Enconvo Cloud's fast decision model, answers the `question` about `input` w
     other: Anything else
 ```
 
-Jev picks one of the `options` and returns its `label`, a `confidence`, and the `probabilities` of each option. `options` is a list of at least two labels, or a map of each label to what it means. Branch with `if: "{{ steps.kind.output.label == 'billing' }}"`.
+In the inspector, enter one row per option. Jev picks one of the `options` and returns its `label`, a `confidence`, and the `probabilities` of each option. `options` is a list of at least two labels, or a map of each label to what it means. Branch with `if: "{{ steps.kind.output.label == 'billing' }}"`.
 
 Judge and Classify steps run on Enconvo Cloud, so they need you signed in with points left. They don't take an `output_schema`.
 

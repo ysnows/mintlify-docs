@@ -13,12 +13,14 @@ The default routes all run on Enconvo Cloud:
 
 | Route | Used for | Default model |
 | --- | --- | --- |
-| **Simple tasks** | Greetings, short factual answers, yes-or-no questions, single-step actions | Claude Haiku 5.5 |
-| **Writing & Q&A** | Chatting, answering questions, drafting, rewriting, translating, summarizing | Claude Haiku 5.5 |
-| **Medium tasks** | Small code changes, reading a file or page, comparing options, making a plan | Claude Sonnet 5.5 |
-| **Complex tasks** | Non-trivial code, design decisions, research across many sources, long documents | Claude Opus 5.5 |
+| **Simple tasks** | Greetings, short factual answers, yes-or-no questions, single-step actions | Enconvo Fast |
+| **Writing & Q&A** | Chatting, answering questions, drafting, rewriting, translating, summarizing | Enconvo Fast |
+| **Medium tasks** | Small code changes, reading a file or page, comparing options, making a plan | Enconvo Balanced |
+| **Complex tasks** | Non-trivial code, design decisions, research across many sources, long documents | Enconvo Ultra |
 
 A message that fits no route runs on the route marked **Fallback**: **Simple tasks**, or the first route if you remove that one.
+
+Once a chat is under way, Auto Route keeps it on its current model when a switch to a cheaper one would cost more overall. Moving to another model loses the prompt cache, which can make the switch cost more than staying.
 
 ## Change the routes
 
@@ -52,5 +54,5 @@ Click **Details** under a reply to see the model and the Auto Route route that p
 
 <CardGroup cols={2}>
   <Card title="Choose a model" icon="list-check" href="/ai/model-selection-guide">Where default models are set, and how chats keep theirs.</Card>
-  <Card title="Enconvo Cloud" icon="cloud" href="/providers/enconvo">The models the default routes use.</Card>
+  <Card title="Enconvo Cloud" icon="cloud" href="/providers/enconvo">Enconvo Fast, Balanced, and Ultra, the models the default routes use.</Card>
 </CardGroup>

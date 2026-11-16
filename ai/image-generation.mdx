@@ -18,7 +18,7 @@ The Enconvo Cloud providers, **OpenAI (Enconvo Cloud)** and **Google Gemini (Enc
 1. In a chat with an Agent, describe the subject, composition, style, and what the image is for.
 2. Ask for a size, aspect ratio, or quality only when the model supports it.
 3. Wait for the image. Generation can take longer than a text reply.
-4. Open the result and save the image you want to keep.
+4. Click the image to open it beside the chat, where you can keep editing it.
 
 Example:
 
@@ -28,17 +28,35 @@ Show three labeled folders on a tidy desk, with a warm neutral palette.
 Leave the top third clear for a title.
 ```
 
+You can also pick **Image** under a new chat's message box. The model, its settings, and **Avoid** show as pills under the message box, so you set them before you send. For a library of everything you made, saved subjects, and one-click fixes, use [Media](/features/media).
+
 ## Edit an image
 
-1. Attach the source image to your message.
+1. Attach the source image to your message, or click an image an Agent made to open it in the image editor.
 2. Describe the specific changes, and say what should stay the same.
 3. Check the result for changes you didn't ask for.
 
 Use a model that supports image editing or reference images.
 
+In the image editor, the settings panel shows only what the chosen model takes:
+
+| Setting | What it changes |
+| --- | --- |
+| Resolution, aspect ratio, and quality | The size and detail of the next version |
+| **Avoid** | What to leave out, for models that take a negative prompt |
+| Variations | How many takes each request makes; you keep the ones you want |
+| **Edit area** and **Markup** | Paint on the picture to change only that part, or draw to guide the change |
+| GIF and **Frames** | An animated picture made from your words |
+
+Every edit is a new version, and every picture is kept in [Media](/features/media) and in `~/Enconvo/Media`. To animate a picture, click **Make video**.
+
+### GPT Image 2.6
+
+GPT Image 2.6 Flare and Sunburst are available through OpenAI, Enconvo Cloud, PipeLLM, and OpenRouter. They add a complexity setting (low, medium, or high), edits guided by markup you draw, and SVG or animated GIF output. SVG and GIF make a new picture from your words; they don't edit the current one.
+
 ## Providers
 
-The [image provider catalog](/providers/catalog#image-generation) includes OpenAI, Gemini, xAI, OpenRouter, Kie.ai, Topview, Azure, Together, and their Enconvo Cloud versions where offered. What a provider can do depends on the model: a provider's name alone doesn't promise every editing mode.
+The [image provider catalog](/providers/catalog#image-generation) includes OpenAI, Gemini, xAI, OpenRouter, PipeLLM, Pollinations, Kie.ai, Topview, Azure, Together, and their Enconvo Cloud versions where offered. The OpenAI provider also works with your ChatGPT sign-in as its credential. What a provider can do depends on the model: a provider's name alone doesn't promise every editing mode.
 
 ## Troubleshooting
 
@@ -47,11 +65,13 @@ The [image provider catalog](/providers/catalog#image-generation) includes OpenA
 | The image doesn't generate | Check the provider's access and model, then read the provider's error |
 | An edit ignores your image | Check that the model accepts image input and that the file is attached to the message |
 | The input file is rejected | Check that the provider supports the file's format |
+| GPT Image 2.6 isn't offered with your ChatGPT sign-in | OpenAI doesn't serve it to ChatGPT plans; use an OpenAI API key or Enconvo Cloud |
+| A setting you want isn't in the editor | The chosen model doesn't take it; pick another model |
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Visual Answers" icon="chart-simple" href="/features/visual-answers">Diagrams and interactive widgets in chat.</Card>
+  <Card title="Media" icon="images" href="/features/media">Every image, video, and audio clip in one place.</Card>
   <Card title="Video Generation" icon="film" href="/ai/video-generation">Turn a prompt or an image into a clip.</Card>
   <Card title="Media Utilities" icon="photo-film" href="/features/media-tools">Compress images, video, and audio.</Card>
   <Card title="Provider Catalog" icon="list" href="/providers/catalog#image-generation">Every image provider and its settings.</Card>

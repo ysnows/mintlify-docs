@@ -13,9 +13,9 @@ The video below walks through the Agent List in under 2 minutes: Mavis and the b
 
 ## The Agents you start with
 
-**Mavis** is the default Agent: it answers, and it can also use your apps, browse the web, and work with your files. The built-in Agents are each made for one job: **Writer**, **Planner**, **Reviewer**, **Advisor**, **Researcher**, **Designer**, and **Coder**. **Claude Code**, **Codex**, **Grok Build**, **Antigravity**, and **Muse Code** chat with the coding agents you have installed, working in a project folder.
+**Mavis** is the default Agent: it answers, and it can also use your apps, browse the web, and work with your files. The built-in Agents are each made for one job: **Writer**, **Planner**, **Reviewer**, **Advisor**, **Researcher**, **Designer**, and **Coder**. **Claude Code**, **Codex**, **Grok Build**, **Antigravity**, and **Muse Code** chat with the coding agents you have installed, working in a project folder, and **Grok Bot** chats with xAI's agent in the cloud. See [Coding Agents](/ai/coding-agents).
 
-Pick an Agent from the Agent menu at the top of any chat, or from the cards above the Chat Window's input.
+Pick an Agent from the Agent menu at the top of any chat, or from the cards above the Chat Window's input. Agent lists put the Agents you chatted with most recently first.
 
 ## What an Agent is made of
 
@@ -24,21 +24,26 @@ Click an Agent in **Settings → Agent List** to open its page. The sections on 
 | Section | What it sets |
 | --- | --- |
 | **Instructions** | What the Agent is told before every conversation. Changes save as you type. |
-| **Style** | Its response style, and how readily it answers with charts, tables, and cards. |
+| **Style** | Its **Response Style**, and its **Intelligent UI** level: how readily it answers with charts, tables, and cards. See [Set its style](#set-its-style). |
 | **Model** | The AI model it writes with. Each Agent can use a different one. |
-| **Skills** | The skills it can use, and the **Working Folder** that holds its specialized skills and the files it works on. |
-| **Knowledge** | Which knowledge bases it looks in, and whether it searches the web when they don't have the answer. |
+| **Tools & Skills** | What it can use and how it finds the rest, plus its skill folders and the **Working Folder** that holds its specialized skills and the files it works on. See [Choose tools and skills](#choose-tools-and-skills). |
+| **Knowledge** | Which knowledge bases it looks in, in what order, and whether it searches the web when they don't have the answer. See [Choose its knowledge bases](#choose-its-knowledge-bases). |
 | **Memory** | Which memories it reads, and whether it remembers new things. |
 | **Voice** | The voice that reads its replies aloud. |
 | **Behavior** | What it sees, how it runs, and how it replies, such as **Response Language** and **Cloud Points Run Cap**. |
+| **Used by** | What starts this Agent besides the chat, and its **Link, CLI and API** row. |
 
 ## Create an Agent
 
 1. In **Settings → Agent List**, click **New Agent**, or run **Create Agent** from SmartBar.
 2. Enter a **Title**, and optionally an **Avatar** and a **Description** of its purpose.
 3. Under **Agent Instruction**, describe what it should do, what input it needs, and how it should present results.
-4. Click **Create Bot**. Then open the Agent to choose its model, skills, and knowledge.
-5. Start a new chat with it and test a small, typical task.
+4. Under **What can it use?**, start from a preset: **Everyday** (all built-in tools), **Coding**, **Research**, or **Writing**. You can change this later under **Tools & Skills**.
+5. Pick its model. Under **Recommended model**, Enconvo reads the description and suggests an Enconvo Cloud model, with a cheaper and a stronger one beside it. Click **Use this**, or pick one of the others. See [Use the recommendations](/ai/model-selection-guide#use-the-recommendations).
+6. Click **Create Bot**. Then open the Agent to choose its skills and knowledge.
+7. Start a new chat with it and test a small, typical task.
+
+To draw an avatar instead of uploading one, open the **Generate** tab of the Avatar picker, here or later in the Agent's settings. Pick a style (**Flat**, **3D**, **Anime**, **Photo**, **Line**, or **Watercolor**) and click **Generate**: your image model draws four avatars from the Agent's name and description. Add details and draw again, or click the one you want. Nothing is drawn until you click **Generate**.
 
 Example instruction:
 
@@ -49,7 +54,30 @@ For action items, preserve the owner and due date if stated;
 otherwise mark them as unspecified.
 ```
 
-## Choose tools
+## Set its style
+
+Under **Style**, two settings decide how the Agent's replies read. A chat can pick another style for itself from the **+** menu's **Use style**.
+
+**Response Style** sets tone, length, and format: **Normal**, **Concise**, **Explanatory**, **Formal**, or a style of your own. Click **New style** to make one from a description or from a sample of your own writing, and **Manage** to edit your styles.
+
+**Intelligent UI** sets how readily it answers with charts, tables, and cards without being asked:
+
+| Level | What it does |
+| --- | --- |
+| **Selective** | Draws data, comparisons, and plans. Summaries and explanations stay in text. |
+| **Proactive** (default) | Adds a chart, table, or card whenever one reads better, even in an explanation. |
+| **Visual first** | Leads with visuals, and can use several in one reply. Replies take a little longer. |
+
+More visuals take longer and use more points. IM channels and voice replies stay in text.
+
+## Choose tools and skills
+
+Under **Tools & Skills**, choose how the Agent finds what it uses:
+
+- **Auto-discover** (recommended) starts with the essentials and finds any installed skill, plugin, Connector, or MCP server when a task needs it. It matches by meaning, so a request worded differently from a tool's description, or written in another language, still finds it.
+- **Only what I choose** gives the Agent a fixed set. Pick the built-in tools, skills, and MCP servers it may use. When a task needs something else, it tells you what's missing instead of searching for it.
+
+With **Auto-discover**, you can still turn off **Built-in tools** this Agent should never touch, pin skills under **Pinned skills** so they're listed in every chat, and turn off **Suggest plugins from the Enconvo Store** to stop it from offering plugins to install. **Skill folders** turns individual skills off for this Agent.
 
 Give the Agent only the tools its job needs:
 
@@ -63,8 +91,21 @@ Give the Agent only the tools its job needs:
 | Reuse a procedure | [Skills](/configuration/skills) |
 | Connect an external service | [MCP Servers](/features/mcp) |
 | Run code | [Code Runner](/ai/code-runner) |
+| Make many tool calls in one step | [Code Mode](/configuration/code-mode) |
 
 The model must support the tools and input types you choose. Tools also need their own credentials, access, and setup, and an instruction can't grant a permission the Agent doesn't have.
+
+## Choose its knowledge bases
+
+Under **Knowledge**, choose where the Agent looks:
+
+| Option | What it does |
+| --- | --- |
+| **All knowledge bases** | Looks in any of yours when a question needs one. |
+| **Chosen ones first** | Looks in the ones you add first, then the rest when they don't have it. |
+| **Only chosen ones** | Looks only in the ones you add. Others open only when you `@`-mention them. |
+
+Click **Add knowledge bases** to choose them, and drag them into the order it should look in.
 
 ## Approve actions
 
@@ -76,7 +117,9 @@ The **Permissions** chip next to the run mode sets when an Agent stops to ask be
 | **Approve for me** (default) | Only actions that look potentially unsafe, such as deleting files, sending messages, publishing, or paying |
 | **Full access** | Nothing. The Agent acts without asking |
 
-Reading files, searching, and looking at the screen never ask.
+Reading files, searching, and looking at the screen never ask. **Approve for me** also doesn't ask before a command that only sets `PATH` for itself, or one that deletes what it made under the temporary folder; deleting anything else still asks.
+
+When an Agent hands work to another Agent or a Coding agent, the one it calls works in the same mode as the Agent you chat with. Each approval card says which setting made it ask, such as "Asked because this Project is on Approve for me." See [Agent Sandbox](/configuration/sandbox) for what limits a command once it runs.
 
 ### Where the question appears
 
@@ -98,12 +141,28 @@ Subagents ask in their parent chat, and the question says that a subagent is ask
 
 In Agent mode, an Agent can split a task into parts and start up to six subagents that work at the same time, each in its own conversation. It answers once they report back. It does this only when splitting clearly helps, such as several independent searches, or when you ask. If an AI error such as a rate limit stops a subagent partway, the Agent still gets what it found so far, and can let it continue once the error clears.
 
+When it starts a subagent, the Agent can give it its own model, reasoning effort, instructions, and name, or fork the current conversation into it. When the Agent picks the model itself, quick lookups, reading, and simple repeated work run on your provider's small model, harder reasoning gets a higher effort, and everything else stays on the model you picked. A subagent can start subagents of its own, up to three levels deep.
+
+- **Coding agents as subagents.** Claude Code, Codex, Antigravity, Grok Build, and Muse Code can work as subagents. The card shows the Coding agent's icon, where it works, and the tool calls, time, and tokens it used.
+- **Separate worktrees.** When a subagent changes files while another one does, it gets a git worktree of its own, so two subagents never overwrite each other's work. A worktree with no changes is removed when its subagent finishes. Subagents that only make designs, docs, slides, research, or reviews work without a worktree, so starting several doesn't copy the project for each.
+- **Other computers.** An Agent can run a subagent on another of your paired computers, handing the task to that computer's Agent or a Coding agent there. See [Other computers](/integrations/other-computers).
+- **Steering.** An Agent can add a message to a running subagent's task, interrupt it, or reach another Agent's chat in the same Project. Stopping a chat stops every subagent below it.
+- **Pipelines.** An Agent can run a planned set of subagents in one step, such as the same check over a list of files. A failed run resumes without running the finished subagents again.
+
+### Parallel chats
+
+When you ask an Agent to open a new chat for a separate task, it opens one, at the reasoning effort you ask for, that shows in your chat list on the Mac, iPhone, and Android like a chat you started. A note at the top says which chat started it. Reviews and tests for that task still run as its subagents. A chat an Agent started for itself can be moved to your chat list from its card.
+
 ### Follow and talk to subagents
 
-A card in the chat lists each subagent by its task, with an icon that shows whether it's running, waiting for your approval, done, or failed. A running subagent's row also shows what it's doing right now.
+A card in the chat lists each subagent by its task, with an icon that shows whether it's running, waiting for your approval, done, or failed. A running subagent's row also shows what it's doing right now, and the model and effort it runs on. New subagents also show in the background tray over the message box as soon as the card does.
+
+What a subagent makes, such as a design or a doc, shows under its row as it's made. Click it to open it beside the chat; the Agent hands it over as a card in its answer.
 
 - Click a row to open that subagent's conversation. Its Workspace panel and `@` file search show the working folder of the chat that started it. In SmartBar and the Dynamic Island, its work opens in place.
-- Type in a subagent's conversation to talk to it. It answers you there, can ask you questions, asks for approval in that conversation, and keeps working in the same folder. The Agent that started it waits while it answers you, and then sees its newest answer.
+- Type in a subagent's conversation to talk to it. It answers you there, can ask you questions, asks for approval in that conversation, and keeps working in the same folder. The Agent that started it waits while it answers you, and then sees its newest answer. A message to a subagent that already finished starts it again right away, even while another subagent changes files in the same folder.
+- In a subagent's conversation, each message is marked with the Agent that sent it. A message from the parent Agent says whether it steered the running task, waited, interrupted it, or started a new turn.
+- The chat's **Lineage**, in its details, shows the whole tree of subagents, three levels deep. In a Coding agent's chat, it shows the Enconvo chat that started it.
 - In the Chat Window's sidebar, a chat's subagents are listed under it, and a button on the chat's row folds the list.
 
 ### Subagent roles
@@ -116,14 +175,15 @@ Every subagent starts in a role:
 | **Explorer** | Only reads files, searches, and looks at apps. It cannot edit, run commands that change anything, or act online, whatever the Permissions chip says |
 | **One of your Agents** | Runs as that Agent, with its own instructions, tools, and model, in the same working folder as the chat that started it |
 | **A project helper** | Defined by the project in `.claude/agents`, `.codex/agents`, or `.enconvo/agents`, in the working folder or a folder above it up to the repository root. Works as the Agent that started it, following the helper's own instructions. It uses only the tools the file lists, only reads when the file says so, and uses the helper's model when your model provider offers it |
+| **Your own helper** | Defined in `~/.enconvo/agents`, `~/.claude/agents`, or `~/.codex/agents` in your home folder, and available in every chat. Works like a project helper |
 
-To choose one yourself, type `@` in an Agent-mode chat and pick it from the **Subagents** group, which lists the project's helpers, **Explorer**, and a general **Subagent**. The Agent starts that subagent for your message, writes it the task, and answers once it reports back. Your own Agents stay in the menu's Agents group.
+To choose one yourself, type `@` in an Agent-mode chat and pick it from the **Subagents** group, which lists the helpers, **Explorer**, and a general **Subagent**. The Agent starts that subagent for your message, writes it the task, and answers once it reports back. Your own Agents stay in the menu's Agents group.
 
-Describe each Agent clearly in its settings: the Agent that splits the work reads those descriptions to decide which one fits a task.
+Describe each Agent clearly in its settings: the Agent that splits the work reads those descriptions to decide which one fits a task. To hand a task to one of your Agents or Coding agents as a teammate, with its own reasoning effort, see [Agent Orchestrator](/ai/agent-orchestrator).
 
 ### Project helpers
 
-Project helpers use the same files as Claude Code subagents and Codex agent roles, so a repository that already has them needs no extra setup.
+Project helpers and your own helpers use the same files as Claude Code subagents and Codex agent roles, so a repository or home folder that already has them needs no extra setup.
 
 - A Claude Code file (Markdown with `name` and `description` in its frontmatter) is read-only when it sets `permissionMode: plan`, or lists only reading tools such as `Read`, `Grep`, and `Glob`.
 - A Codex file (TOML with `description` and `developer_instructions`) is read-only with `sandbox_mode = "read-only"`.
@@ -141,6 +201,8 @@ A Claude Code file's `tools` and `disallowedTools` decide which of the Agent's t
 | `mcp__github__get_issue`, `mcp__github` | Use one tool, or every tool, of a connected MCP server |
 
 With no `tools` line, the helper has every tool except the ones `disallowedTools` names. A call outside the list isn't run, and the helper is told which tools it has. Every helper can still load skills and ask you questions. In an `.enconvo/agents` file, you can also list Enconvo tools by their API path, such as `browser-use/*`.
+
+A Claude Code file's skills, MCP servers, turn limit, background, and worktree settings take effect too.
 
 ## Ways to reach an Agent
 
@@ -170,6 +232,8 @@ Check the [model defaults](/ai/model-selection-guide) before you change an Agent
 | A request fails | Read the tool error, or look for missing input, first. |
 | You can't tell whether the model or a tool is at fault | Try the same request with optional tools turned off, then add tools back one at a time. |
 | An action will change files or an outside service | Check the destination and the effect before you approve it. |
+| The Agent says it's missing a tool or skill | Under **Tools & Skills**, check whether it's set to **Only what I choose**, or whether a built-in tool is turned off. |
+| Replies have more charts and cards than you want, or take too long | Set **Intelligent UI** to **Selective** under **Style**, or for one chat from the **+** menu's **Use style**. |
 
 ## Related
 

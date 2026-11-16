@@ -5,7 +5,7 @@ description: "Hold longer conversations with an Agent, keep them in projects, an
 
 import { YouTubePlayer } from '/snippets/youtube-player.mdx';
 
-The Chat Window is Enconvo's main space for ongoing conversations. Use it when the work takes more than one answer: you choose an Agent, add the material it needs, and keep related chats together. Press **⌥⌘D** to open it.
+The Chat Window is Enconvo's main space for ongoing conversations. Use it when the work takes more than one answer: you choose an Agent, add the material it needs, and keep related chats together. Press **⌃⌘X** to open it.
 
 For other jobs, use [SmartBar](/features/smartbar) for a quick question or command, the [App Sidebar](/features/app-sidebar) to work beside one app, [PopBar](/features/popbar) to act on selected text, or the [Dynamic Island](/features/dynamic-island) and [Desktop Pet](/features/pet) for a small entry point that stays on screen. [Window Management](/features/window-management) compares them all.
 
@@ -15,34 +15,154 @@ The video below tours the Chat Window in 2 minutes: choose an Agent, switch the 
 
 ## Start a conversation
 
-1. Press **⌥⌘D**, or open **Chat Window** from Enconvo. Click **New chat** (**⌘N**) for a fresh one.
+1. Press **⌃⌘X**, or open **Chat Window** from Enconvo. Click **New chat** (**⌘N**) for a fresh one. It starts in the project you last picked; choose **No project** in its project picker for a plain chat.
 2. Choose who answers: click an Agent card above the input, or the Agent's name at the top of the chat. Mavis is the default; the cards also hold Agents such as Writer and Researcher, and coding agents such as Codex and Claude Code.
 3. Check the chips under the input. The model chip shows the model for this chat; click it to switch for this chat only. The shield chip sets when the Agent checks with you before it acts: **Approve for me** asks only before risky steps.
-4. Click **+** to add files, images, or a screenshot. To ask for a specific result, click a shortcut below the input, such as **Slides**, **Doc**, **Web page**, **Image**, or **Video**.
+4. Click **+** to add files, images, or a screenshot. To make something specific, pick a kind in the **Make something** row below the input: **Slides**, **Doc**, **Design**, **Motion**, **Dashboard**, **Web page**, **Image**, or **Video**. A new chat inside a project has the row too. See [Artifacts](/features/artifacts).
 5. Type your request and press Return. The answer streams into the chat; if the Agent uses tools, follow their progress in the reply.
 6. Ask a follow-up in the same chat. It remembers the conversation, so a short request such as "Make it a one-day version" is enough.
 
+To start the chat on another of your paired computers, pick it with the **Run on** chip in the message box; what you typed comes along. See [Other computers](/integrations/other-computers).
+
 Ask for a complete result. “Summarize the attached proposal in five bullets and list open questions” tells the Agent both what to read and what to return.
+
+You can change a chat's Agent later from the Agent's name in the chat's header; SmartBar and the App Sidebar have the same picker. To hand the conversation to a [Coding agent](/ai/coding-agents), continue in a new chat with it. When you fork a chat, you pick the Agent that carries on.
+
+### Improve your request before sending
+
+Once you type a request, click the wand beside the microphone (**Enhance prompt**). The chat's own model rewrites it into a clearer, fuller request, using the conversation so far, and leaves `[placeholders]` for details only you know. Click **Undo** (or press **⌘Z**) to get your words back, or **Try again** for another rewrite.
+
+The message box keeps each chat's unsent text and attachments while you look at another chat, so your draft is still there when you come back. When you edit an earlier message, its images and files come back into the message box with its text, so you can remove one or add another before you send.
+
+### Edit with Vim keys
+
+Turn on **Vim Mode** in **Settings → General**, under **Keyboard**, or type `/vim` in the message box. A chip beside the microphone shows the mode and turns blue in Normal and Visual mode. Those modes type with an English keyboard layout, and Insert mode brings back the input source you were using.
+
+## Talk to the Agent while it works
+
+You don't have to wait for a long task to finish.
+
+| To | Do this |
+| --- | --- |
+| Add something to the running task | Type and press Return. Once you type or attach something, the **Stop** button turns back into **Send**. The Agent reads your message at its next step. |
+| Queue a message for when the task ends | Press **⌘Return**, or hold **⌘** while you click **Send**. |
+| Stop the task | Click **Stop**, or press **Esc** twice. One stray press doesn't end it. |
+
+The Agent keeps writing and running its tools while Enconvo checks whether your message should change course, so a follow-up that can wait doesn't throw away the current step. A request that has nothing to do with the task goes to a subagent that works in the background while the Agent carries on.
+
+A sign-in, install, or question card doesn't block the chat: if you send a message instead of answering it, the chat goes on.
+
+While the model thinks, the reply shows **Thinking…** with the time so far.
+
+When a task ends, the Agent's summary opens with the outcome, then lists what changed, what was checked, and what needs your attention.
+
+## Set a goal
+
+Give the Agent an end state, and it keeps working turn after turn until a check finds the goal met.
+
+1. Type `/goal` followed by what should be true when the work is done, or choose **Set a goal** from the **+** menu.
+2. Send. The goal shows above the message box with its running time.
+3. Use the goal bar to edit, clear, or resume the goal. While a goal is live, the **+** menu offers **Edit goal**.
+
+## Use a temporary chat
+
+For a one-off question you don't want to keep, turn on the dashed-bubble switch (**Temporary chat**) on a new chat. The App Sidebar and the Dynamic Island have the same switch. While it's on, the switch is blue and the message box has a dashed edge with a **Temporary chat** tag.
+
+A temporary chat stays out of your chat history, saves no [Memories](/ai/memory), and is deleted when you leave it. To keep it after all, click **Keep chat** on its banner; it becomes a normal chat.
+
+## Choose how replies look
+
+Each Agent has a default response style and an Intelligent UI level, which decides how readily it answers with charts, tables, and cards. To change them for one chat, open the **+** menu and choose **Use style**. Pick a style, such as **Normal**, or an Intelligent UI level, and choose **Use for all** chats of that Agent to make it the Agent's default. See [Agents](/ai/agents#set-its-style) for the styles and levels.
+
+Links in replies show as cards with the site's icon. A link to a map shows a real map with the place's name; several places share one numbered map, and a route shows its line with its time and distance. See [Visual Answers](/features/visual-answers).
+
+## Find your way around
+
+The sidebar has a slim icon rail on the left and a middle column that follows it.
+
+- The rail starts with **Chats**, which shows an amber count of the chats that need you, then **Scheduled**, **Knowledge Base**, and **Plugins**. **Board**, **Artifacts**, **Media**, and the other places wait in the **···** menu. Your plugins sit below a line, and the device switcher and the Settings menu are at the foot. The Settings menu also holds help links, **What's new**, and **Sidebar Shortcuts**.
+- Pick a place on the rail, and the middle column shows its sections, filters, and main action. **Chats** comes back where you left it. Skills and MCP servers open right in the window from **Plugins**.
+- Press **⌥⌘1** to **⌥⌘9** to open what the rail shows, in order. **⌘B** hides the middle column and keeps the rail.
+- **Back** and **Forward** remember the places you visited and the section you picked in each. Hold **Back** for a list of them.
+
+### Customize the sidebar
+
+Open the **···** menu, or right-click an icon on the rail, and choose **Customize sidebar…**. Pick which places show on the rail and drag them into your order. Drag a plugin above the line to sit among the places, or back below it, and pin or unpin any place or plugin.
+
+### Quick access
+
+Pin the pages, projects, and links you open most to the sidebar. Open the Settings menu at the foot of the sidebar, choose **Sidebar Shortcuts**, and add an item. They show in a **Quick access** group, where you drag them into order, rename them, or remove them.
+
+### The device switcher
+
+The sidebar shows one computer at a time. The device switcher at its foot moves between this computer and your paired ones, shows what's waiting on the others, and opens any of them in its own window. **Manage** sits beside the **Devices** title, and **Add a device** pairs a computer, adds an SSH host, or pairs a phone. See [Other computers](/integrations/other-computers), [Pair your phone](/integrations/pair-your-phone), and [Computers and SSH hosts](/integrations/computers-and-ssh-hosts).
+
+The first time you use Enconvo after an update, a card in the sidebar offers that version's update video. **What's new** in the Settings menu opens all of them in **Settings → Tutorials**.
+
+### Artifacts
+
+**Artifacts** in the **···** menu lists the pages, documents, and designs your Agents made. Right-click a card or row to **Open**, **Rename**, **Copy link**, open the chat it was made in, or **Delete**. **⌘**-click or **⇧**-click picks several to delete together, with **Undo**. A blank artifact you never write into isn't listed.
+
+To share a page artifact, click **Publish**. It goes online at your own `name.site.enconvo.com` link on Enconvo Cloud, with an optional password. You can also ask an Agent to publish a page or a site folder for you.
 
 ## Organize your chats
 
 The sidebar lists your recent chats, and projects keep related chats together where they're available. Every chat is saved: click **Search** (**⌘G**) in the sidebar to find one by what was said. Open a chat's menu to **Rename chat**, **Pin chat**, **Move to project**, **Archive chat**, or **Delete chat**. Read the confirmation before you delete a chat's history.
 
+- **Active** at the top gathers only the chats that still need you, are running, or have a result or failure you haven't opened, each with its project and state. Its rows work like the chat list's: hover for **Pin** and **Archive**, right-click for the menu, double-click to rename, or swipe on the trackpad to archive. Hover the group to **Mark all as read**.
+- **Phone chats** at the bottom of the list holds chats you started on your iPhone or Android phone. Continue them on the Mac; deleting one deletes it on both sides. See [Phone chats](/integrations/iphone-phone-chats).
+- Chats your Agent starts when it asks Codex, Claude Code, or another Agent for help aren't listed. Open one from its line in the chat that asked. It still gets a row while it's open, pinned, or waiting for your answer.
+- Each [Automation](/workflows/scheduled-jobs)'s latest run shows in the list with a clock mark as soon as it starts.
+- The **Pinned** group folds, and so does a worktree's row.
+- A violet spinner on a chat means its reply is done while subagents or background tasks it started are still running. A blue dot inside it means there's a new reply to read.
+
+### Act on several chats at once
+
+1. Pick chats with **⌘**-click, **Shift**-click, or a row's **Select**. **⌘A** picks a whole group.
+2. Use the bar that appears to mark them as read (**⇧⌘U**), archive them (**E**), or delete them (**⌫**).
+
+Deleting asks first, lists the chats, stops the ones still running, and offers **Archive Instead**. Marking as read and archiving can be undone.
+
 ### Model choices
 
 A top-level **New chat** can set the Agent's model default. A new chat inside a project uses that project's model preference. Each chat can keep its own model and reasoning override. Read [Model Selection](/ai/model-selection-guide) before you change defaults that other chats use.
+
+If a chat's model runs out of Enconvo Cloud points, switch the chat to a model outside Enconvo Cloud and click **Retry with** on the out-of-points card to run the message again on it. To have chats switch to a backup model on their own, set up **Fallback** in **Settings → AI Model**; see [Keep chats going with backup models](/ai/model-selection-guide#keep-chats-going-with-backup-models).
+
+### Work in a worktree
+
+In a project that's a git repository, a chat can move between the main checkout and a worktree. Use the chip after the chat's title, or ask its Agent. The chat moves with the files it changed, and merging the worktree brings it back to the main checkout. The conversation gets a line at each move. See [Projects](/ai/projects).
 
 ## Add context and files
 
 Add only the sources the request needs. A file attachment, a screen capture, a knowledge-base lookup, and a browser page each give the Agent a different kind of context. See [Context Awareness](/features/context-awareness) to choose sources, and [Files and Folders](/ai/file-tools) for what an Agent can do with your files.
 
-[Memory](/ai/memory) and a [Knowledge Base](/ai/knowledge-base) do different jobs: memory holds facts the Agent reuses, and a knowledge base stores material for it to look up.
+- The message box has buttons for **Live Screen** and [Screen Doodle](/features/screen-doodle) after **Permissions**. Live Screen belongs to the window you turn it on in; its chip shows it's on and turns it off with a click.
+- Type `@` to mention files, Agents, or your friends and teammates. When you name a person, the Agent knows whom you mean, so it can message them privately, read their replies, or call them when you ask.
+- Large video or audio files reach the model as a transcript or a note. A folder or an empty file can't be attached.
+
+[Memory](/ai/memory) and a [Knowledge Base](/ai/knowledge-base) do different jobs: memory holds facts the Agent reuses, and a knowledge base stores material for it to look up. Both open from **Knowledge Base** on the sidebar's rail, with a **Knowledge Base** / **Memory** switch at the top of its column.
 
 ## Read and reuse replies
 
 Expand a reply's work details to see each tool call and its result. Below a reply, **Copy**, **Read Aloud**, and **More** act on it. [Visual Answers](/features/visual-answers) can put diagrams and interactive content right in a reply.
 
+Code blocks have **Copy** and a wrap button, so long lines can wrap instead of scrolling sideways. To wrap code in every reply, turn on **Wrap Code** in **Settings → General**, under **Appearance**.
+
+When you share a chat by link, the link is ready to copy at once while the chat uploads. Later, **Update link** sends only what changed.
+
+Pages and files an Agent opens for you show in the side panel beside the chat. Each chat keeps its panel open or closed the way you left it. A chat that never opened it starts on a **New** tab, which offers the panel's tools. Its tabs share the width you drag it to, and closing the last tab closes the panel.
+
+| Tab | Shortcut | What it shows |
+| --- | --- | --- |
+| **Pull request** | **⌃⇧P** | In a chat working in a GitHub repository: the branch's pull request with its checks, review, and comments, or creating one from a worktree chat. |
+| **Device** | **⌃⇧M** | An iOS Simulator or Android Emulator you watch and control next to the chat, after a one-time setup. |
+
 To talk instead of type, use [Dictation](/features/dictation) to compose with your voice, or [Live Talk](/features/live-voice) for a two-way spoken conversation.
+
+## When Enconvo restarts
+
+If an update, a quit, or a crash stops a chat in the middle of a task, the chat goes on by itself once Enconvo is back. It checks what it already did before doing the rest, and brings back the subagents it had running.
 
 ## Settings
 
@@ -50,23 +170,26 @@ Open **Settings → Chat Window**.
 
 | Setting | What it changes |
 | --- | --- |
-| **Default Agent** | The Agent a new chat in the Chat Window starts with. |
+| **Default Agent** | The Agent a new chat in the Chat Window starts with. If you delete that Agent, new chats go back to Mavis. |
 | **Appearance** | **Light**, **Dark**, or **Follow App**. |
-| **Hotkey** | Opens the Chat Window from any app. The default is **⌥⌘D**. |
+| **Hotkey** | Opens the Chat Window from any app. The default is **⌃⌘X**. Other windows' **Open in Chat Window** buttons name the key you set. |
 
 ## Troubleshooting
 
 | Problem | What to do |
 | --- | --- |
 | A reply uses the wrong model | Check this chat's model selection as well as the Agent's default. |
+| A chat says another model took over | A backup model from **Settings → AI Model** answered while the chat's model was unavailable. The chat goes back to its own model once it works. |
 | The Agent can't see a file or the screen | Check the chat's attachments and [Permissions](/configuration/permissions). |
-| A tool isn't available | Check the tools turned on for the Agent instead of rephrasing the same request. |
+| A tool isn't available | Check the Agent's **Tools & Skills** in its settings instead of rephrasing the same request. See [Agents](/ai/agents#choose-tools-and-skills). |
+| A chat you're looking for isn't in the list | Check **Active** and **Phone chats**, or **Search** (**⌘G**). Chats Agents start for themselves open from the chat that asked. |
+| A chat shows **Couldn't show this chat** | Click **Reload Chat**. The chat list and the message box keep working meanwhile. |
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Agents" icon="robot" href="/ai/agents">Give an Agent instructions, a model, and tools.</Card>
+  <Card title="Coding Agents" icon="code" href="/ai/coding-agents">Chat with Claude Code, Codex, and other coding agents.</Card>
   <Card title="Model Selection" icon="microchip" href="/ai/model-selection-guide">How defaults and per-chat models work.</Card>
   <Card title="Context Awareness" icon="layer-group" href="/features/context-awareness">Choose the context a chat receives.</Card>
-  <Card title="SmartBar" icon="bolt" href="/features/smartbar">Ask a quick question from any app.</Card>
 </CardGroup>

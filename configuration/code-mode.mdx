@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Let an Agent write one short script that makes many tool calls at once and reads back only the result."
+---
+
+Code Mode lets an Agent do in one step what would otherwise take many: it writes a short script that makes many tool calls, side by side or in order, and reads back only the result. Reach for it when a task repeats the same call over many items, such as checking a list of pages or gathering results from several services, so the work is faster and the chat doesn't fill up with every intermediate result.
+
+You don't call Code Mode yourself. When it's on, the Agent uses it whenever a task fits, and the chat shows a card with the calls the script made.
+
+## Set up Code Mode
+
+1. Open **Settings → Code Mode**. You can also open **Code Mode** from the **Built-in** tab of the Plugins page.
+2. Under **Script Access**, turn on what a script may call. Each call still asks you as the chat's [Permission mode](/ai/agents#approve-actions) says.
+3. Choose which models may write scripts, what the chat shows, and what happens when a script runs long.
+
+## Settings
+
+**Script Access** lists what a script may call:
+
+| Access | What it allows | Default |
+| --- | --- | --- |
+| **Plugins** | Search, knowledge base, documents, and other plugin routes | On |
+| **Connectors and MCP** | Your linked accounts and MCP tools | On |
+| **Files** | Reading and writing files | On |
+| **Shell commands** | Running commands in a terminal | On |
+| **Browser** | [Browser Use](/features/browser-control), in your own browser | On |
+| **Apps** | [Computer Use](/features/computer-use), within its App Access list | On |
+| **Other agents** | Starting or messaging subagents | Off |
+| **Model calls** | A small model to sum up or judge items | On |
+
+The other options:
+
+| Option | Choices |
+| --- | --- |
+| **Use with** | **Models that write code well** (others make their calls one by one), or **Every model**. |
+| **Show in the chat** | **The calls**, or **The calls and the code**. |
+| **When a script runs long** | **Keep going, up to 2 hours** in the background, or **Stop after 10 minutes**. |
+
+## Code Mode outside a chat
+
+When a script runs outside a chat, such as in an automation, it calls only tools that read: built-in searches and reads, public web pages, ordinary files, and MCP tools that don't say they change anything. Enconvo checks each call again right before it runs.
+
+## Use a script in a Skill
+
+A Skill can keep a Code Mode script in its own `scripts` folder and run it as one of its steps. See [Skills](/configuration/skills#skills-with-saved-steps).
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The Agent makes its calls one by one | Check **Use with**. With **Models that write code well**, other models don't use Code Mode. |
+| A script can't reach a tool | Turn on that kind of access under **Script Access**. Outside a chat, scripts only read. |
+| A long script stopped | With **Stop after 10 minutes**, longer scripts end. Choose **Keep going, up to 2 hours**. |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents">Choose an Agent's tools and permissions.</Card>
+  <Card title="Skills" icon="star" href="/configuration/skills">Save a repeatable task, with its own scripts.</Card>
+  <Card title="Code Runner" icon="terminal" href="/ai/code-runner">Run code and shell commands.</Card>
+  <Card title="MCP Servers" icon="plug" href="/features/mcp">Connect external services as tools.</Card>
+</CardGroup>

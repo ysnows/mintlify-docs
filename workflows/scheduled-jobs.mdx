@@ -7,7 +7,17 @@ import { YouTubePlayer } from '/snippets/youtube-player.mdx';
 
 An automation does a job for you without you starting it each time: it asks an Agent to do something, runs one of your saved workflows, or runs a shell command. It runs on a schedule (once, or again and again), when something happens such as a new email or a file in a folder, or when you start it by hand. Use one for a morning news brief, a weekly plan, or a price check.
 
-Each run starts its own conversation, and the result shows up in the automation. You can also have Enconvo notify you on your Mac or send the result to an IM chat. In the app, the Automations view calls each automation a task, as in **New task**.
+Each run starts its own conversation, and the result shows up in the automation. You can also have Enconvo notify you on your Mac, send the result to an IM chat, reply on GitHub, or add what it heard to a Project's Ideas board.
+
+Each automation reads as three parts, and you can change each one in place or in your own words:
+
+| Part | What it holds |
+| --- | --- |
+| **When (what starts it)** | A schedule, an event, or you by hand |
+| **Steps** | The Agent and instruction, the workflow, or the shell command it runs |
+| **Then (after a run)** | Where the result goes and how you hear about it |
+
+Its runs show as bars under it, so you can see at a glance what ran and what failed.
 
 This video covers Automations, then Workflows, Variables, and how you hear about the results with Notifications and Quiet hours.
 
@@ -21,10 +31,10 @@ This video covers Automations, then Workflows, Variables, and how you hear about
 
 <Steps>
   <Step title="Open Automations">
-    In the **Chat Window** sidebar, select **Automations**, then **New task**.
+    In the **Chat Window** sidebar, select **Automations**, then **New Automation**.
   </Step>
   <Step title="Say what to do and when">
-    Describe the task and its timing in the composer, for example "Every weekday at 8:00, brief me on the most important AI news in five bullets with links." Or pick a starter under **Start from an idea**, such as **Morning briefing** or **Plan my week**, which fills the composer for you to adjust before sending.
+    Describe the task and its timing in the composer, for example "Every weekday at 8:00, brief me on the most important AI news in five bullets with links." Or pick one of the starters, which fills the composer for you to adjust before sending.
 
     If you have saved workflows, a few of them appear under **Run a workflow on a schedule**. Pick one to fill in a request that runs that workflow every day at 9:00, then change the time or add input values before sending.
   </Step>
@@ -32,7 +42,7 @@ This video covers Automations, then Workflows, Variables, and how you hear about
     Enconvo sets up the task, shows it as a card in the chat, and replies with when it will run, in plain words and your local time. If you leave out the time, it picks a sensible one and says so. It asks a question only when the task can't work without the answer, such as which product to watch.
   </Step>
   <Step title="Turn it on">
-    A new task starts off, as a draft beside the chat. Check it and select **Turn on**; nothing runs until you do. The task appears under **Set up in this chat** above the conversation and in the task list. Keep chatting to change, pause, or resume it.
+    A new automation starts off, marked **Draft (not on yet)** beside the chat. Check it and select **Turn on**; nothing runs until you do. The task appears under **Set up in this chat** above the conversation and in the task list. Keep chatting to change, pause, or resume it.
   </Step>
 </Steps>
 
@@ -41,6 +51,12 @@ This video covers Automations, then Workflows, Variables, and how you hear about
 </Frame>
 
 Write the task as a complete instruction. Each run starts a fresh conversation that doesn't see the chat you set it up in, so "Summarize today's top AI news in five bullets with links" works better than "Do that again tomorrow."
+
+## See what's coming and what ran
+
+**Today**, at the top of Automations, shows what runs next and everything that already ran, with each run's result. Select a run to read it, or to give a run that failed another try.
+
+Each automation's latest run also shows under **Chats** in the sidebar with a clock mark as soon as it starts. Its earlier runs are one click away in that run's chat.
 
 ### Return to a scheduling chat
 
@@ -61,7 +77,8 @@ Instead of a time, an automation can start when something happens. Describe what
 | Folder changes | For each file added, changed, or removed in a folder |
 | Apps | When an app opens, quits, comes to the front, or stays in front for a while |
 | Discord or Telegram messages | For each message the connected bot can read |
-| New email | For each new email in Apple Mail (checked every two minutes while Mail is open) or in Gmail through the Gmail Connector (about every five minutes) |
+| New email | For each new email in the [Email](/integrations/email) plugin's mailboxes that let agents read them (checked every minute), in Apple Mail (every two minutes while Mail is open), or in Gmail through the Gmail Connector (about every five minutes) |
+| GitHub | When an issue or pull request is opened, an issue is labeled, a comment mentions you, CI fails, or a release is published in a repository you connect. See [GitHub triggers](#github-triggers). |
 | MCP events | For each event a connected MCP server reports |
 | Transcribed recordings | For each recording Enconvo finishes transcribing |
 | Web pages and feeds | For each new feed item, or each time a page's text changes |
@@ -74,11 +91,27 @@ Instead of a time, an automation can start when something happens. Describe what
 
 Enconvo watches for events on your Mac while it is running. The trigger's row on the task says what happens to events from while Enconvo was closed.
 
+### GitHub triggers
+
+<Steps>
+  <Step title="Connect GitHub">
+    Under **When**, choose GitHub and select **Connect GitHub**. You need to be signed in to your Enconvo account.
+  </Step>
+  <Step title="Pick the repository and event">
+    Choose a **Repository** (or **Another repository…** to type one) and an **Event**. For a labeled issue, pick the **Label** or **Any label**. Watching a repository needs admin access to it.
+  </Step>
+  <Step title="Choose who can start it">
+    Pick **Only me**, **Anyone**, or add the GitHub usernames of the people whose events should start it.
+  </Step>
+</Steps>
+
+GitHub events reach your Mac through Enconvo Cloud and stay sealed for this Mac until you allow outside triggers here: select **Allow on this Mac** when it asks. **Stop outside triggers on this Mac** stops them again; events then wait at Enconvo Cloud.
+
 An event trigger can also have a condition in your own words. AI checks each event against it before the run; events that don't match are skipped, and you can still select **Run anyway** on one. Each check is a paid AI call. Select **Try on recent events** to see which recent events it would have run for, without running anything.
 
 ## Manage an automation
 
-Select a task in the list to see its details: whether it's active, paused, or needs attention, then one panel with what starts it, its instruction, where results go, and notifications.
+Select an automation in the list to see whether it's active, paused, or needs attention, then its **When**, **Steps**, and **Then** parts and its runs.
 
 When the last run failed or its result wasn't sent, a note under the name says why and offers a fix:
 
@@ -96,14 +129,24 @@ When the last run failed or its result wasn't sent, a note under the name says w
 | **Results** | Shows where each run's result goes. Select it and pick a chat you've talked to an Agent in through an IM channel, or **Only Enconvo** to keep results in each run's conversation; the change saves right away. **Another chat…** opens the editor to enter a chat ID. |
 | **Notify me when it runs** | Posts a Mac notification when a run finishes, with the first line of the result. Click it to open the task. |
 | **…** → **Edit details** | Opens the form editor for every field at once, including the Agent, the description, and a maximum number of runs. |
+| **…** → **Duplicate** | Makes a copy and opens it as a draft, so you can change it before turning it on. |
 | **…** → **All runs** | Opens the full run history with filters. |
-| **…** → **Delete** | Deletes the task and its run history. |
+| **…** → **Delete** | Deletes the automation and its run history. Deleting one that is running also stops its run. |
 
-**Recent runs** lists each run's time with the first line of its result, all collapsed. Select a run to read the whole result or error. Under an expanded run, select **Ask follow-ups** to continue from it in its conversation, for example to ask for more detail on one item, **Copy** to copy the result or error, or **Send again** when its result wasn't sent.
+Select a run bar to read that run's result or error, continue from it in its conversation, copy it, or send its result again when it wasn't sent.
 
-### Find a task
+### Advanced Settings
 
-Search with **Search tasks** by name, instruction, command, or workflow. The list groups tasks as **Needs attention** (the last run failed or its result was not sent), **Upcoming**, **Paused**, and **Finished** (a one-time task that has run). When your tasks start in more than one way, buttons above the list filter them by what starts them, with **All** to show every task again.
+Open **Advanced Settings** on an automation to set how far it may go:
+
+| Setting | What it does |
+| --- | --- |
+| **Run limit** | How many times it runs in all. A finished automation can be given more runs here. |
+| **Time limit** | How long one run may take, from 15 minutes to 8 hours. When a run hits its limit, the run offers a longer limit (**Allow … and run again**) to give it more time and run it again in one click. |
+
+### Find an automation
+
+Search the list by name, instruction, command, or workflow. The list groups automations as **Needs attention** (the last run failed or its result was not sent), upcoming, **Paused**, and **Finished** (a one-time automation that has run). When your automations start in more than one way, buttons above the list filter them by what starts them, with **All** to show every one again.
 
 To act on a task without opening it, point to it in the list and select **…**, or Control-click it, then choose **Run now**, **Pause** or **Resume**, **Edit details**, or **Delete**. Press ↓ in **Search tasks** to go to the first task, then ↑ and ↓ to move between tasks.
 
@@ -133,7 +176,7 @@ Each run's result is the output of the workflow's last step, so it can be sent t
 
 - The task's details show the workflow and its inputs. Select **Open** to see the workflow, or **Change** to pick another workflow or change the inputs.
 - Under an expanded run, select **Open run** to see each step of that run in **Workflows**. When the last run failed, the note under the task's name offers **Open the failed run**.
-- A run stops after 30 minutes. Time spent waiting for your answer to an approval step doesn't count.
+- A run stops at the automation's **Time limit** (see [Advanced Settings](#advanced-settings)). Time spent waiting for your answer to an approval step doesn't count.
 - If the workflow is deleted, the task pauses and says so. Select **Choose a workflow** to give it another one, or **Delete** to remove the task.
 
 ## Manage many tasks in Settings
@@ -149,6 +192,13 @@ Each run's result is the output of the workflow's last step, so it can be sent t
 
 In the history, **Open conversation** opens an Agent run, **Copy result** copies its output, and **Send again** sends the result to the configured chat again, as a real message.
 
+## After a run
+
+Besides sending the result to a chat and notifying you, **Then (after a run)** has two more options:
+
+- **Reply on GitHub**: for an automation a GitHub event starts, Enconvo asks you before posting its reply as a comment on the issue or pull request that started the run. A reply nobody approves within a day isn't posted.
+- **Add to Ideas**: each GitHub issue, Discord or Telegram message, email, or webhook request the automation hears becomes an idea on a Project's Ideas board. The Project's lead can reproduce a bug and plan the fix, or research a request and close it with a reason or plan it, and asks you before anything changes. See [Projects](/ai/projects).
+
 ## Hear about the results
 
 - A workflow chains steps and Agents into a job you can run again. Pick one in [Schedule a workflow](#schedule-a-workflow), or build one in [Workflows](/workflows/introduction).
@@ -160,6 +210,7 @@ In the history, **Open conversation** opens an Agent run, **Copy result** copies
 - Automations run on your Mac, so Enconvo must be running and your Mac awake. A sleeping or offline Mac doesn't run them; don't rely on it as an always-on scheduler.
 - Times are in your Mac's local time zone. Check the next-run times after travel or a time-zone change.
 - A one-time task needs a future time and moves to **Finished** after it runs.
+- When you ask an agent to send an Apple Message later, it sets up a one-time automation, so you can see the scheduled message in Automations or cancel it there.
 - Monthly tasks on the 29th to 31st skip months without that date.
 - Mac notifications also follow **Send a system notification** in [Notifications](/configuration/notifications) and macOS Focus. A notification is skipped when you're already looking at that run.
 - Run history keeps each task's latest 100 runs; older runs and their conversations are removed. Copy anything important before deleting a task.

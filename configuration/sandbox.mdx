@@ -1,0 +1,85 @@
+---
+title: "Agent Sandbox"
+description: "Keep an Agent's commands to its working folder, away from your keys and other apps, and see why Enconvo asks before a command runs."
+---
+
+The Sandbox limits what an Agent's shell commands can reach. With it on, a command can change only the chat's working folder and temp, and macOS stops it from reading your keys, controlling other apps, or connecting to Enconvo. Turn it on for an Agent that runs commands you don't want to watch one by one.
+
+The Sandbox works alongside the Agent's Permission mode. The mode decides when Enconvo asks before an action; the Sandbox limits what a command can do once it runs.
+
+## Turn on the Sandbox
+
+1. Open a chat with the Agent in the Chat Window, SmartBar, the Dynamic Island, the App Sidebar, or a Project's lead chat.
+2. Click the **Permissions** chip next to the run mode.
+3. Turn on **Sandbox**.
+
+The switch belongs to the Agent, so it applies in every window you use that Agent in. The Agents it calls run their commands in the Sandbox too.
+
+To see what the Sandbox lets the Agent's commands reach, click **How the Sandbox works** under the switch. It draws the Agent's own Sandbox: its working folder, its Permission mode, and each place a command can or can't reach.
+
+## What a sandboxed command can reach
+
+| Place | Inside the Sandbox |
+| --- | --- |
+| The working folder and temp | Can read and change |
+| Your other files | Can read, can't change |
+| The internet | Can connect |
+| Keys and passwords, such as SSH keys, keychains, and cookies | Can't read |
+| Saved credentials and Enconvo's settings | Can't read |
+| Other apps | Can't open or control them |
+| Enconvo | Can't connect to it |
+
+Every program a command starts runs inside the Sandbox too. Enconvo uses macOS's own sandbox, the one App Store apps use.
+
+## When the Sandbox stops a command
+
+When a command tries to reach something the Sandbox keeps from it, macOS refuses, and a line under the step says what was stopped, such as a write to a folder or a read of a key file.
+
+1. Click the line to see what was stopped and why.
+2. To let the command do it, click **Run outside**. The command runs once with your full access, then shows in the chat like any other command. Nothing is remembered.
+
+**Run outside** is offered only while the run is going and someone is watching it. Scheduled tasks and other runs nobody watches never run a command outside the Sandbox.
+
+## Why Enconvo asks before a command
+
+The Agent's Permission mode decides what asks, with or without the Sandbox. See [Approve actions](/ai/agents#approve-actions).
+
+| Mode | With the Sandbox on |
+| --- | --- |
+| **Ask for approval** | Every command still asks before it runs. The Sandbox limits what a command you allow can do. |
+| **Approve for me** | Commands run without asking, except risky ones, such as deleting files or publishing. |
+| **Full access** | Commands run without asking. Only changes that could harm your computer ask. |
+
+Enconvo reads each command part by part, so a harmful step hidden inside a quoted, nested, chained, or piped command still asks, and harmless ones, such as an echo or listing a folder, don't.
+
+Even at **Full access**, Enconvo asks with **Allow once** and **Deny** before a change that could harm your computer, such as deleting a critical folder, editing your shell startup files or SSH keys, or reading saved passwords, however the command spells the path.
+
+With **Approve for me**, a command the rules can't judge is checked against what you asked for. When you wouldn't expect it to run on its own, Enconvo asks you and gives the reason.
+
+Each approval card names the setting that made it ask, such as "Asked because this Project is on Approve for me."
+
+## Other actions that ask
+
+- [Computer Use](/features/computer-use) asks before a keyboard shortcut that deletes, sends, pays, quits an app, or signs out, as it does for clicks.
+- A command that calls a plugin page's own routes asks first.
+- Approving a plugin's tool shows what the tool is about to send.
+- An Agent asks before it calls or messages your [friends](/features/friends) and teammates, except at **Full access**, where it doesn't ask.
+- An Agent can't answer its own approval cards, raise its own Permissions, or answer a card meant for you, such as a plugin install or the points cap.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| A command fails with a permission error | The Sandbox may have stopped it. Click the line under the step, then **Run outside** if you trust the command. |
+| The Agent can't open or control an app from a command | Commands in the Sandbox can't control other apps. Use [Computer Use](/features/computer-use), or turn off the Sandbox for this Agent. |
+| You expected Enconvo to ask, and it didn't | Check the Agent's Permission mode in the **Permissions** chip. **Full access** asks only before changes that could harm your computer. |
+| The **Sandbox** switch is missing | Check that the chat is in Agent mode, and update Enconvo. See [Updates](/configuration/updates). |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/ai/agents">Permission modes and approval cards.</Card>
+  <Card title="Code Runner" icon="terminal" href="/ai/code-runner">How an Agent runs shell commands.</Card>
+  <Card title="Privacy and Security" icon="shield-halved" href="/configuration/privacy-security">Where your data goes and how to control it.</Card>
+  <Card title="macOS Permissions" icon="shield" href="/configuration/permissions">The access macOS grants Enconvo itself.</Card>
+</CardGroup>

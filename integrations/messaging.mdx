@@ -67,6 +67,8 @@ If it connects but doesn't reply, check the channel's permissions on Discord and
 
 Each incoming conversation gets its own chat session with the bound Agent. Replies follow that conversation; connected users don't share one transcript. Changing the bound Agent restarts the channel, so later messages go to the new Agent.
 
+Type a bot command in the chat to control the conversation instead of sending a message to the Agent: `/new` starts a new chat session, and `/stop` stops the reply in progress, including messages sent just before it. Bot commands work in Telegram and Discord, and a command sent with an attachment still runs as a command.
+
 For a public or team bot, use a dedicated Agent with fitting instructions and tools. Review which tools it can use before you let other people reach it.
 
 ## Scheduled delivery
@@ -77,7 +79,7 @@ For a public or team bot, use a dedicated Agent with fitting instructions and to
 
 | Problem | What to do |
 | --- | --- |
-| Disconnected | Check the bot token, the network, that **Enable Channel** is on, and that Enconvo is running. |
+| Disconnected | Check the bot token, the network, that **Enable Channel** is on, and that Enconvo is running. A Discord bot whose connection goes silent reconnects on its own. |
 | Connected but silent | Check the bound Agent, the Agent's model provider, the platform's permissions, and the pairing policy. |
 | The bot answers the wrong way | Check the bound Agent's instructions, tools, and model. |
 | A Telegram user can't connect | Look for their pairing request under **Pending Requests**, and check **Allowed Users**. |

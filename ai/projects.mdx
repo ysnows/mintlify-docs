@@ -13,7 +13,7 @@ The video below opens a Project, adds an idea that hands part of the work to Cla
 
 ## Before you start
 
-You need a Project. Click **+** next to **Projects** in the Chat Window sidebar and pick a folder: see [Create a Project](/ai/agent-orchestrator#projects). To hand tasks to a Coding agent such as Claude Code or Codex, install it and sign in first: see [Agents](/ai/agents).
+You need a Project. Click **+** next to **Projects** in the Chat Window sidebar and pick a folder: see [Create a Project](/ai/agent-orchestrator#projects). To hand tasks to a Coding agent such as Claude Code or Codex, install it and sign in first: see [Coding Agents](/ai/coding-agents).
 
 ## Open a Project
 
@@ -25,7 +25,7 @@ Click the Project in the sidebar. Its page has three tabs:
 | **Board** | The Project's ideas, from **Not started** through **Planning** and **In progress** to **Done**. |
 | **Team & settings** | Who is on the team, and when the team [checks with you](#choose-when-the-team-checks-with-you). |
 
-The team's faces, the lead first, show at the top left.
+The team's faces, the lead first, show at the top left. A Project chat's tasks also show under its row in the sidebar.
 
 ## Add an idea
 
@@ -33,17 +33,26 @@ An idea is something you want the Project to do.
 
 1. Open the **Board** tab and click **New idea**.
 2. Write what you want, the way you would say it. You can attach screenshots or files, or click the mic and talk.
-3. Click **Add idea**.
+3. Set a **Priority** if you want. Enconvo guesses the **Kind** from your words: **Feature**, **Bug**, **Improvement**, **Docs**, or **Research**. Change it if the guess is wrong.
+4. Click **Add idea**.
 
-The idea appears as a card under **Not started**. The lead starts planning it right away and moves it to **Planning**. Click the card to follow it.
+The idea appears as a card under **Not started**, with a short title written from your words and a red, amber, or blue flag for its priority. The lead starts planning it right away and moves it to **Planning**. The files you attached reach the lead when the idea starts. To see only one kind of idea, use **Filter by kind**.
 
-When the plan is ready, it shows each task, who does it, and on which model. Check it, then click **Start**. The idea moves to **In progress**, and to **Done** when its tasks finish.
+Ideas can also come in on their own. Give an [Automation](/workflows/scheduled-jobs) the **Add to Ideas** action, and each GitHub issue, Discord or Telegram message, email, or webhook it hears becomes an idea on the Project's board. The lead reproduces a bug and plans the fix, or researches a request and closes it with a reason or plans it, and asks you before anything changes.
+
+When the plan is ready, it shows each task, who does it, and on which model. Check it, then click **Start**. The idea moves to **In progress**. The lead plans from the idea's **Goal** and **Done when** line, and the idea moves to **Done** only once the lead judges that goal met.
+
+## Follow an idea
+
+Click an idea to open its page. Your chat with the lead is on one side, and the idea's plan, tasks, words, files, and goal are on the other. **Where it stands** shows **Plan the work**, **Do the work**, and **Review & test**, with how far each has come and who does it.
+
+To work on a finished idea again, click **Reopen**.
 
 An idea with tasks has two views at the top: **Tasks** shows just its tasks as a board, and **Chat with** and the lead's name, such as **Chat with Mavis**, opens the chat where it was planned.
 
 ## Hand a task to a Coding agent
 
-Name the Agent, and the model if you want one, in the idea or in the Project's chat. For example:
+Name the Agent, and the model if you want one, in the idea or in the Project's chat. You can also name just a model, such as Opus 5.5, and the lead does that task on it. This works in a Project without members too. For example:
 
 ```text
 Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
@@ -53,7 +62,30 @@ The lead plans the named part as a task for that Agent on that model, even when 
 
 When the Coding agent finishes, its task waits for your review under **To review** on the idea's **Tasks** board. In a Project whose folder isn't a git repository, it goes straight to **Done**. Each coding task works in its own copy of the code, and the plan's result card has **Merge** for when you're ready. Members can't push or merge themselves.
 
-Work you do in the Project's chats shows on the Board too: when a chat changes files or runs a command, a card follows it to **Done** with a short summary and the files it changed.
+Each task you give the lead, in the Chat tab or in Ideas, shows on the Board, grouped by idea or by chat. Pick a chat in the Board's chat filter, or choose **Group by** **Chat**, to follow one conversation.
+
+Work you do in the Project's chats shows on the Board too: when a chat changes files or runs a command, a card follows it to **Done** with a short summary and the files it changed. Click the card to open the chat. The lead sees these cards and keeps its own tasks off the same files.
+
+## Merge finished work
+
+Click **Merge** on a task, or on the plan's result card, to merge it into the Project's **Base branch**. Uncommitted changes on other lines of the same file don't stop a merge. If git is busy, Merge waits a moment for it, and names the lock file when one is left behind.
+
+To merge without clicking, turn on **Merge work that passes** in **Project settings → Board**. It needs a **Base branch**, set in **Worktrees**. Each task then merges on its own once its check and a review by another vendor's Agent pass. Under **Passes when**, choose **No blocking findings**, **Reviewer approves**, or **Check only**. A task with a conflict goes back to its member. When the reviewer can't run, every merge pauses rather than being skipped.
+
+### Projects outside git
+
+In a Project whose folder isn't a git repository, each Lead chat saves its Work plans to its own chat folder, so two Lead chats can run plans at the same time. The plan's card shows **Saves to** and the folder, and **Also changed** lists files a task touched outside it.
+
+## Ask the lead in other ways
+
+In a Project's Lead chat:
+
+- **Compare answers** asks two to six agents the same question, and the lead compares what they say.
+- **Use style** chooses how the lead writes its answers.
+
+To have Codex, Claude Code, or another of your Agents review or test the current work, just ask. In a Project, the lead starts that Agent as a Subagent and brings the result back to the same chat. The lead can also start Subagents for its own work, beside the tasks it gives the Project's members.
+
+To run a task through one of the Project's workflows, type `@` and pick the workflow, or click **Use in chat** next to it on the **Team & settings** tab. See [Use your own workflows](#use-your-own-workflows).
 
 ## See what needs you
 
@@ -69,13 +101,68 @@ Click a row to open its idea.
 
 ## Use the Board for everything
 
-**Board**, under **Memory** in the Chat Window sidebar, shows the tasks of every chat, Project, and team in one place. Its row shows how many tasks need you.
+**Board**, in the **···** menu on the Chat Window sidebar's icon rail, shows the tasks of every chat, Project, and team in one place. To keep it on the rail, choose **Customize sidebar…** in that menu. See [Chat Window](/ai/chat).
 
 To see only some Projects, click the filter at the top left (**All Boards**) and pick the ones you want. The Board's other controls are in [Follow the Board](/ai/agent-orchestrator#follow-the-board).
 
+## Set up the team
+
+Open the **Team & settings** tab. The top shows the lead and each member, with **Add member** to bring in another Agent. Click the team's faces at the top left to see the whole team at once: the lead with **Change**, and each member with a role you can edit in place.
+
+The lead can be one of your Agents or a Coding agent: Claude Code, Codex, Grok Build, or Antigravity. A Coding agent lead plans the members' work in a Work plan and reads their results, like any other lead.
+
+Members can be Agents on your [other paired computers](/integrations/other-computers). The lead hands them tasks that need that computer, and the answer comes back as the task's result. If that computer has no device access on your account, the task says so and points to **Manage devices**.
+
+### How the team works
+
+Every goal you give the lead, from Chat or Ideas, goes through **Standard**: **Plan the work**, **Do the work**, then **Review & test**. Pick who does each step. Give the planning to a member, and that member writes the plan when you ask; the lead then proposes its tasks as a Work plan that waits for your **Start**. You can also turn the check on or off and set **Fix rounds**, how many times a task goes back to be fixed.
+
+### Use your own workflows
+
+**Custom workflows**, on the **Team & settings** tab, is off until you turn it on. While it's off, every goal runs through **Standard**. Turn it on to run goals or single tasks through [Workflows](/workflows/introduction):
+
+- **Or run each goal with a workflow** lists team workflows. Point to one and click **Use for every goal**, or click **New team workflow** to make your own.
+- **Task workflows** lists workflows the lead can give a single task, such as fixing a bug. Click **Use in chat** to name one in the Lead chat, or **New workflow** to make one.
+
+The built-in workflows:
+
+| Workflow | What it does |
+| --- | --- |
+| **Ship** | Turns an idea into a spec, design, and plan you approve, builds each task with tests, checks, review, and verification, then reviews the whole branch. |
+| **Planner** | Turns an idea into a spec, design, and tasks you approve, and hands the tasks to the lead as a Work plan. |
+| **Sprint** | Builds one planned task with tests, checks, review, and verification. |
+| **Compound** | Applies the lessons you kept to the repository's docs and rules. |
+| **Verify setup** | Works out how to check and run the Project, writes a verification runbook you approve, and proves it by running it. |
+
+Each row shows the workflow's icon, the faces of the members who do it, and how many runs it had and how many failed. When a workflow is missing a member, click **Pick an Agent…** in its row. Click a row to open the workflow and change its steps or who does them.
+
+Changes you save to a workflow in a Project stay a **Draft**: new plans keep using the published version until you click **Publish**. **Roll back to the previous version** brings back the version before. A task's workflow shows the tokens and cost of each step, with a total at API prices.
+
+### Set the check command
+
+The check command runs in a finished task's copy of the code before it goes to review. A failing check goes back to the task's member to fix.
+
+1. On the **Team & settings** tab, click **Project settings**, then **Board**.
+2. Next to **Check command**, click **Find it**. Enconvo reads the command from the Project's files and fills it in only if it passes.
+3. If it finds none, click **Ask Mavis to set it up** (the button names your lead). The lead finds or adds the command in its chat.
+
+A Project with no check command shows its check step as **Not checked**.
+
+### Clean up worktrees
+
+Each chat and task in a git Project works in its own worktree. To free disk space, Enconvo archives the worktrees you're done with and removes their folders. In **Project settings → Worktrees**:
+
+| Setting | What it does |
+| --- | --- |
+| **Archive merged worktrees** | Archives a worktree once its work is in the base branch and nothing is left uncommitted or unpushed. |
+| **Archive worktrees without chats** | Archives a worktree once none of its chats is left in the chat list. |
+| **Archive inactive worktrees** | Archives a worktree, with its chats, after they see no activity for the days you pick under **Archive after no activity for**: 3, 7, 14, or 30. |
+
+A worktree with uncommitted changes always stays. **Restore** brings an archived worktree back.
+
 ## Choose when the team checks with you
 
-Open the **Team & settings** tab. The top shows the lead and each member, with **Add member** to bring in another Agent.
+Open the **Team & settings** tab.
 
 Under **When to check with you**:
 
@@ -85,6 +172,14 @@ Under **When to check with you**:
 | **Start planning as soon as a to-do is added** | On: the lead plans each new idea right away. Off: new ideas wait in **Not started** until you start them. |
 
 Actions that delete, send, publish, pay, or push always ask, whatever you choose. The folder, worktrees, permissions, budget, and boundary are in **Project settings**.
+
+## Let the lead act while you're away
+
+In a Project at **Full access**, the lead can keep work moving when a task reports back and nobody is in the chat. Turn on **Lead acts while you're away** in **Project settings → Board**.
+
+The lead then fixes, retries, and merges on its own, within 6 turns an hour and 100,000 points a day. It never sends, pushes, publishes, pays, or deletes anything outside a task's own copy of the code.
+
+When you come back, a **While you were away** card at the top of the Lead chat lists what the lead did and the steps it left for you. After two failed turns in a row, or at a limit, the lead pauses and **Needs you** asks whether to **Resume** or **Keep paused**.
 
 ## Archive a Project
 
@@ -103,6 +198,10 @@ To bring it back:
 
 The Project returns to the sidebar with its chats, and its scheduled tasks turn on again.
 
+## Projects on your phone
+
+The iPhone app opens your Projects too: Ideas, the Board, Project settings, **New Project**, and the Work plan card, where you answer, merge, start, or retry a task. The `@` menu there lists the Project's members and workflows. See [iPhone App](/integrations/iphone-app#projects-and-artifacts).
+
 ## Troubleshooting
 
 | Problem | What to do |
@@ -110,14 +209,22 @@ The Project returns to the sidebar with its chats, and its scheduled tasks turn 
 | A new idea stays in **Not started** | Turn on **Start planning as soon as a to-do is added** in **Team & settings**, or open the idea and start it yourself. |
 | A plan waits even though you chose **Smart** | The plan goes further than what you asked, or includes a risky step. Check it and click **Start**. |
 | A Coding agent's task doesn't start | Install the Coding agent and sign in to it. |
+| A task waits as **Held** with a sign-in warning | The Coding agent is signed out, or its sign-in ends soon. Click **Sign in again**. Held tasks run again once you sign in. |
+| A Board card shows a problem in amber | It's a setup problem. Follow the card's fix; the lead doesn't retry it. An Enconvo error says it's safe to try again. |
+| A task fails in a Project kept in iCloud | With Optimize Mac Storage on, files may not be on your Mac. In Finder, choose **Keep Downloaded** for the Project folder. |
+| A task says the Project's folder is gone | The folder was moved or deleted. Move it back, or make a new Project for its new place. |
+| A task stops at the Project's **Boundary** | Click **Edit Boundary** on the task to allow what it needs. Only you change a Boundary. |
+| A task notes a merge or rebase left half done | Its agent stopped partway. Finish or undo the merge or rebase before you merge the task. |
 | Every plan waits for **Start** | Plans wait while you're signed out of Enconvo. Sign in on **Settings → Account**. |
 | A Project is missing from the sidebar | It may be archived. Look in **Settings → Archived** under **Projects**. |
+| A Workflow task failed | Open the task. It says what its command last wrote and which member's step failed. |
+| A goal doesn't use the team workflow you picked | Turn on **Custom workflows** on the **Team & settings** tab. While it's off, every goal runs through **Standard**. |
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Agent Orchestrator" icon="sitemap" href="/ai/agent-orchestrator">Work plans, the Board's controls, and creating a Project.</Card>
-  <Card title="Agents" icon="robot" href="/ai/agents">Built-in Agents, Coding agents, and approvals.</Card>
+  <Card title="Coding Agents" icon="code" href="/ai/coding-agents">Install and sign in to Claude Code, Codex, and the others.</Card>
   <Card title="Chat Window" icon="message" href="/ai/chat">Chats, Projects, and the sidebar.</Card>
   <Card title="Workspaces" icon="layer-group" href="/configuration/account#workspaces">Keep a client's chats and Memory apart from yours.</Card>
 </CardGroup>

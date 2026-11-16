@@ -19,6 +19,12 @@ You don't have to choose: [Auto Route](/providers/auto-route), the default model
 
 The model picker shows the models your providers offer right now. Models that support Fast mode show a Fast mode chip, which runs them faster at a higher price.
 
+## Use the recommendations
+
+Model pickers in Settings start with three suggestions for that kind of work: **Best fit**, **Lowest cost**, and **Best quality**. Each shows a short reason and its price per 1M tokens, input and output. Under the setting, a line tells you when the model you chose costs many times more than the recommended one.
+
+When you create an Agent in **New Agent**, Enconvo reads the Agent's description and suggests a model, with a cheaper and a stronger one beside it. Click one to use it.
+
 ## Where the default is set
 
 - **A new chat**: the model you pick in a top-level **New chat** becomes the Agent's default.
@@ -31,6 +37,61 @@ After changing a default somewhere else, check the model shown in the chat befor
 ## Reasoning effort
 
 Reasoning effort sets how long a model thinks before answering. Higher effort can give better answers to hard problems, but takes longer and uses more tokens. The levels depend on the model; a model without a thinking mode has no effort setting.
+
+## Context window
+
+The context window is how much of a conversation the model reads at once. When a chat grows past it, Enconvo compacts the earlier part. Claude models that can take up to 1M tokens start at 500K, so long chats compact sooner and cost less.
+
+To change a model's context window, open the provider in **Settings → AI Model**, click **Manage Models** (the gear beside **Model Name**), edit the model, and set **Context window**.
+
+## Choose the models for background jobs
+
+Small jobs run in the background on a cheap model: chat titles, next-message suggestions, Live Talk, recording titles and summaries, recording translation, and idea titles. By default each is set to **Auto**, which uses a small model:
+
+- Chat titles, next-message suggestions, and Live Talk use a small model of the chat's own provider. A chat on your own API key doesn't spend Enconvo Cloud points on them.
+- Recordings and idea titles use a small model of your default provider.
+- When the provider has no small model Enconvo knows, Auto uses the chat's model or your default model.
+
+To pick a model yourself:
+
+<Steps>
+  <Step title="Open Task models">
+    Open **Settings → AI Model** and click **Task models** at the top of the page.
+  </Step>
+  <Step title="Choose a task">
+    Click a task. **Auto** shows which model it picks for each provider.
+  </Step>
+  <Step title="Pick a model">
+    Click **Choose a model**, pick a provider, then a model.
+  </Step>
+</Steps>
+
+Turn the switch beside **Next message suggestions** off to stop suggesting your next message after each answer. **Reset all to Auto** puts every task back on **Auto**.
+
+## Keep chats going with backup models
+
+Fallback keeps a reply going when its model can't be used, for example when it reaches a usage limit, loses its sign-in or key, or can't be reached. The reply continues on your next backup model, and the chat says which model took over and why.
+
+<Steps>
+  <Step title="Open Fallback">
+    Open **Settings → AI Model** and click **Fallback** at the top of the page.
+  </Step>
+  <Step title="Add backups">
+    Click **Add backup model** and pick a model. You can add up to three, and drag them to change the order.
+  </Step>
+  <Step title="Set each backup's effort">
+    For a model with reasoning levels, choose its **Reasoning Effort**. Each backup keeps its own.
+  </Step>
+</Steps>
+
+The panel shows the chain as it works: **The model in use** first, then your numbered backups, each marked **Ready** or **Paused**. Click a backup's model name to switch it to another model of that provider. In the provider list, each provider that holds a backup shows a **backup N** tag with its place in the chain.
+
+| Setting | What it does |
+| --- | --- |
+| **Also switch when the service is busy** | Also switches on rate limits and server errors, once retries run out. |
+| **Go back when the model works again** | Returns the chat to its own model from the next turn once that model works, never in the middle of a turn. |
+
+A request refused by a safety policy never switches models.
 
 ## Compare two models
 

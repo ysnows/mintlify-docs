@@ -59,6 +59,15 @@ The file is read again whenever an event fires, so you can edit hooks while Enco
 
 Open **Settings → Hooks** to see the hooks in `~/.enconvo/hooks.json`, grouped by event. Turn an entry on or off with its switch, or click **Open hooks.json** to edit the file. Turning an entry off or on writes `enabled: false` or `enabled: true` on that entry, without changing its command or webhook.
 
+## Hooks from plugins
+
+Claude Code and Codex plugins, such as context-mode, can bring hooks of their own. Once you allow them, they run as they do in Claude Code: at a chat's start, around each message, tool call, and compaction, and when a reply fails or the Agent finishes.
+
+1. Install the plugin from **Plugins**, or give an Agent the plugin's GitHub repository, Git address, zip, or npm package in chat. It offers the plugin's Install card.
+2. Tick **Allow its hooks to run** before you install. A plugin installed without it shows that its hooks are off; click **Allow hooks** on it later to turn them on.
+
+If a plugin update changes its hooks, they stop running until you check them and allow them again. Hooks that Enconvo can't run are listed on the card as not run in Enconvo.
+
 ## How hooks work
 
 When an event fires, Enconvo:
@@ -408,6 +417,7 @@ chmod +x ~/.enconvo/hooks/on-status-change.sh
 | --- | --- |
 | A hook didn't run | Check that `~/.enconvo/hooks.json` is valid JSON, that the top-level key matches the event name, and that the command works when you run it yourself. If you still have `~/.config/enconvo/hooks.json`, it's ignored while the new file exists. |
 | You're not sure whether hooks block Enconvo | Only `PreToolUse`, `Stop`, and `SubagentStop` block, during agent runs. Every other hook is fire-and-forget. If any hook fails or times out, Enconvo logs the failure and continues as if the hook weren't there. |
+| A plugin's hooks don't run | Open the plugin and click **Allow hooks**. After an update that changed them, check them and allow them again. |
 | A command can't find a script or binary | Use absolute paths. Shell `~` expansion works when the command runs through a shell, but absolute paths are easier to debug. |
 
 ### Test a script by hand

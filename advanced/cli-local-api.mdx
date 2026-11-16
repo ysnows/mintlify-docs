@@ -38,9 +38,53 @@ curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
 
 Open **Settings → APIs** and click **Check APIs** to inspect the available routes and request schemas, with an example for each. Use the schema for your installed build when writing an integration; route parameters can change as extensions evolve.
 
+## Run an Agent or AI Command from outside Enconvo
+
+Each Agent's and AI Command's settings have a **Link, CLI and API** row. It shows the link, the `enconvo` command, and the local API call that run it with your text and files, ready to copy.
+
+| Way | What it does |
+| --- | --- |
+| Link | Opens a new chat and runs the Agent or AI Command there |
+| CLI | Runs it in the background and prints the answer |
+| Local API | Runs it in the background and returns the answer |
+
+A link has this shape:
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` is the text to send.
+- `window` is `chat_window` or `dynamic_island`. Leave it out to run in the Smart Bar.
+- `files` attaches the file at an absolute or `~/` path. Repeat it for several files, for example to send images from another app or script.
+
+From Terminal:
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+Writing commands such as Translate, Summarize, and Convert to List take the text as an argument and answer without adding a chat to your history. `enconvo agent main` answers in a new chat when the agent is busy in its latest one.
+
+The matching local API routes are `agent/call` (`agentId`, `message`, `context_files`) and `ai-command/run` (`command_key`, `input_text`, `files`).
+
+### Check on running chats
+
+- `agent/session/list` lists the chats running now across every agent and Project, Claude Code and Codex chats included, with each one's title, agent, and Project. Pass `filter: "waiting"` for the chats waiting for your answer, or `"active"` for both.
+- `agent/session/status` checks one chat by its `sessionId`.
+- `agent/session/steer` adds a message to the turn a chat is running now, without stopping it. A chat that isn't running answers `not_running`; start a new turn with `agent/call` instead. A run below Full access can't steer an Enconvo turn.
+
+## Use it safely
+
 For an AI client that only needs knowledge-base retrieval, use the dedicated [Knowledge Base MCP](/advanced/knowledge-base-mcp) connection instead of exposing the general local API.
 
 Treat local API and shell access as powerful capabilities: commands can read or modify local data according to their implementation. Keep scripts explicit about the command, input, and destination.
+
+Saved API keys come back as `[hidden]` when a program reads settings through the local API, and only Enconvo's own windows can change where a saved key is sent. See [Credentials](/configuration/credentials#how-keys-are-kept).
+
+A hotkey you set through the local API can use short modifier names (`cmd`, `ctrl`, `alt`, `opt`, `fn`) or the modifier symbols. A hotkey with a word Enconvo doesn't know isn't registered, and a key that types needs Command, Control, Option, or Function.
 
 ## Build on it
 
