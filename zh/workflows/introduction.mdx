@@ -1,0 +1,86 @@
+---
+title: "工作流"
+description: "把提示词、智能体、shell 命令和工具串成一个可重复的流程，可以运行、检查并定时执行。"
+---
+
+工作流是保存为一系列步骤的可重复流程：读取信息、转换信息、询问模型、把工作交给智能体，或调用已安装的工具。当你一遍又一遍地做同一项多步骤工作，并且想看到每一步的产出时，就可以使用工作流。打开 **设置 → 工作流 → 管理** 可浏览你的工作流及其运行历史。
+
+<Tip>
+初次使用工作流？观看 2 分半钟的视频教程[构建你的第一个工作流](/zh/workflows/build-your-first-workflow)，从头到尾创建、编辑并运行一个工作流。
+</Tip>
+
+## 选择合适的工具
+
+| 你想要 | 使用 |
+| --- | --- |
+| 对选中的文本复用同一个提示词 | [AI 命令](/zh/features/ai-commands) |
+| 让助手自行决定使用哪些工具 | [智能体](/zh/ai/agents) |
+| 定义一个可重复、输出可检查的步骤序列 | 工作流 |
+| 在设定时间运行智能体指令、工作流或脚本 | [自动化](/zh/workflows/scheduled-jobs) |
+
+## 工作流的组成
+
+工作流由三部分组成：
+
+- `inputs`：一次运行所需的值，例如一个主题或一段文本。
+- `jobs`：已命名的步骤组。各个任务并行启动，除非 `needs` 让某个任务等待另一个。
+- `steps`：每个任务内的有序列表。同一任务中的步骤按顺序依次运行。
+
+当前的工作流使用 `version: agent-workflow/v1`，并包含一个 `jobs` 映射，每个任务包含一个 `steps` 列表：
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+旧的顶层 `tasks` 格式已不再被接受。把每个序列移到 `jobs.<name>.steps` 中，为步骤指定明确的 ID，在同一任务内使用 `steps.<id>.output`，跨任务使用 `jobs.<job>.<step>.output`。
+</Note>
+
+## 步骤能做什么
+
+每个步骤只做以下其中一件事：
+
+| 步骤 | 字段 | 结果 |
+| --- | --- | --- |
+| Shell | `command` 或 `run` | 命令输出，包括 `stdout`、`stderr` 和 `exitCode` |
+| 提示词 | `prompt` | 模型的回复；需要结构化数据时使用输出结构 |
+| 智能体 | `agent` 和 `message` | 所选智能体的回复 |
+| 工具 | `tool` 和 `with` | 某个已安装 Local API 端点的结果 |
+| 转换 | `uses: transform` 和 `value` | 一个模板化的值 |
+| 子工作流 | `uses: workflow` 加 `workflowId` 或 `workflow` | 子工作流的运行结果 |
+| 审批 | `uses: approval` 和 `message` | 你的答复：批准，或拒绝并可附带反馈 |
+| 判断 | `uses: judge` 和 `question` | Jev（Enconvo Cloud 的快速决策模型）给出的是或否，以及对应概率 |
+| 分类 | `uses: classify`、`question` 和 `options` | Jev 选中的选项及其置信度 |
+
+步骤还可以只在条件成立时运行、对列表逐项重复、失败重试或返回结构化数据。参见[高级工作流](/zh/workflows/advanced-workflows)。
+
+## 运行工作流
+
+- 在 **工作流** 中打开它，设置 **输入**，然后选择 **运行**。
+- 在 SmartBar 中搜索已保存的工作流。启动器中的文本可通过 `inputs.input_text` 使用。
+- 在聊天中用 `@` 提及可用的工作流，让智能体可以使用它。
+- 用[自动化](/zh/workflows/scheduled-jobs)按计划定时运行它。
+
+## 工作流保存在哪里
+
+每个工作流是一个文件，位于 `~/.enconvo/workflows/<id>.yaml`。文件名就是工作流 ID。保持该 ID 不变，工作流与其运行历史的关联才能保留。
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="构建你的第一个工作流" icon="play" href="/zh/workflows/build-your-first-workflow">从模板到完成运行的视频教程。</Card>
+  <Card title="创建工作流" icon="pen-to-square" href="/zh/workflows/creating-workflows">可视化编辑器、YAML、助手以及所有步骤类型。</Card>
+  <Card title="高级工作流" icon="code-branch" href="/zh/workflows/advanced-workflows">条件、循环、重试、输出结构和子工作流。</Card>
+  <Card title="自动化" icon="clock" href="/zh/workflows/scheduled-jobs">按计划运行工作流或智能体。</Card>
+</CardGroup>

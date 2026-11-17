@@ -1,0 +1,116 @@
+---
+title: "上下文感知工作原理"
+description: "了解 Enconvo 会从你刚才使用的应用中读取哪些内容、何时读取，以及由哪些权限和设置控制。"
+---
+
+本页说明了[上下文感知](/zh/features/context-awareness)背后的机制：Enconvo 可以从你的 Mac 中读取哪些内容、它如何读取每一项，以及你如何控制发送给消息的内容。当你希望控制哪些信息会传给模型，或预期的上下文没有出现时，可以参考本页。
+
+上下文感知不会在后台持续监控你的屏幕。它只会在你打开 SmartBar 或自己手动添加条目时，从你刚才使用的应用中读取上下文。
+
+## Enconvo 可以读取的内容
+
+每种上下文都是一个可以添加到消息中的条目。
+
+| 上下文条目 | 包含的内容 | Enconvo 的读取方式 |
+|---|---|---|
+| **Selected Text** | 在应用中选中的文本 | 辅助功能 |
+| **Current Application Content** | 窗口的标题和文本、应用提供的文档地址，以及窗口截图 | 辅助功能和窗口截图 |
+| **Browser Current Tab URL** | 当前标签页的地址、标题以及网页正文文本 | Apple Events；参见[浏览器](#浏览器) |
+| **Finder Selected Items** | 在 Finder 中选中的文件和文件夹的路径 | Apple Events |
+| **Finder Current Directory URL** | 前台 Finder 窗口中打开的文件夹 | Apple Events |
+| **Clipboard Text** | 剪贴板中的文本 | 仅在你添加时读取剪贴板 |
+| **User Select Area Screenshot** | 你在屏幕上框选的区域 | 屏幕截图 |
+| **Current Application Screenshot** | 你刚才使用的应用 | 屏幕截图 |
+| **Current Screen Screenshot** | 整个屏幕 | 屏幕截图 |
+| **Live Screen Screenshot** | 当前屏幕的画面，不包含 Enconvo 窗口 | 屏幕截图 |
+
+对于 Finder 条目，Enconvo 只读取路径，不读取文件内容。
+
+### 浏览器
+
+- **地址和标题**：通过 Apple Events 从 Safari、Chrome、Edge、Arc 及其他基于 Chromium 的浏览器中读取。Firefox 不提供标签页地址，因此 Enconvo 无法读取。
+- **网页文本**：Safari 会直接提供网页文本。对于其他浏览器，Enconvo 会通过辅助功能读取窗口内容，这要求浏览器当前必须处于前台。
+
+### 其他应用
+
+代码编辑器、文本编辑器以及其他各类应用会获取 **Current Application Content**：窗口标题、通过辅助功能暴露的文本、应用提供的文档地址，以及窗口截图。能读取到多少文本取决于应用本身。
+
+## 当 SmartBar 打开时
+
+当你打开 SmartBar 时，它会检查你刚才使用的应用中的三个来源。**设置 → 上下文感知** 决定了每个来源的处理方式：
+
+| 来源 | 默认值 | 获取的内容 |
+|---|---|---|
+| **选中的文本** | **自动添加** | 你刚才使用的应用中选中的文字 |
+| **Finder 选中项** | **建议** | 在 Finder 中选中的文件和文件夹 |
+| **浏览器当前网页** | **建议** | 在 Safari、Chrome、Arc、Edge 或其他 Chromium 浏览器中打开的网页 |
+
+- **自动添加** 会在 SmartBar 打开时立即将该条目加入输入框。
+- **建议** 会将它列在命令上方，点按一下即可添加。建议的网页只有在你点按后才会读取正文文本。
+- **关闭** 则忽略该来源。
+
+这些设置仅适用于 SmartBar。你对选中内容运行的命令始终会收到选中的文本。
+
+## 手动添加上下文
+
+1. 在 SmartBar 中输入 `#`。
+2. 输入几个字母以筛选上下文条目列表。
+3. 选择一项，Enconvo 会读取它并添加到你的消息中。
+
+如需使用其他触发字符，请在 **设置 → SmartBar** 的 **搜索** 下修改 **上下文**。同一组设置也用于配置命令的 `@`、技能的 `$` 和最近任务的 `>`。
+
+## 权限
+
+| 权限 | 用途 |
+|---|---|
+| **辅助功能** | 选中的文本、窗口内容，以及除 Safari 以外浏览器的网页文本 |
+| **自动化** | Finder 条目和浏览器网页。Enconvo 首次读取每个应用时，macOS 会弹出询问 |
+| **屏幕录制**（录屏与系统录音） | 屏幕截图以及 **Current Application Content** 中的窗口截图 |
+
+请在 **系统设置 → 隐私与安全性** 中授予这些权限。Enconvo 会自动检测辅助功能权限的变更。完整列表请参阅[权限](/zh/configuration/permissions)。
+
+## 上下文与 Token
+
+上下文会计入模型的上下文窗口。网页文本和截图是体积最大的条目，可能会：
+
+- 让回复变慢
+- 在使用云端模型时增加费用
+- 留给对话历史的空间更少
+
+<Tip>
+在长对话中，只在需要某网页或截图的那条消息中添加它，而不要每次都附上。
+</Tip>
+
+## 隐私与数据流
+
+捕获的上下文可能会成为已保存对话或知识库条目的一部分。模型请求以及所选的 OCR、嵌入、语音转写或其他工具服务提供商可能会收到相关内容。关于本地存储与服务提供商处理之间的区别，请参阅[隐私与安全](/zh/configuration/privacy-security)。
+
+仅使用本地聊天模型并不会让所有工具都变成离线运行。请检查整个流程，包括浏览器访问、屏幕截图以及基于服务提供商的处理。macOS 权限用于限制可用的上下文范围，但并不能保证所有第三方应用中的敏感字段都会被自动识别并过滤。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+|---|---|
+| 没有选中的文本或窗口内容 | 在 **系统设置 → 隐私与安全性 → 辅助功能** 中打开 Enconvo。部分应用不会通过辅助功能暴露文本；此时请复制文本，然后用 `#` 添加 **Clipboard Text**。 |
+| 没有浏览器网页或 Finder 条目 | 在 **系统设置 → 隐私与安全性 → 自动化** 中为该应用允许 Enconvo。 |
+| 无法从 Firefox 获取地址 | Firefox 不提供标签页地址。请改用其他浏览器，或直接复制地址。 |
+| 网页没有附带正文文本 | 在 Safari 之外的浏览器中，仅当浏览器位于前台时才能读取网页文本。请在该浏览器处于前台时打开 SmartBar。 |
+| 上下文来自错误的应用 | 上下文来自打开 SmartBar 时你正在使用的应用。请等目标应用处于前台后再打开 SmartBar。 |
+| 截图失败 | 在 **系统设置 → 隐私与安全性 → 录屏与系统录音** 中允许 Enconvo。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="上下文感知" icon="eye" href="/zh/features/context-awareness">
+    在日常使用中为消息添加上下文
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh/features/smartbar">
+    在任意应用中携带上下文提问
+  </Card>
+  <Card title="权限" icon="shield-check" href="/zh/configuration/permissions">
+    每项 macOS 权限的用途
+  </Card>
+  <Card title="OCR" icon="text" href="/zh/ai/ocr">
+    从屏幕内容中提取文字
+  </Card>
+</CardGroup>

@@ -1,0 +1,65 @@
+---
+title: "媒体工具"
+description: "压缩图片、视频和音频，保存视频中的声音，或从链接下载视频。"
+---
+
+媒体工具是一组本地命令，用来处理日常媒体琐事：缩小图片、视频或音频文件，保存视频的音轨，或从网页下载视频。你可以在 SmartBar 中或 **设置 → 插件** 下找到它们。
+
+| 命令 | 作用 | 保存位置 |
+| --- | --- | --- |
+| **Image Compress** | 压缩一张或多张图片，或某个文件夹及其子文件夹中的所有图片，质量可调 | 替换原始图片 |
+| **Video Compress** | 缩小视频文件 | `~/Downloads` |
+| **Audio Compress** | 按所选质量缩小音频文件，并保留封面图（MP3、WAV、M4A、AAC、OGG、FLAC） | `~/Downloads` |
+| **Extract Audio** | 把一个视频（或文件夹中每个视频）的音轨保存为 M4A（音轨无法直接复制时保存为 MP3） | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | 从链接下载视频或音频，例如 YouTube、TikTok、Instagram、Reddit、X 或 Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** 默认会替换你的原始图片。如果想保留原图，请先在它的设置中关闭 **Overwrite Original Image File**；之后压缩后的副本会保存到图片旁边的 `enconvo-compressed-images` 文件夹中。
+</Warning>
+
+## 压缩文件或提取音频
+
+1. 在 Finder 中选中文件，或附上文件。使用 Image Compress 时也可以选择一个文件夹：其中的图片及子文件夹中的图片都会被压缩，副本保留相同的文件夹结构。
+2. 打开 SmartBar 并运行命令。
+3. 打开输出文件并检查。
+
+尝试不同的压缩设置时，请保留原始文件。各命令的设置位于 **设置 → 插件** 下：Image Compress 在 **Image Utils** 中，其他命令在 **Media Utils** 中。
+
+| 设置 | 作用 |
+| --- | --- |
+| **质量** | 0 到 100；数值越高，保留的质量越多，文件也越大。默认 80 |
+| **目标文件夹路径** | 压缩后文件的保存位置：绝对路径，或相对于该文件的路径 |
+| **Overwrite Original … File** | 替换原始文件。图片默认打开，视频和音频默认关闭 |
+
+## 下载视频
+
+1. 在浏览器中打开视频所在的网页，或复制它的链接。
+2. 在 SmartBar 中运行 **Online Video Downloader**。它会从浏览器当前标签页或你输入的链接中获取地址。
+3. 在灵动岛中查看进度，也可以在那里取消。完成后，点按 **在 Finder 中显示**。
+
+下载会保存到你的聊天记录中，已经下载过的文件会直接复用，不会重新下载。某个网站能否下载，取决于该网站本身以及它允许你访问的内容。请只下载你有权保存的内容。
+
+| 设置 | 作用 |
+| --- | --- |
+| **Output Directory** | 下载文件的保存位置。默认 `~/Downloads` |
+| **Audio Only** | 只下载音频 |
+| **Favorite Resolution** | 要下载的分辨率，从 **Best**（默认）到 144p |
+| **Force Convert to Compatible MP4** | 把视频转换为在任何地方都能播放的 MP4。默认打开；会额外耗费时间和 CPU |
+| **Use Browser Cookies** | 使用浏览器的 Cookie 登录，用于只有你能看到的视频。在 **浏览器** 中选择浏览器 |
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| **No images to compress** | 在 Finder 中选中图片或附上图片，然后重新运行命令 |
+| 转换失败 | 检查文件格式、输出文件夹是否可写，以及磁盘是否有足够的可用空间 |
+| 私密视频无法下载 | 打开 **Use Browser Cookies**，并选择你已登录的浏览器 |
+| 某个网站的下载不再可用 | 阅读错误信息，并更新插件后再试。网站会不断更改其格式和访问规则 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="图像生成" icon="image" href="/zh/ai/image-generation">在聊天中生成或编辑图片。</Card>
+  <Card title="视频生成" icon="film" href="/zh/ai/video-generation">把提示词或图片变成一段视频。</Card>
+  <Card title="语音转写" icon="file-audio" href="/zh/features/transcription">把音频和视频转成文字。</Card>
+</CardGroup>

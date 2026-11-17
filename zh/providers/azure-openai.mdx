@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "在 Enconvo 中与你的 Azure OpenAI 部署模型聊天。"
+---
+
+使用你所在组织在 Azure 上部署的 OpenAI 模型。Enconvo 直接与你的 Azure 资源通信，因此访问权限、配额和账单均遵循你的 Azure 订阅。
+
+## 开始之前
+
+你需要一个至少包含一个模型部署的 Azure OpenAI 资源。从 Azure 门户复制该资源的 **密钥**、**端点** 以及你为模型设置的 **部署名称**。如果你尚未创建资源，请参阅 [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)。
+
+## 连接
+
+<Steps>
+  <Step title="添加凭据">
+    打开 **设置 → AI 模型 → Azure OpenAI**。在 **身份验证** 下填写 **API 密钥**、**端点** 和 **API 版本**，然后点击 **验证**。端点格式类似于 `https://<resource>.cognitiveservices.azure.com/`。
+  </Step>
+  <Step title="设置部署">
+    在 **Azure OpenAI API 部署名称** 中输入你的部署名称。请使用你在 Azure 资源中设置的名称，它可能与模型本身的名称不同。
+  </Step>
+  <Step title="测试连接">
+    发送一条简短的消息。收到回复就说明连接正常。
+  </Step>
+</Steps>
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **Azure OpenAI API 部署名称** | 此服务提供商调用的部署。 |
+| **流式传输** | 边生成边显示回复内容。默认开启；如果你的部署不支持流式传输，请关闭此项。 |
+| **API 版本** | 位于凭据设置中。默认为 `2025-01-01-preview`。 |
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| **验证** 失败 | 检查密钥和 **端点** 是否来自同一个 Azure 资源。 |
+| 找不到部署 | 直接从 Azure 门户复制准确的部署名称。 |
+| 一直不显示回复 | 关闭 **流式传输** 后重试。 |
+| 速率或配额错误 | 在 Azure 中提高该部署的配额，或暂时切换到其他服务提供商。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/zh/providers/openai">改为使用 OpenAI 自家的 API。</Card>
+  <Card title="凭据与配置" icon="key" href="/zh/configuration/credentials">保存多个密钥，并了解共享的密钥会影响哪些功能。</Card>
+  <Card title="选择模型" icon="list-check" href="/zh/ai/model-selection-guide">按任务选择模型，并了解默认模型在哪里设置。</Card>
+  <Card title="服务提供商目录" icon="table" href="/zh/providers/catalog">所有服务提供商，按其支持的功能分组。</Card>
+</CardGroup>

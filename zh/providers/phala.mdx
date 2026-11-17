@@ -1,0 +1,53 @@
+---
+title: "Phala"
+description: "使用你自己的 Phala API 密钥，在 Enconvo 中与 Phala 模型聊天。"
+---
+
+Phala 在机密计算硬件中运行模型。请使用 **Confidential AI** API 密钥。把你的密钥添加到 Enconvo，即可在聊天、智能体和 AI 命令中使用这些模型。Phala 会把用量计入你自己的账户。
+
+## 连接
+
+<Steps>
+  <Step title="获取 API 密钥">
+    在 [Phala Cloud](https://cloud.phala.ai) 中创建一个密钥。
+  </Step>
+  <Step title="添加到 Enconvo">
+    打开 **设置 → AI 模型 → Phala**。在 **身份验证** 下，将密钥粘贴到 **API 密钥** 中，然后点击 **验证**。
+  </Step>
+  <Step title="选择模型">
+    在 **模型名称** 中选择一个模型，并发送一条简短的消息。收到回复就说明连接正常。
+  </Step>
+</Steps>
+
+如果想再保存一个 Phala 密钥（例如工作用的），点击 **添加新提供商** 并创建另一个配置。
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **模型名称** | 此服务提供商使用的模型。旁边的 **刷新** 会重新加载列表；**管理模型**（齿轮图标）可以添加或恢复模型。 |
+
+如果想在某个聊天中使用其他模型，请在该聊天的模型选择器中选择。
+
+点击 **验证** 会发送一条精简的聊天请求（最多生成 1 个输出 token）。Enconvo 会为你配置好端点。是否支持视觉和工具调用取决于具体模型；一个模型支持并不代表其他模型也支持。
+
+模型详情和限额请参阅 [Phala Confidential AI 文档](https://docs.phala.com/phala-cloud/confidential-ai/confidential-model/confidential-ai-api)。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| **验证** 失败 | 重新粘贴完整的密钥，并在你的 Phala 账户中确认密钥有效。 |
+| 找不到某个模型 | 点击 **模型名称** 旁边的 **刷新** 重新加载列表。如果要自己添加模型，请使用 **管理模型**。 |
+| 图片或工具调用失败 | 选择支持图像输入或工具调用的模型。 |
+| 速率或用量限制错误 | 在你的 Phala 账户中查看用量和限额，或暂时切换到其他服务提供商。 |
+| 回复很慢 | 尝试更小的模型、更短的输入，或更低的推理强度。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="选择模型" icon="list-check" href="/zh/ai/model-selection-guide">按任务选择模型，并了解默认模型在哪里设置。</Card>
+  <Card title="凭据与配置" icon="key" href="/zh/configuration/credentials">保存多个密钥，并了解共享的密钥会影响哪些功能。</Card>
+  <Card title="Auto Route" icon="route" href="/zh/providers/auto-route">让 Enconvo 为每条消息挑选模型。</Card>
+  <Card title="服务提供商目录" icon="table" href="/zh/providers/catalog">所有服务提供商，按其支持的功能分组。</Card>
+</CardGroup>

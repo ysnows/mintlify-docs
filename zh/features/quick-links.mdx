@@ -1,0 +1,67 @@
+---
+title: "快捷链接"
+description: "在 SmartBar 中用一条命令打开网页搜索、网站、文件、文件夹或 Deeplink。"
+---
+
+快捷链接能把网页搜索、网址、文件或文件夹，以及 App 的 Deeplink 变成一条可以在 SmartBar 中运行的命令。占位符会用你输入的内容、剪贴板、选中的文本或日期来填充链接。Enconvo 内置了 Google、YouTube 和 X 搜索，开箱即用。
+
+快捷链接用来打开某个目标。[网页搜索](/zh/ai/web-search)则会把搜索结果带进 AI 回答，而[使用浏览器](/zh/features/browser-control)可以让智能体在网页中操作。
+
+## 在 SmartBar 中搜索网页
+
+1. 打开 SmartBar，找到 **Google Search in Browser**、**YouTube Search in Browser** 或 **Twitter/X Search in Browser**。
+2. 输入要搜索的文本作为命令的输入。也可以使用选中的文本。
+3. 运行命令。搜索结果会在默认浏览器中打开。
+
+## 新建快捷链接
+
+1. 在 SmartBar 中运行 **新建快捷链接**。
+2. 输入 **名称**，例如 Search GitHub。
+3. 输入 **链接**：网址、文件或文件夹路径，或 Deeplink。点击 **插入占位符** 添加占位符，例如 `https://github.com/search?q={argument}`。
+4. 如果要在特定 App 中打开，在 **打开方式** 中输入 App 名称（如 Safari）、App 路径或 bundle id。留空则使用默认 App。
+5. 点击 **保存**。在 SmartBar 中搜索快捷链接的名称即可运行。
+
+运行快捷链接时，你输入或选中的文本会填入它的第一个参数。如果某个必填参数仍为空，Enconvo 会在打开链接前向你询问。
+
+| 占位符 | 填入的内容 |
+| --- | --- |
+| `{argument name="Query"}` | 打开快捷链接时你输入的值 |
+| `{clipboard}` | 剪贴板中的文本 |
+| `{selection}` | 当前 App 中选中的文本 |
+| `{date}`、`{time}`、`{datetime}` | 当前日期、时间，或两者 |
+| `{date format="yyyy-MM-dd"}` | 按你指定格式显示的日期 |
+| `{uuid}` | 一个新的唯一 ID |
+
+新链接先用普通文本测试一下，包括空格和标点。
+
+## 管理快捷链接
+
+在 SmartBar 中运行 **Search Quicklinks** 查看所有快捷链接。你可以在那里打开、编辑、复制或删除快捷链接，也可以点击 **新建** 再添加一个。
+
+**更多** 菜单中有 **导入快捷链接…**（可读取 Raycast 的快捷链接导出和设置导出）和 **导出到“下载”**。导入 Raycast 设置导出时，需要输入你导出时设置的密码。
+
+## 设置
+
+打开 **设置 → 插件 → 快捷链接**。每个搜索命令也有自己的 **链接**，例如 `https://www.google.com/search?q={query}`，你可以修改。
+
+| 设置 | 作用 |
+| --- | --- |
+| **在新窗口中打开** | 在新的浏览器窗口中打开网页快捷链接。支持 Chrome、Edge、Brave、Vivaldi、Opera、Chromium、Firefox 和 Zen；Safari、Arc 和 Orion 按常规方式打开链接。默认关闭 |
+| **When There's No Selected Text**（没有选中文本时） | 没有选中任何内容时 `{selection}` 链接的处理方式：**Ask for it**（询问，默认）或 **Use the clipboard**（使用剪贴板） |
+| **Confirm Before Deleting**（删除前确认） | 删除快捷链接前先询问。默认开启 |
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 打开了错误的页面 | 检查快捷链接的 **链接** 和占位符，然后用纯文本试一下 |
+| 浏览器没有打开 | 检查默认浏览器、快捷链接的 **打开方式**，以及命令是否已安装 |
+| `{selection}` 链接要求输入文本 | 当前没有选中任何内容。先选中文本，或把 **When There's No Selected Text** 设为 **Use the clipboard** |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh/features/smartbar">查找并运行任意命令。</Card>
+  <Card title="网页搜索" icon="globe" href="/zh/ai/web-search">把搜索结果带进 AI 回答。</Card>
+  <Card title="使用浏览器" icon="window-maximize" href="/zh/features/browser-control">让智能体在网页中操作。</Card>
+</CardGroup>

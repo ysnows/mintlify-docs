@@ -1,0 +1,210 @@
+---
+title: "开发扩展"
+description: "构建一个包含 TypeScript 命令和 Local API 路由的 Enconvo 插件，在应用中试用，并发布到插件商店。"
+---
+
+本指南面向希望为 Enconvo 添加自定义命令的开发者。你将创建一个包含一个命令和一个 Local API 路由的插件，将其构建到 Enconvo 中进行测试，并发布到插件商店。
+
+Enconvo 插件是一个 ESM 包，元数据保存在 `package.json` 中，命令位于 `src/` 下，可选的 API 路由位于 `src/api/` 下。命令通过 Enconvo 的扩展运行时执行；插件命令是一个默认导出的函数，而不是实现 `Command` 接口的类。
+
+## 开始之前
+
+你需要 Node.js 18 或更高版本、npm 或其他包管理器，并在你的 Mac 上运行 Enconvo。
+
+## 快速开始
+
+在一个新文件夹中创建插件项目：
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+该项目包含一个命令（**Say Hello**）、一个 Local API 路由、一个占位图标以及一个 README。`npm run dev` 会将插件构建到 Enconvo 中，并在你每次保存时重新构建。在 Enconvo 中搜索 **Say Hello** 即可运行。
+
+插件名称来自文件夹名称。传入 `--name`、`--title`、`--description` 或 `--author` 可以自行指定这些信息。请不要使用 Enconvo 中已安装插件的名称，因为构建会覆盖已安装插件的文件；`plugin create` 也会拒绝这类名称。
+
+如果要制作同时可安装在 Codex 和 Claude Code 中的插件，请改用 `--template skills`（技能）或 `--template mcp`（MCP 服务器）。有关这些包格式，请参阅 [Plugin Formats](/extensions/plugin-formats)；如需从本地文件夹、GitHub 或应用市场试用任何插件，请参阅[安装插件](/zh/extensions/installing-plugins)。
+
+<Note>
+`plugin create`、`plugin validate` 以及提交审核发布功能需要高于 0.1.173 版本的 `@enconvo/api`。如果你的版本没有这些命令，请按下面介绍的方式手动搭建项目。
+</Note>
+
+## 手动搭建项目
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+创建 `package.json`：
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+`categories` 的第一项决定了插件在“插件”页面和商店中显示的分区：Productivity（效率）、Communication（通信）、Developer Tools（开发者工具）、Data & Analytics（数据与分析）、Finance（金融）、Creativity（创意）、Business & Operations（商业与运营）、Education & Research（教育与研究）或 Security（安全）。
+
+安装 SDK，并将构建工具安装为开发依赖：
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build` 会使用插件自带的 `tsup` 编译你的代码。如果没有安装它，构建工具就没有可用的编译器；较新的 SDK 会报错中止，较旧的 SDK 则会跳过命令编译直接结束。
+
+创建 `tsconfig.json`：
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+在 `assets/icon.png` 处放置一张正方形的 PNG、JPEG、WebP 或 GIF 图标，大小不超过 5 MB。
+
+## 添加命令
+
+`commands[].name` 对应源代码的文件名。将以下内容写入 `src/hello.ts`：
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+该命令的 key 为 `hello_enconvo|hello`。运行时的偏好设置和请求参数会合并到请求体中。
+
+## 添加 Local API 路由
+
+`src/api/` 中的文件会在构建期间自动发现，无需在 `commands[]` 中配置。将以下内容写入 `src/api/echo.ts`：
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+该文件会生成 `hello_enconvo/echo`。诸如 `src/api/items/list.ts` 这样的子目录路径会生成 `hello_enconvo/items/list`。具体的请求体结构请参阅已安装的 [Local API 架构](/zh/advanced/cli-local-api)。
+
+## 构建与测试
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+在插件目录中执行构建。成功构建后，末尾会输出 `ready - built extension successfully`。如果打印了 `error` 行，请修复报错指出的问题后重新构建。开发模式会监听文件改动并自动重新构建。API 架构会生成到插件的 `skills/` 目录中。
+
+在 Enconvo 运行时调用该路由：
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+在分享插件之前，请测试正常问候以及无效 API 输入的情况。仅构建成功并不能保证原生操作或所有服务提供商调用都能正常运行。
+
+## 发布到插件商店
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### 检查插件
+
+`plugin validate` 会在不上传任何内容的情况下，依据商店规则检查插件；[Validation Codes](/extensions/validation-codes) 解释了它报告的各项问题。在构建完成后，它还会显示打包将包含的文件数量，以及哪些文件会被排除。它会检查：
+
+- 名称仅包含字母、数字、点、短横线和下划线
+- `version` 格式符合 `1.2.3`
+- 插件包含标题
+- 图标为不超过 5 MB 的 PNG、JPEG、WebP 或 GIF
+
+你可以在 `metadata/` 文件夹中放入最多 8 张截图；商店中的插件页面会在简介下方按文件名顺序展示这些截图。
+
+### 上传审核
+
+`plugin publish` 会构建插件并使用你当前在 Enconvo 中登录的账户上传，因此 Enconvo 必须处于运行并已登录的状态。每个版本在上线商店之前都会经过 Enconvo 的审核。在新插件获批之前，只有你能看到它；在更新审核期间，商店会继续提供上一个已发布的版本。
+
+每次更新都必须提高 `package.json` 中的 `version`。在开始构建之前，`plugin publish` 会向商店查询当前已发布的版本号，如果你的版本号不高于它，就会中止并提示下一个可用的版本号。仍在审核中或被退回的版本可以保持原版本号重新提交，新上传的包会替换旧的。
+
+打包基于构建后的插件产物进行。`.env` 文件、`node_modules`、版本控制目录和 `.zip` 压缩包会自动排除，但仍请仔细检查，确保没有其他凭据或私人文件被打包进去。
+
+审核人员会依据[插件商店审核指南](/zh/extensions/publishing-guidelines)进行审核。建议在 `package.json` 中添加 `review` 对象，提供供审核人员测试的提示词，并通过 `--review-notes` 传入演示账户的登录信息；这些内容仅审核人员可见。
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="AI Model and Voice Plugins" icon="microchip" href="/extensions/provider-plugins">
+    将你自己的 AI 模型或文本转语音声音添加到 Enconvo 的选择器中
+  </Card>
+  <Card title="Extension API Reference" icon="book" href="/extensions/extension-api-reference">
+    SDK 的核心构建模块
+  </Card>
+  <Card title="Plugin Formats" icon="box" href="/extensions/plugin-formats">
+    同时支持安装到 Codex 和 Claude Code 的技能与 MCP 插件
+  </Card>
+  <Card title="工作流" icon="diagram-project" href="/zh/workflows/introduction">
+    无需编写插件即可复用的多步骤流程
+  </Card>
+</CardGroup>

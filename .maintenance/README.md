@@ -45,6 +45,10 @@ Provider pages use the provider skeleton: intro, `## Connect` (steps), `## Model
 
 Current workflows use `jobs` containing ordered `steps`; top-level `tasks` is rejected. Every published YAML example is checked against the real module validator by `scripts/check-workflow-examples.ts`. Snippet validation does not prove that an external API, model, or user's shell command will succeed.
 
+## Translations
+
+Every change to an English page also updates its translations in the same commit: run `node scripts/i18n-status.mjs`, translate the pages it lists as missing or outdated by the rules in `i18n/TRANSLATING.md`, record them with `--mark`, and run `node scripts/i18n-nav.mjs`. Pages under `keepEnglish` in `i18n/config.json` are not translated.
+
 ## Screenshots and videos
 
 `media.json` records capture date, origin, intended page, and video codec/dimensions/duration. Images are actual Enconvo UI captures, saved with their actual JPEG format. Do not invent UI or save account credentials, personal content, or private history. Crop to the feature content. Check the result visually after capture; browser zoom can affect crop coordinates.

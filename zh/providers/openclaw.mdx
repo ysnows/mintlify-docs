@@ -1,0 +1,232 @@
+---
+title: "OpenClaw"
+description: "在 Enconvo 中将 OpenClaw 智能体用作兼容 OpenAI 的模型"
+---
+
+OpenClaw 是一个自托管的 AI 智能体平台，用于跨聊天、即时通讯渠道、工具、技能和自动化运行助手。
+
+OpenClaw 可以通过兼容 OpenAI 的网关暴露其智能体。启用网关后，Enconvo 就可以像使用其他 AI 模型一样，在聊天、Enconvo 智能体以及由模型驱动的功能中使用 OpenClaw 智能体。
+
+OpenClaw 的网关提供兼容 OpenAI 的端点，例如 `/v1/models`、`/v1/chat/completions` 和 `/v1/responses`。Enconvo 的 OpenClaw 服务提供商使用的是 Chat Completions API（`/v1/chat/completions`）。
+
+<Note>
+  Enconvo 不会在此服务提供商上使用 OpenClaw Responses API。请通过其兼容 OpenAI 的 Chat Completions 网关配置 OpenClaw。
+</Note>
+
+刚接触 OpenClaw？可以先查看 [OpenClaw 入门指南](https://docs.openclaw.ai/start/getting-started)，然后再回到这里将它连接到 Enconvo。
+
+完整的网关端点参考请参阅 [OpenClaw 网关文档](https://docs.openclaw.ai/gateway#openai-compatible-endpoints)。
+
+## 开始之前
+
+- 在将要运行网关的机器上安装好 OpenClaw
+- OpenClaw 网关正在可访问的主机和端口上运行
+- 已启用 Chat Completions 网关端点
+- 已从 `~/.openclaw/openclaw.json` 获取网关令牌
+- 在 Enconvo 中已启用 OpenClaw AI 模型服务提供商
+
+## 自动设置
+
+打开 **设置 → AI 模型 → OpenClaw**。设置卡片可以为你启动、停止和配置本地 OpenClaw 网关。
+
+当 OpenClaw 与 Enconvo 安装在同一台 Mac 上时，请使用 **自动设置**。Enconvo 将依次执行以下操作：
+
+<Steps>
+  <Step title="查找 OpenClaw">
+    检查这台 Mac 上是否存在 `openclaw` CLI。
+  </Step>
+  <Step title="启用 Chat Completions">
+    运行 `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`。
+  </Step>
+  <Step title="准备网关令牌">
+    从 `~/.openclaw/openclaw.json` 读取 `gateway.auth.token`，如果缺失则创建一个。
+  </Step>
+  <Step title="启动网关">
+    启动或重启 OpenClaw 网关服务。
+  </Step>
+  <Step title="验证 API">
+    通过 `/health` 和 `/v1/models` 探测网关。
+  </Step>
+  <Step title="保存凭据">
+    将基础 URL 和网关令牌保存到 Enconvo 的 OpenClaw 凭据中。
+  </Step>
+</Steps>
+
+设置卡片会显示运行状态徽章，例如 **正在运行** 或 **已停止**。当卡片可见时，Enconvo 会定期刷新此状态；卡片不可见后则会停止刷新。
+
+## 开启 OpenClaw 网关
+
+你可以直接让 OpenClaw 为你准备好网关信息：
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+在 Enconvo 的 OpenClaw 凭据设置中使用返回的基础 URL 和令牌。
+
+<Steps>
+  <Step title="启用 Chat Completions">
+    执行一次命令以启用兼容 OpenAI 的 Chat Completions 端点：
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="选择绑定模式">
+    如果仅限本机访问，保留默认的回环地址绑定即可。如果要让局域网内的其他设备访问网关，请绑定到局域网：
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="重启网关">
+    使配置更改生效：
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="检查网关状态">
+    确认网关正在运行：
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## 手动连接 OpenClaw
+
+打开 **设置 → AI 模型 → OpenClaw**，然后配置凭据提供商。
+
+![Enconvo 中的 OpenClaw 凭据设置](/img/openclaw-settings.png)
+
+| 设置 | 值 |
+|---------|-------|
+| **OpenClaw 基础 URL** | `http://<gateway-host>:<port>/v1` |
+| **网关令牌** | `~/.openclaw/openclaw.json` 中的 `gateway.auth.token` |
+
+Enconvo 会自动为 OpenClaw 使用 Chat Completions API。
+
+请使用以 `/v1` 结尾的基础 URL，而不是完整的 `/v1/chat/completions` 端点。例如，如果你的端点是 `http://192.168.1.18:18789/v1/chat/completions`，请输入 `http://192.168.1.18:18789/v1`。
+
+从默认的 OpenClaw 配置文件读取网关令牌：
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo 会按如下方式发送该值：
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+输入基础 URL 和令牌后，点击 **验证**。
+
+## 请求与附件的工作方式
+
+Enconvo 通过兼容 OpenAI 的 Chat Completions 发送 OpenClaw 请求：
+
+```http
+POST /v1/chat/completions
+```
+
+请使用 `openclaw:main` 或你的 OpenClaw 智能体列表所公布的其他模型名称。
+
+<Warning>
+  Enconvo 不会向 OpenClaw 发送图片附件。请将 Enconvo 中的 OpenClaw 服务提供商视为纯文本/聊天提供商。如需处理图片工作流，请使用支持视觉的模型提供商，或在发送文本给 OpenClaw 之前先运行 OCR 或图像分析。
+</Warning>
+
+## 将 OpenClaw 用作 AI 模型
+
+配置完成后，OpenClaw 会出现在模型选择器中。选择 **OpenClaw**，然后选择由智能体支持的模型，例如 `openclaw:main`。
+
+![已选为聊天模型的 OpenClaw](/img/openclaw-chat-model.png)
+
+当你希望 Enconvo 的对话、命令或功能通过某个 OpenClaw 智能体运行，同时保留常规的 Enconvo 界面时，请使用此模式。
+
+<Steps>
+  <Step title="打开模型选择器">
+    在聊天或其他由模型驱动的 Enconvo 功能中，点击当前模型名称。
+  </Step>
+  <Step title="选择 OpenClaw">
+    在服务提供商列表中选择 **OpenClaw**。
+
+    ![模型选择器中的 OpenClaw](/img/openclaw-model-selector.png)
+  </Step>
+  <Step title="选择一个 OpenClaw 智能体模型">
+    从模型列表中选择 `openclaw:main` 或其他 OpenClaw 智能体。
+  </Step>
+  <Step title="正常运行功能">
+    提问或运行该 Enconvo 功能。所选的 OpenClaw 智能体会在后台处理模型调用。
+  </Step>
+</Steps>
+
+Enconvo 会通过 `openclaw agents list` 加载 OpenClaw 模型。如果本地没有可用的 OpenClaw CLI，Enconvo 会回退到 `openclaw:main`。
+
+## 为 OpenClaw 创建一个智能体
+
+你也可以创建一个协调特定 OpenClaw 智能体的 Enconvo 智能体。当你想围绕某个 OpenClaw 智能体构建面向 Enconvo 的工作流、工具集或提示词时，这会非常实用。
+
+<Steps>
+  <Step title="打开创建智能体">
+    打开 SmartBar 并搜索 **创建智能体**。
+
+    ![Enconvo 中的创建智能体命令](/img/openclaw-create-agent-command.png)
+  </Step>
+  <Step title="命名智能体">
+    设置一个清晰的名称，例如 `OpenClaw Main`。
+
+    ![OpenClaw 的创建新智能体表单](/img/openclaw-agent-form.png)
+  </Step>
+  <Step title="编写协调指令">
+    为该 Enconvo 智能体编写指令，说明它应如何配合 OpenClaw 工作。
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="选择 OpenClaw 模型">
+    在智能体的模型设置中，选择 **OpenClaw** 并选取 `openclaw:main`。
+  </Step>
+  <Step title="保存并使用智能体">
+    与新建的 Enconvo 智能体开始对话。它将使用所选的 OpenClaw 智能体模型，同时保留你配置的 Enconvo 智能体界面和工具。
+  </Step>
+</Steps>
+
+## 故障排除
+
+<AccordionGroup>
+  <Accordion title="模型选择器中没有显示 OpenClaw">
+    请确认已在 **设置 → AI 模型** 中启用 OpenClaw 服务提供商。如果模型列表为空，请验证本地的 `openclaw agents list` 是否能正常工作，或使用默认的 `openclaw:main`。
+  </Accordion>
+  <Accordion title="验证失败并提示未授权">
+    请重新检查网关令牌。Enconvo 需要 `gateway.auth.token` 的值，并会将其作为 Bearer 令牌发送。
+  </Accordion>
+  <Accordion title="连接失败">
+    使用 `openclaw gateway status` 确认网关正在运行。如果 Enconvo 在另一台设备上，请将 `gateway.bind` 设为 `lan`，重启网关，并在基础 URL 中使用宿主机的局域网 IP。
+  </Accordion>
+  <Accordion title="启动成功但 Enconvo 短暂提示需要处理">
+    OpenClaw 可能会在 HTTP 网关准备就绪前就报告 LaunchAgent 已重启。请等待几秒钟再查看设置卡片的运行状态徽章。你也可以直接通过 `openclaw gateway status` 和 `curl http://127.0.0.1:18789/health` 进行验证。
+  </Accordion>
+  <Accordion title="网关正在运行但 `/v1/models` 失败">
+    请确认 Enconvo 使用的令牌与 `~/.openclaw/openclaw.json` 中的 `gateway.auth.token` 一致。设置状态可以通过 `/health` 检测到正在运行的网关，但模型验证需要 Bearer 令牌。
+  </Accordion>
+  <Accordion title="图片附件被忽略">
+    Enconvo 中的 OpenClaw 服务提供商目前仅支持文本。Enconvo 不会将图片附件发送给 OpenClaw；如需直接输入图片，请选择支持视觉的服务提供商。
+  </Accordion>
+  <Accordion title="基础 URL 有误">
+    请输入 `http://<gateway-host>:<port>/v1`。不要在 Enconvo 的基础 URL 字段中包含 `/chat/completions`。
+  </Accordion>
+</AccordionGroup>
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/zh/providers/hermes">以相同方式连接另一个智能体网关。</Card>
+  <Card title="智能体" icon="robot" href="/zh/ai/agents">为智能体提供指令和工具。</Card>
+</CardGroup>

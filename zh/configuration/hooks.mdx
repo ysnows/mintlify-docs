@@ -1,0 +1,440 @@
+---
+title: "钩子"
+description: "在智能体启动、使用工具或完成时，自动运行 shell 命令或发送 webhook。"
+---
+
+钩子会在 Enconvo 中发生某些事件时运行 shell 命令或发送 HTTP 请求，例如智能体启动、完成、失败或使用工具时。钩子在一个 JSON 文件中配置，因此无需开发扩展，就能添加通知、日志、本地自动化或集成。
+
+<Note>
+大多数钩子都是“发出即不管”的：它们在后台运行，不会阻塞 Enconvo。智能体运行期间，`PreToolUse`、`Stop` 和 `SubagentStop` 是例外。智能体会等待它们完成，因此它们可以阻止一次工具调用，或让智能体返回继续工作。参见[阻塞式钩子](#阻塞式钩子)。
+</Note>
+
+## 快速开始
+
+<Steps>
+  <Step title="创建 hooks 文件夹">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="创建 ~/.enconvo/hooks.json">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="触发智能体">
+    启动任意智能体或聊天命令。当它的状态变化时，Enconvo 会运行配置的命令，并向
+    `/tmp/enconvo-hooks.log` 追加一行。
+  </Step>
+</Steps>
+
+## 配置文件
+
+钩子保存在：
+
+```text
+~/.enconvo/hooks.json
+```
+
+当新文件不存在时，Enconvo 也会读取旧版文件 `~/.config/enconvo/hooks.json`。如果两个文件都存在，以 `~/.enconvo/hooks.json` 为准。
+
+每次触发事件时都会重新读取该文件，所以你可以在 Enconvo 运行时编辑钩子，无需重启。
+
+## 在设置中管理钩子
+
+打开 **设置 → 钩子**，可以看到 `~/.enconvo/hooks.json` 中按事件分组的钩子。用开关开启或关闭某一项，或点击 **打开 hooks.json** 编辑文件。开启或关闭某一项时，会在该项上写入 `enabled: false` 或 `enabled: true`，不会改动它的命令或 webhook。
+
+## 来自插件的钩子
+
+Claude Code 和 Codex 插件（例如 context-mode）可以自带钩子。允许它们之后，它们会像在 Claude Code 中一样运行：在聊天开始时、每条消息前后、工具调用前后、上下文压缩前后，以及回复失败或智能体完成时触发。
+
+1. 从 **插件** 安装插件，或在聊天中把插件的 GitHub 仓库、Git 地址、zip 或 npm 包提供给智能体。它会给出该插件的安装卡片。
+2. 安装前勾选 **允许运行它的钩子**。安装时未勾选的插件会显示其钩子处于关闭状态；之后可点击其页面上的 **允许钩子** 来开启。
+
+如果插件更新改动了它的钩子，这些钩子会停止运行，直到你重新检查并再次允许它们。Enconvo 无法运行的钩子会在卡片上列为不在 Enconvo 中运行。
+
+## 钩子如何工作
+
+事件触发时，Enconvo 会：
+
+1. 加载 `~/.enconvo/hooks.json`。
+2. 仅当新文件不存在时，回退到 `~/.config/enconvo/hooks.json`。
+3. 在顶层 `hooks` 对象中查找键名与事件名相符的条目。
+4. 应用可选的 `matcher` 正则表达式。
+5. 跳过 `enabled` 为 `false` 的条目。
+6. 并发运行所有已配置的钩子。
+
+钩子事件名沿用 Claude Code 和 Codex 的生命周期事件：`SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`Stop` 和 `SubagentStop`。对于已有的安装，旧的 Enconvo 事件名和旧的扁平 JSON 结构仍然有效，但新写入的内容使用 Codex 风格的嵌套格式。
+
+## 配置参考
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|-------|------|----------|-------------|
+| `hooks` | object | 是 | 以事件名为键的事件映射。 |
+| `event_name` | string | 是 | 要监听的事件。用作 `hooks` 中的键。 |
+| `matcher` | string | 否 | 正则过滤器。对工具事件，它匹配 `toolName`、`toolTitle` 或 `path`；对其他事件，它匹配钩子事件名。 |
+| `enabled` | boolean | 否 | 设为 `false` 可保留该条目但跳过执行。默认为 `true`。 |
+| `hooks` | array | 是 | 要执行的命令钩子和 HTTP 钩子。 |
+
+### 命令钩子
+
+命令钩子会运行一条 shell 命令。Enconvo 会把事件负载以 JSON 格式写入该命令的 stdin。
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| 字段 | 类型 | 默认值 | 说明 |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | 必填的钩子类型。 |
+| `command` | string | - | 要执行的 shell 命令。 |
+| `timeout` | number | `30000` | 超时时间，单位为毫秒。 |
+
+### HTTP 钩子
+
+HTTP 钩子会把事件负载作为 JSON 请求正文发送。
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| 字段 | 类型 | 默认值 | 说明 |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | 必填的钩子类型。 |
+| `url` | string | - | HTTP 端点 URL。 |
+| `method` | string | `"POST"` | HTTP 方法。 |
+| `headers` | object | `{}` | 额外的请求头。 |
+| `timeout` | number | `30000` | 超时时间，单位为毫秒。 |
+
+## 阻塞式钩子
+
+在智能体或机器人运行期间，有三个事件以阻塞式钩子运行。智能体会等待所有匹配的钩子（它们并行运行）完成后再继续，并按照与 Claude Code 和 Codex 相同的方式读取它们的结果。
+
+| 事件 | 时机 | 钩子可以做什么 |
+|-------|------|----------------------|
+| `PreToolUse` | 工具调用执行之前。`matcher` 会与工具名、标题和路由路径进行匹配。 | 阻止调用，或改写它的输入。 |
+| `Stop` | 智能体给出回答并结束本轮之前。 | 带着一条指令让智能体返回继续工作。 |
+| `SubagentStop` | 子代理完成之前。 | 带着一条指令让子代理返回继续工作。 |
+
+钩子有两种方式做出决定：
+
+- **退出码 2** 表示阻止。命令写入 stderr 的文本就是原因。
+- **退出码 0，并在 stdout 输出 JSON。** 其他任何输出、退出码、错误或超时都不做决定，运行会像没有该钩子一样继续。
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| JSON 输出 | 效果 |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`：调用不会执行。模型会把 `permissionDecisionReason` 当作工具结果，并可以换一种方式。 |
+| `hookSpecificOutput.permissionDecision: "ask"` | 按 `deny` 处理。Enconvo 目前还没有针对钩子的确认提示。 |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`：调用正常执行。 |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`：用这个输入代替模型的输入来执行调用。 |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`：智能体继续工作，并把 `reason` 作为下一条指令。在 `PreToolUse` 上则会阻止调用。 |
+| `{ "decision": "approve" }` | 与 `allow` 相同。 |
+
+HTTP 钩子通过 2xx 响应做出决定，响应正文为同样的 JSON。
+
+当多个钩子匹配时，deny 优先于 ask，ask 优先于 allow。各个原因会合并在一起，并使用最后一个 `updatedInput`。
+
+一个 `Stop` 钩子在一轮中最多可以让智能体返回 5 次。从第二次检查开始，`stop_hook_active` 为 `true`，这样钩子可以在其指令已被执行后让智能体停下。`Stop` 的阻塞只在智能体正常结束时生效；失败或被停止的运行仍会在后台触发 `Stop`。
+
+<Tip>
+智能体会等待阻塞式钩子，所以缓慢的 `PreToolUse` 钩子会拖慢每次工具调用，缓慢的 `Stop` 钩子会延迟本轮的结束。请让它们保持快速，设置较短的 `timeout`，或把耗时工作放到后台运行（`command &`）。
+</Tip>
+
+阻塞式钩子会收到常规的[事件负载](#事件负载)，并在顶层附带 Claude Code 的字段：
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` 和 `SubagentStop` 收到的是 `stop_hook_active` 和 `last_assistant_message`，而不是工具字段。命令钩子在智能体的工作目录中运行。
+
+### 阻止危险命令
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### 让智能体在结束前运行测试
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## 事件负载
+
+命令钩子从 stdin 收到这段 JSON。HTTP 钩子则把同样的 JSON 作为请求正文收到。
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| 字段 | 说明 |
+|-------|-------------|
+| `event` | 简短的事件名。 |
+| `fullEvent` | 带 `event-` 前缀的内部事件名。 |
+| `sourceEvent` | 产生该钩子事件的原始 Enconvo 事件（当事件为兼容 Codex 而做了映射时）。 |
+| `sourceFullEvent` | 带 `event-` 前缀的原始内部事件名。 |
+| `params` | 事件专属的负载。 |
+| `timestamp` | Unix 时间戳，单位为毫秒。 |
+
+后台钩子也会收到 Claude Code 的字段：`hook_event_name`、事件有会话时的 `session_id`，以及工具事件的 `tool_name`、`tool_input` 和 `tool_use_id`。
+
+## 可用事件
+
+| 事件 | 参数 | 触发时机 |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | 创建了新的聊天会话。 |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | 由用户输入启动了一次智能体、聊天或机器人运行。 |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 一次工具调用开始。在智能体运行期间为阻塞式。 |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 一次工具调用进入等待权限或被拒绝状态。 |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 一次工具调用成功、失败、完成或被拒绝。 |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | 一次智能体、聊天或机器人运行进入终止状态。智能体正常结束时为阻塞式。 |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | 子代理即将完成。阻塞式。子代理不会触发 `Stop`。 |
+
+`run_status_changed`、`agent_tool_step_changed` 等旧版 Enconvo 事件名仍然有效，因此现有的钩子文件不必立即迁移。
+
+## 实用示例
+
+### 智能体失败时发送 macOS 通知
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 记录智能体状态变化
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 记录智能体的工具调用
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 发送到 Slack
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 自定义脚本
+
+创建一个从 stdin 读取事件负载的脚本：
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+在 `~/.enconvo/hooks.json` 中引用它：
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+为脚本添加执行权限：
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 钩子没有运行 | 检查 `~/.enconvo/hooks.json` 是否为有效的 JSON、顶层键是否与事件名一致，以及命令在你手动运行时是否正常。如果你还保留着 `~/.config/enconvo/hooks.json`，在新文件存在时它会被忽略。 |
+| 不确定钩子是否会阻塞 Enconvo | 只有 `PreToolUse`、`Stop` 和 `SubagentStop` 在智能体运行期间会阻塞。其他钩子都是发出即不管。如果任何钩子失败或超时，Enconvo 会记录失败，并像没有该钩子一样继续。 |
+| 插件的钩子没有运行 | 打开该插件并点击 **允许钩子**。如果更新改动了钩子，请检查它们并再次允许。 |
+| 命令找不到脚本或可执行文件 | 使用绝对路径。命令通过 shell 运行时，`~` 展开是有效的，但绝对路径更容易调试。 |
+
+### 手动测试脚本
+
+把一段示例负载通过管道传给脚本：
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="智能体" icon="robot" href="/zh/ai/agents">
+    了解 Enconvo 智能体和自定义机器人
+  </Card>
+  <Card title="扩展 API 参考" icon="code" href="/extensions/extension-api-reference">
+    开发可以发出或监听事件的扩展
+  </Card>
+</CardGroup>

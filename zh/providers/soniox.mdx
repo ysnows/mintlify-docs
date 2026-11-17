@@ -1,0 +1,73 @@
+---
+title: "Soniox"
+description: "在 Enconvo 中使用 Soniox 语音转文字来进行听写、录音和文件语音转写。"
+---
+
+Soniox 可以实时或从文件中将多种语言的语音转换成文字，还能在你录制时翻译实时字幕。你可以通过 Enconvo Cloud 免密钥使用，也可以使用你自己的 Soniox API 密钥。
+
+<Note>
+**Soniox (Enconvo Cloud)** 不需要 API 密钥，而且 Cloud 套餐、终身版和试用会员可免费使用 Soniox 听写。
+</Note>
+
+## 连接
+
+<Tabs>
+  <Tab title="Enconvo Cloud">
+    <Steps>
+      <Step title="选择服务提供商">
+        打开 **设置 → 听写模型**，选择 **Soniox (Enconvo Cloud)**。
+      </Step>
+      <Step title="测试连接">
+        听写一句简短的话。说话的同时，文字应当会随即出现。
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="你自己的 API 密钥">
+    <Steps>
+      <Step title="获取 API 密钥">
+        在 [Soniox 控制台](https://console.soniox.com) 中打开你的项目并创建一个 API 密钥。
+      </Step>
+      <Step title="添加到 Enconvo">
+        打开 **设置 → 听写模型**，选择 **Soniox**。将密钥粘贴到 Soniox 凭据中，然后点击 **验证**。
+      </Step>
+      <Step title="测试连接">
+        听写一句简短的话。说话的同时，文字应当会随即出现。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+如果要将 Soniox 同时用于录音或文件，请在 **设置 → 录音模型** 或 **设置 → 语音转写模型** 中选择它。每个页面都会单独保存自己的选择。
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **模型** | 所用的 Soniox 模型。实时模型（如默认的 **Soniox STT Realtime v5**）会在你说话时实时输出文字；异步模型（如 **Soniox STT Async v5**）用于转写已录制完成的音频文件。请参阅 [Soniox 模型列表](https://soniox.com/docs/stt/models)。 |
+| **语言提示** | 优先识别的语言，默认为英语和中文。如果你在说话时会切换语言，可以添加多种语言。 |
+| **实时翻译** | 在录音过程中翻译实时字幕。保存下来的录音仍会保留原语言的转写文稿。默认关闭。 |
+| **源语言** | 音频本身的语言。选择 **自动** 可让 Soniox 自动检测。 |
+| **目标语言** | 翻译后字幕所使用的语言。 |
+| **朗读译文** | 使用你的默认声音朗读翻译后的字幕。默认关闭。 |
+
+在 **设置 → 文本转语音** 下，Soniox 也提供了可使用自有密钥或通过 Enconvo Cloud 使用的文本转语音服务提供商。
+
+Soniox 在云端处理音频。如果想让语音处理完全留在你的 Mac 上，请改用 Parakeet MLX、Qwen3 MLX 或 Whisper MLX 等本地服务提供商。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| **验证** 失败 | 从 Soniox 控制台重新复制密钥（确保没有多余空格），并检查它是否属于正确的项目。 |
+| 说话时不显示文字 | 选择一个实时模型，然后重新开始听写。 |
+| 输出的语言不对 | 将 **语言提示** 设置为你实际使用的语言。 |
+| 文件无法生成转写文稿 | 尝试使用常见格式（如 MP3、WAV、FLAC 或 M4A），并检查你的 Soniox 用量和账单状态。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="语音识别" icon="microphone" href="/zh/ai/speech-recognition">将 Soniox 与其他语音转文字服务提供商进行对比。</Card>
+  <Card title="听写" icon="keyboard" href="/zh/features/dictation">在任意应用中用语音输入文字。</Card>
+  <Card title="实时字幕" icon="closed-captioning" href="/zh/features/live-captioning">为正在播放的内容生成字幕和翻译。</Card>
+  <Card title="会议录音" icon="record-vinyl" href="/zh/features/meeting-recording">录制会议并生成实时字幕。</Card>
+</CardGroup>

@@ -1,0 +1,99 @@
+---
+title: "Windows（测试版）"
+description: "在 Windows 上安装 Enconvo Beta、登录账户、保持更新，并了解哪些功能可在 Windows 上使用。"
+tag: "BETA"
+---
+
+<Note>
+Windows 版 Enconvo 目前处于测试阶段，通过 **Beta** 更新渠道发布。它已面向日常使用打造，但不同测试版本之间仍可能有所调整。如果遇到问题，请在[反馈站点](https://feedback.enconvo.com)告诉我们。
+</Note>
+
+**当前 Beta 版本：2.5.13 Beta 3**（`2.5.13-beta-3`）。要查看你当前使用的版本，请打开 **设置 → 通用 → 更新**。
+
+## 系统要求
+
+- **Windows 10 版本 2004（内部版本 19041）或更高版本，或 Windows 11。**
+- **64 位 Intel/AMD（x64）。** 暂不支持 Windows on Arm。
+- **Microsoft Edge WebView2 运行时。** Enconvo 的窗口基于它运行。Windows 11 已内置该运行时。在 Windows 10 上，如果窗口一直保持空白，请参阅[故障排除](#故障排除)。
+
+## 下载 Beta 版
+
+Beta 版以安装程序 `Enconvo-<version>-win32-x64-setup.exe` 的形式提供，文件名中包含该 Beta 版的版本号。
+
+对于当前的 Beta 版 2.5.13 Beta 3，请下载 [Enconvo-2.5.13-beta-3-win32-x64-setup.exe](https://file.enconvo.com/win32-x64/beta/Enconvo-2.5.13-beta-3-win32-x64-setup.exe)。
+
+如果你想始终获取最新的 Beta 版，可以在 PowerShell 中运行以下命令。它会读取 Beta 订阅源、将安装程序下载到你的“下载”文件夹，并校验文件是否完整无损。
+
+```powershell
+$feed = "https://file.enconvo.com/win32-x64/beta"
+$latest = Invoke-RestMethod "$feed/latest.json"
+$file = $latest.files.exe.url
+$out = "$env:USERPROFILE\Downloads\$file"
+$ProgressPreference = "SilentlyContinue"   # downloads much faster in Windows PowerShell
+Invoke-WebRequest "$feed/$file" -OutFile $out
+if ((Get-FileHash $out -Algorithm SHA256).Hash -eq $latest.files.exe.sha256) {
+  "Downloaded Enconvo $($latest.version) to $out"
+} else {
+  "The download is damaged. Delete it and run this again."
+}
+```
+
+## 安装
+
+<Steps>
+  <Step title="运行安装程序">
+    打开你下载的 `.exe` 文件。如果 Windows 显示 **Windows 已保护你的电脑**，请点击 **更多信息**，然后点击 **仍要运行**。SmartScreen 会对尚未熟知的应用显示此提示。
+  </Step>
+  <Step title="选择文件夹">
+    Enconvo 仅为你当前账户安装，不需要管理员权限。默认安装文件夹为 `%LOCALAPPDATA%\Programs\Enconvo`。如果你选择了其他文件夹，它必须是空文件夹，或是已经安装有 Enconvo 的文件夹。
+  </Step>
+  <Step title="打开 Enconvo">
+    在最后一页保留勾选 **运行 Enconvo**，或稍后从“开始”菜单打开 **Enconvo**。它的图标会出现在任务栏通知区域中。
+  </Step>
+  <Step title="登录">
+    使用你的 Enconvo 账户登录，然后继续阅读[快速开始](/zh/quickstart)。
+  </Step>
+</Steps>
+
+安装时如果 Enconvo 正在运行，安装程序会先提示将其关闭。
+
+## Windows 版支持的功能
+
+| 功能 | Windows |
+| --- | --- |
+| 聊天窗口、设置 | 支持 |
+| 智能体、工具、文件、文档、作品 | 支持 |
+| 使用浏览器、电脑操作 | 支持 |
+| 知识库、记忆、自动化、工作流 | 支持 |
+| Enconvo Cloud 模型、网页搜索、OCR、图像生成、语音功能 | 支持 |
+| 全局快捷键、听写、语音笔记、录音、屏幕涂鸦、Appshots、通知 | 支持 |
+| 剪贴板历史、片段 | 支持 |
+| [SmartBar](/zh/features/smartbar)、[PopBar](/zh/features/popbar)、[灵动岛](/zh/features/dynamic-island)、语音命令 | 支持 |
+| [虚拟形象](/zh/features/avatar)、[桌面宠物](/zh/features/pet) | 支持 |
+| 来自 GGUF 文件的本地聊天模型 | 支持 |
+| 应用侧边栏、Live Talk、字幕生成 | 不支持 |
+| MLX 模型 | 不支持：需要 Mac |
+
+## 更新
+
+Beta 版本会保留在 Beta 渠道中。要更改渠道，请打开 **设置 → 通用** 并设置 **更新渠道**。参见[更新](/zh/configuration/updates)。
+
+Enconvo 会自动检查新版本。有新版本可用时，在聊天窗口中点击 **更新** 即可。你也可以随时在 **设置 → 通用 → 更新** 中手动检查。
+
+更新会就地安装：Enconvo 会先关闭，显示安装进度条，随后以新版本重新打开。
+
+## 故障排除
+
+| 现象 | 解决方法 |
+| --- | --- |
+| 打开安装程序时出现 **Windows 已保护你的电脑** | 点击 **更多信息**，然后点击 **仍要运行** |
+| 提示 **Enconvo 需要 64 位 Windows** | Enconvo 不支持在 32 位 Windows 上运行 |
+| 安装程序不接受你选择的文件夹 | 选择一个空文件夹，或者已经安装有 Enconvo 的文件夹 |
+| Enconvo 的窗口保持空白或打不开 | 安装 [Microsoft Edge WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)，然后重新打开 Enconvo |
+| 点击 Enconvo 通知没有反应 | 请以普通方式打开 Enconvo，不要使用 **以管理员身份运行** |
+
+## 卸载 Enconvo
+
+打开 **设置 → 应用 → 已安装的应用**（在 Windows 10 上为 **设置 → 应用 → 应用和功能**），找到 **Enconvo** 并选择 **卸载**。
+
+你的设置和聊天记录保留在用户文件夹下的 `.config\enconvo` 目录中（`%USERPROFILE%\.config\enconvo`）。如需一并清除，删除该文件夹即可。

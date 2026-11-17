@@ -1,0 +1,81 @@
+---
+title: "上下文感知"
+description: "选择 SmartBar 从你刚才使用的应用中获取哪些内容，并用 # 添加更多上下文。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+上下文是随问题一起发送的内容：你选中的文字、在 Finder 中选中的文件、浏览器中打开的网页，或一张截图。SmartBar 打开时可以自动获取其中一部分，你也可以输入 `#` 添加更多。这样智能体就能针对你正在看的内容作答，无需你再解释。
+
+<YouTubePlayer videoId="VKhyKibToAw" title="上下文感知概览与演示" />
+
+## 选择 SmartBar 获取的内容
+
+1. 打开 **设置 → 上下文感知**。
+2. 在 **打开 Smart Bar 时** 下，将每个来源设为 **自动添加**、**建议** 或 **关闭**。
+3. 切换到另一个应用，选中一些内容，然后打开 SmartBar 查看效果。
+
+| 来源 | 添加的内容 | 默认值 |
+| --- | --- | --- |
+| **选中的文本** | 你刚才使用的应用中选中的文字 | **自动添加** |
+| **Finder 选中项** | 在 Finder 中选中的文件和文件夹 | **建议** |
+| **浏览器当前网页** | 在 Safari、Chrome、Arc、Edge 或其他 Chromium 浏览器中打开的网页 | **建议** |
+
+**自动添加** 会在 SmartBar 一打开时就把该来源加入输入框。**建议** 会把它列在命令上方，点一下即可添加。**关闭** 则不使用该来源。
+
+这些设置只对 SmartBar 生效。对选中内容运行的命令始终会收到选中的文字。第一次添加 Finder 或浏览器上下文时，macOS 会询问是否允许 Enconvo 控制该应用。
+
+## 用 # 添加上下文
+
+1. 在 SmartBar 中输入 `#`。
+2. 输入一个词来缩小列表范围，例如 `#screen`、`#finder`、`#clipboard` 或 `#browser`。
+3. 选择一个来源，它会被添加到你的消息中。
+4. 输入你的问题并发送。
+
+| 来源 | 添加的内容 |
+| --- | --- |
+| **Selected Text** | 当前窗口中选中的文字 |
+| **Clipboard Text** | 剪贴板上的文字 |
+| **Current Application Content** | 前台应用的文字内容 |
+| **Current Application Screenshot** | 前台应用的截图 |
+| **Current Screen Screenshot** | 整个屏幕的截图 |
+| **Live Screen Screenshot** | 不包含 Enconvo 窗口的屏幕截图 |
+| **User Select Area Screenshot** | 你框选区域的截图 |
+| **Finder Selected Items** | 在 Finder 中选中的文件和文件夹 |
+| **Finder Current Directory URL** | Finder 中打开的文件夹 |
+| **Browser Current Tab URL** | 浏览器当前标签页的地址 |
+
+你打开的窗口也会列出，所以你可以添加其他应用的窗口。如果想用 `#` 以外的字符，可在 **设置 → SmartBar** 的 **搜索** 下修改 **上下文**。
+
+## 可以问什么
+
+附上浏览器网页后，可以让 Enconvo 总结网页、翻译网页或提取关键信息。附上 Finder 文件后，可以让它描述这些文件、建议如何整理、协助批量重命名，或分析文件内容。
+
+<Note>
+你附加的上下文会发送给作答的模型，或发送给处理它的服务提供商。处理敏感内容之前，请先检查附加了哪些内容以及你的服务提供商设置。
+</Note>
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 选中的文字没有被添加 | 确认 **选中的文本** 已设为 **自动添加**，并检查[权限](/zh/configuration/permissions)。 |
+| 缺少 Finder 或浏览器上下文 | macOS 询问时，允许 Enconvo 控制该应用。如果你拒绝过，请在[权限](/zh/configuration/permissions)中重新允许。 |
+| 输入 `#` 没有弹出列表 | 检查 **设置 → SmartBar** 中的 **上下文** 字符。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh/features/smartbar">
+    在 SmartBar 提问中使用上下文。
+  </Card>
+  <Card title="Appshots" icon="window-maximize" href="/zh/features/appshots">
+    一键添加前台应用窗口。
+  </Card>
+  <Card title="屏幕涂鸦" icon="pen" href="/zh/features/screen-doodle">
+    提问前先在屏幕上标注。
+  </Card>
+  <Card title="OCR" icon="text" href="/zh/ai/ocr">
+    从图片中提取文字。
+  </Card>
+</CardGroup>

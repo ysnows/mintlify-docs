@@ -1,0 +1,78 @@
+---
+title: "图像生成"
+description: "让智能体用你选择的图像服务提供商创作一张图片，或修改你附上的图片。"
+---
+
+在聊天中让智能体生成一张图片，或修改你附上的图片。Enconvo 会把请求发送给你在 **设置 → 图像生成** 中设置的图像服务提供商，它与你聊天所用的模型是分开的。
+
+## 开始之前
+
+1. 打开 **设置 → 图像生成**，选择一个服务提供商。
+2. 设置它的 **凭据提供商**（它使用的密钥或账户）和 **模型名称**。
+3. 点按 **设为默认**。
+
+Enconvo Cloud 服务提供商 **OpenAI (Enconvo Cloud)** 和 **Google Gemini (Enconvo Cloud)** 无需你自己的 API 密钥。
+
+## 生成图片
+
+1. 在与智能体的聊天中，描述主体、构图、风格以及图片的用途。
+2. 只有在模型支持时，才指定尺寸、宽高比或质量。
+3. 等待图片生成。生成图片可能比文字回复耗时更长。
+4. 点按图片在聊天旁边打开它，你可以在那里继续编辑。
+
+示例：
+
+```text
+Create a square illustration for a guide to organizing research.
+Show three labeled folders on a tidy desk, with a warm neutral palette.
+Leave the top third clear for a title.
+```
+
+你也可以在新聊天的消息框下方选择 **图片**。模型、其设置和 **避免** 会作为胶囊按钮显示在消息框下方，方便你在发送前设好。如需查看你生成的所有内容的资料库、已保存的主体以及一键修复功能，请使用[媒体](/zh/features/media)。
+
+## 编辑图片
+
+1. 把源图片附加到你的消息中，或点按智能体生成的图片在图像编辑器中打开它。
+2. 描述具体要做的修改，并说明哪些内容应保持不变。
+3. 检查结果中是否有你没有要求的改动。
+
+请使用支持图片编辑或参考图片的模型。
+
+在图像编辑器中，设置面板只会显示所选模型支持的选项：
+
+| 设置 | 作用 |
+| --- | --- |
+| 分辨率、宽高比和质量 | 下一版本的尺寸与细节 |
+| **避免** | 需要排除的内容，适用于支持负向提示词的模型 |
+| 变体数量 | 每次请求生成多少个版本，你可以保留想要的结果 |
+| **编辑区域** 和 **标注** | 在图片上涂抹以仅修改该部分，或通过绘制来引导修改 |
+| GIF 和 **帧** | 根据你的文字生成的动态图片 |
+
+每次编辑都会生成一个新的版本，每张图片都会保存在[媒体](/zh/features/media)和 `~/Enconvo/Media` 中。要让图片动起来，点按 **制作视频**。
+
+### GPT Image 2.6
+
+GPT Image 2.6 Flare 和 Sunburst 可通过 OpenAI、Enconvo Cloud、PipeLLM 和 OpenRouter 使用。它们新增了复杂度设置（低、中、高）、由你绘制的标注引导编辑，以及 SVG 或动态 GIF 输出。SVG 和 GIF 会根据你的文字重新生成一张图片，而不会编辑当前图片。
+
+## 服务提供商
+
+[图像服务提供商目录](/zh/providers/catalog)包括 OpenAI、Gemini、xAI、OpenRouter、PipeLLM、Pollinations、Kie.ai、Topview、Azure、Together，以及它们已提供的 Enconvo Cloud 版本。OpenAI 服务提供商也可以使用你的 ChatGPT 登录作为凭据。服务提供商能做什么取决于模型：仅凭服务提供商的名字，并不能保证它支持所有编辑模式。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 图片没有生成 | 检查服务提供商的访问权限和模型，然后阅读服务提供商返回的错误 |
+| 编辑忽略了你的图片 | 确认模型接受图片输入，并且文件已附加到消息中 |
+| 输入文件被拒绝 | 确认服务提供商支持该文件的格式 |
+| 使用 ChatGPT 登录时没有提供 GPT Image 2.6 | OpenAI 不向 ChatGPT 套餐提供该模型；请使用 OpenAI API 密钥或 Enconvo Cloud |
+| 编辑器里没有你想要的设置 | 所选模型不支持该设置；请换一个模型 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="媒体" icon="images" href="/zh/features/media">将所有图片、视频和音频片段集中在一处。</Card>
+  <Card title="视频生成" icon="film" href="/zh/ai/video-generation">把提示词或图片变成一段视频。</Card>
+  <Card title="媒体工具" icon="photo-film" href="/zh/features/media-tools">压缩图片、视频和音频。</Card>
+  <Card title="服务提供商目录" icon="list" href="/zh/providers/catalog">所有图像服务提供商及其设置。</Card>
+</CardGroup>

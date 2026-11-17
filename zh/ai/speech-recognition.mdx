@@ -1,0 +1,62 @@
+---
+title: "语音识别"
+description: "为每项语音功能选择语音模型：Enconvo Cloud、你自己的密钥，或 Mac 上的模型。"
+---
+
+Enconvo 的每项语音功能都有自己的语音模型设置，因此你可以为听写选择快速的流式模型，为长文件选择另一个模型。请在你实际使用的功能中选择模型。
+
+| 功能 | 设置位置 | 指南 |
+| --- | --- | --- |
+| 把语音输入为文字 | **设置 → 听写模型** | [听写](/zh/features/dictation) |
+| 语音命令 | **设置 → 语音命令 → 收音** | [语音命令](/zh/features/dictation) |
+| Live Talk 通话 | **设置 → Live Talk → 收音** | [Live Talk](/zh/features/live-voice) |
+| 会议或讲座录音 | **设置 → 录音模型** | [会议录音](/zh/features/meeting-recording) |
+| 已有的音频或视频文件 | **设置 → 语音转写模型** | [语音转写](/zh/features/transcription) |
+| 实时字幕 | **设置 → 字幕生成模型** | [实时字幕](/zh/features/live-captioning) |
+
+## 选择模型
+
+1. 根据上表打开你所用功能的设置。
+2. 在听写、录音、语音转写或字幕生成模型页面上，用 **全部**、**Enconvo Cloud**、**本地** 或 **自定义提供商** 筛选列表。在语音命令和 Live Talk 中，**收音** 会先显示推荐的模型，再显示其他语音模型。
+3. 选择一个模型，然后检查它的语言和模型选项。
+
+**Enconvo Cloud** 模型使用你的 Enconvo 账户，无需 API 密钥。**Enconvo Cloud Fast** 是 Enconvo Cloud 自有的语音识别模型，对所有人免费，并带有绿色的 **免费** 标签。**自定义提供商** 使用你在该提供商处的 API 密钥。**本地** 模型（MLX 和 Core ML）在模型下载完成后，直接在你的 Mac 上识别语音。
+
+[语音服务提供商目录](/zh/providers/catalog)列出了所有已声明的提供商，包括云端服务以及本地的 Parakeet、Qwen、Whisper、SenseVoice、Paraformer 和 Nemotron 变体。硬件要求和可用性取决于运行环境和你的版本。
+
+## 重点模型
+
+| 模型 | 需要了解的内容 |
+| --- | --- |
+| ElevenLabs Scribe v3 Live | 在 1 秒内开始流式输出首批文字，在中文和嘈杂音频中的错误更少。使用你的 ElevenLabs API 密钥或 Enconvo Cloud 即可将其用于听写和语音输入。中文和日文输出时词与词之间不带空格。Live Talk 使用 ElevenLabs 时也会调用它。 |
+| ElevenLabs Scribe v3 | 使用你的 ElevenLabs API 密钥或 Enconvo Cloud 转写文件。 |
+| Enconvo Cloud Fast | 免费。它的实时模型可在你说话时即时显示文字，异步模型可转写录音文件。 |
+| Soniox | 在听写、录音、语音转写、字幕生成、Live Talk 和会议字幕中使用 Soniox 的 v6 模型。你之前选择的 v5 模型会自动为你切换到 v6；Soniox 将于 2026 年 12 月 15 日下线 v5。 |
+| DeepSeek | 使用你自己的 DeepSeek API 密钥，或无需密钥直接选择 **DeepSeek (Enconvo Cloud)**，用于语音转写和听写。它可自动识别 21 种语言。 |
+| Fluid Speech Pro by FluidVoice | 在你的 Mac 和 iPhone 上离线运行，可转写 25 种欧洲语言，错误率低于 Parakeet，支持边说边出字或在说完后转写。需要 macOS 15 或 iOS 18 及更高版本。 |
+
+## 根据任务选择模型
+
+| 能力 | 需要了解的内容 |
+| --- | --- |
+| 流式识别 | 在你说话时输出部分文字。如果希望边说边出字，请使用实时模型。 |
+| 批量转写 | 在录制或上传完成后处理文件。 |
+| 语言提示和热词 | 在提供商支持时引导识别。 |
+| 说话人分离 | 区分不同的声音。它不能保证对应到正确的人名。 |
+| 实时翻译 | 只有部分提供商和模型提供，需要设置源语言和目标语言。 |
+| 时间戳和结构化输出 | 取决于提供商和转写输出格式。 |
+
+## 用简短样本测试
+
+用你实际使用的语言、麦克风和术语录制一段简短的样本，在处理长时间会议之前先检查结果。如果失败，阅读错误信息中关于文件大小、格式、提取、账户或网络的细节。
+
+本地模型的下载量可能比应用本身大得多。请查看实际下载大小和你的可用空间；不同的本地语音模型需要的空间并不相同。
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="词典与说话人" icon="book" href="/zh/configuration/speech-assets">让语音功能学会你的用词和名字。</Card>
+  <Card title="权限" icon="shield" href="/zh/configuration/permissions">麦克风和系统音频访问权限。</Card>
+  <Card title="本地模型" icon="microchip" href="/zh/ai/local-llm">在你的 Mac 上运行模型。</Card>
+  <Card title="服务提供商目录" icon="table" href="/zh/providers/catalog">Enconvo 提供的所有语音服务提供商。</Card>
+</CardGroup>

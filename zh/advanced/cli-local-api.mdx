@@ -1,0 +1,106 @@
+---
+title: "CLI 与本地 API"
+description: "在终端中运行 Enconvo 命令，并通过脚本、智能体和其他应用调用其本地 HTTP API。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+本页面向希望从终端、脚本或其他应用驱动 Enconvo 的开发者和高级用户。`enconvo` 命令随 Enconvo 桌面应用一同提供，无需单独安装，应用也会通过本地 HTTP API 提供所有已安装插件的路由。
+
+下面的视频介绍了 API 页面、CLI 指南和 Hooks。
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="如何使用 Enconvo 的 API、CLI 与 Hooks | 分步教程" />
+
+对于需要调用本地运行时的命令，请保持 Enconvo 处于运行状态。
+
+## 查找命令
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+在你要查看的命令后加上 `-h`，即可查看其当前的子命令与选项。
+
+打开 **设置 → CLI 指南**，可以查看公开了 CLI 命令的已安装扩展。点击名称即可复制对应的 `enconvo <name> -h` 命令。已安装扩展列表以你当前应用支持的内容为准。
+
+如果 shell 找不到 `enconvo`，请打开应用的 CLI 指南，检查已安装的应用版本以及命令行配置。
+
+## 调用本地 API
+
+应用在 `http://localhost:54535/api/<extension>/<route>` 上提供各个路由。通过 `POST` 发送 JSON 请求体：
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+打开 **设置 → API** 并点击 **检查 API**，即可查看可用的路由和请求 Schema，以及每个路由的示例。编写集成时，请以你当前安装版本的 Schema 为准；路由参数可能会随扩展更新而变化。
+
+## 从 Enconvo 外部运行智能体或 AI 命令
+
+每个智能体和 AI 命令的设置中都有一行 **链接、CLI 与 API**。其中提供了可直接复制的链接、`enconvo` 命令和本地 API 调用，用以携带你的文本和文件运行它。
+
+| 方式 | 作用 |
+| --- | --- |
+| 链接 | 打开一个新聊天并在其中运行该智能体或 AI 命令 |
+| CLI | 在后台运行并打印回答 |
+| 本地 API | 在后台运行并返回回答 |
+
+链接格式如下：
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` 是要发送的文本。
+- `window` 为 `chat_window` 或 `dynamic_island`。省略则在 SmartBar 中运行。
+- `files` 用于附加绝对路径或 `~/` 路径的文件。可重复传参以附加多个文件，例如从其他应用或脚本发送图片。
+
+在终端中运行：
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+翻译、总结、转为列表等写作命令会直接把文本作为参数并立即返回结果，不会向你的聊天历史中添加新对话。当智能体在最近一个聊天中正忙时，`enconvo agent main` 会在新聊天中作答。
+
+对应的本地 API 路由是 `agent/call`（`agentId`、`message`、`context_files`）和 `ai-command/run`（`command_key`、`input_text`、`files`）。
+
+### 查看正在运行的聊天
+
+- `agent/session/list` 会列出所有智能体和项目中当前正在运行的聊天（包括 Claude Code 和 Codex 聊天），返回各自的标题、智能体和项目。传入 `filter: "waiting"` 只列出等待你回答的聊天，传入 `"active"` 则同时列出两类。
+- `agent/session/status` 根据 `sessionId` 检查单个聊天的状态。
+- `agent/session/steer` 会向聊天当前正在运行的一轮对话追加一条消息，而不会中止它。未在运行的聊天会返回 `not_running`；此时请改用 `agent/call` 开启新一轮对话。低于完全访问权限的运行无法引导 Enconvo 的当前轮次。
+
+## 安全使用
+
+如果某个 AI 客户端只需要检索知识库，请使用专用的 [Knowledge Base MCP](/zh/advanced/knowledge-base-mcp) 连接，而不要暴露通用的本地 API。
+
+请谨慎对待本地 API 和 shell 访问能力：命令可以根据自身实现读取或修改本地数据。编写脚本时请明确指定命令、输入内容和目标位置。
+
+当程序通过本地 API 读取设置时，已保存的 API 密钥会以 `[hidden]` 返回，并且只有 Enconvo 自己的窗口才能更改已保存密钥的发送目标。参见[凭据](/zh/configuration/credentials)。
+
+通过本地 API 设置快捷键时，可以使用简短的修饰键名称（`cmd`、`ctrl`、`alt`、`opt`、`fn`）或修饰键符号。包含 Enconvo 不认识的词的快捷键不会被注册；可输入字符的按键必须搭配 Command、Control、Option 或 Function。
+
+## 基于它进行构建
+
+- [开发扩展](/zh/extensions/developing)：添加你自己的命令和路由。插件 `src/api/` 中的文件会成为这里的路由。
+- [Extension API Reference](/extensions/extension-api-reference)：SDK 的入口说明。
+- [Hooks](/zh/configuration/hooks)：在智能体工作的特定节点上运行你自己的命令。它们来自你的 JSON 配置，并在 **设置 → Hooks** 中列出已加载的 Hook。
+- [自动化](/zh/workflows/scheduled-jobs)：在指定时间运行任务。
+- [在 Linux 服务器上配置 Enconvo](/zh/advanced/linux-server)：使用相同的 `enconvo` 命令设置你的 Mac 已添加的服务器上的模型、智能体和插件。
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="开发扩展" icon="code" href="/zh/extensions/developing">
+    构建命令或本地 API 路由
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/zh/advanced/knowledge-base-mcp">
+    让其他 AI 客户端访问你的知识库
+  </Card>
+</CardGroup>

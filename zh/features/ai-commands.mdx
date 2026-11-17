@@ -1,0 +1,80 @@
+---
+title: "AI 命令"
+description: "把常用的提示词保存为命令，在 PopBar、快捷键或 SmartBar 中运行。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+AI 命令把你反复使用的提示词连同其模型和设置打包在一起，让你一键处理任意文本。它适合专注的单项任务，比如改写客服回复。需要用工具完成更广泛的工作时，使用[智能体](/zh/ai/agents)；需要一连串步骤时，使用[工作流](/zh/workflows/introduction)。
+
+<Frame caption="尚未保存的 Friendly Support Reply AI 命令示例。">
+  <img src="/images/guides/ai-command-draft.jpg" alt="尚未保存的 Friendly Support Reply AI 命令示例" />
+</Frame>
+
+下面的视频教程用 2 分钟制作一个从会议记录中提取待办事项的命令：描述它、用自己的文本试用、用自己的话修改、添加到 PopBar、设置快捷键，并在其他 App 中运行。
+
+<YouTubePlayer videoId="zRD7Yg_Grjw" title="如何在 Enconvo 中制作自己的 AI 命令 | 分步教程" />
+
+## 创建命令
+
+1. 打开 **设置 → AI 命令**，或在 SmartBar 中运行 **创建 AI 命令**，然后点击 **新建 AI 命令**。
+2. 用自己的话描述命令要做什么，然后点击 **起草**。Enconvo 会写好标题、图标和指令，并立即在一个示例上运行。
+3. 把你自己的一段文本粘贴到示例中，点击 **重试**，查看在真实输入上的结果。
+4. 要调整行为，在 **有什么要改的吗？** 中输入修改要求，例如“按负责人分组”，然后点击 **重新起草**。指令中修改过的行会被标出，示例结果也会重新运行。
+5. 在 **在哪里使用** 下，保持 **添加到 PopBar** 开启，这样每次选中文本时都会出现 PopBar 按钮；或者点击 **添加快捷键** 并按下你想要的按键。
+6. 点击 **保存**。
+
+指令示例：
+
+```text
+Rewrite the input as a short, friendly support reply.
+Preserve names, dates, product names, and technical details.
+Return only the rewritten reply.
+```
+
+## 运行命令
+
+- **从 PopBar：** 在任意 App 中选中文本，然后点击命令的按钮。结果准备好后，点击 **粘贴** 替换选中的内容。
+- **用快捷键：** 选中文本后按下命令的快捷键。结果会在 SmartBar 中打开，你可以在那里粘贴。
+- **从 SmartBar：** 搜索命令标题，对当前输入运行。
+- **从智能体：** 在聊天中让智能体为你运行命令。命令完成后，智能体会继续你的聊天。
+
+来自 AI 命令（包括翻译等内置命令和你自己的命令）的聊天不会显示在聊天窗口、灵动岛的 **历史记录** 或 SmartBar 的聊天列表中。
+
+## 修改命令
+
+在 **设置 → AI 命令** 中打开命令，即可编辑它的标题和指令。修改会在输入时自动保存。
+
+| 设置 | 作用 |
+| --- | --- |
+| **PopBar** | 把命令放到 PopBar 上，或从上面移除。 |
+| **快捷键** | 对你在任意 App 中选中的文本运行该命令的按键。 |
+| **内联模式** | 不打开窗口直接运行，并用结果替换选中的内容。 |
+| **完成后操作** | 命令完成后如何处理回答（如果有该选项）。 |
+| **AI 模型** | 显示该命令是跟随所有 AI 命令的模型，还是使用专门为它选择的模型。点击 **更改** 进行选择。 |
+
+### 为所有命令选择模型
+
+除非你另选模型，否则 AI 命令默认在 Enconvo Fast 上运行。要更改模型，请打开 **设置 → AI 命令** 并点击 **所有命令**。**AI 模型** 下设置的模型同样用于写作工具、PopBar 以及听写的 **润色** 和 **翻译**。点击 **使用推荐模型** 可切回 Enconvo Fast。当此模型更改时，已单独指定模型的命令仍会保留各自的模型；点击 **查看** 可查看这些命令，或点击 **全部使用 …** 将它们一并切到此模型。
+
+内置命令显示的是 **自定义**：它会生成一份属于你的副本，供你编辑。你自己的命令有一个 **⋯** 菜单，其中有 **复制** 和 **删除**。删除命令也会把它从 PopBar 中移除，并释放它的快捷键。
+
+## 使用动态上下文
+
+在支持变量的字段中，可以用变量选择器插入输入文本、选中的文本、当前 App 或其他上下文。参见[变量](/zh/workflows/variables)。在对私密文档使用命令之前，先检查展开后的上下文。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 找不到某个命令 | 确认它已保存，然后搜索它的标题。 |
+| 输出忽略了选中的文本 | 检查命令的输入和上下文设置，以及[权限](/zh/configuration/permissions)中的辅助功能权限。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="PopBar" icon="arrow-pointer" href="/zh/features/popbar">对选中的文本运行命令。</Card>
+  <Card title="写作工具" icon="pen-nib" href="/zh/features/writing-tools">现成的写作命令。</Card>
+  <Card title="智能体" icon="robot" href="/zh/ai/agents">带工具、能完成更广泛工作的助手。</Card>
+  <Card title="工作流" icon="diagram-project" href="/zh/workflows/introduction">把多个步骤串联起来。</Card>
+</CardGroup>

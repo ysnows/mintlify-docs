@@ -24,6 +24,19 @@ npx --yes tsx@4.20.6 scripts/check-workflow-examples.ts
 
 The workflow check imports the adjacent workflow module's real validator and its installed YAML dependency. It checks documented syntax without executing shell commands, models, tools, or saved user workflows.
 
+## Translations
+
+English pages are the source. Each other language lives in its own folder with the same paths (`zh/` for Simplified Chinese), and `docs.json` navigation for every language is generated from the English navigation. After changing English pages or the English navigation:
+
+```sh
+node scripts/i18n-status.mjs              # missing and outdated translations per language
+node scripts/i18n-check.mjs zh-Hans       # translated pages keep the English structure and /zh links
+node scripts/i18n-status.mjs --mark zh-Hans <page> ...   # after translating pages again
+node scripts/i18n-nav.mjs                 # regenerate the navigation of every language
+```
+
+Edit the English navigation inside `navigation.languages[0]` (the `en` entry). See [i18n/TRANSLATING.md](i18n/TRANSLATING.md) for the translation rules and `i18n/config.json` for the languages and the pages that stay English.
+
 ## Content organization
 
 - `reference/feature-directory.mdx`: task-oriented index.

@@ -1,0 +1,213 @@
+---
+title: "安装插件"
+description: "从商店、压缩包、GitHub、git、npm、文件夹或插件市场安装 Enconvo、Codex、Claude Code 和可移植插件，并保持它们为最新版本。"
+---
+
+大多数人从 Enconvo **插件**页面上的插件商店安装插件。Enconvo 也能从其他地方安装插件，包括开发者在 GitHub 和插件市场上发布的 Codex 与 Claude Code 插件。Enconvo 能读取哪些安装包，请参见[插件格式](/extensions/plugin-formats)。
+
+要在应用中安装，请阅读[从插件页面安装](#从插件页面安装)和[从聊天中安装](#从聊天中安装)。本页其余内容面向开发者和高级用户：从终端安装、添加插件市场、更新和卸载，以及分享你自己的插件。
+
+<Warning>
+只有 Enconvo 商店中的插件经过 Enconvo 审核。来自其他地方的插件可以通过其 MCP 服务器在你的 Mac 上运行程序，因此只应从你信任的来源安装。
+</Warning>
+
+## 从插件页面安装
+
+点按**插件**页面上的**添加**：
+
+| 选项 | 作用 |
+|---|---|
+| **创建插件** | 开启一个聊天，由 Enconvo 的智能体和你一起构建插件。 |
+| **上传插件压缩包…** | 安装一个文件：`.enconvo` 安装包、`.dxt` 桌面扩展，或 Claude Code、Codex 插件的 `.zip`。 |
+| **从 GitHub 添加…** | 从 GitHub、git、npm 或文件夹安装插件，或安装某个插件市场中的插件（见下文）。 |
+| **添加 MCP 服务器…** | 打开 MCP 设置，直接连接单个服务器，无需外层插件。 |
+| **添加 PopBar 扩展…** | 从链接、文件或 `#popclip` 代码片段安装 PopBar 扩展（参见 [PopBar 扩展](/zh/features/popbar)）。 |
+| **新建技能…** | 打开技能设置，编写你自己的技能。 |
+| **开发者指南** | 打开[开发扩展](/zh/extensions/developing)。 |
+
+你添加的内容位于 **Enconvo** 标签页顶部的**已安装**中：按名称列出你已连接的连接器以及你安装或制作的插件。点按**已安装**即可查看全部。Enconvo 自带的插件不会列在其中。PopBar 扩展有自己的 **PopBar** 标签页，其中是经 Enconvo 审核的目录；参见 [PopBar 扩展](/zh/features/popbar)。
+
+### 从 GitHub 添加
+
+粘贴插件所在的位置，然后按**预览**：
+
+- `owner/repo`，或 GitHub 链接，包括指向某个文件夹的链接（`/tree/<branch>/<folder>`）
+- 仓库中的插件写作 `owner/repo/folder`，可加 `@branch` 或 `@tag` 固定版本
+- 任意 https git 地址
+- `npm:<package>`，可加 `@version` 固定版本
+- 指向插件 `.zip` 的 https 链接
+- 你 Mac 上的一个文件夹
+
+私有的 GitHub 或 git 仓库同样适用。Enconvo 会使用你 Mac 上已登录的 GitHub 账户或你的 SSH 密钥，因此无需输入密码。
+
+Enconvo 会在安装前先展示插件：它的格式（Codex、Claude Code、可移植、桌面扩展或 Enconvo）、版本、开发者、技能、MCP 服务器和钩子，以及其中包含的 ChatGPT 应用（Enconvo 不会加载它们）。对于每个 MCP 服务器，它会说明是在你的 Mac 上启动，还是通过互联网连接。插件的钩子会在你的 Mac 上运行命令，因此除非你勾选**允许运行它的钩子**，否则它们保持关闭。点按**安装**后，Enconvo 会打开插件页面。页面上的**来源**行会说明插件来自哪里（GitHub 和 git 来源会附上提交），并链接到仓库或 npm 页面；底部的说明会写出插件自己声明的开发者：只有 Enconvo 自己的插件和来自其商店的插件才会标明由 Enconvo 制作。以这种方式安装的插件列在**个人**下。从同一位置再次安装会更新插件。如果已从其他地方安装了同名插件，请先卸载它。
+
+如果地址是一个插件市场，对话框会列出其中的插件，每个插件都有一个**安装**按钮。安装其中一个会添加该插件市场，下次打开对话框时，它会显示在**你的插件市场**下。
+
+Enconvo 插件的源代码需要先构建才能使用，因此对话框会给出 `enconvo plugin install` 命令，让你在终端中运行。
+
+## 从聊天中安装
+
+当你让 Enconvo 的智能体做你现有插件做不到的事时，它可以在你 Mac 上的插件市场中查找插件：包括你在 Enconvo 中添加的插件市场，以及 Codex 或 Claude Code 拥有而 Enconvo 尚未添加的插件市场，其中包括 Codex 自带的 OpenAI Curated 插件市场（参见[在 Codex 或 Claude Code 中添加的插件市场](#在-codex-或-claude-code-中添加的插件市场)）。它读取的是这些插件市场目录在你 Mac 上已有的副本，查找期间不会下载任何内容。它会排除你已安装的插件，以及与你从其他地方安装的插件同名的插件。
+
+找到后，智能体会在聊天中显示一张卡片，在你点按**安装**之前不会安装任何内容：
+
+- 如果来自你在 Enconvo 中添加的插件市场，卡片会说明插件会在你的 Mac 上启动或连接到哪些 MCP 服务器、它的技能，以及它依赖的其他插件。
+- 如果来自只有 Codex 或 Claude Code 才有的插件市场，卡片会说明安装时会把该插件市场添加到 Enconvo。在此之前 Enconvo 无法读取插件的内容，因此卡片无法列出它们。
+
+无论哪种情况，插件的钩子都会保持关闭，直到你在**插件**中开启。如果插件无法安装（例如它依赖的某个插件无法安装），智能体会直接说明，而不会显示卡片。
+
+### 来自 ChatGPT 的插件
+
+[ChatGPT 插件目录](https://chatgpt.com/plugins)中的插件无法安装到 Enconvo。其中大多数是 ChatGPT 应用，只能在 ChatGPT 中运行；其余的则由 OpenAI 仅提供给 ChatGPT 和 Codex。如果你在 Mac 上登录了 Codex，智能体可以通过 Codex 保存的副本了解该目录。当你说出其中某个插件的名称或粘贴它的 chatgpt.com 链接时，智能体会告诉你为什么无法安装，并推荐功能相同的替代品：连接器、MCP 服务器、技能，或你某个插件市场中的同名插件。该目录中许多附带文件的插件，在 OpenAI Curated（Codex 自带的插件市场，即 OpenAI 的公开仓库 `openai/plugins`）中也有同名插件。智能体会推荐该插件，安装它会把 OpenAI Curated 添加到 Enconvo。Enconvo 不会加载这些插件包含的 ChatGPT 应用，只会加载它们的技能和 MCP 服务器。
+
+chatgpt.com 链接在**从 GitHub 添加**中同样无效，对话框也会给出同样的说明。
+
+## 从命令行安装
+
+`plugin install` 可以从 GitHub、git、npm、网上的 zip、文件夹或插件市场获取插件。需要 Enconvo 2.5.6 或更高版本正在运行。
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+| 来源 | 示例 |
+|---|---|
+| GitHub 仓库，可选其中的文件夹以及分支、标签或提交 | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| GitHub 地址 | `https://github.com/acme/plugins/tree/main/notes` |
+| 任何其他通过 https 访问的 git 仓库（需要 git）；ssh 地址仅支持 GitHub | `https://git.example.com/notes.git`, `git@github.com:acme/notes.git` |
+| npm 包 | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| 网上的插件 zip（仅限公开的 https 地址） | `https://downloads.acme.com/notes-1.2.0.zip` |
+| 你 Mac 上的文件夹 | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| 已添加的插件市场中的插件 | `notes@acme-plugins` |
+
+<Note>
+`plugin install` 和 `plugin marketplace` 需要高于 0.1.174 的 `@enconvo/api` 版本。在依赖 `@enconvo/api` 的项目中，只需运行 `npx enconvo …`。`marketplace import` 还需要 Enconvo 2.5.7 或更高版本。
+</Note>
+
+添加 `--preview` 可以查看将要安装什么以及来自哪里，而不实际安装。
+
+如果来源是插件市场而不是插件，`plugin install` 会列出其中的插件。插件超过 200 个的插件市场只列出前 200 个，并说明还有多少个；`plugin marketplace add` 会列出全部。用 `--plugin` 选择一个，这也会添加该插件市场：
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+### 安装时会发生什么
+
+- **设置**：有必填设置（例如 API 密钥）的插件会先安装，然后要求你填写。`plugin install` 会列出这些设置；请在插件页面上填写。
+- **从源代码安装 Enconvo 插件**：当 GitHub 仓库或文件夹中是一个尚未构建的 Enconvo 插件时，`plugin install` 会先构建它。文件夹会在运行 `npm install` 后原地构建。
+- **引导**：如果插件指定了引导技能，Enconvo 会在首次安装后提议运行它。
+- **登录**：当插件的 MCP 服务器需要你登录时（例如 Notion 和 Figma 的服务器），插件页面会在安装后立即显示**登录**。Enconvo 会在浏览器中打开该服务器的登录页面，并在它连接成功后提示下一个服务器。`plugin install` 则会列出这些服务器。你跳过的登录会在**设置 → MCP 服务器**中等待处理。
+- **钩子**：插件的[钩子](/extensions/plugin-formats#hooks)在安装时处于关闭状态，因为它们会运行命令。`--preview` 会列出它们；用插件页面上的**允许钩子**开关允许它们。你允许过的钩子，在不改变它们的更新之后仍保持开启。
+- **依赖**：当来自插件市场的 Claude Code 插件需要其他插件时，Enconvo 会一并安装它们（参见[插件市场](#插件市场)）。`--preview` 会列出这些依赖，并说明哪些已安装、哪些将要安装、哪些无法安装。如果插件市场条目声明的依赖来自未被允许的插件市场，安装会停止；如果是插件自身的 `plugin.json` 声明的，则会略过该依赖，安装继续进行。它们的钩子保持关闭；卸载插件后它们仍会保留，直到你清理（参见[卸载](#卸载)）。
+- **使用**：与 Codex 一样，在聊天中输入 `@` 并选择插件，或点按插件页面上**试着提问**下的某个提示。无论哪种方式，聊天都会附加该插件。所有已安装的插件都在 `@` 菜单中，包括未指定类别的 Codex 或 Claude Code 插件。
+- **同名**：从同一来源再次安装会更新插件。如果已经从其他地方（例如商店）安装了同名插件，Enconvo 会保留它不动，并请你先将其卸载。
+
+Enconvo 未运行时，`plugin install` 仍可以通过构建的方式从 GitHub 安装 Enconvo 插件。其他情况请打开 Enconvo 后重试。
+
+## 插件市场
+
+插件市场是存放在仓库或文件夹中的插件目录。Enconvo 能读取两种格式：Codex 的 `.agents/plugins/marketplace.json` 和 Claude Code 的 `.claude-plugin/marketplace.json`。
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, a git address or a folder
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins --ref v2   # at a branch, tag or commit
+npx -p @enconvo/api enconvo plugin marketplace list               # added marketplaces and their plugins
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # install one of them
+npx -p @enconvo/api enconvo plugin marketplace refresh            # fetch them again for new plugins
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+`refresh` 也可以写成 `upgrade`（Codex 的叫法）或 `update`（Claude Code 的叫法），`--ref v2` 等同于 `acme/plugins@v2`。
+
+在插件页面上，打开**添加 → 从 GitHub 添加…**并粘贴插件市场的地址，或在**你的插件市场**下选择一个已添加的插件市场。
+
+对于来自 GitHub 或 git 的插件市场，Enconvo 会保存一份副本；对于文件夹中的插件市场，则直接在原处读取。移除插件市场后，你从中安装的插件会保留。
+
+### 在 Codex 或 Claude Code 中添加的插件市场
+
+如果你在这台 Mac 上的 Codex 或 Claude Code 中添加过插件市场，或者 Codex 已获取其 OpenAI Curated 插件市场，`marketplace list` 会显示 Enconvo 尚未添加的那些，`import` 会添加它们，你无需再次输入地址：
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace import                            # all of them
+npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # only these
+```
+
+Enconvo 会在 Codex 的 `~/.codex/config.toml`、它的 OpenAI Curated 副本和个人的 `~/.agents/plugins/marketplace.json` 中，以及 Claude Code 的已知插件市场列表中查找它们。它只读取这些文件，不会更改两个应用中的任何内容。OpenAI Curated 从 GitHub 上的 `openai/plugins` 添加。它会略过 Codex 自带的其他插件市场（其中是 Codex 自身工具的插件），以及通过 `marketplace.json` 文件网址添加的 Claude Code 插件市场（Enconvo 不添加这类插件市场）。如果两个应用中有同名的插件市场，它会提供 Codex 的那个。
+
+OpenAI Curated 等 Codex 插件市场只列出每个插件的名称和来源。对于位于插件市场自身文件夹中的插件，Enconvo 会像 Codex 一样，显示插件清单中的标题、描述、类别和开发者；智能体除了按名称，也能按功能找到它。插件市场条目本身的内容优先。
+
+OpenAI Curated 中的部分插件（例如 Gmail、Google Drive、Outlook 和 Teams）只有在用 ChatGPT 登录 Codex 时才能使用，因此 Codex 不会向使用 API 密钥登录的用户提供它们。Enconvo 也不会登录 ChatGPT，因此会将它们显示为需要 ChatGPT 登录，不会安装它们，智能体也不会推荐它们。对于这些服务，请改为添加服务商自己的 MCP 服务器或连接器。
+
+### 插件市场中插件的来源
+
+插件市场中的插件可以来自插件市场中的文件夹、另一个 GitHub 仓库、git 地址、git 仓库中的文件夹、npm，或网上的 zip（Claude Code 的 `archive` 来源）。被 Codex 插件市场标记为 `NOT_AVAILABLE` 的插件无法安装。
+
+写作 `./plugins/notes` 的文件夹来源从插件市场的根目录读取。像 `notes` 这样的纯名称则从 `metadata.pluginRoot` 指定的文件夹读取（与 Claude Code 相同），并且需要该字段。
+
+从 GitHub、npm 或网上下载最多可能需要三分钟；如果超时，Enconvo 会停止下载，并请你检查网络连接。
+
+zip 无论是你粘贴的链接还是插件市场列出的，都只能从公开的 https 地址下载，且最多经过五次重定向。如果插件市场提供了 `sha256`，校验不匹配的下载会被拒绝。插件可以位于 zip 的根目录，也可以位于其中的某个文件夹内。
+
+### Claude Code 插件市场条目
+
+Claude Code 插件市场条目与插件自身 `plugin.json` 的配合方式，与 Claude Code 的读取方式相同：
+
+- 条目可以在插件自身的基础上添加 `commands`、`agents`、`skills`、`outputStyles` 和 `themes`，其 `hooks` 会替换插件中相同事件的钩子。
+- 如果条目设置了 `"strict": false`，同时又列出了上述任一项，而插件本身有 `plugin.json`，则会因清单冲突而被拒绝。请把它们放在同一处。
+- 如果插件没有 `plugin.json`，条目就是它的清单。
+- 显示的是条目中的名称、描述、作者和其他列表信息；版本则取自插件本身。
+- 会遵循插件市场的 `renames`。以旧名称安装的插件会以新名称继续更新，按旧名称安装也能找到它。被重命名为 `null` 的名称表示已从插件市场中移除，Enconvo 会说明这一点。如果插件自身的清单也改了名称，Enconvo 会请你卸载旧插件并安装新插件，因为 Enconvo 按清单为插件命名。
+- 插件的 `dependencies`（位于其条目或 `plugin.json` 中）会随插件一起安装。每项依赖可以是一个名称（`"formatter"`）、名称加插件市场（`"formatter@acme-tools"`），两者都可以再跟一个 `^` 范围（`"formatter@acme-tools@^2.1"`），也可以是带 semver 范围的 `{ "name", "marketplace", "version" }`。依赖默认来自插件自身所在的插件市场，除非它指定了其他插件市场；而其他插件市场必须列在你安装所用插件市场的 `allowCrossMarketplaceDependenciesOn` 中。带 `version` 范围的依赖会安装该范围内（以及其他已安装插件对它设定的范围内）最高的发布标签（`<plugin>--v<version>`），标签取自插件自身的仓库；对于插件市场内部的插件，则取自插件市场的仓库（位于 git 仓库中的插件市场文件夹也算）。如果没有这样的标签，插件市场内部的插件会按插件市场中的现状安装，而位于独立仓库中的插件会被拒绝。如果没有任何单一版本能同时满足各个范围，安装会被拒绝，更新也会保持在范围之内。已安装的依赖会保持原样，超出其 `version` 范围的依赖会收到警告。
+
+### 分享前检查插件市场
+
+在分享插件市场之前，请检查它以及其中的每个插件。规则与 `claude plugin validate` 所用的一致，对于 `.agents/plugins/marketplace.json`，还会加上 Codex 的规则；参见[校验代码](/extensions/validation-codes#marketplaces)。错误表示 Claude Code 无法添加该插件市场或安装该插件，即使它可能仍会列出：例如条目中某个字段的类型错误、`renames` 指向不存在的插件、它拒绝的 `relevance` 信号，或者插件市场名称看起来像 Anthropic 自己的名称（例如 `claude-plugins-hub`）。警告涵盖 Claude Code 会忽略的内容（例如拼错的字段），以及 Claude Desktop 会拒绝的名称。
+
+```sh
+npx -p @enconvo/api enconvo plugin validate path/to/marketplace
+```
+
+## 更新
+
+Enconvo 的插件更新检查也涵盖从 GitHub、git、npm、文件夹和插件市场安装的插件，并将它们的更新与商店插件的更新一起列出。它会读取仓库的最新提交而无需下载、向 npm 查询最新版本、留意已安装的文件夹是否有变化；对于插件市场用 `sha256` 固定的 zip，则留意该固定值是否变化。更新会从同一来源重新安装插件。
+
+要检查单个插件，请打开其页面，在 **⋯** 菜单中选择**检查更新**。如果有新版本，在出现的消息中点按**更新**。
+
+也可以像 Claude Code 中的 `claude plugin update` 一样，在终端中更新：
+
+```bash
+npx -p @enconvo/api enconvo plugin update notes                # from wherever it came from, or the store
+npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # only if it came from that marketplace
+```
+
+它会先检查。如果没有更新的版本，它会说明插件已是最新版本，不做任何更改；否则会像更新列表那样更新插件。
+
+## 卸载
+
+可以在插件页面上通过插件的菜单或其页面卸载插件（会先请你确认），也可以在终端中卸载：
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+清理只会移除那些因其他插件需要而被安装、且已不再被任何已安装插件需要的插件，与 Claude Code 中的 `claude plugin prune` 相同。你自己安装的插件永远不会被清理；你自己再次安装某个依赖后，它就算作你自己安装的。在终端中，Enconvo 会列出将要移除的内容并先询问你；添加 `-y` 可跳过询问，`--prune` 在无法询问时需要它。插件页面上的卸载暂时不会清理依赖。
+
+## 发布你自己的插件
+
+要在 Enconvo 商店上架插件，请参见[插件商店指南](/zh/extensions/publishing-guidelines)。要发送任何人都能安装的链接，请点按插件页面上的 **分享…**；参见[分享插件](/zh/extensions/overview)。如果不通过 Enconvo 分享，可将其推送到 GitHub 或插件市场，其他人就可以用 **从 GitHub 添加…** 或上述命令安装。
+
+### 标记发布版本
+
+`plugin tag` 会用名为 `<plugin>--v<version>` 的 git 标签标记你要发布的提交，与 `claude plugin tag` 相同。当其他插件的依赖要求某个版本范围时，Claude Code 和 Enconvo 会在这些标签中选择；任何人也都可以用 Enconvo 安装该发布版本，例如 `acme/plugins/notes@notes--v1.2.0`。
+
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # tag HEAD and push the tag to origin
+```
+
+版本取自插件的清单，清单中没有时则取自其插件市场条目，并且必须是 semver（`1.2.0`）。打标签前，`plugin tag` 会像 `plugin validate` 一样检查插件；如果插件市场条目中的版本不同、插件文件夹中有未提交的文件，或标签已存在，它就会停止。发布新版本时请提升版本号；`--force` 则会移动已有的标签。它对 Codex、Claude Code、可移植和 Enconvo 插件一视同仁，因此安装包中的每个清单都必须写明相同的版本。`-m` 设置标签信息（`%s` 代表版本），`--remote` 设置 `--push` 推送到的远程仓库。与 `plugin install` 一样，它需要高于 0.1.174 的 `@enconvo/api` 版本。

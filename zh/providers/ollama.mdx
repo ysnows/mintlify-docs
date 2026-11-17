@@ -1,0 +1,55 @@
+---
+title: "Ollama"
+description: "与 Ollama 在你的 Mac 或另一台电脑上提供的模型聊天。"
+---
+
+使用 Ollama 在你自己的硬件（本机 Mac 或局域网内的另一台电脑）上运行模型。Enconvo 会将对话发送到 Ollama 服务器，因此无需服务提供商账户。
+
+## 在本机 Mac 上连接
+
+<Steps>
+  <Step title="启动 Ollama">
+    安装 [Ollama](https://ollama.ai/) 并启动它，然后使用 Ollama 自带的工具下载模型。
+  </Step>
+  <Step title="在 Enconvo 中指向它">
+    打开 **设置 → AI 模型 → Ollama**。在 **身份验证** 下，除非你修改过 Ollama 的端口，否则将 **BaseUrl** 保持为 `http://127.0.0.1:11434`。
+  </Step>
+  <Step title="选择模型">
+    在 **模型名称** 中选择一个模型，并发送一条简短的消息。收到回复就说明连接正常。
+  </Step>
+</Steps>
+
+## 连接到另一台电脑
+
+1. 在另一台电脑上，将 Ollama 设置为允许接收来自网络的连接，而不只是本机连接。
+2. 在 Enconvo 中，将 **BaseUrl** 设为那台电脑的网络地址，并保留端口和路径。`127.0.0.1` 和 `localhost` 始终指代正在运行 Enconvo 的这台 Mac。
+3. 如果 macOS 拦截了连接，请在 **系统设置 → 隐私与安全性 → 本地网络** 中开启 Enconvo 的权限。
+
+请仅向你信任的网络开放服务器。
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **模型名称** | 此服务提供商使用的模型。旁边的 **刷新** 会从服务器重新加载列表。 |
+| **响应超时** | 等待服务器开始或继续回复的超时时间。默认为 **不限**；在你自己的硬件上处理长提示词时，输出第一个词之前可能需要等待几分钟。 |
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 连接被拒绝 | 检查 Ollama 是否正在运行，以及 **BaseUrl** 的地址和端口是否正确。如果是连接另一台电脑，请检查它是否允许网络连接。 |
+| 网络不可达 | 检查网络连接，以及系统设置中的 **本地网络** 权限。 |
+| 模型列表为空 | 在 Ollama 中加载或下载一个模型，然后点击 **刷新**。 |
+| 回复中途中断 | 将 **响应超时** 设为更大的值或 **不限**。 |
+| 工具调用或图片失败 | 选择支持工具调用或图像输入的模型。 |
+| 内存不足 | 选择更小的模型，或缩短输入内容。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="本地模型" icon="microchip" href="/zh/ai/local-llm">不只是聊天模型，让整个任务都留在你的 Mac 上。</Card>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/zh/providers/mlx">直接在 Enconvo 内运行模型，无需启动服务器。</Card>
+  <Card title="LM Studio" icon="server" href="/zh/providers/lm-studio">使用 LM Studio 提供的模型。</Card>
+  <Card title="权限" icon="shield" href="/zh/configuration/permissions">本地网络和其他 macOS 权限。</Card>
+</CardGroup>

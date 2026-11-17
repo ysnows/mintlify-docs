@@ -1,0 +1,213 @@
+---
+title: "插件商店审核指南"
+description: "为上架 Enconvo 商店做好准备：审核人员检查的内容、需要提交的审核材料，以及如何从同一目录同时提交到 OpenAI 门户。"
+---
+
+本页面向准备向 Enconvo 插件商店提交插件的开发者，列出了审核人员的检查项、每个版本随附的审核材料、运行 `plugin publish` 前的检查清单，以及提交后的流程。
+
+提交到插件商店的每个版本都必须先通过 Enconvo 审核，其他用户才能安装。本指南适用于商店接收的所有插件类型：Enconvo、Codex、Claude Code 以及便携式插件，包括仅由技能组成的插件。本指南遵循 [OpenAI 插件规范](https://developers.openai.com/apps-sdk/app-submission-guidelines)，因此符合这些要求的插件也基本可以直接提交到 OpenAI 的插件门户。
+
+## 先检查你的插件
+
+提交前请运行以下命令：
+
+```sh
+npx -p @enconvo/api enconvo plugin validate            # 商店规则检查
+npx -p @enconvo/api enconvo plugin validate --openai   # 同时检查 OpenAI 门户规则
+npx -p @enconvo/api enconvo plugin scan                # 启动 MCP 服务器并检查其工具
+```
+
+`validate` 会自动检查能够以自动化方式验证的内容，`scan` 则会检查带有 MCP 服务器的插件工具；[Validation Codes](/extensions/validation-codes) 解释了它们报告的各项问题。其余部分将由审核人员按如下标准手动检查。
+
+## 用途与质量
+
+- 插件应提供 Enconvo 自身尚未具备的实用功能，且功能完整。占位性质、仅作演示或试用版的插件将被退回。
+- 行为可预测。当遇到网络错误、缺少权限或输入有误等失败情况时，应明确提示原因，而不是静默失败。
+- 仅使用你拥有版权或已获授权的代码、名称、图标和内容。不得冒充其他产品，也不得暗示获得 Enconvo 或其他方的背书。
+
+## 名称、简介与商店信息
+
+- **名称与标题**：清晰具体。避免使用泛泛的单个词语，也不要在公司名称后加上“MCP”、“MCP Server”或“Plugin”。
+- **简介**：准确说明插件的功能。不得与其他产品进行比较、作出无法证实的声明，或包含价格、折扣及免费试用宣传。
+- **图标与截图**：图标为不超过 5 MB 的 PNG、JPEG、WebP 或 GIF。`metadata/` 文件夹中最多可放 8 张截图，并按文件名顺序展示。截图必须如实呈现插件的实际运行效果。
+- **技术支持**：提供联系渠道：设置 `interface.websiteURL` 和 `interface.supportURL`，或用 `homepage` / `repository` 作为官网地址。Claude Code 插件可改用 `supportUrl` 和 `documentationUrl`。用户安装插件前会在商店页面看到这些链接。
+- **版本号**：每次更新都必须提高版本号。在更新审核期间，商店会继续提供上一个版本。`plugin publish` 在构建或上传前会先向商店查询已发布的版本，如果你的版本号不高于它，就会中止并提示下一个可用的版本号。
+
+## MCP 工具
+
+如果插件包含 MCP 服务器，审核人员会从 AI 模型的视角审阅它的工具。
+
+- **名称**应使用能说明工具作用的简单动词，例如 `get_order_status`，且在同一服务器内保持唯一。避免晦涩术语或未解释的缩写。
+- **描述**应说明工具的用途、会修改什么以及无法做到什么，并与输入架构和实际行为一致。不要在描述中指示模型优先使用此插件、调用其他插件或无论什么情况都调用该工具。
+- **每个工具只做一件事**，并各自拥有独立的输入架构。
+- **注解（Annotations）**必须为每个工具明确设置：
+
+| 注解 | 为 `true` 的情况 | 为 `false` 的情况 |
+|---|---|---|
+| `readOnlyHint` | 仅执行读取、计算或预览 | 会产生任何变更：写入、保存文件、发送、发布、上传、排队或启动任务 |
+| `destructiveHint` | 删除、覆盖、取消或发送不可撤回的内容（即使用户事后可撤销） | 仅做新增操作 |
+| `openWorldHint` | 访问公开或开放范围的内容（如网页搜索），或向任意地址发送内容 | 仅在有限的账户、工作区或目录内操作（即使托管在外部服务器上） |
+
+Enconvo 依赖这些注解来调度工具。标记为 `readOnlyHint: true` 的工具无需询问用户即可运行，且可与其他读取操作并行。标记为 `destructiveHint: true` 的工具会先征求用户确认（除非用户已授予智能体完全访问权限）。实际会修改状态却声明为只读的工具将被退回。
+
+`enconvo plugin scan` 会启动插件的 MCP 服务器，列出工具及其注解，并指出遗漏注解的工具（[`annotations_required`](/extensions/validation-codes#mcp-server-scan)）。
+
+如果工具自带界面，需在 `_meta.ui.resourceUri` 中声明其视图（`ui://` 资源），并在 `_meta.ui.csp`（`connectDomains`、`resourceDomains`、`frameDomains`）中声明访问的域名。这些是所有宿主都会读取的 MCP Apps 键。Enconvo 还会读取 ChatGPT 的 `_meta["openai/outputTemplate"]` 和 `_meta["openai/widgetCSP"]`，并为面向 ChatGPT 编写的视图（`text/html+skybridge`，或仅通过 `openai/outputTemplate` 指定的工具）提供其调用的 `window.openai` API，因此为 ChatGPT 构建的插件无需修改即可在 Enconvo 中展示界面。请同时设置 MCP Apps 键，以便其他宿主也能正常展示。`scan` 会以 Enconvo 的方式读取每个视图，并在仅按 OpenAI 方式设置时给出提示。
+
+## 数据与隐私
+
+- **只请求任务所需的数据。** 工具输入应紧扣具体任务，不要“以防万一”而索取完整对话、历史消息或宽泛的个人资料数据。
+- **只返回回答请求所需的内容。** 不要在工具结果中包含内部 ID、追踪数据或调试输出。
+- **绝不通过工具输入收集** 支付卡信息、健康记录、社会保障号等政府证件号码，以及密码、API 密钥和一次性验证码。凭据应放在插件的偏好设置中，由 Enconvo 负责保存。
+- **隐私政策。** 会将数据发送到服务器的插件必须提供公开的隐私政策，说明收集什么数据、为何收集、谁会接收、保留多久以及用户如何删除数据。请将其地址填在 `interface.privacyPolicyURL`，如有服务条款则填在 `interface.termsOfServiceURL`。商店页面会展示这两个链接。
+- **不进行额外追踪**：除插件运行所需以及隐私政策已披露的内容外，不得追踪用户、查询内容或使用情况。
+- **不要在包内保留任何密钥。** 所有人都可以下载插件包。`.env` 文件会被自动排除，但仍请检查以确保没有其他密钥或私人文件留在包内。
+
+## 登录与测试账户
+
+如果插件需要登录账户，登录流程应明确提示且仅请求必要的权限。审核人员需要能够直接测试，而无需自己注册账户或接收双重验证码，因此请提供包含示例数据的演示账户：
+
+```sh
+npx -p @enconvo/api enconvo plugin publish --review-notes "Sign in as review@example.com with the password …"
+```
+
+审核备注仅发送给 Enconvo 审核人员，不会包含在插件包或商店页面中。
+
+## 商业化
+
+插件可以搭配用户已付费的账户使用，也可以说明某项功能需要更高级别的套餐。如果插件销售商品或收取费用，请在审核材料中说明（下文中的 `commerce` 和 `commerce_description`）：销售什么以及在哪里付款。付款应在你自己的网站完成；插件不得隐藏收费项目，也不得对 Enconvo 用户收取高于其他用户的费用。
+
+OpenAI 门户在这方面更严格：它只接受销售实体商品的插件，不接受订阅、点数或其他数字产品。在提交到 OpenAI 之前，请查阅其[商业化规则](https://developers.openai.com/apps-sdk/app-submission-guidelines)。
+
+## 安全性
+
+- 插件内容应适合包括青少年在内的普通受众，且不得面向 13 岁以下儿童。
+- 严格按照用户的要求行事，不做无关操作：不得夹带无关内容、跳转或广告。
+- 插件的描述、提示词和技能绝不能索取密钥、在未经用户允许的情况下转移资金或数据、试图绕过 Enconvo 的安全防护，或隐瞒插件的实际行为（包括通过编码指令隐藏意图）。
+- 不得违反其他网站或服务的条款进行爬取或套壳封装，也不得绕过其速率限制和访问控制。
+- 不得销售或协助 OpenAI 所列[违禁商品与服务](https://developers.openai.com/apps-sdk/app-submission-guidelines)，例如武器、毒品、赌博、成人内容、恶意软件或金融欺诈。
+
+## 审核材料
+
+审核材料用于告诉审核人员应该测试哪些内容：插件应当处理的提示词、应当忽略的提示词，以及一段简短的演示视频。审核材料会随每个版本一起保存，且仅对审核人员可见。
+
+在 Codex、Claude Code 或便携式插件中，审核材料应放在 OpenAI 门户读取的位置，即某一个 `plugin.json` 的 `extensions["com.openai"]` 下。当插件像 `enconvo plugin create` 生成的那样包含 `.codex-plugin/plugin.json` 时，OpenAI 会从中导入；如果根目录 `plugin.json` 自身带有 `extensions["com.openai"]` 或不存在 Codex 清单，则从根目录 `plugin.json` 导入；如果插件仅面向 Claude Code，则从 `.claude-plugin/plugin.json` 导入。不要仅仅为了放审核材料而往根目录 `plugin.json` 里添加 `extensions["com.openai"]`，否则 Codex 会忽略 `.codex-plugin/plugin.json` 中的商店信息。`enconvo plugin validate --openai` 会指出审核材料应该放在哪个清单文件中。
+
+```json
+{
+  "name": "notes",
+  "version": "1.2.0",
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Finds a note by topic",
+              "prompt": "Find my notes about the Q3 launch",
+              "tools_triggered": "search_notes, read_note",
+              "expected_behavior": "Lists the matching notes and quotes the most relevant one"
+            }
+          ],
+          "negative": [
+            { "description": "Unrelated question", "prompt": "What's the weather in Paris?" }
+          ]
+        },
+        "demo_recording_url": "https://example.com/notes-demo.mp4",
+        "commerce": false
+      },
+      "publication": {
+        "release_notes": "Search now matches note titles."
+      }
+    }
+  }
+}
+```
+
+在 Enconvo 插件中，同样的 `review` 对象直接放在 `package.json` 的顶层。
+
+| 字段 | 内容 |
+|---|---|
+| `test_cases.positive` | 插件应当处理的提示词，每项包含 `description`、`prompt`、`expected_behavior` 和 `tools_triggered`。可选：`file_attachment_urls` 和 `expected_output_url`。 |
+| `test_cases.negative` | 插件应当交由其他工具处理的提示词，每项包含 `description` 和 `prompt`。 |
+| `demo_recording_url` | 展示主要提示词和工具使用效果的视频。 |
+| `commerce`、`commerce_description` | 插件是否销售商品，以及销售内容和付款地点。 |
+| `publication.release_notes` | 本次变更内容。除非传入 `-m`，否则 `plugin publish` 会将其用作商店更新日志。 |
+
+每个列表最多包含 20 个用例。文本字段最多 4,000 个字符，所有地址必须是审核人员可打开的 `https://` 链接。违反这些限制的材料会被 `validate` 和 `publish` 拒绝。
+
+登录凭据绝不能写进插件包中，因为任何人都可以下载插件包。如果 `review` 中包含 `test_credentials` 或 `reviewer_instructions`，`validate` 和 `publish` 会直接拒绝；请改用 `--review-notes` 传入，或在 OpenAI 控制台的审核详情表单中填写。
+
+在 `plugin.json` 中，`publication` 还可以包含 OpenAI 门户用于商店页面的其他字段，`validate --openai` 会按门户的规则一并检查。Enconvo 会在已安装插件以及从来源安装插件前，按其界面语言显示 `translations`；Enconvo 商店网页目前尚未使用这些翻译：
+
+| 字段 | 内容 |
+|---|---|
+| `countries` | 插件可用的国家/地区，使用大写国家代码，例如 `["US", "GB"]`。`[]` 表示在所有地区可用。 |
+| `translations` | 按区域语言提供的商店信息，例如 `{"fr-FR": {"subtitle": "…", "description": "…"}}`。副标题限一行且不超过 30 个字符，简介不超过 4,000 个字符。 |
+
+将字段设为 `null` 可保留 OpenAI 控制台中已保存的值。插件级的测试用例仅适用于只包含一个 MCP 服务器的插件。
+
+向 OpenAI 提交带有 MCP 服务器或应用的插件进行最终审核时，需要恰好 5 个正面用例、3 个负面用例、1 段演示录像以及更新日志；仅包含技能的插件只需要更新日志。`validate --openai` 会将缺失项列为警告，因为门户上传时允许缺少这些内容，只在最终提交时才会要求补全。
+
+## 提交检查清单
+
+在运行 `plugin publish` 之前，请确认：
+
+- `plugin validate` 没有报错，且你已查看全部警告。
+- `version` 高于你上次发布的版本，且包内所有清单文件中的名称和版本一致。
+- 如果是更新，使用上一个发布版本的压缩包运行 `plugin validate --previous` 后没有出现意外的提示：更新会替换整个插件，因此遗漏的技能或 MCP 服务器会被移除（`plugin_components_removed`）。
+- 标题、简介和图标准确说明了插件功能，且截图展示了实际运行效果。
+- 已设置官网或支持地址；如果插件会向外发送数据，已附上隐私政策链接。
+- 每个 MCP 工具都有清晰的名称和描述，并设置了 `readOnlyHint`、`destructiveHint` 和 `openWorldHint`，且 `plugin scan` 检查无误。
+- 技能的 `description` 中说明了何时应使用它们。
+- API 密钥等必需设置已声明为插件设置项，而不是在聊天中向用户索要。
+- 文件夹中没有密钥、令牌或私人文件。
+- 审核材料列出了需要测试和不应触发的提示词；如果需要登录，已准备好通过 `--review-notes` 提供的演示账户。
+- 你已从文件夹本地安装了插件包（`plugin install .`），并在 Enconvo 中实际试用了测试用例。
+
+## 提交之后
+
+1. `plugin publish` 会检查插件以及其版本是否高于商店中已发布的版本，然后上传并提交审核。在新插件获批之前，只有你能看到它。
+2. 审核人员会查看商店信息、插件包内的文件（包括自上一发布版本以来的变更）、审核材料和你的备注，并试用测试用例。
+3. 审核通过的版本会出现在商店中，已安装的副本也会收到更新提示。如果版本被退回，你会收到一封说明原因的邮件。修改问题、提高版本号后再次发布即可。
+
+Enconvo 也会核查针对已发布插件的举报。即使插件此前已获批，如果被发现违反本指南，也可能会从商店下架，开发人员会收到邮件通知原因。
+
+## 同时提交到 OpenAI
+
+同一个目录也可以打包提交到 OpenAI 的插件门户：
+
+```sh
+npx -p @enconvo/api enconvo plugin validate --openai
+npx -p @enconvo/api enconvo plugin scan --openai
+npx -p @enconvo/api enconvo plugin pack --openai
+```
+
+`pack --openai` 会生成门户所需的 zip 包。提供给 OpenAI 审核人员的凭据应填在门户的提交表单中，切勿放进包内。也不要把自己的密钥留在包里：`pack` 和 `publish` 会排除 `.env` 文件，如果发现疑似私钥或登录信息的文件，`validate` 会发出警告（`archive_member_secret`）。
+
+### 插件名称
+
+OpenAI 门户只允许插件 `name` 中包含字母、数字、`-` 和 `_`，且 OpenAI 建议使用小写字母、数字和单个连字符。Codex、Claude Code 和 Enconvo 也支持安装如 `acme.tools` 这样带点号的名称，但 `validate --openai` 和 `pack --openai` 会拒绝此类名称（`plugin_name_format`），因此如果你打算提交到 OpenAI，请将插件命名为 `acme-tools`。
+
+### MCP 服务器与域名
+
+上传后，门户会连接到插件的 MCP 服务器并扫描其工具；每当服务器发生变更时，请前往门户重新扫描。门户只能通过公开的 `https://` URL 访问服务器，因此运行在用户本机的服务器必须先部署上线；`scan --openai` 遇到本机地址时会发出警告（`mcp_server_not_remote`）。在最终提交时，门户会要求每个工具都提供全部三个注解。门户不再要求你预先为注解填写理由；如果自动化审核标记了某项注解，你可以提交说明进行申诉。如果插件的视图内嵌了网页，仍需为每个内嵌页面提供说明：它的用途、插件为何要内嵌它，以及谁控制该域名。来自 MCP 服务器自身可注册域名的页面无需额外说明，而共享主机上的不同租户则视为不同域名。`scan --openai` 会列出你的视图所内嵌的域名（`frame_domain_explanation_required`）。
+
+在正式提交插件之前，门户会验证你对 MCP 服务器域名的控制权：它会提供给你一个令牌，要求你在该服务器的主机或父域名的 `/.well-known/openai-apps-challenge` 路径下以纯文本形式返回该令牌。`scan --openai` 会报告这些 URL 的响应结果，而 `scan --challenge-token <token>` 可以在你点击 **Verify Domain** 之前检查是否已准确返回该令牌；请参阅 [Domain verification](/extensions/validation-codes#domain-verification)。
+
+OpenAI 门户每个插件仅连接一个 MCP 服务器进行扫描和审核，因此当插件包含多个服务器时，`validate --openai` 会发出警告。在 Codex 的 `mcp.json` 和 Claude Code 的 `.mcp.json` 中声明的同一个服务器只计作一个。
+
+### 更新已发布的插件
+
+要更新你在 OpenAI 门户上已发布的插件，请上传一个版本号更高且包含所有需保留内容的完整 ZIP 包。如果你没有留存已发布版本的压缩包，可以在门户该版本的 **…** 菜单中使用 **Download release ZIP** 下载；并使用 `validate --openai --previous <zip>` 对照旧包检查新版本。门户不支持向原本没有 MCP 服务器的已发布插件中新增服务器，也不支持更改已发布服务器的 URL（如需更改请联系 OpenAI 支持），`--previous` 会报告这两类问题；请参阅 [Updates](/extensions/validation-codes#updates)。
+
+### 最终提交
+
+OpenAI 的最终提交对商店信息的要求比初次上传更严格，`validate --openai` 会针对每项缺失给出警告：
+
+- 需要填写 `interface.longDescription` 和 `interface.category`；未填写类别时，目录会将插件归入 Other。
+- 对于带有 MCP 服务器的插件，需要提供 `websiteURL`、`supportURL`、`privacyPolicyURL` 和 `termsOfServiceURL`，均需为 `https://` 地址且不超过 1,024 个字符。
+- 提供你自己的商店展示信息。仅包含 `.claude-plugin/plugin.json` 的 Claude Code 插件会被门户自动填入默认值（`claude_format_normalized`），因此建议添加一个带有 `interface` 的 `.codex-plugin/plugin.json` 来亲自编写展示信息。
+- 仅当 MCP 服务器带有自定义界面时才需提供截图：为每个启动提示词（starter prompt）配一张 PNG 或 JPEG 截图，宽度必须正好为 706 像素，高度在 400 至 860 像素之间。门户会根据扫描结果判断，因此当没有任何工具展示界面时，`scan --openai` 会拒绝截图（`screenshots_not_allowed`）。OpenAI 的插件目录已不再展示截图，而是通过启动提示词来介绍插件，因此请认真编写这些提示词。
+
+无论 `interface.developerName` 中填写了什么，目录中都会显示你通过 OpenAI 身份验证的开发者名称。有关各项检查代码，请参阅 [OpenAI's final submission](/extensions/validation-codes#openais-final-submission)。

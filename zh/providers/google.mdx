@@ -1,0 +1,57 @@
+---
+title: "Google Gemini"
+description: "使用 Gemini API 密钥，在 Enconvo 中与 Gemini 模型聊天。"
+---
+
+在聊天、智能体和 AI 命令中使用 Google 的 Gemini 模型。使用 Google AI Studio 的 Gemini API 密钥连接；Google 会把用量计入你自己的账户。它在设置中显示为 **Google Gemini AI**。
+
+<Note>
+Google Gemini 只能使用 API 密钥连接。Google 已不再支持个人 Google 账户的 Gemini 登录，因此 Enconvo 在 2.5.8 中移除了 Google 账户选项。如果想通过 Google 登录使用模型，请参阅 [Antigravity](/zh/providers/antigravity)。
+</Note>
+
+## 连接
+
+<Steps>
+  <Step title="获取 API 密钥">
+    在 [Google AI Studio](https://aistudio.google.com/apikey) 中创建一个密钥。
+  </Step>
+  <Step title="添加到 Enconvo">
+    打开 **设置 → AI 模型 → Google Gemini AI**。在 **身份验证** 下，将密钥粘贴到 **API 密钥** 中，然后点击 **验证**。
+  </Step>
+  <Step title="选择模型">
+    在 **模型名称** 中选择一个模型，并发送一条简短的消息。收到回复就说明连接正常。
+  </Step>
+</Steps>
+
+如果想再保存一个 Gemini 密钥，点击 **添加新提供商** 并创建另一个配置。
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **模型名称** | 此服务提供商使用的模型。旁边的 **刷新** 会重新加载列表；**管理模型**（齿轮图标）可以添加或恢复模型。 |
+| **Google 搜索工具** | 以 Google 搜索结果为依据生成回答，并附上可供核对的来源。默认关闭。 |
+| **URL 上下文工具** | 让模型阅读你消息中链接指向的页面。默认关闭。 |
+| **显示思考过程** | 在回答中显示模型思考过程的摘要。默认关闭。 |
+
+支持思考的 Gemini 模型允许你设置思考时长，即它们的推理强度。Gemini 4 Carbon 提供 **低**、**中等**（默认）和 **高**，需要付费 API 层级。Gemini 4 Hydrogen 是适合日常编程和智能体工作的快速模型，提供 **低**、**中等**、**高**（默认）和 **超高**（在复杂的多步骤任务上思考时间最长）；它也支持免费层级。
+
+同一个 Google Gemini 配置还服务于 Gemini 文本转语音、图像生成、语音转写、视频生成和网页搜索，因此更改它的密钥也会影响这些功能。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| **验证** 失败 | 重新粘贴完整的密钥，并在 Google AI Studio 中确认密钥有效。 |
+| 找不到某个模型 | 点击 **模型名称** 旁边的 **刷新**。如果要自己添加模型，请使用 **管理模型**。 |
+| 关于时事的回答已过时 | 打开 **Google 搜索工具**。 |
+| 速率或用量限制错误 | 在 Google AI Studio 中查看你的配额，或暂时切换到其他服务提供商。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="Antigravity" icon="google" href="/zh/providers/antigravity">通过 Google 登录使用模型，并了解其账户风险。</Card>
+  <Card title="凭据与配置" icon="key" href="/zh/configuration/credentials">保存多个密钥，并了解共享的密钥会影响哪些功能。</Card>
+  <Card title="选择模型" icon="list-check" href="/zh/ai/model-selection-guide">按任务选择模型，并了解默认模型在哪里设置。</Card>
+  <Card title="服务提供商目录" icon="table" href="/zh/providers/catalog">所有服务提供商，按其支持的功能分组。</Card>
+</CardGroup>

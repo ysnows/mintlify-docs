@@ -1,0 +1,51 @@
+---
+title: "Local LLM (MLX)"
+description: "使用 Enconvo 内置的 MLX 引擎在你的 Mac 上运行语言模型。"
+---
+
+Local LLM 会在你 Mac 的 Apple 芯片上运行语言模型，无需账户或 API 密钥。模型下载完成后，与它的对话会完全留在你的 Mac 上。需要 macOS 15 或更高版本。
+
+## 设置
+
+<Steps>
+  <Step title="打开服务提供商">
+    打开 **设置 → AI 模型 → Local LLM (MLX)**。
+  </Step>
+  <Step title="选择模型">
+    打开 **模型** 列表。Enconvo 会推荐适合你这台 Mac 的模型，你也可以在 Hugging Face 中搜索其他模型。列表会先显示最大的模型。
+  </Step>
+  <Step title="下载模型">
+    开始下载并等待完成。Enconvo 会先检查可用磁盘空间，重启或网络中断后下载支持断点续传。
+  </Step>
+  <Step title="测试模型">
+    发送一条简短的消息。首次回复会稍慢一些，因为需要先把模型加载到内存中。
+  </Step>
+</Steps>
+
+## 模型与选项
+
+| 设置 | 作用 |
+| --- | --- |
+| **模型** | 此服务提供商运行的本地模型。 |
+| **思考** | 适用于具备思考模式的模型。**关闭**（默认）会直接给出回答；**开启**会先进行推理。**低**、**中等** 和 **高** 用于设置 gpt-oss 模型的推理时长；其他模型会将它们视为 **开启**。 |
+
+要查看本地模型占用了多少内存和磁盘空间，或删除某个模型，请打开 **设置 → 本地模型**。当有功能需要时，模型会重新加载。
+
+## 故障排除
+
+| 问题 | 解决方法 |
+| --- | --- |
+| 下载无法开始 | 清理磁盘空间；Enconvo 会在下载前检查可用空间。 |
+| 某个模型显示 **不完整** | 下载中途中断，导致部分文件缺失。请重新下载以完成下载，或将其删除。 |
+| 模型无法加载或 Mac 变卡 | 选择更小的模型，或关闭其他占用资源较大的应用。**设置 → 本地模型** 中会显示内存占用情况。 |
+| 回复很慢 | 选择更小的模型，或关闭 **思考**。 |
+| 工具调用或图片失败 | 选择支持工具调用或图像输入的模型。 |
+
+## 相关内容
+
+<CardGroup cols={2}>
+  <Card title="本地模型" icon="microchip" href="/zh/ai/local-llm">不只是聊天模型，让整个任务都留在你的 Mac 上。</Card>
+  <Card title="Ollama" icon="server" href="/zh/providers/ollama">使用 Ollama 提供的模型。</Card>
+  <Card title="LM Studio" icon="server" href="/zh/providers/lm-studio">使用 LM Studio 提供的模型。</Card>
+  <Card title="服务提供商目录" icon="table" href="/zh/providers/catalog">还包含用于语音、OCR 和嵌入的本地服务提供商。</Card>
+</CardGroup>

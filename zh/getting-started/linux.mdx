@@ -1,0 +1,277 @@
+---
+title: "Linux（测试版）"
+description: "在 Linux 桌面或服务器上安装 Enconvo 测试版、登录，并通过浏览器使用它。"
+tag: "BETA"
+---
+
+<Note>
+Linux 版 Enconvo 目前处于测试阶段，通过 **测试版** 更新渠道发布。它已可用于日常使用，但不同构建之间仍可能发生变化。如果遇到问题，请在[反馈网站](https://feedback.enconvo.com)告诉我们。
+</Note>
+
+**当前测试版：2.5.13 Beta 3**（`2.5.13-beta-3`）。要查看你安装的版本，请打开 **设置 → 通用 → 更新**。在服务器上，运行 `enconvo update --check` 即可打印版本号。
+
+## 选择运行方式
+
+| 你的环境 | 你会获得 | 从这里开始 |
+| --- | --- | --- |
+| Linux 桌面（GNOME、KDE 等） | 带有聊天窗口和设置窗口的 Enconvo 应用 | [在桌面上安装](#在桌面上安装) |
+| 没有桌面的服务器或云电脑 | 在后台运行 Enconvo，从你自己电脑的浏览器中使用 | [在服务器上安装](#在服务器上安装) |
+
+## 系统要求
+
+- **64 位 Intel/AMD（x86-64）。** 暂不提供 ARM 构建版本。
+- **Ubuntu 22.04、Debian 12、RHEL 9、Amazon Linux 2023 或更高版本。** Rocky Linux 和 AlmaLinux 9 视同 RHEL 9。较旧的系统无法运行 Enconvo，因为它们的 C 库版本过旧。
+- **内存：** 建议至少有 2 GB 可用内存；如果智能体需要操作浏览器，建议 4 GB。
+- **普通用户账户。** 请以你自己的身份运行 Enconvo，不要使用 root，因为智能体会以该用户的权限运行命令。在服务器上，请专门为 Enconvo 创建一个用户。
+
+## 下载测试版
+
+测试版提供三种打包形式：适用于 Debian 和 Ubuntu 的 `.deb`、适用于 Fedora、RHEL、Rocky、AlmaLinux 和 openSUSE 的 `.rpm`，以及适用于其他发行版的便携版 `.tar.gz`。每个文件名都带有测试版版本号。2.5.13 Beta 3 对应的文件名如下：
+
+- `enconvo_2.5.13~beta~3_amd64.deb`
+- `enconvo-2.5.13~beta~3-1.x86_64.rpm`
+- `Enconvo-2.5.13-beta-3-linux-x64.tar.gz`
+
+以下命令会查找最新的测试版并下载。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo_[^"]*\.deb')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Fedora, RHEL, Rocky, AlmaLinux, openSUSE">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo-[^"]*\.rpm')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="便携版 .tar.gz">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'Enconvo-[^"]*\.tar\.gz')
+    curl -fLO "$FEED/$FILE"
+    tar xzf "$FILE"
+    ```
+
+    这会解压出一个名为 `Enconvo` 的文件夹。从该文件夹中运行它，并将本页中提到的 `enconvo` 替换为 `./Enconvo/enconvo`。
+  </Tab>
+</Tabs>
+
+## 在桌面上安装
+
+包管理器同时也会安装应用窗口所需的 GTK 和 WebKitGTK。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    sudo apt install ./enconvo_*.deb
+    ```
+  </Tab>
+  <Tab title="Fedora, openSUSE">
+    ```bash
+    sudo dnf install ./enconvo-*.rpm      # Fedora
+    sudo zypper install ./enconvo-*.rpm   # openSUSE
+    ```
+  </Tab>
+  <Tab title="便携版 .tar.gz">
+    从你的发行版安装 GTK 3 和 WebKitGTK 4.1，然后从文件夹中启动 Enconvo：
+
+    ```bash
+    ./Enconvo/enconvo
+    ```
+  </Tab>
+</Tabs>
+
+RHEL 9、Rocky Linux 9 和 AlmaLinux 9 不自带应用窗口所需的 WebKitGTK 4.1，因此在这些系统上请[像在服务器上一样运行 Enconvo](#在服务器上安装)。
+
+从应用程序菜单打开 **Enconvo**，登录，然后继续阅读[快速入门](/zh/quickstart)。在支持系统托盘的桌面上，系统托盘中会出现 Enconvo 图标。
+
+## 在服务器上安装
+
+服务器不需要桌面库，因此安装时可以跳过它们。
+
+<Steps>
+  <Step title="安装软件包">
+    <Tabs>
+      <Tab title="Debian, Ubuntu">
+        ```bash
+        sudo apt install --no-install-recommends ./enconvo_*.deb
+        ```
+      </Tab>
+      <Tab title="Fedora, RHEL, Rocky, AlmaLinux">
+        ```bash
+        sudo dnf install --setopt=install_weak_deps=False ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="openSUSE">
+        ```bash
+        sudo zypper install --no-recommends ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="便携版 .tar.gz">
+        无需安装：直接使用你解压出来的 `Enconvo` 文件夹即可。
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="将 Enconvo 作为服务启动">
+    ```bash
+    enconvo service install --web
+    ```
+
+    现在 Enconvo 会在后台运行，并仅在这台机器上的 `127.0.0.1:54580` 以网页形式提供聊天窗口和设置界面。服务器重启后它会自动重新启动。如果命令提示它仅在你登录期间运行，请执行它打印出的 `sudo loginctl enable-linger` 命令。
+  </Step>
+  <Step title="登录">
+    ```bash
+    enconvo login
+    ```
+
+    Enconvo 会打印一个短代码。在你的手机或电脑上打开 `enconvo.com/device`，确认页面显示的是你的账户，并在 10 分钟内批准该代码。
+  </Step>
+  <Step title="从你的电脑打开 Enconvo">
+    在你自己的电脑上运行以下命令，并保持它运行：
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 you@your-server
+    ```
+
+    在浏览器中打开 [http://localhost:54580](http://localhost:54580)。你会看到与桌面应用相同的聊天窗口和设置界面。
+  </Step>
+</Steps>
+
+要从手机上的 Enconvo 应用使用这台服务器，请运行 `enconvo companion pair --phone` 并扫描它打印出的二维码。参阅[与手机配对](/zh/integrations/pair-your-phone)。
+
+### 不通过 SSH 隧道访问
+
+隧道是最安全的接入方式，因为服务器上没有任何端口向网络开放。网页界面拥有你账户的完整权限，并且可以访问服务器上的文件，因此任何能打开它的人都可以同时使用这两者。
+
+如果要从其他电脑直接打开它，例如在局域网或 VPN 上：
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+enconvo service url
+```
+
+`enconvo service url` 会打印带有连接令牌的地址。请妥善保管该地址，不要将此端口暴露到公网。
+
+如果要使用公网地址，请在 Enconvo 前放置一个带 HTTPS 的反向代理，并告知 Enconvo 它对外服务的地址：
+
+```bash
+enconvo service install --web --web-url https://enconvo.example.com
+```
+
+启用 HTTPS 后，该网页还可以作为应用安装到你的手机或电脑上。
+
+## 在服务器上启用使用浏览器
+
+智能体可以在没有屏幕的服务器上浏览网页：智能体首次需要浏览时，Enconvo 会启动自己的无头浏览器，称为 Enconvo Browser。请先安装 Chromium。
+
+<Tabs>
+  <Tab title="Debian">
+    ```bash
+    sudo apt install chromium
+    ```
+  </Tab>
+  <Tab title="Ubuntu">
+    ```bash
+    sudo snap install chromium
+    ```
+  </Tab>
+  <Tab title="Fedora">
+    ```bash
+    sudo dnf install chromium
+    ```
+  </Tab>
+  <Tab title="RHEL, Rocky, AlmaLinux">
+    Chromium 来自 [EPEL](https://docs.fedoraproject.org/en-US/epel/)：
+
+    ```bash
+    sudo dnf install epel-release
+    sudo dnf install chromium
+    ```
+  </Tab>
+</Tabs>
+
+然后向智能体提问，例如：“打开 news.ycombinator.com 并告诉我头条新闻是什么。”
+
+Enconvo Browser 会保留自己的登录状态。当网站需要你进行登录或人机验证时，智能体会在你的浏览器中提供该页面的实时视图，你可以直接在其中点击和输入。空闲 30 分钟后它会自动关闭，下次打开时会恢复之前的标签页。
+
+只有服务器能访问的页面（例如智能体在 `localhost` 上启动的开发服务器）也会在聊天旁边以实时视图打开，因此通过 SSH 隧道也能正常使用。
+
+## 各平台支持的功能
+
+| 功能 | Linux 桌面 | 服务器 |
+| --- | --- | --- |
+| 聊天窗口、设置 | 支持 | 支持（通过浏览器） |
+| 智能体、工具、文件、文档、作品 | 支持 | 支持 |
+| 使用浏览器 | 支持 | 支持（需要 Chromium） |
+| 知识库、记忆、自动化、工作流 | 支持 | 支持 |
+| Enconvo Cloud 模型、网页搜索、OCR、图像生成、语音 | 支持 | 支持 |
+| 电脑操作 | 支持 | 不支持：没有可控制的屏幕 |
+| 全局快捷键、听写、语音笔记、录音、屏幕涂鸦、Appshots、通知 | 支持 | 不支持：这些功能需要桌面环境 |
+
+在 Wayland 下，全局快捷键需要桌面环境向应用提供相应支持。
+
+以下功能暂未提供 Linux 版：SmartBar、PopBar、灵动岛、语音命令、虚拟形象、桌面宠物、应用侧边栏、Live Talk 和实时字幕。其中 SmartBar、PopBar、灵动岛、语音命令、虚拟形象和桌面宠物已在 [Windows 测试版](/zh/getting-started/windows) 中提供。
+
+本地对话模型支持在 glibc 2.38 或更高版本的系统上通过 GGUF 文件运行。MLX 模型需要 Mac。
+
+## 你在 Linux 上的账户
+
+如果你的账户同时在使用 [iPhone 应用](/zh/integrations/iphone-app)，你的默认对话、语音和图像设置会随你的账户同步到这台电脑。使用你自己的 API 密钥的服务提供商不会同步，因为密钥不会被复制。如果你想在这台电脑上使用相同的服务提供商，请在 **设置** 中添加密钥。
+
+如果服务器的时钟与你的浏览器处于不同的时区，Enconvo 会询问是否使用你的时区来显示时间和运行[自动化](/zh/workflows/scheduled-jobs)。
+
+## 更新
+
+测试版构建默认留在测试版渠道。要更改渠道，请打开 **设置 → 通用** 并设置 **更新渠道**。参阅[更新](/zh/configuration/updates)。
+
+在桌面上，聊天窗口出现 **更新** 时点击即可。便携版会自动完成替换。对于 `.deb` 或 `.rpm`，Enconvo 会将新安装包下载到你的下载文件夹，你可以按照[在桌面上安装](#在桌面上安装)中的方式进行安装。
+
+在服务器上：
+
+```bash
+enconvo update --check   # 检查是否有新版本
+enconvo update           # 下载并检查更新
+```
+
+如果你安装的是 `.deb` 或 `.rpm`，`enconvo update` 会下载新安装包并打印以 root 身份安装的命令。运行该命令，然后重启服务：
+
+```bash
+systemctl --user restart enconvo
+```
+
+如果你运行的是便携版 `.tar.gz`，`enconvo update` 会为你替换文件夹并重启服务。如果新版本无法启动，它会自动回退到旧版本。
+
+## 故障排除
+
+| 看到的现象 | 解决办法 |
+| --- | --- |
+| `enconvo` 提示桌面应用需要 GTK 3 和 WebKitGTK 4.1 | 在桌面上，安装它指出的软件包。在服务器上或 RHEL 9 上，请使用 `enconvo service install --web` |
+| 提示 `GLIBC_2.34 not found`，或列出受支持系统的消息 | 系统版本过旧：请使用[系统要求](#系统要求)中列出的系统 |
+| `dnf` 提示 `nothing provides libwebkit2gtk-4.1.so.0` | 你安装了较旧的软件包。请使用[服务器安装命令](#在服务器上安装)安装当前测试版 |
+| 退出服务器登录时 Enconvo 停止运行，或重启后未自动启动 | 运行 `sudo loginctl enable-linger "$USER"` |
+| `localhost:54580` 打不开 | 检查 `ssh -L` 命令是否仍在运行，并确认 `systemctl --user status enconvo` 显示为 active |
+| 网页要求输入令牌 | 在服务器上运行 `enconvo service url`，然后打开它打印出的地址 |
+| 智能体提示无法启动 Enconvo Browser | [安装 Chromium](#在服务器上启用使用浏览器)。Google Chrome 137 及更高版本无法加载 Enconvo Browser 所需的扩展 |
+| 代码已过期 | 重新运行 `enconvo login` 获取新的代码 |
+
+在服务器上查看 Enconvo 日志：
+
+```bash
+journalctl --user -u enconvo -n 100
+```
+
+## 卸载 Enconvo
+
+```bash
+enconvo service uninstall
+sudo apt remove enconvo     # Debian, Ubuntu
+sudo dnf remove enconvo     # Fedora, RHEL, Rocky, AlmaLinux
+sudo zypper remove enconvo  # openSUSE
+```
+
+你的设置和聊天记录会保留在 `~/.config/enconvo` 中。如需一并清除，请删除该文件夹。
