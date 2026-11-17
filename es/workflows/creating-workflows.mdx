@@ -1,0 +1,441 @@
+---
+title: "Crear flujos de trabajo"
+description: "Crea, edita, ejecuta y comparte flujos de trabajo en el editor visual o en YAML, con un asistente que construye y corrige los pasos por ti."
+---
+
+Esta guía cubre todo lo que haces en el editor de flujos de trabajo: empezar un flujo, construirlo en el lienzo o en YAML, dejar que el asistente lo edite, ejecutarlo y leer los resultados. Las últimas secciones son una referencia del formato del archivo y de cada tipo de paso.
+
+Para abrir el editor, selecciona **Flujos de trabajo** en la barra lateral de la Ventana de chat, o abre **Ajustes → Flujos de trabajo → Gestionar**. Luego selecciona **Nuevo flujo de trabajo**, o abre uno existente con **Editar**. En la Ventana de chat, cambiar a un chat y volver mantiene abierto el flujo que estabas editando.
+
+Esta página cubre, por orden:
+
+- Primeros pasos: ideas clave, tu lista de flujos de trabajo y empezar un flujo nuevo.
+- Construir: el editor visual, el comportamiento de los pasos y el asistente de edición.
+- Ejecutar: ejecutar un flujo de trabajo y leer sus resultados.
+- Referencia: el archivo YAML, leer resultados anteriores y cada tipo de paso.
+
+## Ideas clave
+
+- Un flujo de trabajo declara sus **Entradas** y luego uno o más trabajos que contienen una lista ordenada de pasos. Consulta [Flujos de trabajo](/es/workflows/introduction) para la visión general.
+- Los pasos de un trabajo se ejecutan de arriba abajo. Los trabajos se ejecutan en paralelo salvo que uno espere a otro.
+- Un paso lee las entradas de la ejecución y los resultados anteriores con plantillas `{{ }}`, como `{{ inputs.topic }}` o `{{ steps.fetch.output }}`.
+- Editar un flujo de trabajo y ejecutarlo son acciones distintas. Guardar escribe el archivo; ejecutar llama a modelos y herramientas reales.
+
+## Gestionar tus flujos de trabajo
+
+La lista de flujos de trabajo es donde abres, ejecutas, ordenas, buscas y eliminas flujos.
+
+### La lista de flujos de trabajo
+
+Cada fila muestra el número de pasos del flujo, cuándo se editó por última vez y cómo fue su última ejecución.
+
+- Selecciona la última ejecución para abrir el flujo con los resultados de esa ejecución en el lienzo.
+- Selecciona el botón de reproducir para abrir el flujo y ejecutarlo de inmediato. Si necesita entradas que no has rellenado, se abre primero el panel **Entradas**. Mientras el flujo se ejecuta, el botón de reproducir se convierte en un botón de detener; selecciónalo para detener la ejecución sin abrir el flujo.
+- Un flujo que se ejecuta con un horario muestra cuándo es su próxima ejecución, o **Horario en pausa** cuando todas sus automatizaciones están apagadas. Selecciónalo para abrir el flujo con sus horarios en el panel de ejecuciones.
+- Selecciona el botón de copiar para duplicar un flujo con un título nuevo, para poder cambiar la copia sin tocar el original. La lista se desplaza hasta la copia y la resalta.
+- Usa el menú de ordenación sobre la lista para ordenar los flujos por **Editados recientemente**, **Ejecutados recientemente** o **Nombre**. Tu elección se recuerda.
+
+La lista se actualiza sola cuando vuelves a ella y cuando empieza una ejecución programada.
+### Buscar un flujo de trabajo
+
+Escribe en **Buscar flujos de trabajo**; la lista se actualiza mientras escribes. El botón de borrar o Esc vuelve a mostrar todos los flujos.
+
+Selecciona una etiqueta en una fila para mostrar solo los flujos con esa etiqueta; funciona junto con **Buscar flujos de trabajo**. Una fila muestra hasta cuatro etiquetas; selecciona **+N** para ver el resto. Para volver a mostrar todos los flujos, selecciona la etiqueta otra vez, selecciona la × junto a ella sobre la lista, o pulsa Esc en **Buscar flujos de trabajo**.
+
+| Tecla | En la lista de flujos de trabajo |
+| --- | --- |
+| **⌘F** o **/** | Ir a **Buscar flujos de trabajo** |
+| ↓ en **Buscar flujos de trabajo** | Ir al primer flujo de trabajo |
+| ↑ y ↓ | Moverse entre flujos de trabajo |
+| Return | Abrir el flujo de trabajo seleccionado |
+| Delete | Eliminar el flujo de trabajo seleccionado |
+
+### Renombrar o eliminar un flujo de trabajo
+
+Para renombrar un flujo, selecciona su nombre en la parte superior del editor, escribe el nombre nuevo y pulsa Return. Esc conserva el nombre anterior.
+
+Eliminar un flujo detiene primero su ejecución si está en marcha. Las [automatizaciones](/es/workflows/scheduled-jobs) que lo ejecutan se pausan y se conservan, para que puedas darles otro flujo o eliminarlas. La confirmación dice cuántas hay antes de que elimines.
+
+## Empezar un flujo de trabajo nuevo
+
+Selecciona **Nuevo flujo de trabajo** para abrir un diálogo con estas formas de empezar. Primero elige qué tipo de flujo es:
+
+- **Flujo de tarea**: cómo se hace un tipo de tarea.
+- **Flujo de equipo**: cómo un objetivo pasa del plan a hecho, con varios miembros. Sus plantillas incluyen **Planificar, construir, revisar** y **Un miembro**.
+
+Cuando aún no tienes flujos, la lista ofrece los mismos inicios ahí mismo: **Describe lo que debe hacer**, **Flujo en blanco** y las plantillas.
+
+| Inicio | Cómo |
+| --- | --- |
+| Descríbelo | Escribe lo que debe hacer el flujo, por ejemplo «Traduce un texto al japonés y al español a la vez», y selecciona **Constrúyelo** (o pulsa **⌘↩**). El flujo se abre con el asistente ya construyéndolo. Revisa sus pasos y selecciona **Guardar** cuando estén bien. |
+| Empezar desde una plantilla | Elige **En blanco**, **Investigar un tema**, **Resumir una página web**, **Notas de un vídeo de YouTube**, **Escribir y leer en voz alta** o **Recorrido por tipos de paso** (un comando de shell, una herramienta, un prompt y un agente, con dos trabajos en paralelo). Cada plantilla es un flujo completo que puedes ejecutar de inmediato. |
+| Importar un archivo | Selecciona **Elegir archivo…**, o suelta un archivo de flujo `.yaml`, `.yml` o `.json` en cualquier parte del diálogo, por ejemplo uno que compartió un compañero. Se guarda como un flujo nuevo, así que nunca reemplaza uno que ya tienes. Si su título coincide con uno de tu lista, se nombra como una copia, como «News copy». Si el archivo no es un flujo válido, el diálogo permanece abierto y te dice por qué. |
+| Pegarlo | Pega el YAML o JSON de un flujo, como uno compartido en un chat, en el cuadro de descripción. **Constrúyelo** pasa a ser **Impórtalo**, y el flujo se crea exactamente como se pegó. |
+
+### Flujos de trabajo integrados
+
+Los flujos que vienen con Enconvo se abren en solo lectura. Para cambiar uno, selecciona **Hacer una copia** y edita la copia.
+
+### Compartir un flujo de trabajo
+
+Para compartir un flujo o conservar una copia, selecciona el botón de compartir (el icono de descarga) en su fila de la lista, o en la barra de herramientas del editor:
+
+- **Exportar como archivo YAML…** guarda un archivo `.yaml` donde elijas. Impórtalo con **Nuevo flujo de trabajo** > **Elegir archivo…** en cualquier Mac.
+- **Copiar YAML** copia el flujo, listo para pegarlo en un chat o en el cuadro de descripción de **Nuevo flujo de trabajo**, que lo importa.
+
+Ambos incluyen los cambios que aún no has guardado cuando los usas desde el editor.
+## Construir con el editor visual
+
+<Frame caption="The Visual editor shows parallel jobs, sequential steps, and the selected step's configuration.">
+  <img src="/images/guides/workflow-visual.jpg" alt="Grafo real de un flujo de trabajo de Enconvo con dos trabajos en paralelo y el inspector de un paso" />
+</Frame>
+
+El editor tiene dos formas de ver el mismo flujo:
+
+- **Visual**: los pasos como tarjetas en un lienzo, con los trabajos en paralelo uno al lado del otro.
+- **Pasos**: los pasos listados de arriba abajo con sus condiciones, repeticiones y pasos en paralelo. Usa el menú **Añadir** entre dos pasos para insertar uno ahí.
+
+Selecciona **Guía** en el encabezado para una explicación en lenguaje sencillo del flujo, en tu idioma.
+
+1. Selecciona **Visual** en la barra de herramientas del editor.
+2. Usa **Añadir paso aquí** entre nodos para insertar un paso, o **Añadir trabajo en paralelo** para una rama aparte. La lista de pasos se abre con **Usados recientemente**, los últimos pasos y herramientas que elegiste, para que los que añades a menudo estén a un clic. Un plugin con muchas herramientas lista las primeras ocho; selecciona **Mostrar N más** para ver el resto, o escribe para buscar.
+3. Selecciona un paso para abrir su inspector. Edita su ID, su título y los ajustes del ejecutor, y abre **Comportamiento** para cambiar cómo se ejecuta.
+4. Selecciona el nodo **Entradas** para configurar las entradas declaradas del flujo: un nombre, un tipo (texto, número, verdadero/falso, lista u objeto), una descripción, un valor predeterminado y si una ejecución necesita un valor. Bajo cada nombre, el panel muestra cómo los pasos leen la entrada, como `{{ inputs.topic }}`, y cuántos pasos lo hacen. Renombrar una entrada actualiza esos pasos al nombre nuevo. Un nombre puede usar letras, dígitos y guiones bajos, no puede empezar por un dígito y no debe coincidir con otra entrada.
+5. Revisa el grafo y usa **Deshacer** o **Rehacer** mientras editas.
+6. Selecciona **Guardar** después de revisar tus cambios.
+
+### Leer una tarjeta de paso
+
+Cada tarjeta de paso muestra el nombre del paso y, debajo, lo que hace: la herramienta o el tipo de paso, y luego el inicio de su ajuste principal, como *Web Search · ‹topic› news* o las primeras palabras de un prompt. Los valores que lee de entradas y pasos anteriores aparecen en ‹ › por nombre. Un paso sin nombre muestra su ID en palabras; pasa el cursor por una tarjeta para ver su ID.
+
+La tarjeta de un paso de herramienta muestra el icono de su plugin. Unas marcas pequeñas en la tarjeta muestran cómo se ejecuta el paso: solo cuando una condición es verdadera, una vez por cada elemento de una lista, repitiéndose, reintentando si falla, ejecutándose incluso después de que falle un paso anterior, o dejando que el flujo continúe si falla. Pasa el cursor por una marca para leer qué significa; cámbiala en la sección **Comportamiento** del paso.
+
+### Elegir un paso
+
+El selector de pasos busca pasos integrados, herramientas instaladas y herramientas MCP. Deja fuera las herramientas que solo abren una ventana de Enconvo o listan los modelos y las voces de un proveedor; un flujo puede llamarlas igual por nombre en su YAML.
+
+Si no estás seguro de cuál necesitas, escribe lo que debe hacer el paso, como «resume el artículo en tres viñetas», y selecciona **Pedir al asistente que lo añada** al final del selector (**⌘↩**). Cuando nada coincide, Return hace lo mismo. El asistente añade el paso exactamente donde abriste el selector, antes o después del paso vecino o como un trabajo en paralelo nuevo, y puedes revertirlo como cualquier otra respuesta del asistente.
+### Editar un paso
+
+El inspector tiene las pestañas **Configuración** y **Salida**. **Ejecutar paso** ejecuta el paso seleccionado; puede hacer llamadas reales a herramientas o comandos de shell. Comprueba que existan los valores previos necesarios antes de ejecutar un paso suelto.
+
+La pestaña **Configuración** empieza con el **Nombre** del paso, que muestra la tarjeta, y su **ID del paso**, que otros pasos usan para leer su resultado. **Qué hace** nombra la herramienta o el tipo del paso.
+
+Para que el paso haga otra cosa, selecciona **Cambiar** y elige otra herramienta o tipo de paso, o describe lo que debe hacer y selecciona **Pedir al asistente que lo cambie**:
+
+- El paso conserva su ID, así que los pasos que leen su resultado siguen funcionando.
+- Conserva cuándo y cómo se ejecuta: su condición, su repetición, sus reintentos y lo que espera.
+- Los ajustes de la herramienta nueva empiezan vacíos. Un prompt que pasa a ser un agente, o un agente que pasa a ser un prompt, conserva su texto, su modelo y su esquema de salida.
+- Un nombre que puso el editor sigue a la herramienta nueva; un nombre que escribiste se queda.
+
+Selecciona **Deshacer** para volver atrás.
+
+### Duplicar, reordenar o apagar un paso
+
+Para reutilizar un paso, selecciona **Duplicar** en el inspector, o en la tarjeta del paso al pasar el cursor. La copia conserva todos los ajustes del paso, aparece justo después del original y obtiene el siguiente ID libre, como `fetch_2`.
+
+Los pasos de un trabajo se ejecutan de arriba abajo. Para cambiar el orden, arrastra la tarjeta de un paso hacia arriba o hacia abajo dentro de su trabajo; las demás tarjetas se apartan para mostrar dónde caerá. También puedes seleccionar un paso y elegir **Subir** o **Bajar** en el inspector, o pulsar **⌥↑** o **⌥↓**. Pulsa **⌘Z** para deshacer un movimiento. Si un paso acaba por encima de un paso cuyo resultado lee, su tarjeta muestra un aviso hasta que lo vuelvas a poner debajo.
+
+Para dejar un paso fuera por ahora sin eliminarlo, selecciónalo y elige **Apagar paso**. Su tarjeta se atenúa y muestra **Desactivado**, las ejecuciones lo omiten y los pasos posteriores siguen ejecutándose. Elige **Encender paso** para recuperarlo.
+
+### Trabajar con varios pasos
+
+Para cambiar varios pasos a la vez, mantén ⌘ o Shift y pulsa sus tarjetas. Una barra en la parte superior del lienzo muestra cuántos pasos hay elegidos, con **Apagar** (o **Encender**) y **Eliminar** para todos. Pulsa Esc o haz clic en un punto vacío del lienzo para quitar la selección, y **⌘Z** para deshacer.
+
+Si una eliminación rompería otros pasos, o vaciaría un trabajo, Enconvo pregunta primero. La confirmación lista cada paso que depende de los que estás eliminando y por qué, como **Usa su salida** o **Espera a que termine**. Selecciona uno para cancelar la eliminación y abrir ese paso, para poder corregirlo primero. Lo mismo ocurre al eliminar un solo paso.
+
+Para copiar pasos, selecciona uno (o elige varios) y pulsa **⌘C**, o selecciona **Copiar** en la barra; **⌘X** los corta. Luego selecciona el paso al que deben seguir y pulsa **⌘V**:
+
+- Las copias caen justo después de ese paso, o al final del trabajo cuando hay un trabajo seleccionado, y conservan sus ajustes.
+- Una copia cuyo ID ya está ocupado obtiene uno nuevo, como `fetch_2`, y los pasos pegados que se leen entre sí siguen los nombres nuevos.
+- Los pasos se pegan en otro flujo de la misma forma, y **⌘V** también acepta una lista de pasos YAML o JSON copiada de un archivo de flujo.
+
+Cuando eliminas o pegas pasos, un aviso dice qué cambió; selecciona Deshacer en él para revertir ese cambio.
+### Buscar, ampliar, guardar y ejecutar
+
+- Para saltar a un paso en un flujo grande, pulsa **⌘F** o selecciona el botón de búsqueda del lienzo, escribe parte del nombre, del ID, de la herramienta o del texto del paso, y elígelo. El paso se selecciona y se trae a la vista.
+- Usa los controles de zoom en la esquina inferior derecha del lienzo. Selecciona el nivel de zoom para volver al 100 %.
+- Selecciona **Buscar paso**, o pulsa **⌘F** en el lienzo, y escribe parte del nombre de un paso para seleccionarlo y traerlo a la vista. También funciona en los flujos integrados de solo lectura.
+- Pulsa **⌘S** para guardar desde cualquier parte del editor, en Visual o YAML, incluso mientras escribes en los ajustes de un paso.
+- Pulsa **⌘↩** para ejecutar el flujo; se guarda primero si tiene cambios. En el editor YAML, el asistente y otros campos de varias líneas, selecciona **Ejecutar** en su lugar.
+- Mientras hay una ejecución en curso, **Ejecutar** pasa a ser **Detener**. Después de seleccionarlo, muestra **Deteniendo…** hasta que la ejecución se ha detenido.
+
+Si el flujo tiene un problema, como un paso con un prompt vacío o una descripción que falta, Guardar y Ejecutar se detienen y dicen qué corregir. Selecciona **Mostrar** para abrir el paso o el título y la descripción del flujo. Los pasos con problemas tienen una marca roja en su tarjeta; pasa el cursor por ella para leer qué falla. En YAML, selecciona **Validar** para comprobar todo el documento.
+
+### Cambios sin guardar
+
+Mientras un flujo tiene cambios sin guardar, el encabezado del editor muestra **Sin guardar**. Selecciónalo para ver las líneas YAML añadidas y quitadas desde el último guardado, y selecciona **Descartar cambios** para volver a la versión guardada; en el editor visual, **⌘Z** recupera tus cambios. Si vuelves a la lista de flujos con cambios sin guardar, elige **Guardar y salir**, **Descartar** o **Seguir editando**.
+
+Los cambios sin guardar también se conservan en este Mac mientras editas. Si la ventana se cierra o se recarga antes de que guardes, al reabrir el flujo aparece una barra arriba con **Restaurar**, que devuelve tus cambios como un paso que puedes deshacer, o **Descartar**. Los cambios solo se ofrecen si el flujo guardado no ha cambiado desde entonces. En la lista, ese flujo muestra una etiqueta **Cambios sin guardar**, y eliminarlo también descarta esos cambios.
+
+### Atajos del lienzo
+
+| Atajo | Qué hace |
+| --- | --- |
+| **⌘S** | Guardar |
+| **⌘↩** | Ejecutar (guarda primero) |
+| **⌘F** | Buscar un paso |
+| **⌘Z** | Deshacer |
+| **⌘C**, **⌘X**, **⌘V** | Copiar, cortar y pegar pasos |
+| **⌘A** | Elegir todos los pasos |
+| **⌫** | Eliminar los pasos seleccionados o elegidos |
+| **⌥↑**, **⌥↓** | Mover el paso seleccionado hacia arriba o hacia abajo |
+| **⌘=**, **⌘-** | Acercar y alejar |
+| **⌘0** | Ajustar todo el flujo a la vista |
+| **?** | Mostrar todos los atajos del lienzo |
+
+También puedes ver todos los atajos del lienzo con el botón de teclado junto a **Añadir trabajo en paralelo**.
+
+## Comportamiento del paso
+
+La sección **Comportamiento** del inspector define cómo se ejecuta un paso sin editar YAML. Su encabezado lista lo que cambiaste, como *Solo si… · Reintentos 2×*, o muestra **Predeterminado**.
+
+| Ajuste | Opciones | YAML que escribe |
+|---|---|---|
+| **Se ejecuta** | Siempre; solo si una condición es verdadera; si no, cuando la condición de un paso anterior es falsa. **Ejecutar aunque fallen o se omitan pasos anteriores** mantiene el paso en marcha tras un fallo previo. | `if`, `else_of`, `run_when` |
+| **Se repite** | Una vez; una vez por cada elemento de una lista; en rondas hasta que se cumple una condición, hasta un número máximo de rondas | `foreach`, `loop` |
+| **Si falla** | Detener el flujo, o seguir para que los pasos posteriores se ejecuten. **Reintentos** vuelve a ejecutar el paso antes de contarlo como fallido, con una espera opcional entre intentos. | `required: false`, `retries` |
+| **Espera a** | El paso anterior; nada, así que empieza de inmediato; o los pasos que marques de una lista de pasos anteriores y de pasos de otros trabajos | `needs` |
+
+**Esquema de salida** acepta un JSON Schema opcional para un resultado estructurado. Volver a elegir el predeterminado quita el ajuste del YAML. [Flujos de trabajo avanzados](/es/workflows/advanced-workflows) explica cada ajuste en detalle.
+## Usar el asistente de edición
+
+Selecciona **Asistente** en la barra de herramientas del editor para abrir el panel del asistente junto al lienzo, y describe lo que quieres, por ejemplo: «Añade un paso de prompt que resuma el resultado anterior». Para un flujo nuevo y vacío puedes describir todo el proceso, como «Cada mañana, trae las historias principales de Hacker News y resúmelas». Pulsa Return para enviar y **⇧↩** para una línea nueva, y elige el modelo bajo el compositor.
+
+Mientras el asistente trabaja, el panel muestra qué está haciendo, como leer el flujo, comprobar los parámetros de una herramienta o editar, y el lienzo se actualiza sobre la marcha. El lienzo es de solo lectura hasta que termina la respuesta; selecciona **Detener** para acabarla antes.
+
+### Enviar más mientras trabaja
+
+No tienes que esperar a que termine una respuesta para pedir más. Pulsa Return mientras el asistente trabaja y tu mensaje espera en una cola sobre el compositor. Los mensajes en cola se envían de uno en uno, por orden, a medida que termina cada respuesta.
+
+- Arrastra un mensaje en cola para reordenarlo, usa su menú **⋯** para editarlo, o selecciona el icono de la papelera para quitarlo.
+- Si seleccionas **Detener** o una respuesta falla, la cola se marca **Aparcada** y no se envía nada más por sí sola. Selecciona **Enviar** en un mensaje en cola cuando estés listo.
+- Cuando un mensaje no puede esperar, como una corrección de lo que está haciendo el asistente, pulsa **⌘↩** en lugar de Return, o selecciona **Enviar ahora** en un mensaje en cola. La respuesta actual se detiene, conserva las ediciones que ya hizo y se marca **Interrumpida**, y tu mensaje se envía de inmediato. El resto de la cola no se aparca; se envía por orden después de eso.
+
+### Revisar lo que cambió
+
+Cada respuesta que cambia el flujo termina con una tarjeta que lista los pasos que añadió, cambió o quitó. Cuando termina una respuesta, los pasos que añadió se etiquetan **Añadido** en el lienzo y los que cambió se etiquetan **Editado**, para que veas qué revisar. Las etiquetas permanecen hasta que guardes, deshagas o reviertas la respuesta.
+
+- Selecciona un paso en la tarjeta para seleccionarlo en el lienzo y traerlo a la vista. Los ID de paso que el asistente nombra en su respuesta, como `summarize`, funcionan igual.
+- Selecciona **Ejecutar** en la tarjeta de la respuesta para probar el último cambio del asistente. Ejecuta el flujo igual que **Ejecutar** en la barra de herramientas, pidiendo las entradas primero cuando las necesita.
+- Selecciona **Revertir** en la última tarjeta para dejar el flujo como estaba antes de esa respuesta. **Deshacer** (**⌘Z**) también revierte una respuesta entera en un paso.
+
+Si una respuesta deja el flujo inválido, el editor cambia a YAML y muestra los errores. Corrígelos ahí, o pide al asistente que los corrija. Las ediciones del asistente permanecen sin guardar hasta que selecciones **Guardar**.
+
+### Señalarle un paso o un resultado
+
+- Para preguntar por un paso, selecciónalo en el lienzo y elige **Preguntar al asistente** en su inspector. El paso se adjunta a tu siguiente mensaje, así que «hazlo más fiable» se refiere a ese paso.
+- Cuando un paso falla en una ejecución, elige **Corregir con el asistente** en el resumen de la ejecución o en la pestaña **Salida** del paso. Tu mensaje lleva el paso y su error, así que no tienes que copiar el error.
+- Para preguntar por una parte del resultado de un paso, selecciona texto en su pestaña **Salida** y elige **Preguntar al asistente** bajo la selección. El texto aparece como una cita sobre el cuadro de mensaje y va con tu siguiente mensaje, para que puedas preguntar qué significa o cómo cambiar el paso que lo produjo.
+
+### Chats e instrucciones fijas
+
+Selecciona **Nuevo chat** en la parte superior del panel para empezar de nuevo; el chat anterior permanece en la lista. Selecciona el nombre del chat en la parte superior del panel para volver a un chat anterior sobre el mismo flujo o para eliminar uno. Un flujo guardado conserva sus últimos diez chats en este navegador.
+
+Para definir valores predeterminados que el asistente deba seguir siempre, selecciona **Ajustes** (el icono de controles) en la parte superior del panel y escríbelos en **Instrucciones**, por ejemplo «Guarda los archivos en ~/Downloads.», «Usa anthropic/claude-haiku-4-5 para los pasos de prompt.» o «Responde en chino.». Pulsa **⌘↩** o selecciona **Guardar**. Las instrucciones se aplican a cada flujo que el asistente construye o edita, y un punto en el icono de Ajustes muestra que están activas. Para dejar de usarlas, vacía el cuadro y guarda.
+## Ejecutar e inspeccionar
+
+1. Selecciona **Entradas** y rellena los valores de esta ejecución.
+2. Valida la definición e inspecciona cualquier comando o llamada a una herramienta.
+3. Elige **Ejecutar** y observa el estado de los pasos en el grafo.
+4. Selecciona la pestaña **Salida** de un paso para inspeccionar su resultado o su error. Después de una ejecución, cada tarjeta de paso también muestra la primera línea de lo que devolvió el paso, o por qué falló, en lugar de su descripción; selecciona esa línea para abrir la pestaña **Salida** del paso. Selecciona **Copiar** en la pestaña **Salida** para copiar el resultado del paso, o su error cuando no devolvió nada, por ejemplo para pegarlo en un chat o un documento.
+5. Abre **Ejecuciones** para inspeccionar ejecuciones anteriores.
+6. Guarda el flujo cuando estés conforme con su definición.
+
+<Warning>
+Una ejecución puede consumir crédito del proveedor o cambiar datos externos, según sus pasos. Los pasos de shell y de herramienta actúan con los permisos de la cuenta de tu Mac.
+</Warning>
+
+### Entradas de la ejecución
+
+**Entradas** en la barra de herramientas abre un formulario con un campo por cada entrada que declara el flujo, mostrando su tipo, su descripción y su valor predeterminado:
+
+- Deja un campo en blanco para usar su valor predeterminado. Las listas y los objetos aceptan JSON, como `["a", "b"]`.
+- Una entrada marcada **Obligatorio** que no tiene valor predeterminado necesita un valor. Si está vacía, o un valor tiene el tipo equivocado, **Ejecutar** se detiene antes de guardar o ejecutar nada y señala el campo que hay que corregir.
+- Pulsa **⌘↩** en un campo para ejecutar.
+- El formulario parte de los valores con los que el flujo se ejecutó por última vez en Enconvo. Selecciona **Borrar** para vaciar todos los campos a la vez, de modo que la siguiente ejecución use de nuevo los valores predeterminados. Renombrar una entrada conserva el valor que escribiste para ella.
+- Mientras una ejecución pasada de **Ejecuciones recientes** está en el lienzo, selecciona **Usar los valores de esa ejecución** para rellenar el formulario con las entradas con las que se ejecutó, y luego ejecútala otra vez igual o con un cambio.
+- Un campo en blanco muestra su valor predeterminado en gris. Para cambiar un valor predeterminado largo en lugar de volver a escribirlo, selecciona **Editar valor predeterminado** junto al campo para ponerlo en el campo, y luego edítalo.
+- En el editor visual, selecciona **Editar entradas** para cambiar lo que pide el flujo. Si unos pasos aún leen una entrada que quitas, Enconvo los nombra y pregunta antes de quitarla. Selecciona **Editar como JSON** para escribir las entradas como un objeto JSON, incluidas claves que el flujo no declara. **Usar formulario** vuelve atrás.
+
+### Cuando termina una ejecución
+
+Cuando termina una ejecución, aparece un resumen al pie del lienzo:
+
+- Si un paso falló, el resumen lo nombra y muestra la línea de su error que dice qué salió mal, como `command not found: datex` en lugar de solo un código de salida. Selecciona **Mostrar error** para abrir la pestaña **Salida** de ese paso y traer el paso a la vista en el lienzo.
+- Selecciona **Corregir con el asistente** para entregar el paso fallido y su error al asistente. Empieza su respuesta con la causa y luego corrige el paso. Si la causa está fuera del flujo, como una clave de API que falta, un error de red o un archivo que falta, te dice qué cambiar en lugar de editar. La pestaña **Salida** de un paso fallido tiene el mismo botón **Corregir con el asistente**.
+- Selecciona **Reanudar** para continuar una ejecución fallida o detenida. Los pasos que ya terminaron conservan sus resultados; el paso fallido y todo lo que va después se ejecutan otra vez. Si editaste un paso después de la ejecución, ese paso y los posteriores también se ejecutan otra vez. Si cambias las entradas de la ejecución, todo el flujo se ejecuta desde el principio. **Reanudar** también aparece junto a **Ejecutar** en la barra de herramientas hasta que empieces otra ejecución.
+- Tras una ejecución limpia, selecciona **Mostrar salida** para ver el resultado del último paso. El resumen se desvanece a los pocos segundos salvo que algo necesite tu atención; selecciona **×** para cerrarlo antes.
+### Ejecuciones recientes
+
+**Ejecuciones recientes** lista las ejecuciones anteriores del flujo, la más nueva primero. Cada fila muestra:
+
+- si la ejecución tuvo éxito, falló o sigue en marcha;
+- cuándo empezó y cuánto tardó;
+- si la empezó un horario (**Programada**) o un chat (**Desde el chat**);
+- las entradas con las que se ejecutó (pasa el cursor para verlas todas) y el error si falló.
+
+La ejecución mostrada en el lienzo está marcada **Mostrando**. Selecciona una fila para mostrar en el lienzo los resultados de los pasos de esa ejecución. Cuando algunas ejecuciones fallaron y otras no, selecciona **Fallidas** sobre la lista para ver solo las fallidas, y **Todas las ejecuciones** para verlas todas otra vez.
+
+### Ejecutar con un horario
+
+**Horario**, en la parte superior del panel de ejecuciones, lista las automatizaciones que ejecutan este flujo, con cuándo se ejecuta cada una a continuación y las entradas con las que se ejecuta.
+
+- Cuando la última ejecución de una automatización falló, pasa el cursor por **La última ejecución falló** para ver por qué, o selecciónalo para abrir esa ejecución en el lienzo y ver qué paso falló.
+- Apaga o enciende una automatización con su interruptor, o selecciona el lápiz para cambiar su horario.
+- Elige **Añadir horario** para abrir el formulario ahí mismo, con este flujo ya elegido y sus entradas rellenadas desde **Entradas de la ejecución**.
+- Selecciona **Eliminar** en un horario para quitar esa automatización.
+
+Las ejecuciones programadas usan el flujo guardado, así que guarda tus cambios antes de la siguiente ejecución. Cada automatización también aparece en **Automatizaciones** en la barra lateral de la Ventana de chat; consulta [Automatizaciones](/es/workflows/scheduled-jobs).
+
+## Editar YAML
+
+Guardar escribe el flujo en `~/.enconvo/workflows/<id>.yaml`. Selecciona **YAML** para trabajar con el mismo documento como fuente. El editor comprueba mientras escribes: un error nombra su línea y su columna, y un aviso marca los campos que no hacen nada. La insignia **Válido** o **Inválido** y la acción **Validar** comprueban todo el documento. Usa letras, dígitos y guiones bajos para los ID de trabajos y pasos, y empieza por una letra o un guion bajo. Cuando vuelves a **Visual**, **⌘Z** revierte tus ediciones de YAML en un paso.
+
+```yaml
+version: agent-workflow/v1
+title: Greeting
+description: Produce a greeting and a formatted result without calling a model.
+inputs:
+  name:
+    type: string
+    default: world
+jobs:
+  main:
+    steps:
+      - id: greeting
+        uses: transform
+        value: "Hello, {{ inputs.name }}!"
+      - id: result
+        uses: transform
+        value: "Result: {{ steps.greeting.output }}"
+```
+
+Ejecuta este ejemplo con `Ada` en el campo **name** bajo **Entradas**. El paso final produce `Result: Hello, Ada!`.
+
+## Referenciar resultados anteriores
+
+| Expresión | Valor |
+| --- | --- |
+| `{{ inputs.name }}` | Un valor de entrada |
+| `{{ steps.greeting.output }}` | Un paso anterior del mismo trabajo |
+| `{{ jobs.research.search.output }}` | Un paso terminado de otro trabajo |
+| `{{ item }}` y `{{ index }}` | El elemento y el índice actuales en `foreach` |
+| `{{ round }}` y `{{ last }}` | La ronda y la salida anterior en un bucle |
+
+Añade `needs` a nivel de trabajo antes de leer la salida de otro trabajo. Inspecciona los resultados de las herramientas en **Salida** en lugar de suponer que todas las herramientas devuelven los mismos campos.
+### Insertar un valor sin escribirlo
+
+En el editor visual no necesitas escribirlos a mano. Selecciona **Insertar valor** (el botón `{x}` a la derecha de un campo del paso, como el prompt, el comando, un ajuste de herramienta o una condición) para listar lo que ese paso puede leer: las entradas del flujo, los resultados de pasos anteriores de su trabajo, los pasos de los trabajos a los que espera y, para un paso repetido, el elemento o la ronda actuales. Busca en la lista y elige uno; va donde estaba el cursor, o reemplaza el texto que seleccionaste.
+
+- Un paso de shell ofrece su texto impreso como `{{ steps.<id>.stdout | trim }}`.
+- Un paso con un esquema de salida o una ejecución anterior también lista los campos de su resultado.
+- Las condiciones, **Parar cuando** y la lista sobre la que se repite un paso reciben la forma adecuada para ese campo, como un `steps.check.output.ok` sin plantilla en una condición.
+
+Un campo que lee algo que no puede alcanzar muestra un aviso debajo con qué cambiar: una entrada que el flujo no declara, un paso que se ejecuta después o es el propio paso, un paso que pertenece a otro trabajo, o un trabajo al que este no espera. En el lienzo, una tarjeta de paso con un valor así muestra un icono de aviso junto a su título; pasa el cursor para ver qué corregir. Los avisos no te impiden guardar.
+
+## Tipos de paso
+
+Cada fragmento de abajo es una entrada de paso: colócalo dentro de la lista `steps` de un trabajo. En el editor visual, elige el mismo tipo de paso en el selector.
+
+### Shell
+
+```yaml
+- id: today
+  command: 'date "+%Y-%m-%d"'
+```
+
+Lee el resultado con `steps.today.output.stdout`. Los ajustes opcionales incluyen `cwd`, `shell`, `timeoutMs` y `env`. Los comandos usan los permisos de la cuenta de tu Mac; revísalos antes de ejecutarlos.
+
+### Prompt
+
+```yaml
+- id: summarize
+  prompt: "Summarize this text: {{ inputs.text }}"
+```
+
+Esto llama a un modelo una vez. Usa [esquemas de salida](/es/workflows/advanced-workflows) cuando los pasos posteriores necesiten campos estructurados.
+
+### Agente
+
+```yaml
+- id: plan
+  agent: agent/main
+  message: "Propose a three-step plan for {{ inputs.topic }}."
+```
+
+Usa una clave de comando de un Agente instalado. Sus herramientas activadas y los ajustes del proveedor determinan qué puede hacer.
+
+### Herramienta
+
+```yaml
+- id: saved
+  tool: workflow/list
+  with:
+    limit: 5
+```
+
+`tool` es una ruta de la API local en forma de barra. `with` aporta los parámetros (`params` es un alias). Descubre las rutas disponibles en **Ajustes → APIs**, o pide al asistente de edición que inspeccione las herramientas instaladas.
+
+### Transformar
+
+Usa `uses: transform` con un `value` para combinar entradas o salidas anteriores sin llamar a un modelo. El ejemplo de editar YAML usa dos pasos de transformación.
+
+### Subflujo
+
+Usa `uses: workflow` con un `workflowId` guardado, o un documento `workflow` en línea, para ejecutar un proceso hijo reutilizable. En el editor visual, elige el flujo guardado por nombre y rellena en un formulario las entradas que pide. Un paso de subflujo sin flujo elegido no pasa: detiene la ejecución y dice qué falta. Consulta [Flujos de trabajo avanzados](/es/workflows/advanced-workflows).
+### Aprobación
+
+```yaml
+- id: confirm
+  uses: approval
+  message: "Post this summary to the team? {{ inputs.text }}"
+```
+
+Enconvo te hace la `message` con **Aprobar** y **Rechazar**, y espera tu respuesta, hasta 24 horas salvo que el paso defina `timeoutMs`. Si se aprueba, se ejecutan los pasos posteriores. Si se rechaza o no se responde, se omite como una condición falsa: los pasos posteriores se omiten y se ejecuta su paso `else_of`. `steps.confirm.output.feedback` guarda lo que escribiste al rechazar. Ponlo justo antes de un paso que envía, publica, elimina o paga. Cuando seleccionas **Volver a intentarlo** después de rechazar, la ejecución nueva sabe qué rechazaste y por qué. Rechazar una aprobación dentro de un subflujo detiene toda la ejecución, no solo el subflujo.
+
+### Juzgar
+
+```yaml
+- id: urgent
+  uses: judge
+  question: Does this message ask for a reply today?
+  input: "{{ inputs.text }}"
+```
+
+Jev, el modelo de decisión rápido de Enconvo Cloud, responde a la `question` sobre `input` con `yes` y una `probability`. `yes` es verdadero cuando la probabilidad alcanza `threshold` (0,5 salvo que lo definas). Ramifica con `if: "{{ steps.urgent.output.yes }}"` y un paso `else_of`.
+
+### Clasificar
+
+```yaml
+- id: kind
+  uses: classify
+  question: What kind of request is this?
+  input: "{{ inputs.text }}"
+  options:
+    billing: A question about payments or invoices
+    bug: A report that something is broken
+    other: Anything else
+```
+
+En el inspector, introduce una fila por opción. Jev elige una de las `options` y devuelve su `label`, una `confidence` y las `probabilities` de cada opción. `options` es una lista de al menos dos etiquetas, o un mapa de cada etiqueta a lo que significa. Ramifica con `if: "{{ steps.kind.output.label == 'billing' }}"`.
+
+Los pasos de juzgar y clasificar se ejecutan en Enconvo Cloud, así que necesitan que hayas iniciado sesión y que te queden puntos. No aceptan un `output_schema`.
+
+## Mira los pasos
+
+<video controls playsInline preload="none" poster="/images/guides/workflow-visual.jpg" aria-label="Explore the workflow editor" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/workflow-editor.mp4" type="video/mp4" />
+  [Descarga el recorrido](/videos/guides/workflow-editor.mp4).
+</video>
+
+Cambia entre Visual y YAML, inspecciona las entradas de la ejecución y abre el inspector de un paso. El flujo no se cambia ni se ejecuta. Este recorrido silencioso usa capturas reales de la interfaz, con pausas añadidas para leer. Los pasos escritos de arriba dan las mismas instrucciones.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Flujos de trabajo" icon="diagram-project" href="/es/workflows/introduction">Trabajos, pasos y cómo se ejecutan los flujos.</Card>
+  <Card title="Crea tu primer flujo de trabajo" icon="play" href="/es/workflows/build-your-first-workflow">Un tutorial en vídeo, de la plantilla a la ejecución terminada.</Card>
+  <Card title="Flujos de trabajo avanzados" icon="code-branch" href="/es/workflows/advanced-workflows">Condiciones, bucles, reintentos, esquemas de salida y subflujos.</Card>
+  <Card title="Automatizaciones" icon="clock" href="/es/workflows/scheduled-jobs">Ejecuta un flujo de trabajo con un horario.</Card>
+</CardGroup>

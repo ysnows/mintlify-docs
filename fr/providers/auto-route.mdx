@@ -1,0 +1,58 @@
+---
+title: "Auto Route"
+description: "Laissez Enconvo choisir le modèle pour chaque message, selon le type de travail demandé."
+---
+
+Auto Route exécute chaque message sur le modèle que vous avez fixé pour ce type de travail : un modèle rapide pour la conversation légère, un plus fort pour les problèmes difficiles. C’est le modèle d’IA par défaut pour qui n’en a pas choisi, et il est en tête de la liste **Modèle d’IA**.
+
+## Fonctionnement
+
+Vous définissez quelques routes. Chaque route décrit un type de travail et nomme le modèle qui le fait. Pour chaque message, Enconvo choisit la route qui convient le mieux et envoie le message au modèle de cette route. Le choix est gratuit, et exige d’être connecté à votre compte Enconvo.
+
+Les routes par défaut tournent toutes sur Enconvo Cloud :
+
+| Route | Utilisée pour | Modèle par défaut |
+| --- | --- | --- |
+| **Tâches simples** | Salutations, réponses factuelles courtes, questions oui ou non, actions en une étape | Enconvo Fast |
+| **Rédaction et questions-réponses** | Discuter, répondre à des questions, rédiger, réécrire, traduire, résumer | Enconvo Fast |
+| **Tâches moyennes** | Petits changements de code, lire un fichier ou une page, comparer des options, faire un plan | Enconvo Balanced |
+| **Tâches complexes** | Code non trivial, décisions de conception, recherche sur de nombreuses sources, longs documents | Enconvo Ultra |
+
+Un message qui ne correspond à aucune route tourne sur la route marquée **Repli** : **Tâches simples**, ou la première route si vous retirez celle-là.
+
+Une fois une discussion lancée, Auto Route la garde sur son modèle actuel quand un passage à un modèle moins cher coûterait plus cher au total. Changer de modèle perd le cache du prompt, ce qui peut rendre le changement plus coûteux que de rester.
+
+## Changer les routes
+
+<Steps>
+  <Step title="Ouvrir Auto Route">
+    Ouvrez **Réglages → Modèle d’IA → Auto Route** et trouvez **Routes de modèles**.
+  </Step>
+  <Step title="Modifier une route">
+    Cliquez sur une route pour changer son nom, **Travail pris en charge par cette route**, **Modèle** et **Effort**. Le modèle peut venir de n’importe quel fournisseur que vous avez configuré, y compris vos propres clés API.
+  </Step>
+  <Step title="Ajouter ou retirer des routes">
+    Cliquez sur **Ajouter une route** pour un nouveau type de travail, ou sur **Supprimer la route** pour en supprimer une. **Réinitialiser** rétablit les routes par défaut.
+  </Step>
+</Steps>
+
+Décrivez le travail de chaque route en mots simples. Plus la description est claire, mieux les messages arrivent sur le bon modèle.
+
+## Voir quelle route a répondu
+
+Cliquez sur **Détails** sous une réponse pour voir le modèle et la route Auto Route qui l’a choisi, ainsi que l’effort, les points ou le coût, les jetons et le temps.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Auto Route vous demande de vous connecter | Choisir une route exige votre compte Enconvo. Connectez-vous dans **Réglages → Compte**. |
+| Les messages arrivent sur le mauvais modèle | Rendez les descriptions **Travail pris en charge par cette route** plus distinctes. |
+| Le modèle d’une route échoue | Ouvrez cette route et vérifiez le fournisseur de son modèle, ou choisissez un autre modèle. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Choisir un modèle" icon="list-check" href="/fr/ai/model-selection-guide">Où les modèles par défaut sont définis, et comment les discussions gardent le leur.</Card>
+  <Card title="Enconvo Cloud" icon="cloud" href="/fr/providers/enconvo">Enconvo Fast, Balanced et Ultra, les modèles des routes par défaut.</Card>
+</CardGroup>

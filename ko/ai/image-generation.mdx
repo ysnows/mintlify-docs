@@ -1,0 +1,78 @@
+---
+title: "이미지 생성"
+description: "선택한 이미지 제공업체로 에이전트에게 이미지를 만들거나, 첨부한 이미지를 바꾸라고 요청하세요."
+---
+
+채팅에서 에이전트에게 이미지를 만들거나, 첨부한 이미지를 바꾸라고 요청하세요. Enconvo는 요청을 **설정 → 이미지 생성**에서 정한 이미지 제공업체로 보냅니다. 채팅에 쓰는 모델과는 별개입니다.
+
+## 시작하기 전에
+
+1. **설정 → 이미지 생성**을 열고 제공업체를 고르세요.
+2. **자격 증명 제공자**(사용하는 키 또는 계정)와 **모델 이름**을 설정하세요.
+3. **기본값으로 설정**을 클릭하세요.
+
+Enconvo Cloud 제공업체인 **OpenAI (Enconvo Cloud)**와 **Google Gemini (Enconvo Cloud)**는 본인 API 키가 필요 없습니다.
+
+## 이미지 만들기
+
+1. 에이전트와의 채팅에서 피사체, 구도, 스타일, 이미지의 용도를 설명하세요.
+2. 크기, 종횡비, 품질은 모델이 지원할 때만 요청하세요.
+3. 이미지가 나올 때까지 기다리세요. 생성은 텍스트 답변보다 오래 걸릴 수 있습니다.
+4. 이미지를 클릭해 채팅 옆에서 열고, 그곳에서 계속 편집할 수 있습니다.
+
+예:
+
+```text
+Create a square illustration for a guide to organizing research.
+Show three labeled folders on a tidy desk, with a warm neutral palette.
+Leave the top third clear for a title.
+```
+
+새 채팅의 메시지 상자 아래에서 **이미지**를 골라도 됩니다. 모델, 설정, **제외**가 메시지 상자 아래 필로 보이므로, 보내기 전에 정할 수 있습니다. 만든 것, 저장한 피사체, 한 번에 고치는 수정을 한곳에서 보려면 [미디어](/ko/features/media)를 쓰세요.
+
+## 이미지 편집하기
+
+1. 원본 이미지를 메시지에 첨부하거나, 에이전트가 만든 이미지를 클릭해 이미지 편집기에서 엽니다.
+2. 바꿀 부분을 구체적으로 설명하고, 그대로 둘 부분도 명시하세요.
+3. 요청하지 않은 변화가 있는지 결과를 확인하세요.
+
+이미지 편집이나 참조 이미지를 지원하는 모델을 쓰세요.
+
+이미지 편집기의 설정 패널은 고른 모델이 받는 항목만 보여 줍니다.
+
+| 설정 | 바뀌는 것 |
+| --- | --- |
+| 해상도, 종횡비, 품질 | 다음 버전의 크기와 세부 표현 |
+| **제외** | 부정 프롬프트를 받는 모델에서 빼고 싶은 것 |
+| 바리에이션 | 요청마다 몇 장을 만들지. 원하는 것만 남깁니다 |
+| **편집 영역**과 **마크업** | 그 부분만 바꾸려고 그리거나, 변화를 안내하려고 그립니다 |
+| GIF와 **프레임** | 말로 만드는 애니메이션 이미지 |
+
+편집마다 새 버전이 되고, 모든 이미지는 [미디어](/ko/features/media)와 `~/Enconvo/Media`에 남습니다. 이미지를 움직이려면 **동영상 만들기**를 클릭하세요.
+
+### GPT Image 2.6
+
+GPT Image 2.6 Flare와 Sunburst는 OpenAI, Enconvo Cloud, PipeLLM, OpenRouter를 통해 쓸 수 있습니다. 복잡도 설정(낮음, 보통, 높음), 그린 마크업으로 안내하는 편집, SVG 또는 애니메이션 GIF 출력이 추가됩니다. SVG와 GIF는 말로 새 이미지를 만들며, 현재 이미지를 편집하지는 않습니다.
+
+## 제공업체
+
+[이미지 제공업체 카탈로그](/ko/providers/catalog)에는 OpenAI, Gemini, xAI, OpenRouter, PipeLLM, Pollinations, Kie.ai, Topview, Azure, Together와, 제공되는 경우 Enconvo Cloud 버전이 포함됩니다. OpenAI 제공업체는 ChatGPT 로그인을 자격 증명으로도 쓸 수 있습니다. 제공업체가 할 수 있는 일은 모델에 따라 다릅니다. 제공업체 이름만으로 모든 편집 방식이 되는 것은 아닙니다.
+
+## 문제 해결
+
+| 문제 | 할 일 |
+| --- | --- |
+| 이미지가 생성되지 않음 | 제공업체 접근과 모델을 확인한 뒤 제공업체 오류를 읽으세요 |
+| 편집이 이미지를 무시함 | 모뎄이 이미지 입력을 받는지, 파일이 메시지에 첨부됐는지 확인하세요 |
+| 입력 파일이 거부됨 | 제공업체가 파일 형식을 지원하는지 확인하세요 |
+| ChatGPT 로그인에서 GPT Image 2.6이 제공되지 않음 | OpenAI는 ChatGPT 요금제에 이를 제공하지 않습니다. OpenAI API 키 또는 Enconvo Cloud를 쓰세요 |
+| 원하는 설정이 편집기에 없음 | 고른 모델이 그 설정을 받지 않습니다. 다른 모델을 고르세요 |
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="미디어" icon="images" href="/ko/features/media">이미지, 동영상, 오디오 클립을 한곳에서.</Card>
+  <Card title="동영상 생성" icon="film" href="/ko/ai/video-generation">프롬프트나 이미지를 클립으로 만듭니다.</Card>
+  <Card title="미디어 유틸리티" icon="photo-film" href="/ko/features/media-tools">이미지, 동영상, 오디오를 압축합니다.</Card>
+  <Card title="제공업체 카탈로그" icon="list" href="/ko/providers/catalog">모든 이미지 제공업체와 설정.</Card>
+</CardGroup>

@@ -1,0 +1,65 @@
+---
+title: "Utilidades multimedia"
+description: "Comprime imágenes, vídeo y audio, guarda el sonido de un vídeo o descarga un vídeo desde un enlace."
+---
+
+Las utilidades multimedia son comandos locales para tareas cotidianas: hacer más pequeños archivos de imagen, vídeo o audio, guardar la banda sonora de un vídeo o descargar un vídeo de una página web. Encuéntralos en SmartBar, o en **Ajustes → Plugins**.
+
+| Comando | Qué hace | Guarda en |
+| --- | --- | --- |
+| **Image Compress** | Comprime una o varias imágenes, o todas las imágenes de una carpeta y sus subcarpetas, con calidad ajustable | Sustituye las imágenes originales |
+| **Video Compress** | Hace más pequeño un archivo de vídeo | `~/Downloads` |
+| **Audio Compress** | Hace más pequeño un archivo de audio según la calidad que elijas y conserva su portada (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Guarda la pista de audio de un vídeo, o de todos los vídeos de una carpeta, como M4A (MP3 cuando la pista no se puede copiar) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Descarga el vídeo o el audio de un enlace, como YouTube, TikTok, Instagram, Reddit, X o Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** sustituye tus imágenes originales por defecto. Para conservarlas, desactiva primero **Overwrite Original Image File** en sus ajustes; las copias comprimidas van entonces a una carpeta `enconvo-compressed-images` junto a las imágenes.
+</Warning>
+
+## Comprimir un archivo o extraer su audio
+
+1. Selecciona los archivos en Finder, o adjúntalos. Con Image Compress también puedes elegir una carpeta: se comprimen sus imágenes y las de sus subcarpetas, y las copias conservan la misma estructura de carpetas.
+2. Abre SmartBar y ejecuta el comando.
+3. Abre la salida y compruébala.
+
+Conserva el original mientras pruebas los ajustes de compresión. Los ajustes de cada comando están en **Ajustes → Plugins**: **Image Utils** para Image Compress y **Media Utils** para los demás.
+
+| Ajuste | Qué cambia |
+| --- | --- |
+| **Calidad** | De 0 a 100; más alto conserva más calidad y hace un archivo más grande. 80 por defecto |
+| **Ruta de la carpeta de destino** | Dónde va el archivo comprimido: una ruta absoluta, o una ruta relativa al archivo |
+| **Overwrite Original … File** | Sustituye el archivo original. Activado por defecto para imágenes, desactivado para vídeo y audio |
+
+## Descargar un vídeo
+
+1. Abre la página del vídeo en el navegador, o copia su enlace.
+2. Ejecuta **Online Video Downloader** desde SmartBar. Toma el enlace de la pestaña activa del navegador, o de un enlace que escribas.
+3. Sigue el progreso en Dynamic Island, donde puedes cancelar. Cuando termine, pulsa **Mostrar en Finder**.
+
+La descarga se guarda en tu historial de chat, y un archivo que ya descargaste se reutiliza en lugar de volver a obtenerlo. Que un sitio funcione depende del sitio y de lo que te deje acceder. Descarga solo contenido que tengas permiso para guardar.
+
+| Ajuste | Qué cambia |
+| --- | --- |
+| **Output Directory** | Dónde van las descargas. `~/Downloads` por defecto |
+| **Audio Only** | Descarga solo el audio |
+| **Favorite Resolution** | La resolución a descargar, desde **Best** (el valor por defecto) hasta 144p |
+| **Force Convert to Compatible MP4** | Convierte el vídeo a un MP4 que se reproduce en todas partes. Activado por defecto; lleva tiempo y CPU extra |
+| **Use Browser Cookies** | Inicia sesión con las cookies de tu navegador, para vídeos que solo tú puedes ver. Elige el navegador en **Navegador** |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| **No images to compress** | Selecciona las imágenes en Finder o adjúntalas, y vuelve a ejecutar el comando |
+| Una conversión falla | Comprueba el formato del archivo, que la carpeta de salida se pueda escribir y que tengas espacio libre en el disco |
+| Un vídeo privado no se descarga | Activa **Use Browser Cookies** y elige el navegador con el que has iniciado sesión |
+| Las descargas de un sitio dejan de funcionar | Lee el error y actualiza el plugin antes de volver a intentarlo. Los sitios web cambian sus formatos y sus reglas de acceso |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Generación de imágenes" icon="image" href="/es/ai/image-generation">Crea o edita una imagen en el chat.</Card>
+  <Card title="Generación de vídeo" icon="film" href="/es/ai/video-generation">Convierte una indicación o una imagen en un clip.</Card>
+  <Card title="Transcripción" icon="file-audio" href="/es/features/transcription">Convierte audio y vídeo en texto.</Card>
+</CardGroup>

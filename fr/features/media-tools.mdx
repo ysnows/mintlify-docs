@@ -1,0 +1,65 @@
+---
+title: "Utilitaires média"
+description: "Compressez des images, de la vidéo et de l’audio, enregistrez le son d’une vidéo, ou téléchargez une vidéo depuis un lien."
+---
+
+Les Utilitaires média sont des commandes locales pour les tâches média du quotidien : réduire des images, des vidéos ou des fichiers audio, enregistrer la piste sonore d’une vidéo, ou télécharger une vidéo depuis une page web. Trouvez-les dans la SmartBar, ou sous **Réglages → Plugins**.
+
+| Commande | Rôle | Enregistre dans |
+| --- | --- | --- |
+| **Image Compress** | Compresse une ou plusieurs images, ou toutes les images d’un dossier et de ses sous-dossiers, avec une qualité réglable | Remplace les images d’origine |
+| **Video Compress** | Réduit un fichier vidéo | `~/Downloads` |
+| **Audio Compress** | Réduit un fichier audio selon la qualité choisie, et conserve sa pochette (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Enregistre la piste audio d’une vidéo, ou de chaque vidéo d’un dossier, en M4A (MP3 quand la piste ne peut pas être copiée) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Télécharge la vidéo ou l’audio d’un lien, comme YouTube, TikTok, Instagram, Reddit, X ou Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** remplace vos images d’origine par défaut. Pour les garder, désactivez d’abord **Overwrite Original Image File** dans ses réglages ; les copies compressées vont alors dans un dossier `enconvo-compressed-images` à côté des images.
+</Warning>
+
+## Compresser un fichier ou extraire son audio
+
+1. Sélectionnez les fichiers dans le Finder, ou joignez-les. Pour Image Compress, vous pouvez aussi choisir un dossier : ses images et celles de ses sous-dossiers sont compressées, et les copies gardent la même arborescence.
+2. Ouvrez la SmartBar et lancez la commande.
+3. Ouvrez le résultat et vérifiez-le.
+
+Gardez l’original pendant que vous essayez les réglages de compression. Les réglages de chaque commande sont sous **Réglages → Plugins** : **Image Utils** pour Image Compress, et **Media Utils** pour les autres.
+
+| Réglage | Ce qu’il change |
+| --- | --- |
+| **Quality** | De 0 à 100 ; plus haut garde plus de qualité et fait un fichier plus gros. 80 par défaut |
+| **Destination Folder Path** | Où va le fichier compressé : un chemin absolu, ou un chemin relatif au fichier |
+| **Overwrite Original … File** | Remplace le fichier d’origine. Activé par défaut pour les images, désactivé pour la vidéo et l’audio |
+
+## Télécharger une vidéo
+
+1. Ouvrez la page de la vidéo dans votre navigateur, ou copiez son lien.
+2. Lancez **Online Video Downloader** depuis la SmartBar. Il prend le lien de l’onglet actif du navigateur, ou d’un lien que vous saisissez.
+3. Suivez la progression dans l’Île dynamique, où vous pouvez annuler. Une fois terminé, cliquez sur **Show in Finder**.
+
+Le téléchargement est enregistré dans l’historique du chat, et un fichier déjà téléchargé est réutilisé au lieu d’être récupéré à nouveau. Qu’un site fonctionne dépend du site et de ce qu’il vous laisse consulter. Ne téléchargez que du contenu que vous avez le droit d’enregistrer.
+
+| Réglage | Ce qu’il change |
+| --- | --- |
+| **Output Directory** | Où vont les téléchargements. `~/Downloads` par défaut |
+| **Audio Only** | Ne télécharge que l’audio |
+| **Favorite Resolution** | La résolution à télécharger, de **Best** (le défaut) jusqu’à 144p |
+| **Force Convert to Compatible MP4** | Convertit la vidéo en MP4 qui se lit partout. Activé par défaut ; cela prend plus de temps et de processeur |
+| **Use Browser Cookies** | Se connecte avec les cookies de votre navigateur, pour les vidéos que vous seul pouvez voir. Choisissez le navigateur dans **Browser** |
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| **No images to compress** | Sélectionnez les images dans le Finder ou joignez-les, puis relancez la commande |
+| Une conversion échoue | Vérifiez le format du fichier, que le dossier de sortie est accessible en écriture, et qu’il reste de l’espace disque |
+| Une vidéo privée ne se télécharge pas | Activez **Use Browser Cookies** et choisissez le navigateur où vous êtes connecté |
+| Les téléchargements d’un site cessent de fonctionner | Lisez l’erreur et mettez le plugin à jour avant de réessayer. Les sites changent leurs formats et leurs règles d’accès |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Génération d’images" icon="image" href="/fr/ai/image-generation">Créez ou modifiez une image dans le chat.</Card>
+  <Card title="Génération de vidéo" icon="film" href="/fr/ai/video-generation">Transformez une consigne ou une image en clip.</Card>
+  <Card title="Transcription" icon="file-audio" href="/fr/features/transcription">Transformez l’audio et la vidéo en texte.</Card>
+</CardGroup>

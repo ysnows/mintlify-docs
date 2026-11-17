@@ -1,0 +1,81 @@
+---
+title: "Transmitir uma personagem Live Photo"
+description: "Coloque uma personagem Live Photo numa transmissão OBS com legendas, e deixe-a responder em voz alta ao chat em direto do Twitch, Kick ou YouTube."
+---
+
+Uma [personagem Live Photo](/pt-br/features/avatar) pode apresentar uma transmissão em direto. O Enconvo dá ao OBS um palco com a imagem em movimento dela e uma página de legendas, e ela pode ler o chat da transmissão e responder aos espectadores em voz alta através do Agente.
+
+## Antes de começar
+
+- Crie uma personagem Live Photo em **Definições → Avatar** e ligue-a a um Agente.
+- Instale o OBS Studio. **Obter o OBS Studio** no painel da transmissão liga para ele.
+
+<Note>
+A Atmee fatura o vídeo em direto dela ao minuto enquanto uma chamada corre, transmita ou não, e enquanto ela diz respostas no modo em direto.
+</Note>
+
+## Abrir o painel da transmissão
+
+1. Abra **Definições → Avatar** e a aba **Live Photo**.
+2. Clique em **Entrar em direto** no cartão dela.
+
+O painel da transmissão mostra o palco dela, as legendas, a orientação (**Vertical 9:16** ou **Horizontal 16:9**) e o estado da transmissão do OBS. O palco mostra-a quando o Avatar dela está aberto.
+
+## Adicioná-la ao OBS
+
+1. No OBS, abra **Tools → WebSocket Server Settings**, marque **Ativar servidor WebSocket** e clique em **Aplicar**.
+2. Clique em **Mostrar informações de ligação** e copie a senha do servidor.
+3. No painel da transmissão, clique em **Ligar o OBS** e cole a senha. O Enconvo guarda-a com as outras credenciais.
+4. Clique em **Adicionar ao OBS**. O Enconvo cria uma cena chamada “Enconvo · *her name*” com o palco e as legendas dela, no tamanho da sua transmissão.
+5. Comece a transmitir no OBS, ou com **Entrar em direto** no painel. **Terminar transmissão** para-a.
+
+Se mudar a orientação, clique de novo em **Adicionar ao OBS** para redimensionar a cena dela. Para construir a cena você mesmo, adicione a página de palco transparente e a página de legendas do painel ao OBS como fonte **Navegador**.
+
+## Escolher o fundo dela
+
+Em **Segundo plano** no painel, escolha o que o OBS recebe atrás dela. O OBS mostra exatamente o que a pré-visualização do palco mostra.
+
+| Escolha | O que o OBS recebe |
+| --- | --- |
+| **Transparente** | Só ela, com alfa. A cena do OBS aparece atrás dela. |
+| **Cor** | Um fotograma cheio numa cor, como **Ecrã verde** ou uma **Cor personalizada**. |
+| **Imagem** | Um fotograma cheio na sua própria imagem, guardada neste Mac. |
+| **Foto desfocada** | Um fotograma cheio na foto dela, desfocada. |
+| **Foto original** | A foto original dela. |
+
+Uma personagem guardada com um **Fundo** enquadrado mantém a própria foto e moldura; o fundo aplica-se a personagens recortadas.
+
+## Deixá-la responder ao chat em direto
+
+1. No painel da transmissão, introduza o **Canal do Twitch** ou o **Canal do Kick**, ou ligue o YouTube com a sua chave da YouTube Data API.
+2. Defina a quem ela responde: espectadores que a mencionam, que pedem com `!ask`, ou que pagam. Defina esperas por espectador e gerais e palavras bloqueadas, e ligue a fila de aprovar primeiro se quiser aprovar cada pergunta.
+3. Clique em **Iniciar chat em direto**.
+
+Ela responde através do Agente, em voz alta.
+
+### Modo em direto
+
+Ative **Modo em direto** no painel e ela diz cada resposta no palco do OBS com os lábios a mover-se, sem chamada. Com isto desligado, as respostas são lidas em voz alta neste Mac.
+
+## Som
+
+Durante uma chamada, enquanto um palco a mostra, a voz dela sai só do OBS. Ative **Reproduzir também neste Mac** para a ouvir também no Mac.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| O palco está vazio | Abra o Avatar dela. Numa chamada, o palco mostra-a em direto. |
+| O OBS não liga | Confira se **Ativar servidor WebSocket** está marcado no OBS e cole a senha de novo. |
+| A cena dela tem o tamanho errado | Clique de novo em **Adicionar ao OBS** depois de mudar a orientação. |
+| O fundo não muda | A personagem foi guardada com um **Fundo** enquadrado. Os fundos aplicam-se a personagens recortadas. |
+| Você ouve-a duas vezes, ou não a ouve | Confira **Reproduzir também neste Mac**. |
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Avatares" icon="user" href="/pt-br/features/avatar">Crie uma personagem Live Photo.</Card>
+  <Card title="Agentes" icon="robot" href="/pt-br/ai/agents">Configure o Agente que responde aos espectadores.</Card>
+  <Card title="Gestão de credenciais" icon="key" href="/pt-br/configuration/credentials">Onde ficam a senha do OBS e as chaves de API.</Card>
+  <Card title="Live Talk" icon="phone" href="/pt-br/features/live-voice">Escolha a voz que ela usa nas chamadas.</Card>
+</CardGroup>

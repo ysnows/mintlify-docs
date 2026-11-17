@@ -1,0 +1,116 @@
+---
+title: "Computer und SSH-Hosts"
+description: "Lass deine Agenten auf deinen anderen Computern und auf Servern arbeiten, die du über SSH erreichst, und steuere, wer diesen Mac erreichen kann."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Deine Agenten können auf mehr als diesem Mac arbeiten. Füge einen Server hinzu, bei dem du dich mit SSH anmeldest, erwähne ihn in einem Chat und frage, so wie du zu deinem eigenen Mac fragen würdest: der Agent führt die Befehle dort aus und antwortet hier. Auf dem Server wird nichts installiert. Deine anderen Computer, auf denen Enconvo läuft, lassen sich genauso koppeln.
+
+Das Video unten fügt einen SSH-Host aus deiner SSH-Konfiguration hinzu, bittet den Agenten, dort ein Protokoll zu lesen, und zeigt, wer diesen Mac erreichen kann.
+
+<YouTubePlayer videoId="ojtTTtqTod4" title="Computer und SSH-Hosts in Enconvo" />
+
+## Bevor du anfängst
+
+- Du brauchst einen Server, bei dem du dich von diesem Mac mit `ssh` anmelden kannst: einen Host in `~/.ssh/config` oder eine Adresse, die du als `user@host` tippen kannst. Enconvo nutzt das eigene `ssh` und die Schlüssel dieses Mac. Wenn der Server nach einem Passwort oder einer Passphrase fragt, fragt `ssh` über Enconvo, und Enconvo behält nichts davon.
+- Für einen Server in deinem lokalen Netzwerk erlaube Enconvo unter **Systemeinstellungen → Datenschutz & Sicherheit → Lokales Netzwerk**.
+
+## Was Verbindungen listet
+
+Öffne **Einstellungen → Verbindungen**. Es hat drei Listen:
+
+| Liste | Was sie enthält |
+| --- | --- |
+| **Telefone** | Die mit diesem Mac gekoppelten iPhone- und Android-Apps. Siehe [iPhone-App](/de/integrations/iphone-app). |
+| **Computer** | Deine anderen Computer, auf denen Enconvo läuft und die mit diesem Mac gekoppelt sind. Jeder steht einmal, mit der Richtung der Steuerung. Klicke auf **Computer koppeln**, um einen hinzuzufügen. Siehe [Deine anderen Computer](/de/integrations/other-computers). |
+| **SSH-Hosts** | Server, die deine Agenten über SSH erreichen, ohne dass dort etwas installiert ist. |
+
+Klicke auf ein Telefon oder einen Computer, um seine eigene Seite zu öffnen, mit dem, was er auf diesem Mac tun kann.
+
+Du kannst auch aus dem Chatfenster einen Host hinzufügen, einen Computer koppeln oder ein Telefon koppeln: klicke unten in der Seitenleiste auf den Geräteumschalter und dann auf **Gerät hinzufügen**.
+
+## Einen SSH-Host hinzufügen
+
+1. Öffne **Einstellungen → Verbindungen** und klicke unter **SSH-Hosts** auf **Host hinzufügen**.
+2. Die Liste zeigt die Hosts in deiner `~/.ssh/config`. Wähle einen, etwa `build-server`, oder tippe `user@host` (oder `user@host:port`).
+3. Klicke auf **Verbinden**. Enconvo testet die Verbindung: es erreicht den Host, prüft den Host-Schlüssel, meldet sich an und führt einen Befehl aus.
+4. Wähle unter **Vor jedem Befehl**, wie der Agent fragt, bevor er dort einen Befehl ausführt:
+   - **Dem Chat folgen**: fragt so, wie der Berechtigungsmodus des Chats sagt. Siehe [Aktionen genehmigen](/de/ai/agents).
+   - **Immer fragen**: fragt vor jedem Befehl.
+5. Klicke auf **Host hinzufügen**.
+
+Der Host erscheint jetzt unter **SSH-Hosts** und im `@`-Menü jedes Chats.
+
+Wenn Enconvo den Host-Schlüssel eines Servers zum ersten Mal sieht, prüfe den Schlüssel mit der Person, die den Server betreibt, und klicke dann auf **Vertrauen und verbinden**. Auf einem Linux-Server bietet der Dialog außerdem **Enconvo dort auch installieren**, was den Server als Computer koppelt. Lass es aus, um nichts zu installieren.
+
+## Den Agenten auf einem Host arbeiten lassen
+
+1. Tippe in einem Chat `@` und den Anfang des Hostnamens. Deine Computer und SSH-Hosts stehen unter **Computer**.
+2. Wähle den Host. Er geht als Chip in die Nachricht.
+3. Bitte um das, was dort getan werden soll, und sende. Zum Beispiel:
+
+   ```text
+   @build-server What errors are in ~/app/logs/app.log? Just read it, don't change anything.
+   ```
+
+Der Agent führt die Befehle über SSH auf dem Host aus und fragt zuerst so, wie du es für diesen Host gewählt hast. Jeder Befehlsschritt nennt den Host, auf dem er lief. Die Antwort kommt im Chat zurück.
+
+Um zu sehen, was er ausgeführt hat, klicke über der Antwort auf **Gearbeitet für**. Die Faltung listet jeden Befehl.
+
+Einen gekoppelten Computer kannst du genauso erwähnen. Der Agent übergibt die Aufgabe dem eigenen Agenten dieses Computers oder führt dort Befehle aus, wenn dieser Computer Terminal für diesen Mac erlaubt.
+
+Im Chat liest ein auf einem Host oder einem anderen Computer ausgeführter Befehl **Befehl ausgeführt**, und jeder Schritt nennt die Maschine.
+
+## Agenten auf einem gekoppelten Computer arbeiten lassen
+
+Klicke unter **Einstellungen → Verbindungen** unter **Computer** auf einen Computer, um seine Seite zu öffnen. Zwei Schalter entscheiden, was Agenten in Chats hier damit tun dürfen:
+
+| Schalter | Was er tut |
+| --- | --- |
+| **Agenten** | Seine Agenten zu Projekten hinzufügen oder einen Chat an einen übergeben. Die Aufgabe läuft auf diesem Computer, und alles, was sein Agent tun will, fragt dich dort zuerst. |
+| **Befehle** | Agenten in Chats hier dürfen dort Befehle ausführen und fragen so, wie der Berechtigungsmodus des Chats sagt. |
+
+Ein abgeblendeter Schalter bedeutet, dass der andere Computer es nicht erlaubt hat: schalte dort **Agenten** oder **Terminal** für diesen Mac ein. **Befehle** auszuschalten stoppt auch Befehle über einen SSH-Host für denselben Computer.
+
+Damit die Agenten eines anderen Computers Bildschirm und Browser dieses Mac direkt nutzen können, schalte auf der Seite dieses Computers hier **Agentensteuerung** ein. Siehe [Deine anderen Computer](/de/integrations/other-computers).
+
+## Die Einstellungen eines Hosts ändern
+
+Klicke unter **SSH-Hosts** auf einen Host, um seine Seite zu öffnen:
+
+| Einstellung | Was sie tut |
+| --- | --- |
+| **Agenten dürfen ihn nutzen** | Aus hält den Host in der Liste, aber aus jedem Chat heraus. |
+| **Vor jedem Befehl** | **Dem Chat folgen** oder **Immer fragen**. |
+| **Dateien kopieren** | Lässt Agenten Dateien mit `scp` zum Host und vom Host kopieren. |
+| **Startet in** | Der Ordner, in dem Befehle starten. Leer bedeutet den Anmeldeordner. |
+
+Das Menü **⋯** der Seite hat **Verbindung testen** und **Host entfernen…**. Einen Host zu entfernen vergisst ihn in Enconvo. Deine `~/.ssh/config` und der Server bleiben, wie sie sind.
+
+## Sehen, wer diesen Mac erreichen kann
+
+**Wer diesen Mac erreichen kann** unter **Einstellungen → Verbindungen** zeigt, wie viele Telefone und Computer diesen Mac erreichen können.
+
+Um sie alle auf einmal abzuschneiden, klicke auf **Allen Zugriff stoppen** und bestätige. Deine Telefone und anderen Computer können keinen deiner Macs mehr erreichen, und was dort läuft, stoppt. Klicke auf **Zugriff wieder einschalten**, wenn du sie zurückwillst.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Der Test erreicht einen Server in deinem lokalen Netzwerk nicht | macOS hält die Verbindung für die Berechtigung Lokales Netzwerk zurück. Klicke auf **Lokales Netzwerk für Enconvo erlauben** oder schalte Enconvo unter **Systemeinstellungen → Datenschutz & Sicherheit → Lokales Netzwerk** ein und versuche es erneut. |
+| Der Test sagt, der Server habe deinen Schlüssel abgelehnt | Prüfe `IdentityFile` für den Host in `~/.ssh/config` oder füge den Schlüssel mit `ssh-add` hinzu. |
+| Der Server hat mit einem anderen Host-Schlüssel geantwortet | Er wurde vielleicht neu aufgesetzt, oder etwas sitzt zwischen dir und ihm. Wenn er neu aufgesetzt wurde, entferne den alten Schlüssel im Terminal mit `ssh-keygen -R` gefolgt von der Adresse des Servers und versuche es erneut. |
+| Der Host ist nicht im `@`-Menü | Öffne die Seite des Hosts und schalte **Agenten dürfen ihn nutzen** ein. |
+| Ein falsches Passwort oder eine falsche Passphrase | Das Feld öffnet sich erneut und sagt, dass es nicht funktioniert hat. Tippe es erneut. |
+| Ein Computer hat zwei SSH-Hosts | Der erste Host bleibt mit dem Computer verknüpft, und seine Seite zeigt diesen. Ihn zu entfernen verknüpft den anderen. |
+| `~/.ssh/config` hat keine Hosts | Tippe die Adresse unter **Host hinzufügen** als `user@host`. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Deine anderen Computer" icon="laptop" href="/de/integrations/other-computers">Einen Computer koppeln und seine Chats, seinen Bildschirm und seine Dateien nutzen.</Card>
+  <Card title="iPhone-App" icon="mobile" href="/de/integrations/iphone-app">Ein Telefon koppeln, die erste Liste in Verbindungen.</Card>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Berechtigungsmodi und wie der Agent fragt, bevor er handelt.</Card>
+  <Card title="Computernutzung" icon="computer-mouse" href="/de/features/computer-use">Den Agenten Apps auf diesem Mac nutzen lassen.</Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "Ollama"
+description: "Discutez avec des modèles servis par Ollama sur votre Mac ou sur un autre ordinateur."
+---
+
+Utilisez Ollama pour exécuter des modèles sur votre propre matériel, sur ce Mac ou sur un autre ordinateur de votre réseau. Enconvo envoie les chats au serveur Ollama, donc aucun compte fournisseur n’est nécessaire.
+
+## Connecter sur ce Mac
+
+<Steps>
+  <Step title="Démarrer Ollama">
+    Installez [Ollama](https://ollama.ai/), démarrez-le et téléchargez un modèle avec les outils propres à Ollama.
+  </Step>
+  <Step title="Pointer Enconvo vers lui">
+    Ouvrez **Réglages → Modèle d’IA → Ollama**. Sous **Authentification**, laissez **BaseUrl** sur `http://127.0.0.1:11434`, sauf si vous avez changé le port d’Ollama.
+  </Step>
+  <Step title="Choisir un modèle">
+    Choisissez un modèle dans **Nom du modèle** et envoyez un court message. Une réponse signifie que la connexion fonctionne.
+  </Step>
+</Steps>
+
+## Se connecter à un autre ordinateur
+
+1. Sur l’autre ordinateur, réglez Ollama pour accepter les connexions de votre réseau, pas seulement les siennes.
+2. Dans Enconvo, définissez **BaseUrl** sur l’adresse réseau de cet ordinateur, en conservant le port et le chemin. `127.0.0.1` et `localhost` désignent toujours le Mac qui exécute Enconvo.
+3. Si macOS bloque la connexion, activez Enconvo dans **Réglages Système → Confidentialité et sécurité → Réseau local**.
+
+N’ouvrez le serveur qu’aux réseaux auxquels vous faites confiance.
+
+## Modèles et options
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Nom du modèle** | Le modèle que ce fournisseur utilise. **Actualiser** à côté recharge la liste depuis le serveur. |
+| **Délai de réponse** | Combien de temps attendre que le serveur commence ou poursuive une réponse. La valeur par défaut est **Sans limite** ; les longs prompts peuvent prendre plusieurs minutes sur votre propre matériel avant le premier mot. |
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Connexion refusée | Vérifiez qu’Ollama est en cours d’exécution et que **BaseUrl** a la bonne adresse et le bon port. Pour un autre ordinateur, vérifiez qu’il accepte les connexions réseau. |
+| Réseau inaccessible | Vérifiez le réseau, et l’autorisation **Réseau local** dans les Réglages Système. |
+| La liste des modèles est vide | Chargez ou téléchargez un modèle dans Ollama, puis cliquez sur **Actualiser**. |
+| Une réponse s’arrête en cours de route | Réglez **Délai de réponse** sur une valeur plus longue ou sur **Sans limite**. |
+| Les outils ou les images échouent | Choisissez un modèle qui prend en charge les appels d’outils ou l’entrée d’images. |
+| Mémoire insuffisante | Choisissez un modèle plus petit, ou raccourcissez la saisie. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Modèles locaux" icon="microchip" href="/fr/ai/local-llm">Gardez toute une tâche sur votre Mac, pas seulement le modèle de chat.</Card>
+  <Card title="LLM local (MLX)" icon="laptop" href="/fr/providers/mlx">Exécutez des modèles dans Enconvo lui-même, sans serveur.</Card>
+  <Card title="LM Studio" icon="server" href="/fr/providers/lm-studio">Utilisez des modèles servis par LM Studio.</Card>
+  <Card title="Autorisations" icon="shield" href="/fr/configuration/permissions">Réseau local et autres autorisations macOS.</Card>
+</CardGroup>

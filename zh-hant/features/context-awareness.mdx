@@ -1,0 +1,81 @@
+---
+title: "上下文感知"
+description: "選擇 SmartBar 從你剛才使用的 App 中抓取哪些內容，並用 # 加入更多上下文。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+上下文是指隨你的問題一併傳送的內容：你選取的文字、在 Finder 中選取的檔案、瀏覽器中開啟的網頁，或是一張螢幕截圖。SmartBar 在開啟時可以自動抓取其中一部分，你也可以輸入 `#` 加入更多內容。這樣代理程式就能直接針對你眼前所看的內容作答，無須你多作解釋。
+
+<YouTubePlayer videoId="VKhyKibToAw" title="上下文感知概覽與示範" />
+
+## 選擇 SmartBar 要抓取的內容
+
+1. 開啟 **設定 → 上下文感知**。
+2. 在 **開啟 Smart Bar 時** 下方，將每個來源設為 **自動加入**、**建議** 或 **關閉**。
+3. 切換到另一個 App、選取一些內容，然後開啟 SmartBar 查看效果。
+
+| 來源 | 加入的內容 | 預設值 |
+| --- | --- | --- |
+| **選取的文字** | 你剛才使用的 App 中選取的文字 | **自動加入** |
+| **Finder 選取項目** | 在 Finder 中選取的檔案與資料夾 | **建議** |
+| **瀏覽器目前網頁** | 在 Safari、Chrome、Arc、Edge 或其他 Chromium 瀏覽器中開啟的網頁 | **建議** |
+
+**自動加入** 會在 SmartBar 一開啟時就把該來源加入輸入框。**建議** 會將它列在指令上方，點一下即可加入。**關閉** 則不使用該來源。
+
+這些設定僅適用於 SmartBar。你針對選取內容執行的指令一律會收到選取的文字。第一次加入 Finder 或瀏覽器上下文時，macOS 會詢問是否允許 Enconvo 控制該 App。
+
+## 用 # 加入上下文
+
+1. 在 SmartBar 中輸入 `#`。
+2. 輸入關鍵字來縮小清單範圍，例如 `#screen`、`#finder`、`#clipboard` 或 `#browser`。
+3. 挑選一個來源，它就會加入你的訊息中。
+4. 輸入問題並傳送。
+
+| 來源 | 加入的內容 |
+| --- | --- |
+| **Selected Text** | 目前視窗中選取的文字 |
+| **Clipboard Text** | 剪貼簿中的文字 |
+| **Current Application Content** | 最前方 App 的文字內容 |
+| **Current Application Screenshot** | 最前方 App 的螢幕截圖 |
+| **Current Screen Screenshot** | 整個螢幕的螢幕截圖 |
+| **Live Screen Screenshot** | 不包含 Enconvo 視窗的螢幕截圖 |
+| **User Select Area Screenshot** | 你框選區域的螢幕截圖 |
+| **Finder Selected Items** | 在 Finder 中選取的檔案與資料夾 |
+| **Finder Current Directory URL** | Finder 中開啟的資料夾 |
+| **Browser Current Tab URL** | 瀏覽器目前分頁的網址 |
+
+清單中也會列出你開啟的視窗，因此你可以加入其他 App 的視窗。如果想使用 `#` 以外的字元，可以在 **設定 → SmartBar** 的 **搜尋** 下方更改 **上下文** 字元。
+
+## 可以提問的內容
+
+附加瀏覽器網頁後，可以請 Enconvo 摘要網頁、翻譯內容，或擷取關鍵資訊。附加 Finder 檔案後，可以請它描述這些檔案、建議整理方式、協助批次重新命名，或分析檔案內容。
+
+<Note>
+你附加的上下文會傳送給負責回答的模型，或傳送給處理該請求的服務供應商。處理敏感內容前，請先確認附加的項目與你的服務供應商設定。
+</Note>
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 選取的文字沒有自動加入 | 確認 **選取的文字** 已設為 **自動加入**，並檢查[權限](/zh-hant/configuration/permissions)。 |
+| 缺少 Finder 或瀏覽器上下文 | 當 macOS 詢問時，允許 Enconvo 控制該 App。如果先前拒絕過，請在[權限](/zh-hant/configuration/permissions)中重新允許。 |
+| 輸入 `#` 沒有開啟清單 | 檢查 **設定 → SmartBar** 中的 **上下文** 字元設定。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh-hant/features/smartbar">
+    在 SmartBar 提問中使用上下文。
+  </Card>
+  <Card title="Appshots" icon="window-maximize" href="/zh-hant/features/appshots">
+    一鍵將最前方的 App 視窗加入對話。
+  </Card>
+  <Card title="螢幕塗鴉" icon="pen" href="/zh-hant/features/screen-doodle">
+    提問前先在螢幕上標記區域。
+  </Card>
+  <Card title="OCR" icon="text" href="/zh-hant/ai/ocr">
+    從圖片中擷取文字。
+  </Card>
+</CardGroup>

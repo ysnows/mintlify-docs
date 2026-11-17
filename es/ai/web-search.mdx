@@ -1,0 +1,99 @@
+---
+title: "Búsqueda web"
+description: "Deja que tu Agente busque en la web información actual y cite sus fuentes."
+---
+
+La Búsqueda web da a tus Agentes resultados actuales de la web. Todos los Agentes pueden buscar; tú eliges el servicio de búsqueda que usan, aparte del modelo que escribe la respuesta.
+
+## Elegir un proveedor de búsqueda
+
+1. Abre **Ajustes → Búsqueda web**.
+2. Elige un proveedor. Las opciones de Enconvo Cloud no necesitan clave de API; para la mayoría de las demás, añade tu clave de ese servicio.
+3. Pulsa **Establecer como predeterminado**.
+
+| Proveedor | Notas |
+| --- | --- |
+| **Automático** | Busca con la búsqueda web propia del modelo de chat y recurre a otro proveedor cuando el modelo no tiene ninguna. Consulta [Buscar con la búsqueda propia del modelo](/es/ai/web-search). |
+| **Enconvo Cloud** | Gratis para todas las cuentas con sesión iniciada, sin clave de API |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search a través de Enconvo Cloud, gratis para todas las cuentas con sesión iniciada |
+| **Gemini** | Grounding with Google Search a través de un modelo Gemini |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Búsqueda con tu propia clave de ese servicio |
+| **Parallel** | El índice de búsqueda de IA de Parallel, que devuelve los pasajes más relevantes de cada página, con tu clave de API de Parallel |
+| **PipeLLM** | Resultados de Google a través de tu clave de [PipeLLM](/es/providers/pipellm) |
+| **DeepSeek** | DeepSeek Search con tu clave de API de DeepSeek |
+| **xAI X Search** | Busca publicaciones, perfiles e hilos de X, con una clave de API de xAI o inicio de sesión de xAI |
+| **xAI X Search (Enconvo Cloud)** | Búsqueda en X a través del plan de Enconvo Cloud |
+
+La lista de proveedores marca las opciones gratuitas. Consulta el [catálogo de proveedores](/es/providers/catalog) para la lista completa. Algunos modelos también tienen opciones integradas de grounding o búsqueda en los ajustes de su propio proveedor.
+
+## Buscar con la búsqueda propia del modelo
+
+Con **Automático**, cada búsqueda se ejecuta en la búsqueda web del modelo que usa el chat, cuando ese modelo tiene una: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai y OpenRouter. Usa la clave o el inicio de sesión que conectaste para ese modelo, y el proveedor del modelo la factura.
+
+Cuando el modelo no tiene búsqueda propia, o su búsqueda falla, Automático usa la **Búsqueda de respaldo**, que es **Enconvo Cloud** salvo que elijas otro proveedor.
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Ruta de búsqueda** | Muestra qué búsqueda se ejecuta para el modelo de chat y qué pasa si falla. |
+| **Preferir la búsqueda propia del modelo** | Activado por defecto. Desactívalo para usar siempre la búsqueda de respaldo. |
+| **Búsqueda de respaldo** | El proveedor que se usa cuando el modelo no tiene búsqueda o esta falla. |
+
+En el chat, cada paso de búsqueda web indica qué búsqueda respondió y por qué Automático recurrió a otra cuando lo hizo.
+
+## Usar Parallel
+
+1. Consigue una clave de API en [Parallel](https://platform.parallel.ai).
+2. Añádela en **Ajustes → Gestión de credenciales → Parallel**.
+3. En **Ajustes → Búsqueda web**, elige **Parallel** y un **Search Mode**:
+
+| Search Mode | Úsalo para |
+| --- | --- |
+| **Turbo** | Las respuestas más rápidas. Solo lee consultas en inglés y japonés. |
+| **Fast** | La mayoría de las búsquedas. El predeterminado. |
+| **Basic** | Pasajes más largos de cada página. |
+| **Advanced** | La búsqueda más profunda. Tarda unos 3 segundos y cuesta más. |
+
+Parallel carga cada búsqueda en tu cuenta de Parallel.
+
+## Buscar con un Agente
+
+1. Haz una pregunta concreta. Incluye un intervalo de fechas o un lugar cuando importe.
+2. El Agente busca y responde con enlaces a sus fuentes.
+3. Abre las fuentes citadas y comprueba que respalden la respuesta.
+
+Prueba:
+
+> Encuentra las notas de la versión oficial de la última versión estable de esta biblioteca y resume los cambios incompatibles con enlaces.
+
+## Elegir la capacidad web adecuada
+
+| Necesidad | Usa |
+| --- | --- |
+| Descubrir fuentes relevantes | Búsqueda web |
+| Leer una URL conocida | [Web Fetch](/es/ai/web-fetch) |
+| Abrir resultados en tu navegador | [Quick Links](/es/features/quick-links) |
+| Interactuar con un sitio con sesión iniciada | [Uso del navegador](/es/features/browser-control) |
+| Buscar publicaciones, perfiles o hilos de X | Proveedor **xAI X Search** |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| La respuesta no tiene fuentes | Comprueba que el Agente haya buscado en lugar de responder solo con el modelo. Pídele que busque en la web. |
+| El proveedor informa de un error | Comprueba la credencial del proveedor y el cupo de tu cuenta en ese servicio. |
+| Automático usó la búsqueda de respaldo | El modelo de chat no tiene búsqueda web propia, o su búsqueda falló. El paso de búsqueda del chat indica cuál. |
+| El resultado está detrás de un inicio de sesión o en una página interactiva | Usa un flujo de navegador compatible, como [Uso del navegador](/es/features/browser-control). Obtener una URL pública no da acceso a tu sesión iniciada. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Web Fetch" icon="link" href="/es/ai/web-fetch">
+    Lee una página de la que ya tienes la URL.
+  </Card>
+  <Card title="Uso del navegador" icon="globe" href="/es/features/browser-control">
+    Trabaja con sitios con sesión iniciada e interactivos.
+  </Card>
+  <Card title="Catálogo de proveedores" icon="list" href="/es/providers/catalog">
+    Todos los proveedores de búsqueda web que admite Enconvo.
+  </Card>
+</CardGroup>

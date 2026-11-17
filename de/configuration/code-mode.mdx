@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Einen Agenten ein kurzes Skript schreiben lassen, das viele Werkzeugaufrufe auf einmal macht und nur das Ergebnis zurückliest."
+---
+
+Code Mode lässt einen Agenten in einem Schritt tun, was sonst viele bräuchte: Er schreibt ein kurzes Skript, das viele Werkzeugaufrufe macht, nebeneinander oder der Reihe nach, und liest nur das Ergebnis zurück. Nimm es, wenn eine Aufgabe denselben Aufruf über viele Einträge wiederholt, etwa eine Liste von Seiten prüfen oder Ergebnisse aus mehreren Diensten sammeln, damit die Arbeit schneller ist und der Chat sich nicht mit jedem Zwischenergebnis füllt.
+
+Du rufst Code Mode nicht selbst auf. Ist er an, nutzt der Agent ihn, sobald eine Aufgabe passt, und der Chat zeigt eine Karte mit den Aufrufen, die das Skript gemacht hat.
+
+## Code Mode einrichten
+
+1. Öffne **Einstellungen → Code Mode**. Du kannst **Code Mode** auch im Tab **Eingebaut** der Plugin-Seite öffnen.
+2. Unter **Skriptzugriff** schalte ein, was ein Skript aufrufen darf. Jeder Aufruf fragt dich weiterhin so, wie der [Berechtigungsmodus](/de/ai/agents) des Chats es sagt.
+3. Wähle, welche Modelle Skripte schreiben dürfen, was der Chat zeigt und was passiert, wenn ein Skript lange läuft.
+
+## Einstellungen
+
+**Skriptzugriff** listet, was ein Skript aufrufen darf:
+
+| Zugriff | Was er erlaubt | Standard |
+| --- | --- | --- |
+| **Plugins** | Suche, Wissensdatenbank, Dokumente und andere Plugin-Routen | An |
+| **Connectors und MCP** | Verknüpfte Konten und MCP-Werkzeuge | An |
+| **Dateien** | Dateien lesen und schreiben | An |
+| **Shell-Befehle** | Befehle in einem Terminal ausführen | An |
+| **Browser** | [Browsernutzung](/de/features/browser-control), in deinem eigenen Browser | An |
+| **Apps** | [Computernutzung](/de/features/computer-use), innerhalb ihrer App-Zugriffsliste | An |
+| **Andere Agenten** | Unteragenten starten oder anschreiben | Aus |
+| **Modellaufrufe** | Ein kleines Modell, um Einträge zusammenzufassen oder zu bewerten | An |
+
+Die weiteren Optionen:
+
+| Option | Auswahl |
+| --- | --- |
+| **Verwenden mit** | **Modelle, die gut Code schreiben** (andere machen ihre Aufrufe einzeln), oder **Jedes Modell**. |
+| **Im Chat zeigen** | **Die Aufrufe**, oder **Die Aufrufe und den Code**. |
+| **Wenn ein Skript lange läuft** | **Weiterlaufen, bis zu 2 Stunden** im Hintergrund, oder **Nach 10 Minuten stoppen**. |
+
+## Code Mode außerhalb eines Chats
+
+Läuft ein Skript außerhalb eines Chats, etwa in einer Automatisierung, ruft es nur Werkzeuge auf, die lesen: eingebaute Suchen und Lesezugriffe, öffentliche Webseiten, gewöhnliche Dateien und MCP-Werkzeuge, die nicht angeben, etwas zu ändern. Enconvo prüft jeden Aufruf erneut, unmittelbar bevor er läuft.
+
+## Ein Skript in einer Fähigkeit nutzen
+
+Eine Fähigkeit kann ein Code-Mode-Skript im eigenen Ordner `scripts` behalten und es als einen ihrer Schritte ausführen. Siehe [Fähigkeiten](/de/configuration/skills).
+
+## Fehlerbehebung
+
+| Problem | Was tun |
+| --- | --- |
+| Der Agent macht seine Aufrufe einzeln | Prüfe **Verwenden mit**. Bei **Modelle, die gut Code schreiben** nutzen andere Modelle Code Mode nicht. |
+| Ein Skript erreicht ein Werkzeug nicht | Schalte diese Art Zugriff unter **Skriptzugriff** ein. Außerhalb eines Chats lesen Skripte nur. |
+| Ein langes Skript ist gestoppt | Bei **Nach 10 Minuten stoppen** enden längere Skripte. Wähle **Weiterlaufen, bis zu 2 Stunden**. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Werkzeuge und Berechtigungen eines Agenten wählen.</Card>
+  <Card title="Fähigkeiten" icon="star" href="/de/configuration/skills">Eine wiederholbare Aufgabe speichern, mit eigenen Skripten.</Card>
+  <Card title="Code Runner" icon="terminal" href="/de/ai/code-runner">Code und Shell-Befehle ausführen.</Card>
+  <Card title="MCP-Server" icon="plug" href="/de/features/mcp">Externe Dienste als Werkzeuge verbinden.</Card>
+</CardGroup>

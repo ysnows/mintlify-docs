@@ -1,0 +1,230 @@
+---
+title: "Proyectos y el Tablero"
+description: "Reúne los chats, las ideas y el equipo de un Proyecto, encarga tareas a Agentes y agentes de código, y sigue cada tarea en el Tablero."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Un Proyecto reúne los chats, las ideas y el equipo de una carpeta. Escribes lo que quieres como una idea, el líder del Proyecto lo planifica con el equipo y cada tarea avanza por el Tablero hasta que está hecha. Usa un Proyecto para un trabajo continuado, como un sitio web o una app, cuando quieras ver de un vistazo qué está en marcha y qué te necesita.
+
+El vídeo de abajo abre un Proyecto, añade una idea que encarga parte del trabajo a Claude Code, la sigue en el Tablero, y archiva y restaura el Proyecto.
+
+<YouTubePlayer videoId="sDHMeGn6iX0" title="Proyectos y el Tablero en Enconvo" />
+
+## Antes de empezar
+
+Necesitas un Proyecto. Pulsa **+** junto a **Proyectos** en la barra lateral de la Ventana de chat y elige una carpeta: consulta [Crear un Proyecto](/es/ai/agent-orchestrator). Para encargar tareas a un agente de código como Claude Code o Codex, instálalo e inicia sesión primero: consulta [Agentes de código](/es/ai/coding-agents).
+
+## Abrir un Proyecto
+
+Pulsa el Proyecto en la barra lateral. Su página tiene tres pestañas:
+
+| Pestaña | Qué muestra |
+| --- | --- |
+| **Chat** | El chat del Proyecto con su líder, y un panel de lo que te necesita. |
+| **Tablero** | Las ideas del Proyecto, de **Sin empezar** a **Planificando** e **En curso**, hasta **Hecho**. |
+| **Equipo y ajustes** | Quién está en el equipo, y cuándo el equipo te consulta. |
+
+Las caras del equipo, el líder primero, aparecen arriba a la izquierda. Las tareas de un chat del Proyecto también aparecen bajo su fila en la barra lateral.
+
+## Añadir una idea
+
+Una idea es algo que quieres que haga el Proyecto.
+
+1. Abre la pestaña **Tablero** y pulsa **Nueva idea**.
+2. Escribe lo que quieres, como lo dirías. Puedes adjuntar capturas o archivos, o pulsar el micrófono y hablar.
+3. Define una **Prioridad** si quieres. Enconvo adivina el **Tipo** a partir de tus palabras: **Función**, **Bug**, **Improvement**, **Documentos** o **Research**. Cámbialo si la suposición es incorrecta.
+4. Pulsa **Añadir idea**.
+
+La idea aparece como una tarjeta bajo **Sin empezar**, con un título corto escrito a partir de tus palabras y una bandera roja, ámbar o azul para su prioridad. El líder empieza a planificarla enseguida y la mueve a **Planificando**. Los archivos que adjuntaste llegan al líder cuando la idea empieza. Para ver solo un tipo de idea, usa **Filtrar por tipo**.
+
+Las ideas también pueden llegar solas. Da a una [Automatización](/es/workflows/scheduled-jobs) la acción **Add to Ideas**, y cada issue de GitHub, mensaje de Discord o Telegram, correo o webhook que oiga se convierte en una idea en el tablero del Proyecto. El líder reproduce un error y planifica la corrección, o investiga una petición y la cierra con un motivo o la planifica, y te pregunta antes de que cambie algo.
+
+Cuando el plan está listo, muestra cada tarea, quién la hace y con qué modelo. Revísalo y pulsa **Iniciar**. La idea pasa a **En curso**. El líder planifica a partir de las líneas **Objetivo** y **Hecho cuando** de la idea, y la idea pasa a **Hecho** solo cuando el líder juzga que ese objetivo se ha cumplido.
+
+## Seguir una idea
+
+Pulsa una idea para abrir su página. Tu chat con el líder está a un lado, y el plan, las tareas, las palabras, los archivos y el objetivo de la idea al otro. **En qué punto está** muestra **Planificar el trabajo**, **Hacer el trabajo** y **Revisión y pruebas**, con lo avanzado de cada uno y quién lo hace.
+
+Para volver a trabajar en una idea terminada, pulsa **Reabrir**.
+
+Una idea con tareas tiene dos vistas arriba: **Tareas** muestra solo sus tareas como un tablero, y **Chat with** y el nombre del líder, como **Chat with Mavis**, abre el chat donde se planificó.
+
+## Encargar una tarea a un agente de código
+
+Nombra el Agente, y el modelo si quieres uno, en la idea o en el chat del Proyecto. También puedes nombrar solo un modelo, como Opus 5.5, y el líder hace esa tarea con él. Esto funciona también en un Proyecto sin miembros. Por ejemplo:
+
+```text
+Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
+```
+
+El líder planifica la parte nombrada como una tarea para ese Agente con ese modelo, aunque el Agente no sea miembro del Proyecto, y puede hacer el resto él mismo. El plan y el Tablero muestran el modelo junto a quién hace la tarea. Si el nombre puede referirse a varios modelos, o a ninguno, el líder pregunta.
+
+Cuando el agente de código termina, su tarea espera tu revisión bajo **Por revisar** en el tablero **Tareas** de la idea. En un Proyecto cuya carpeta no es un repositorio git, pasa directamente a **Hecho**. Cada tarea de código trabaja en su propia copia del código, y la tarjeta de resultado del plan tiene **Fusionar** para cuando estés listo. Los miembros no pueden hacer push ni fusionar por su cuenta.
+
+Cada tarea que das al líder, en la pestaña Chat o en Ideas, aparece en el Tablero, agrupada por idea o por chat. Elige un chat en el filtro de chats del Tablero, o elige **Agrupar por** **Chat**, para seguir una conversación.
+
+El trabajo que haces en los chats del Proyecto también aparece en el Tablero: cuando un chat cambia archivos o ejecuta un comando, una tarjeta lo sigue hasta **Hecho** con un resumen corto y los archivos que cambió. Pulsa la tarjeta para abrir el chat. El líder ve estas tarjetas y mantiene sus propias tareas fuera de los mismos archivos.
+
+## Fusionar el trabajo terminado
+
+Pulsa **Fusionar** en una tarea, o en la tarjeta de resultado del plan, para fusionarla en la **Rama base** del Proyecto. Los cambios sin confirmar en otras líneas del mismo archivo no impiden una fusión. Si git está ocupado, Fusionar espera un momento y nombra el archivo de bloqueo cuando queda uno.
+
+Para fusionar sin pulsar, activa **Fusionar el trabajo que pasa** en **Ajustes del proyecto → Tablero**. Necesita una **Rama base**, definida en **Worktrees**. Cada tarea se fusiona sola cuando pasan su comprobación y una revisión de un Agente de otro proveedor. En **Pasa cuando**, elige **Sin hallazgos bloqueantes**, **El revisor aprueba** o **Solo comprobación**. Una tarea con un conflicto vuelve a su miembro. Cuando el revisor no puede ejecutarse, todas las fusiones se pausan en lugar de omitirse.
+
+### Proyectos fuera de git
+
+En un Proyecto cuya carpeta no es un repositorio git, cada chat del líder guarda sus planes de trabajo en su propia carpeta de chat, así dos chats del líder pueden ejecutar planes a la vez. La tarjeta del plan muestra **Saves to** y la carpeta, y **También cambió** lista los archivos que una tarea tocó fuera de ella.
+
+## Preguntar al líder de otras formas
+
+En el chat del líder de un Proyecto:
+
+- **Comparar respuestas** hace la misma pregunta a entre dos y seis agentes, y el líder compara lo que dicen.
+- **Usar estilo** elige cómo escribe el líder sus respuestas.
+
+Para que Codex, Claude Code u otro de tus Agentes revise o pruebe el trabajo actual, basta con pedirlo. En un Proyecto, el líder inicia ese Agente como Subagente y trae el resultado al mismo chat. El líder también puede iniciar Subagentes para su propio trabajo, junto a las tareas que da a los miembros del Proyecto.
+
+Para ejecutar una tarea con uno de los flujos de trabajo del Proyecto, escribe `@` y elige el flujo, o pulsa **Usar en el chat** junto a él en la pestaña **Equipo y ajustes**. Consulta Usar tus propios flujos de trabajo.
+
+## Ver qué te necesita
+
+Abre la pestaña **Chat**. El panel sobre el cuadro de mensaje tiene tres columnas:
+
+| Columna | Qué lista |
+| --- | --- |
+| **Te necesita** | Tareas que esperan tu respuesta, aprobación o revisión. |
+| **Working on** | Tareas que se están ejecutando. |
+| **Resultados nuevos** | Tareas terminadas que aún no has abierto. |
+
+Pulsa una fila para abrir su idea.
+
+## Usar el Tablero para todo
+
+**Tablero**, en el menú **···** del raíl de iconos de la barra lateral de la Ventana de chat, muestra las tareas de cada chat, Proyecto y equipo en un solo lugar. Para dejarlo en el raíl, elige **Personalizar la barra lateral…** en ese menú. Consulta [Ventana de chat](/es/ai/chat).
+
+Para ver solo algunos Proyectos, pulsa el filtro arriba a la izquierda (**Todos los tableros**) y elige los que quieras. Los demás controles del Tablero están en [Seguir el Tablero](/es/ai/agent-orchestrator).
+
+## Configurar el equipo
+
+Abre la pestaña **Equipo y ajustes**. Arriba aparecen el líder y cada miembro, con **Añadir miembro** para traer otro Agente. Pulsa las caras del equipo arriba a la izquierda para ver todo el equipo a la vez: el líder con **Cambiar**, y cada miembro con un rol que puedes editar en el sitio.
+
+El líder puede ser uno de tus Agentes o un agente de código: Claude Code, Codex, Grok Build o Antigravity. Un líder que es agente de código planifica el trabajo de los miembros en un plan de trabajo y lee sus resultados, como cualquier otro líder.
+
+Los miembros pueden ser Agentes en tus [otros ordenadores emparejados](/es/integrations/other-computers). El líder les encarga las tareas que necesitan ese ordenador, y la respuesta vuelve como resultado de la tarea. Si ese ordenador no tiene acceso de dispositivo en tu cuenta, la tarea lo dice y señala **Gestionar dispositivos**.
+
+### Cómo trabaja el equipo
+
+Cada objetivo que das al líder, desde Chat o Ideas, pasa por **Estándar**: **Planificar el trabajo**, **Hacer el trabajo** y después **Revisión y pruebas**. Elige quién hace cada paso. Da la planificación a un miembro, y ese miembro escribe el plan cuando se lo pides; el líder propone entonces sus tareas como un plan de trabajo que espera tu **Iniciar**. También puedes activar o desactivar la comprobación y definir **Rondas de corrección**, cuántas veces vuelve una tarea para corregirse.
+
+### Usar tus propios flujos de trabajo
+
+**Flujos de trabajo personalizados**, en la pestaña **Equipo y ajustes**, está desactivado hasta que lo activas. Mientras lo esté, cada objetivo pasa por **Estándar**. Actívalo para ejecutar objetivos o tareas sueltas con [Flujos de trabajo](/es/workflows/introduction):
+
+- **O ejecuta cada objetivo con un flujo de trabajo** lista los flujos del equipo. Señala uno y pulsa **Usar para todos los objetivos**, o pulsa **Nuevo flujo de trabajo de equipo** para hacer el tuyo.
+- **Flujos de trabajo de tarea** lista los flujos que el líder puede dar a una sola tarea, como corregir un error. Pulsa **Usar en el chat** para nombrar uno en el chat del líder, o **Nuevo flujo de trabajo** para crear uno.
+
+Los flujos integrados:
+
+| Flujo de trabajo | Qué hace |
+| --- | --- |
+| **Ship** | Convierte una idea en una especificación, un diseño y un plan que apruebas, construye cada tarea con pruebas, comprobaciones, revisión y verificación, y después revisa toda la rama. |
+| **Planner** | Convierte una idea en una especificación, un diseño y tareas que apruebas, y entrega las tareas al líder como un plan de trabajo. |
+| **Sprint** | Construye una tarea planificada con pruebas, comprobaciones, revisión y verificación. |
+| **Compound** | Aplica las lecciones que guardaste a los documentos y las reglas del repositorio. |
+| **Verify setup** | Averigua cómo comprobar y ejecutar el Proyecto, escribe un runbook de verificación que apruebas y lo demuestra ejecutándolo. |
+
+Cada fila muestra el icono del flujo, las caras de los miembros que lo hacen, y cuántas ejecuciones tuvo y cuántas fallaron. Cuando a un flujo le falta un miembro, pulsa **Elige un agente…** en su fila. Pulsa una fila para abrir el flujo y cambiar sus pasos o quién los hace.
+
+Los cambios que guardas en un flujo de un Proyecto quedan como **Redactar**: los planes nuevos siguen usando la versión publicada hasta que pulses **Publicar**. **Revertir a la versión anterior** recupera la versión de antes. El flujo de una tarea muestra los tokens y el coste de cada paso, con un total a precios de API.
+
+### Definir el comando de comprobación
+
+El comando de comprobación se ejecuta en la copia del código de una tarea terminada antes de que pase a revisión. Una comprobación que falla vuelve al miembro de la tarea para que la corrija.
+
+1. En la pestaña **Equipo y ajustes**, pulsa **Ajustes del proyecto** y después **Tablero**.
+2. Junto a **Comando de comprobación**, pulsa **Buscarlo**. Enconvo lee el comando de los archivos del Proyecto y lo rellena solo si pasa.
+3. Si no encuentra ninguno, pulsa **Ask Mavis to set it up** (el botón nombra a tu líder). El líder encuentra o añade el comando en su chat.
+
+Un Proyecto sin comando de comprobación muestra su paso de comprobación como **Sin comprobar**.
+
+### Limpiar worktrees
+
+Cada chat y tarea de un Proyecto git trabaja en su propio worktree. Para liberar espacio en disco, Enconvo archiva los worktrees que ya terminaste y elimina sus carpetas. En **Ajustes del proyecto → Worktrees**:
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Archivar los worktrees fusionados** | Archiva un worktree cuando su trabajo está en la rama base y no queda nada sin confirmar ni sin enviar. |
+| **Archivar worktrees sin chats** | Archiva un worktree cuando ninguno de sus chats queda en la lista de chats. |
+| **Archivar worktrees inactivos** | Archiva un worktree, con sus chats, cuando no ven actividad durante los días que elijas en **Archivar tras una inactividad de**: 3, 7, 14 o 30. |
+
+Un worktree con cambios sin confirmar siempre se queda. **Restaurar** recupera un worktree archivado.
+
+## Elegir cuándo te consulta el equipo
+
+Abre la pestaña **Equipo y ajustes**.
+
+En **Cuándo consultarte**:
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Cuando un plan está listo** | **Inteligentes**, el predeterminado, inicia el plan enseguida cuando hace lo que ya pediste, y espera tu **Iniciar** cuando va más lejos o es arriesgado. **Always ask me** espera **Iniciar** cada vez. **Always start** inicia cada plan en cuanto está listo. |
+| **Start planning as soon as a to-do is added** | Activado: el líder planifica cada idea nueva enseguida. Desactivado: las ideas nuevas esperan en **Sin empezar** hasta que las inicias. |
+
+Las acciones que eliminan, envían, publican, pagan o hacen push siempre preguntan, elijas lo que elijas. La carpeta, los worktrees, los permisos, el presupuesto y el límite están en **Ajustes del proyecto**.
+
+## Dejar que el líder actúe mientras no estás
+
+En un Proyecto con **Acceso completo**, el líder puede seguir moviendo el trabajo cuando una tarea informa y no hay nadie en el chat. Activa **El líder actúa mientras no estás** en **Ajustes del proyecto → Tablero**.
+
+El líder corrige, reintenta y fusiona por su cuenta, dentro de 6 turnos por hora y 100.000 puntos al día. Nunca envía, hace push, publica, paga ni elimina nada fuera de la copia propia del código de una tarea.
+
+Cuando vuelves, una tarjeta **Mientras no estabas** arriba del chat del líder lista lo que hizo el líder y los pasos que te dejó. Tras dos turnos fallidos seguidos, o al llegar a un límite, el líder se pausa y **Te necesita** pregunta si **Reanudar** o **Mantener en pausa**.
+
+## Archivar un Proyecto
+
+Cuando un Proyecto está terminado, archívalo para quitarlo de la barra lateral sin eliminar nada.
+
+1. Señala el Proyecto en la barra lateral y pulsa **⋯**.
+2. Elige **Archivar proyecto**.
+
+El Proyecto y sus chats salen de la barra lateral, y sus tareas programadas se pausan. Un chat de un Proyecto archivado no puede recibir mensajes hasta que lo restaures.
+
+Para recuperarlo:
+
+1. Abre **Ajustes → Archivado**.
+2. Pulsa **Proyectos**.
+3. Pulsa **Restaurar** junto al Proyecto.
+
+El Proyecto vuelve a la barra lateral con sus chats, y sus tareas programadas se activan de nuevo.
+
+## Proyectos en el teléfono
+
+La app de iPhone también abre tus Proyectos: Ideas, el Tablero, los ajustes del Proyecto, **Nuevo proyecto** y la tarjeta del plan de trabajo, donde respondes, fusionas, inicias o reintentas una tarea. El menú `@` lista los miembros y los flujos de trabajo del Proyecto. Consulta [App de iPhone](/es/integrations/iphone-app).
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Una idea nueva se queda en **Sin empezar** | Activa **Start planning as soon as a to-do is added** en **Equipo y ajustes**, o abre la idea e iníciala tú. |
+| Un plan espera aunque elegiste **Inteligentes** | El plan va más allá de lo que pediste, o incluye un paso arriesgado. Revísalo y pulsa **Iniciar**. |
+| La tarea de un agente de código no empieza | Instala el agente de código e inicia sesión en él. |
+| Una tarea espera como **En espera** con un aviso de inicio de sesión | El agente de código tiene la sesión cerrada, o su sesión termina pronto. Pulsa **Volver a iniciar sesión**. Las tareas en espera se ejecutan de nuevo cuando inicias sesión. |
+| Una tarjeta del Tablero muestra un problema en ámbar | Es un problema de configuración. Sigue la corrección de la tarjeta; el líder no lo reintenta. Un error de Enconvo dice que es seguro intentarlo de nuevo. |
+| Una tarea falla en un Proyecto guardado en iCloud | Con Optimizar almacenamiento del Mac activado, los archivos pueden no estar en tu Mac. En Finder, elige **Keep Downloaded** para la carpeta del Proyecto. |
+| Una tarea dice que la carpeta del Proyecto ha desaparecido | La carpeta se movió o se eliminó. Vuelve a colocarla, o crea un Proyecto nuevo para su nuevo lugar. |
+| Una tarea se detiene en el **Límite** del Proyecto | Pulsa **Editar Límite** en la tarea para permitir lo que necesita. Solo tú cambias un Límite. |
+| Una tarea indica que una fusión o un rebase quedó a medias | Su agente se detuvo a mitad. Termina o deshaz la fusión o el rebase antes de fusionar la tarea. |
+| Todos los planes esperan **Iniciar** | Los planes esperan mientras tienes la sesión de Enconvo cerrada. Inicia sesión en **Ajustes → Cuenta**. |
+| Falta un Proyecto en la barra lateral | Puede estar archivado. Míralo en **Ajustes → Archivado**, en **Proyectos**. |
+| Falló una tarea de Flujo de trabajo | Abre la tarea. Dice qué escribió su comando por última vez y qué paso de qué miembro falló. |
+| Un objetivo no usa el flujo de equipo que elegiste | Activa **Flujos de trabajo personalizados** en la pestaña **Equipo y ajustes**. Mientras esté desactivado, cada objetivo pasa por **Estándar**. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Orquestador de agentes" icon="sitemap" href="/es/ai/agent-orchestrator">Planes de trabajo, los controles del Tablero y crear un Proyecto.</Card>
+  <Card title="Agentes de código" icon="code" href="/es/ai/coding-agents">Instala e inicia sesión en Claude Code, Codex y los demás.</Card>
+  <Card title="Ventana de chat" icon="message" href="/es/ai/chat">Chats, Proyectos y la barra lateral.</Card>
+  <Card title="Espacios de trabajo" icon="layer-group" href="/es/configuration/account">Separa los chats y la Memoria de un cliente de los tuyos.</Card>
+</CardGroup>

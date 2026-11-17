@@ -1,0 +1,81 @@
+---
+title: "Diffuser un personnage Live Photo"
+description: "Mettez un personnage Live Photo sur un direct OBS avec des sous-titres, et laissez-la répondre à voix haute au chat en direct Twitch, Kick ou YouTube."
+---
+
+Un [personnage Live Photo](/fr/features/avatar) peut animer un direct. Enconvo donne à OBS une scène avec son image en mouvement et une page de sous-titres, et elle peut lire le chat de votre direct et répondre aux spectateurs à voix haute via son agent.
+
+## Avant de commencer
+
+- Créez un personnage Live Photo dans **Réglages → Avatar** et associez-le à un agent.
+- Installez OBS Studio. **Télécharger OBS Studio** sur le panneau de direct y renvoie.
+
+<Note>
+Atmee facture sa vidéo en direct à la minute pendant qu’un appel tourne, que vous diffusiez ou non, et pendant qu’elle dit les réponses en mode direct.
+</Note>
+
+## Ouvrir le panneau de direct
+
+1. Ouvrez **Réglages → Avatar** et l’onglet **Live Photo**.
+2. Cliquez sur **Passer en direct** sur sa carte.
+
+Le panneau de direct montre sa scène, ses sous-titres, l’orientation (**Portrait 9:16** ou **Paysage 16:9**) et l’état du direct OBS. Sa scène la montre une fois son Avatar ouvert.
+
+## L’ajouter à OBS
+
+1. Dans OBS, ouvrez **Outils → WebSocket Server Settings**, cochez **Activer le serveur WebSocket** et cliquez sur **Appliquer**.
+2. Cliquez sur **Afficher les informations de connexion** et copiez le mot de passe du serveur.
+3. Sur le panneau de direct, cliquez sur **Connecter OBS** et collez le mot de passe. Enconvo le conserve avec vos autres identifiants.
+4. Cliquez sur **Ajouter à OBS**. Enconvo crée une scène nommée « Enconvo · *son nom* » avec sa scène et ses sous-titres, dimensionnée pour votre direct.
+5. Démarrez le direct dans OBS, ou avec **Passer en direct** sur le panneau. **Arrêter le direct** l’arrête.
+
+Si vous changez l’orientation, cliquez à nouveau sur **Ajouter à OBS** pour redimensionner sa scène. Pour construire la scène vous-même, ajoutez la page de scène transparente du panneau et la page de sous-titres à OBS comme source **Browser**.
+
+## Choisir son arrière-plan
+
+Sous **Arrière-plan** sur le panneau, choisissez ce qu’OBS reçoit derrière elle. OBS affiche exactement ce que l’aperçu de la scène affiche.
+
+| Choix | Ce qu’OBS reçoit |
+| --- | --- |
+| **Transparent** | Seulement elle, avec alpha. Votre scène OBS apparaît derrière elle. |
+| **Couleur** | Un cadre plein sur une couleur, comme **Fond vert** ou une **Couleur personnalisée**. |
+| **Image** | Un cadre plein sur votre propre image, conservée sur ce Mac. |
+| **Photo floutée** | Un cadre plein sur sa photo, floutée. |
+| **Photo d'origine** | Sa photo d’origine. |
+
+Un personnage enregistré avec un **Arrière-plan** cadré garde sa propre photo et son cadre ; l’arrière-plan s’applique aux personnages détourés.
+
+## La laisser répondre à votre chat en direct
+
+1. Sur le panneau de direct, saisissez votre **Chaîne Twitch** ou **Chaîne Kick**, ou connectez YouTube avec votre clé API YouTube Data.
+2. Réglez qui elle répond : les spectateurs qui la mentionnent, qui demandent avec `!ask`, ou qui paient. Réglez les délais par spectateur et globaux, ainsi que les mots bloqués, et activez la file d’approbation préalable si vous voulez approuver chaque question.
+3. Cliquez sur **Démarrer le chat en direct**.
+
+Elle répond via son agent, à voix haute.
+
+### Mode direct
+
+Activez **Mode direct** sur le panneau et elle dit chaque réponse sur sa scène OBS, les lèvres en mouvement, sans appel. Désactivé, les réponses sont lues à voix haute sur ce Mac.
+
+## Son
+
+Pendant un appel, tant qu’une scène la montre, sa voix ne sort que d’OBS. Activez **Lire aussi sur ce Mac** pour l’entendre aussi sur le Mac.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| La scène est vide | Ouvrez son Avatar. Dans un appel, sa scène la montre en direct. |
+| OBS ne se connecte pas | Vérifiez que **Activer le serveur WebSocket** est coché dans OBS, et collez à nouveau le mot de passe. |
+| Sa scène a la mauvaise taille | Cliquez à nouveau sur **Ajouter à OBS** après avoir changé l’orientation. |
+| L’arrière-plan ne change pas | Son personnage a été enregistré avec un **Arrière-plan** cadré. Les arrière-plans s’appliquent aux personnages détourés. |
+| Vous l’entendez deux fois, ou pas du tout | Vérifiez **Lire aussi sur ce Mac**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Avatar" icon="user" href="/fr/features/avatar">Créez un personnage Live Photo.</Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Configurez l’agent qui répond à vos spectateurs.</Card>
+  <Card title="Gestion des identifiants" icon="key" href="/fr/configuration/credentials">Où sont conservés le mot de passe OBS et les clés API.</Card>
+  <Card title="Live Talk" icon="phone" href="/fr/features/live-voice">Choisissez la voix qu’elle utilise dans les appels.</Card>
+</CardGroup>

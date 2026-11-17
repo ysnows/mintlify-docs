@@ -1,0 +1,99 @@
+---
+title: "Windows (бета)"
+description: "Інсталюйте бета-версію Enconvo на Windows, увійдіть, тримайте її оновленою і подивіться, які функції там працюють."
+tag: "BETA"
+---
+
+<Note>
+Enconvo для Windows у бета-версії і виходить на каналі оновлень **Бета**. Його зроблено для щоденного використання, але речі ще можуть змінюватися між збірками. Якщо щось ламається, скажіть нам на [сайті відгуків](https://feedback.enconvo.com).
+</Note>
+
+**Поточна бета: 2.5.13 Beta 3** (`2.5.13-beta-3`). Щоб побачити, яка у вас версія, відкрийте **Параметри → Загальні → Оновлення**.
+
+## Вимоги
+
+- **Windows 10 версії 2004 (збірка 19041) або новіша, або Windows 11.**
+- **64-розрядний Intel/AMD (x64).** Збірки для Windows на Arm ще немає.
+- **Microsoft Edge WebView2 Runtime.** Вікна Enconvo працюють на ньому. Windows 11 має його вбудованим. На Windows 10 див. [Усунення неполадок](/uk/getting-started/windows), якщо вікна лишаються порожніми.
+
+## Завантажити бета-версію
+
+Бета-версія постачається як інсталятор, `Enconvo-<version>-win32-x64-setup.exe`. Назва файлу несе номер версії бети.
+
+Для поточної бети, 2.5.13 Beta 3, завантажте [Enconvo-2.5.13-beta-3-win32-x64-setup.exe](https://file.enconvo.com/win32-x64/beta/Enconvo-2.5.13-beta-3-win32-x64-setup.exe).
+
+Щоб завжди отримувати найновішу бету, запустіть це в PowerShell. Воно читає стрічку бети, завантажує інсталятор у папку Завантаження і перевіряє, що файл прибув цілим.
+
+```powershell
+$feed = "https://file.enconvo.com/win32-x64/beta"
+$latest = Invoke-RestMethod "$feed/latest.json"
+$file = $latest.files.exe.url
+$out = "$env:USERPROFILE\Downloads\$file"
+$ProgressPreference = "SilentlyContinue"   # downloads much faster in Windows PowerShell
+Invoke-WebRequest "$feed/$file" -OutFile $out
+if ((Get-FileHash $out -Algorithm SHA256).Hash -eq $latest.files.exe.sha256) {
+  "Downloaded Enconvo $($latest.version) to $out"
+} else {
+  "The download is damaged. Delete it and run this again."
+}
+```
+
+## Інсталювати
+
+<Steps>
+  <Step title="Запустіть інсталятор">
+    Відкрийте завантажений `.exe`. Якщо Windows показує **Windows protected your PC**, натисніть **More info**, потім **Run anyway**. SmartScreen показує це для програм, яких ще не знає.
+  </Step>
+  <Step title="Оберіть папку">
+    Enconvo інсталюється лише для вашого облікового запису і не потребує прав адміністратора. Типова папка — `%LOCALAPPDATA%\Programs\Enconvo`. Якщо оберете іншу, вона має бути порожньою або вже містити Enconvo.
+  </Step>
+  <Step title="Відкрийте Enconvo">
+    Лишіть **Open Enconvo** позначеним на останній сторінці або відкрийте **Enconvo** з меню «Пуск» пізніше. Його іконка з’являється в області сповіщень панелі завдань.
+  </Step>
+  <Step title="Увійдіть">
+    Увійдіть в обліковий запис Enconvo, потім продовжте з [Швидкого старту](/uk/quickstart).
+  </Step>
+</Steps>
+
+Якщо Enconvo працює, коли ви інсталюєте, інсталятор просить спершу закрити його.
+
+## Що працює на Windows
+
+| Функція | Windows |
+| --- | --- |
+| Вікно чату, Параметри | Так |
+| Агенти, інструменти, файли, документи, артефакти | Так |
+| Використання браузера, використання комп’ютера | Так |
+| База знань, Пам’ять, автоматизації, робочі процеси | Так |
+| Моделі Enconvo Cloud, пошук в інтернеті, OCR, створення зображень, мовлення | Так |
+| Глобальні сполучення клавіш, диктування, голосові нотатки, записи, малюнок на екрані, Appshots, сповіщення | Так |
+| Історія буфера обміну, фрагменти | Так |
+| [SmartBar](/uk/features/smartbar), [PopBar](/uk/features/popbar), [Dynamic Island](/uk/features/dynamic-island), голосова команда | Так |
+| [Аватар](/uk/features/avatar), [улюбленець на робочому столі](/uk/features/pet) | Так |
+| Локальні чат-моделі з файлів GGUF | Так |
+| Бічна панель програми, Live Talk, субтитри | Ні |
+| Моделі MLX | Ні: їм потрібен Mac |
+
+## Оновити
+
+Бета-збірка лишається на каналі бети. Щоб змінити, відкрийте **Параметри → Загальні** і задайте **Канал оновлень**. Див. [Оновлення](/uk/configuration/updates).
+
+Enconvo сам перевіряє нову версію. Коли вона готова, натисніть **Оновити** у вікні чату. Можна також перевірити зараз у **Параметри → Загальні → Оновлення**.
+
+Оновлення інсталюється на місці: Enconvo закривається, показує поступ інсталятора і відкривається знову на новій версії.
+
+## Усунення неполадок
+
+| Що ви бачите | Що робити |
+| --- | --- |
+| **Windows protected your PC**, коли відкриваєте інсталятор | Натисніть **More info**, потім **Run anyway** |
+| **Enconvo needs 64-bit Windows** | Enconvo не працює на 32-розрядній Windows |
+| Інсталятор не використовує обрану папку | Оберіть порожню папку або папку, де Enconvo вже є |
+| Вікна Enconvo лишаються порожніми або не відкриваються | Інсталюйте [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/), потім відкрийте Enconvo знову |
+| Натискання сповіщення Enconvo нічого не робить | Відкрийте Enconvo звичайно, не через **Run as administrator** |
+
+## Видалити Enconvo
+
+Відкрийте **Settings → Apps → Installed apps** (на Windows 10 **Settings → Apps → Apps & features**), знайдіть **Enconvo** і оберіть **Uninstall**.
+
+Ваші параметри і чати лишаються в папці `.config\enconvo` у папці користувача (`%USERPROFILE%\.config\enconvo`). Видаліть цю папку, щоб прибрати і їх.

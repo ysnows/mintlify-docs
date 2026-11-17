@@ -1,0 +1,107 @@
+---
+title: "Ein Modell wählen"
+description: "Ein Modell für die Aufgabe wählen und wissen, wo das Standardmodell von Enconvo gesetzt ist."
+---
+
+Du musst nicht wählen: [Auto Route](/de/providers/auto-route), das Standardmodell, wählt eines für jede Nachricht. Willst du ein bestimmtes Modell, hilft diese Seite bei der Wahl und zeigt, wo die Wahl gespeichert wird.
+
+## Nach Aufgabe wählen
+
+| Aufgabe | Worauf achten |
+| --- | --- |
+| Schnelle Umschreibungen und kurze Antworten | Ein schnelles, günstiges Modell |
+| Mehrstufige Agentenarbeit | Zuverlässige Tool-Aufrufe und Reasoning |
+| Fragen zu einem Screenshot oder Bild | Bildeingabe |
+| Lange Dokumente | Ein langes Kontextfenster |
+| Private Arbeit, die auf dem Mac bleibt | Ein [lokales Modell](/de/ai/local-llm), plus lokale Anbieter für die anderen Schritte |
+| Sprachgespräche | [Live Talk](/de/features/live-voice), mit eigenen Spracheinstellungen |
+| Bilder oder Video erzeugen | Ein Anbieter für [Bilder](/de/ai/image-generation) oder [Video](/de/ai/video-generation), kein Chat-Modell |
+
+Die Modellauswahl zeigt die Modelle, die deine Anbieter gerade anbieten. Modelle mit Fast-Modus zeigen einen Fast-Modus-Chip, der sie schneller und teurer laufen lässt.
+
+## Die Empfehlungen nutzen
+
+Modellauswahlen in den Einstellungen beginnen mit drei Vorschlägen für diese Art von Arbeit: **Beste Passung**, **Niedrigste Kosten** und **Beste Qualität**. Jeder zeigt einen kurzen Grund und den Preis pro 1 Mio. Tokens, Eingabe und Ausgabe. Unter der Einstellung sagt eine Zeile, wenn das gewählte Modell ein Vielfaches des empfohlenen kostet.
+
+Erstellst du einen Agenten unter **Neuer Agent**, liest Enconvo die Beschreibung des Agenten und schlägt ein Modell vor, mit einem günstigeren und einem stärkeren daneben. Klicke eines an, um es zu nutzen.
+
+## Wo die Vorgabe gesetzt ist
+
+- **Ein neuer Chat**: Das Modell, das du in einem obersten **Neuer Chat** wählst, wird die Vorgabe des Agenten.
+- **Ein Projekt**: Ein neuer Chat in einem Projekt nutzt das eigene Modell des Projekts.
+- **Ein bestehender Chat**: Sobald ein Chat startet, behält er Modell und Reasoning-Aufwand, bis du sie in diesem Chat änderst.
+- **Chats ohne eigene Wahl und IM-Kanäle**: Diese folgen der Vorgabe des Agenten.
+
+Nachdem du eine Vorgabe woanders geändert hast, prüfe das im Chat gezeigte Modell, bevor du sendest.
+
+## Reasoning-Aufwand
+
+Der Reasoning-Aufwand setzt, wie lange ein Modell vor der Antwort nachdenkt. Höherer Aufwand kann bei schwierigen Problemen bessere Antworten geben, dauert aber länger und nutzt mehr Tokens. Die Stufen hängen vom Modell ab; ein Modell ohne Denkmodus hat keine Aufwandseinstellung.
+
+## Kontextfenster
+
+Das Kontextfenster ist, wie viel eines Gesprächs das Modell auf einmal liest. Wächst ein Chat darüber hinaus, verdichtet Enconvo den früheren Teil. Claude-Modelle, die bis zu 1 Mio. Tokens nehmen können, starten bei 500K, sodass lange Chats früher verdichtet werden und weniger kosten.
+
+Um das Kontextfenster eines Modells zu ändern, öffne den Anbieter unter **Einstellungen → KI-Modell**, klicke **Modelle verwalten** (das Zahnrad neben **Modellname**), bearbeite das Modell und setze **Kontextfenster**.
+
+## Die Modelle für Hintergrundaufgaben wählen
+
+Kleine Aufgaben laufen im Hintergrund auf einem günstigen Modell: Chat-Titel, Vorschläge für die nächste Nachricht, Live Talk, Titel und Zusammenfassungen von Aufnahmen, Übersetzung von Aufnahmen und Ideentitel. Standardmäßig steht jede auf **Auto**, das ein kleines Modell nutzt:
+
+- Chat-Titel, Vorschläge für die nächste Nachricht und Live Talk nutzen ein kleines Modell des eigenen Anbieters des Chats. Ein Chat mit eigenem API-Schlüssel verbraucht dafür keine Enconvo-Cloud-Punkte.
+- Aufnahmen und Ideentitel nutzen ein kleines Modell deines Standardanbieters.
+- Hat der Anbieter kein kleines Modell, das Enconvo kennt, nutzt Auto das Modell des Chats oder dein Standardmodell.
+
+Um selbst ein Modell zu wählen:
+
+<Steps>
+  <Step title="Aufgabenmodelle öffnen">
+    Öffne **Einstellungen → KI-Modell** und klicke oben auf der Seite auf **Aufgabenmodelle**.
+  </Step>
+  <Step title="Eine Aufgabe wählen">
+    Klicke eine Aufgabe. **Auto** zeigt, welches Modell es für jeden Anbieter wählt.
+  </Step>
+  <Step title="Ein Modell wählen">
+    Klicke **Ein Modell wählen**, wähle einen Anbieter und dann ein Modell.
+  </Step>
+</Steps>
+
+Schalte den Schalter neben **Vorschläge für die nächste Nachricht** aus, um nach jeder Antwort keine nächste Nachricht mehr vorzuschlagen. **Alle auf Auto zurücksetzen** setzt jede Aufgabe auf **Auto** zurück.
+
+## Chats mit Ersatzmodellen am Laufen halten
+
+Fallback hält eine Antwort am Laufen, wenn ihr Modell nicht genutzt werden kann, etwa bei einem Nutzungslimit, verlorener Anmeldung oder verlorenem Schlüssel oder wenn es nicht erreichbar ist. Die Antwort geht auf dem nächsten Ersatzmodell weiter, und der Chat sagt, welches Modell übernommen hat und warum.
+
+<Steps>
+  <Step title="Fallback öffnen">
+    Öffne **Einstellungen → KI-Modell** und klicke oben auf der Seite auf **Fallback**.
+  </Step>
+  <Step title="Ersatzmodelle hinzufügen">
+    Klicke **Ersatzmodell hinzufügen** und wähle ein Modell. Du kannst bis zu drei hinzufügen und sie ziehen, um die Reihenfolge zu ändern.
+  </Step>
+  <Step title="Den Aufwand jedes Ersatzmodells setzen">
+    Für ein Modell mit Reasoning-Stufen wähle seinen **Reasoning-Aufwand**. Jedes Ersatzmodell behält seinen eigenen.
+  </Step>
+</Steps>
+
+Das Panel zeigt die Kette, wie sie arbeitet: zuerst **Das genutzte Modell**, dann deine nummerierten Ersatzmodelle, jedes mit **Bereit** oder **Pausiert**. Klicke den Modellnamen eines Ersatzmodells, um es auf ein anderes Modell dieses Anbieters umzustellen. In der Anbieterliste zeigt jeder Anbieter mit einem Ersatzmodell ein Tag **backup N** mit seinem Platz in der Kette.
+
+| Einstellung | Was sie tut |
+| --- | --- |
+| **Auch wechseln, wenn der Dienst beschäftigt ist** | Wechselt auch bei Rate-Limits und Serverfehlern, sobald die Wiederholungen aufgebraucht sind. |
+| **Zurückgehen, wenn das Modell wieder funktioniert** | Bringt den Chat ab der nächsten Runde auf sein eigenes Modell zurück, sobald dieses funktioniert, nie mitten in einer Runde. |
+
+Eine Anfrage, die eine Sicherheitsrichtlinie ablehnt, wechselt nie das Modell.
+
+## Zwei Modelle vergleichen
+
+Sende beiden dieselbe kleine, echte Aufgabe. Prüfe, ob die Antwort stimmt, ob Werkzeuge fertig wurden und wie lange es dauerte und was es kostete. **Details** unter jeder Antwort zeigt Modell, Aufwand, Tokens, Zeit und Punkte oder Kosten.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Auto Route" icon="route" href="/de/providers/auto-route">Enconvo das Modell für jede Nachricht wählen lassen.</Card>
+  <Card title="Anbieter" icon="plug" href="/de/providers/overview">Enconvo Cloud, eigene Schlüssel oder eigene Tarife verbinden.</Card>
+  <Card title="Lokale Modelle" icon="microchip" href="/de/ai/local-llm">Modelle auf dem Mac ausführen.</Card>
+  <Card title="Cloud-Preise" icon="receipt" href="https://www.enconvo.com/cloud-pricing">Punkte pro Modell auf Enconvo Cloud.</Card>
+</CardGroup>

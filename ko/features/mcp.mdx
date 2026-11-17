@@ -1,0 +1,160 @@
+---
+title: "MCP 서버"
+description: "설정, CLI, 기존 설정 파일 또는 설치 링크를 통해 MCP 서버를 추가해 Enconvo 에이전트가 해당 도구를 사용하게 하세요."
+---
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io)는 AI 모델이 외부 도구와 데이터를 활용할 수 있게 하는 개방형 표준입니다. 각 MCP 서버는 파일 읽기, 데이터베이스 조회, 메시지 전송 같은 도구를 제공합니다. Enconvo에 서버를 추가해 두면 작업에 필요할 때 에이전트가 알아서 해당 도구를 사용합니다.
+
+## 설정에서 서버 추가하기
+
+<Steps>
+  <Step title="MCP 서버 열기">
+    메뉴 막대의 Enconvo 아이콘에서 **설정**(**설정...**)을 열거나 **⌘,**를 누른 뒤 **설정 → MCP 서버**로 이동합니다.
+  </Step>
+  <Step title="서버 추가하기">
+    **서버 추가**를 클릭하고 **서버 이름**을 입력합니다. 전송 방식을 고르세요: Mac에서 명령을 실행하는 방식이면 **STDIO**, URL로 연결하는 서버면 **HTTP** 또는 **SSE**를 선택합니다. 필요한 항목을 채우고 **저장**을 클릭합니다.
+  </Step>
+  <Step title="연결 확인하기">
+    서버 옆의 점이 초록색으로 바뀌고 행에 도구 개수가 표시됩니다. 도구 개수를 클릭하면 목록을 볼 수 있습니다.
+  </Step>
+  <Step title="도구 적용 범위 정하기">
+    서버 행의 스위치를 사용합니다. 켜짐: 어디서든 어시스턴트가 답변을 준비할 때마다 이 서버의 도구를 포함합니다. 꺼짐: 기본으로 불러오지는 않지만 SmartBar에서 서버를 추가하거나 앱 사이드바에서 특정 앱 전용으로 켤 수 있습니다.
+  </Step>
+</Steps>
+
+OAuth를 사용하는 서버는 처음 연결할 때 로그인 페이지가 열립니다. 서버에 **인증하기**가 표시되면 클릭해서 로그인을 완료하세요. 연결된 서버가 현재 로그인보다 더 많은 권한을 요청하면 **접근 권한 허용**이 나타납니다.
+
+플러그인에 함께 포함된 서버는 **플러그인에서** 아래에 표시됩니다.
+
+<Tip>
+설정 사이드바가 길다면 설정에서 **⌘F**를 누르고 "MCP"를 입력해 바로 이동하거나, `enconvo://preference?pane=mcp_management` 딥링크로 열 수 있습니다.
+</Tip>
+
+## CLI에서 서버 추가하기
+
+```bash
+# Add a stdio server
+enconvo mcp add github --command npx --args "-y @modelcontextprotocol/server-github"
+
+# Add an HTTP server
+enconvo mcp add notion --transport http --url "https://mcp.notion.com/mcp"
+
+# List servers
+enconvo mcp servers list
+
+# List tools
+enconvo mcp tools list
+```
+
+## 다른 앱에서 서버 가져오기
+
+Claude Desktop, Cursor 등 다른 도구에서 이미 사용 중인 MCP 설정을 그대로 가져올 수 있습니다.
+
+1. **설정 → MCP 서버**에서 **가져오기**를 클릭합니다.
+2. **설정 형식** 아래에서 **Claude Desktop** 또는 **Codex CLI**를 선택합니다.
+3. **JSON 설정**에 설정 내용을 붙여 넣습니다.
+4. **가져오기**를 클릭하면 포함된 모든 서버가 추가됩니다.
+
+## MCP 번들 설치하기
+
+MCP 번들은 Mac에서 실행할 서버를 하나로 묶은 `.mcpb` 파일입니다. **설정 → MCP 서버**에서 **번들 설치**를 클릭해 파일을 선택하세요. Finder에서 `.mcpb` 파일을 바로 열어도 같은 화면으로 이동합니다.
+
+번들 서버는 사용자의 Mac 권한으로 실행되므로 신뢰할 수 있는 사람이 배포한 번들만 설치하세요. 업데이트할 때는 새 버전의 `.mcpb` 파일을 설치하면 됩니다.
+
+## 설치 링크 공유하기
+
+설치 링크를 사용하면 클릭 한 번으로 MCP 서버를 Enconvo에 추가할 수 있습니다. `mcp.json`과 같은 형식인 이름과 전송 설정을 사용합니다.
+
+```
+https://enconvo.com/mcp/install?name=$NAME&config=$BASE64_ENCODED_CONFIG
+```
+
+| 구성 요소 | 설명 |
+|-----------|-------------|
+| `https://enconvo.com` | 웹 설치 페이지 |
+| `/mcp/install` | 경로 |
+| `name` | 서버 이름용 쿼리 매개변수 |
+| `config` | base64로 인코딩된 JSON 설정용 쿼리 매개변수 |
+
+웹 페이지가 `enconvo://` 딥링크를 열며, 앱이 열리지 않는 경우를 대비해 서버 설정 내용도 함께 표시합니다.
+
+### 링크 만들기
+
+1. 서버 이름과 JSON 설정을 준비합니다.
+2. 설정을 `JSON.stringify`로 직렬화한 뒤 base64로 인코딩합니다.
+3. `$NAME`과 `$BASE64_ENCODED_CONFIG`를 각각 서버 이름과 인코딩된 설정 문자열로 바꿉니다.
+
+예를 들어 아래 설정은:
+
+```json Single MCP server config
+{
+  "exa": {
+    "url": "https://mcp.exa.ai/mcp"
+  }
+}
+```
+
+다음과 같은 결과를 만듭니다.
+
+| 형식 | 예시 |
+|--------|---------|
+| 텍스트 링크 | `https://enconvo.com/mcp/install?name=exa&config=eyJ1cmwiOiJodHRwczovL21jcC5leGEuYWkvbWNwIn0=` |
+| 어두운 버튼 | <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Enconvo에 추가" height="44" /> |
+| 밝은 버튼 | <img src="https://file.enconvo.com/badges/mcp-install-light.svg?v=20260628-adaptive-logo" alt="Enconvo에 추가" height="44" /> |
+
+### README에 버튼 추가하기
+
+<CodeGroup>
+
+```markdown Markdown
+[![Add to Enconvo](https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo)](https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG)
+```
+
+```html HTML
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Enconvo에 추가" height="44" />
+</a>
+```
+
+```jsx JSX
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Enconvo에 추가" height={44} />
+</a>
+```
+
+</CodeGroup>
+
+### 다른 사람이 링크를 열면
+
+1. 링크를 클릭하거나 브라우저에 붙여 넣습니다.
+2. Enconvo에 **Add the MCP server "name"?** 창이 열리고 서버가 무엇을 실행하거나 어디에 연결하는지 표시됩니다. **추가**를 클릭합니다.
+3. **설정 → MCP 서버**가 열리고 서버가 추가되어 연결을 시작합니다.
+4. 연결이 완료되면 에이전트가 해당 도구를 사용할 수 있습니다.
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| 서버가 시작되지 않음 | 명령어와 인수를 확인하세요. STDIO 서버라면 해당 프로그램이 설치되어 있고 `PATH`에 등록되어 있는지 확인하세요. Node.js 서버라면 `npx` 또는 `node`를 사용할 수 있는지 확인하세요. |
+| 도구가 나타나지 않음 | 서버 옆의 점이 초록색인지 확인하세요. 일부 서버는 API 키를 설정해야 도구를 제공합니다. 서버를 껐다가 다시 켜 보세요. |
+| 서버에 **인증하기**가 표시됨 | 클릭해서 열리는 페이지에서 로그인을 완료하세요. |
+| 인증 오류 | API 키가 올바르고 만료되지 않았는지, 서버에 필요한 환경 변수가 설정되어 있는지 확인하세요. |
+
+전체 MCP 사양은 [modelcontextprotocol.io](https://modelcontextprotocol.io)를 참고하세요.
+
+## 관련 항목
+
+<CardGroup cols={2}>
+  <Card title="사용자 지정 MCP 서버 만들기" icon="code" href="/ko/advanced/mcp-advanced">
+    Enconvo용 자체 서버를 직접 개발하세요.
+  </Card>
+  <Card title="플러그인" icon="puzzle-piece" href="/ko/extensions/overview">
+    플러그인, 커넥터, 스킬을 찾아보세요.
+  </Card>
+  <Card title="앱 사이드바" icon="table-columns" href="/ko/features/app-sidebar">
+    특정 앱에서만 서버의 도구를 켭니다.
+  </Card>
+  <Card title="CLI 및 Local API" icon="terminal" href="/ko/advanced/cli-local-api">
+    터미널에서 Enconvo를 스크립트로 제어하세요.
+  </Card>
+</CardGroup>

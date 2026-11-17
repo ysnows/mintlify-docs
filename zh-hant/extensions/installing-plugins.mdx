@@ -1,0 +1,213 @@
+---
+title: "安裝外掛程式"
+description: "從商店、壓縮檔、GitHub、git、npm、資料夾或外掛程式市集安裝 Enconvo、Codex、Claude Code 與可移植外掛程式，並保持在最新版本。"
+---
+
+大多數人會從 Enconvo 的**外掛程式**頁面上的外掛程式商店安裝外掛程式。Enconvo 也能從其他來源安裝外掛程式，包括開發者在 GitHub 與外掛程式市集中發佈的 Codex 和 Claude Code 外掛程式。關於 Enconvo 支援讀取的套件，請參閱[外掛程式格式](/extensions/plugin-formats)。
+
+若要在應用程式內安裝，請閱讀[從外掛程式頁面安裝](#從外掛程式頁面安裝)與[從聊天中安裝](#從聊天中安裝)。本頁其餘內容面向開發者與進階使用者：從終端機安裝、加入外掛程式市集、更新與解除安裝，以及分享你自己的外掛程式。
+
+<Warning>
+只有 Enconvo 商店中的外掛程式經過 Enconvo 審核。來自其他任何來源的外掛程式都能透過其 MCP 伺服器在你的 Mac 上執行程式，因此請只從你信任的來源安裝。
+</Warning>
+
+## 從外掛程式頁面安裝
+
+點擊**外掛程式**頁面上的**新增**：
+
+| 選項 | 作用 |
+|---|---|
+| **建立外掛程式** | 開啟一段聊天，由 Enconvo 的代理程式與你一起打造外掛程式。 |
+| **上傳外掛壓縮檔…** | 安裝檔案：`.enconvo` 套件、`.dxt` 桌面擴充功能，或 Claude Code、Codex 外掛程式的 `.zip`。 |
+| **從 GitHub 加入…** | 從 GitHub、git、npm 或資料夾安裝外掛程式，或安裝外掛程式市集中的外掛程式（見下文）。 |
+| **新增 MCP 伺服器…** | 開啟 MCP 設定，直接連接單一伺服器而無需外層外掛程式。 |
+| **加入 PopBar 擴充功能…** | 從連結、檔案或 `#popclip` 程式碼片段安裝 PopBar 擴充功能（參閱 [PopBar 擴充功能](/zh-hant/features/popbar)）。 |
+| **新增技能…** | 開啟技能設定，撰寫你自己的技能。 |
+| **開發者指南** | 開啟[開發擴充功能](/zh-hant/extensions/developing)。 |
+
+你新增的項目會顯示在 **Enconvo** 分頁頂部的**已安裝**中：依名稱列出你已連接的連接器，以及你安裝或製作的外掛程式。點擊**已安裝**即可查看全部。Enconvo 內建的外掛程式不會列在其中。PopBar 擴充功能有自己的 **PopBar** 分頁，內含經 Enconvo 審核的目錄；參閱 [PopBar 擴充功能](/zh-hant/features/popbar)。
+
+### 從 GitHub 加入
+
+貼上外掛程式的位址並按下**預覽**：
+
+- `owner/repo`，或 GitHub 連結，包含指向某個資料夾的連結（`/tree/<branch>/<folder>`）
+- 位於儲存庫內的外掛程式寫作 `owner/repo/folder`，可加上 `@branch` 或 `@tag` 鎖定版本
+- 任何 https git 位址
+- `npm:<package>`，可加上 `@version` 鎖定版本
+- 指向外掛程式 `.zip` 的 https 連結
+- 你 Mac 上的資料夾
+
+私人 GitHub 或 git 儲存庫也能使用。Enconvo 會使用你 Mac 上已登入的 GitHub 帳號或你的 SSH 金鑰，因此無需輸入密碼。
+
+Enconvo 會在安裝前先展示外掛程式的資訊：格式（Codex、Claude Code、可移植、桌面擴充功能或 Enconvo）、版本、開發者、技能、MCP 伺服器與掛鉤，以及其中包含的任何 ChatGPT 應用程式（Enconvo 不會載入這些應用程式）。對於每個 MCP 伺服器，它會說明是在你的 Mac 上啟動，還是透過網際網路連線。外掛程式的掛鉤會在你的 Mac 上執行指令，因此除非你勾選**允許執行它的掛鉤**，否則它們會保持關閉。點擊**安裝**後，Enconvo 會開啟該外掛程式的頁面。頁面的**來源**列會說明外掛程式的出處（GitHub 與 git 來源會附上提交紀錄），並連結至儲存庫或 npm 頁面；底部的備註會寫出外掛程式自己提供的開發者名稱：只有 Enconvo 自己的外掛程式與來自其商店的外掛程式才會註明由 Enconvo 製作。以此方式安裝的外掛程式會列在**個人**之下。從同一來源再次安裝會更新該外掛程式。如果已從其他來源安裝了同名外掛程式，請先解除安裝它。
+
+如果位址是一個外掛程式市集，對話框會列出其中的外掛程式，每個項目都帶有**安裝**按鈕。安裝其中一個便會加入該外掛程式市集，下次開啟對話框時，它會顯示在**你的外掛程式市集**下方。
+
+Enconvo 外掛程式的原始碼必須先建置才能使用，因此對話框會提供 `enconvo plugin install` 指令，讓你在終端機中執行。
+
+## 從聊天中安裝
+
+當你請 Enconvo 的代理程式處理現有外掛程式做不到的事情時，它可以在你 Mac 上的外掛程式市集中搜尋外掛程式：包含你在 Enconvo 中加入的外掛程式市集，以及 Codex 或 Claude Code 已有但 Enconvo 尚未加入的外掛程式市集，包括 Codex 內建的 OpenAI Curated 市集（參閱[在 Codex 或 Claude Code 中加入的外掛程式市集](#在-codex-或-claude-code-中加入的外掛程式市集)）。它只讀取你 Mac 上既有的市集目錄副本，搜尋期間不會下載任何內容。它會排除你已安裝的外掛程式，以及與你從其他來源安裝的項目同名的外掛程式。
+
+找到後，代理程式會在聊天中顯示一張卡片，在你點擊**安裝**之前不會進行任何安裝：
+
+- 若來自你在 Enconvo 中加入的外掛程式市集，卡片會說明外掛程式會在你 Mac 上啟動或連線哪些 MCP 伺服器、它的技能，以及它相依的其他外掛程式。
+- 若來自僅 Codex 或 Claude Code 才有的外掛程式市集，卡片會說明安裝時會將該市集加入到 Enconvo。在此之前 Enconvo 無法讀取該外掛程式的內容，因此卡片無法列出詳細清單。
+
+無論哪種情況，外掛程式的掛鉤都會保持關閉，直到你在**外掛程式**中開啟。當某個外掛程式無法安裝（例如它需要的某個相依外掛程式無法安裝）時，代理程式會直接說明，而不會顯示卡片。
+
+### 來自 ChatGPT 的外掛程式
+
+[ChatGPT 外掛程式目錄](https://chatgpt.com/plugins)中的外掛程式無法安裝到 Enconvo。其中大多數是只能在 ChatGPT 內執行的 ChatGPT 應用程式，而其餘的則由 OpenAI 僅提供給 ChatGPT 與 Codex。如果你已在 Mac 上登入 Codex，代理程式會透過 Codex 保存的副本得知該目錄。當你說出其中某個外掛程式的名稱或貼上其 chatgpt.com 連結時，代理程式會說明無法安裝的原因，並提供功能相同的替代項目：連接器、MCP 伺服器、技能，或你某個外掛程式市集中的同名外掛程式。該目錄中許多附帶檔案的外掛程式，在 Codex 內建的 OpenAI Curated 市集（OpenAI 公開的 `openai/plugins` 儲存庫）中也有同名外掛程式。代理程式會提供該外掛程式，而安裝它會將 OpenAI Curated 加入 Enconvo。Enconvo 不會載入這些外掛程式包含的 ChatGPT 應用程式，只會載入其技能與 MCP 伺服器。
+
+在**從 GitHub 加入**中貼上 chatgpt.com 連結同樣無法運作，對話框會顯示相同的說明。
+
+## 從命令列安裝
+
+`plugin install` 可從 GitHub、git、npm、網路上的 zip、資料夾或外掛程式市集取得外掛程式。執行時需要 Enconvo 2.5.6 或更新版本正在運行。
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+| 來源 | 範例 |
+|---|---|
+| GitHub 儲存庫，可選填其中的資料夾與分支、標籤或提交 | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| GitHub 位址 | `https://github.com/acme/plugins/tree/main/notes` |
+| 任何其他透過 https 存取的 git 儲存庫（需安裝 git）；ssh 位址僅適用於 GitHub | `https://git.example.com/notes.git`, `git@github.com:acme/notes.git` |
+| npm 套件 | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| 網路上的外掛程式 zip（僅限公開的 https 位址） | `https://downloads.acme.com/notes-1.2.0.zip` |
+| 你 Mac 上的資料夾 | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| 已加入的外掛程式市集中的外掛程式 | `notes@acme-plugins` |
+
+<Note>
+`plugin install` 與 `plugin marketplace` 需要高於 0.1.174 版本的 `@enconvo/api`。在相依於 `@enconvo/api` 的專案資料夾內，直接執行 `npx enconvo …` 即可。`marketplace import` 亦需要 Enconvo 2.5.7 或更新版本。
+</Note>
+
+加上 `--preview` 可以先檢視將會安裝什麼以及來源為何，而不會實際安裝。
+
+當來源是外掛程式市集而非單一外掛程式時，`plugin install` 會列出其中的外掛程式。超過 200 個外掛程式的市集會列出前 200 個並說明還有多少個；`plugin marketplace add` 則會列出全部。使用 `--plugin` 挑選其中一個，這同時也會加入該外掛程式市集：
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+### 安裝時會發生什麼事
+
+- **設定**：含有必填設定（例如 API 金鑰）的外掛程式會先安裝，再請你填寫。`plugin install` 會列出這些設定項目；請在外掛程式頁面上填寫。
+- **從原始碼安裝 Enconvo 外掛程式**：當 GitHub 儲存庫或資料夾內是尚未建置的 Enconvo 外掛程式時，`plugin install` 會先建置它。資料夾會在執行 `npm install` 後就地建置。
+- **新手引導**：當外掛程式指定了引導技能時，Enconvo 會在首次安裝後提議執行它。
+- **登入**：當外掛程式的 MCP 伺服器需要你登入（例如 Notion 或 Figma 的伺服器）時，外掛程式頁面會在安裝後立即顯示**登入**。Enconvo 會在瀏覽器中開啟該伺服器的登入頁面，並在該伺服器連線後提示下一個伺服器。`plugin install` 則會改為列出這些伺服器。你跳過的登入會保留在**設定 → MCP 伺服器**中等待處理。
+- **掛鉤**：外掛程式的[掛鉤](/extensions/plugin-formats#hooks)在安裝時預設關閉，因為它們會執行指令。`--preview` 會列出這些掛鉤；你可以透過外掛程式頁面上的**允許掛鉤**開關開啟它們。你已允許的掛鉤，在不會更動掛鉤內容的更新後仍會保持開啟。
+- **相依項目**：當來自市集的 Claude Code 外掛程式需要其他外掛程式時，Enconvo 會一併安裝它們（參閱[外掛程式市集](#外掛程式市集)）。`--preview` 會列出這些相依項目，並說明哪些已安裝、哪些將會安裝，以及哪些無法安裝。若市集條目宣告的相依項目來自未獲允許的市集，安裝會停止；若是外掛程式自身的 `plugin.json` 所宣告，則會略過該相依項目並繼續安裝。它們的掛鉤會保持關閉；解除安裝該外掛程式後它們仍會保留，直到你執行清理（參閱[解除安裝](#解除安裝)）。
+- **使用方式**：與 Codex 相同，在聊天中輸入 `@` 並挑選外掛程式，或點擊其頁面**試著提問**底下的某個提示。無論哪種方式，聊天都會附加該外掛程式。每個已安裝的外掛程式都會出現在 `@` 選單中，包含未指定類別的 Codex 或 Claude Code 外掛程式。
+- **同名項目**：從同一來源再次安裝會更新該外掛程式。如果已從其他來源（例如商店）安裝了同名外掛程式，Enconvo 會保持原狀並請你先解除安裝它。
+
+當 Enconvo 未執行時，`plugin install` 仍可透過建置的方式從 GitHub 安裝 Enconvo 外掛程式。其餘情況請先開啟 Enconvo 再重試。
+
+## 外掛程式市集
+
+外掛程式市集是存放於儲存庫或資料夾中的外掛程式目錄。Enconvo 支援讀取兩種格式：Codex 的 `.agents/plugins/marketplace.json` 與 Claude Code 的 `.claude-plugin/marketplace.json`。
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, a git address or a folder
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins --ref v2   # at a branch, tag or commit
+npx -p @enconvo/api enconvo plugin marketplace list               # added marketplaces and their plugins
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # install one of them
+npx -p @enconvo/api enconvo plugin marketplace refresh            # fetch them again for new plugins
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+`refresh` 亦支援 `upgrade`（Codex 的命名）與 `update`（Claude Code 的命名），而 `--ref v2` 與 `acme/plugins@v2` 效果相同。
+
+在外掛程式頁面上，開啟**新增 → 從 GitHub 加入…**並貼上市集的位址，或在**你的外掛程式市集**底下挑選一個已加入的市集。
+
+來自 GitHub 或 git 的市集，Enconvo 會保留一份副本；資料夾型的市集則直接從原路徑讀取。移除市集不會刪除你從中安裝的外掛程式。
+
+### 在 Codex 或 Claude Code 中加入的外掛程式市集
+
+如果你曾在這台 Mac 上的 Codex 或 Claude Code 中加入過市集，或是 Codex 已擷取其 OpenAI Curated 市集，`marketplace list` 會顯示 Enconvo 尚未加入的項目，`import` 則會將它們匯入，讓你不必重新輸入位址：
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace import                            # all of them
+npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # only these
+```
+
+Enconvo 會在 Codex 的 `~/.codex/config.toml`、其 OpenAI Curated 副本與個人 `~/.agents/plugins/marketplace.json` 中，以及 Claude Code 的已知市集清單中尋找它們。它只會讀取這些檔案，不會更動兩個應用程式中的任何內容。OpenAI Curated 會從 GitHub 上的 `openai/plugins` 加入。它會略過 Codex 隨附的其他市集（內含 Codex 自身工具的外掛程式），以及從 `marketplace.json` 檔案網址加入的 Claude Code 市集（Enconvo 不會加入這類市集）。若兩個應用程式都有同名的市集，它會優先採用 Codex 的版本。
+
+像 OpenAI Curated 這類 Codex 市集只會列出每個外掛程式的名稱與來源。對於位於市集自身資料夾內的外掛程式，Enconvo 會像 Codex 一樣，從外掛程式的資訊清單顯示標題、描述、類別與開發者；代理程式除了按名稱之外，也能按功能找到它。市集條目本身所寫的內容會優先採用。
+
+OpenAI Curated 中的部分外掛程式（例如 Gmail、Google Drive、Outlook 與 Teams）必須使用 ChatGPT 登入 Codex 才能運作，因此 Codex 不會提供給使用 API 金鑰登入的使用者。Enconvo 也不會登入 ChatGPT，因此會將它們顯示為需要 ChatGPT 登入、不會安裝它們，代理程式也不會推薦它們。對於這些服務，請改為新增該供應商自己的 MCP 伺服器或連接器。
+
+### 市集外掛程式的來源
+
+市集中的外掛程式可以來自市集內的資料夾、另一個 GitHub 儲存庫、git 位址、git 儲存庫中的資料夾、npm，或網路上的 zip（Claude Code 的 `archive` 來源）。被 Codex 市集標記為 `NOT_AVAILABLE` 的外掛程式無法安裝。
+
+寫作 `./plugins/notes` 的資料夾來源會從市集根目錄讀取。像 `notes` 這樣的純名稱則從 `metadata.pluginRoot` 指定的資料夾讀取（與 Claude Code 相同），並且需要該欄位。
+
+從 GitHub、npm 或網路下載最多可能需要三分鐘；若超過時間，Enconvo 會停止下載並請你檢查網路連線。
+
+無論是你貼上的連結或是市集列出的 zip，都只會從公開的 https 位址下載，最多經過五次重新導向。當市集提供了 `sha256` 時，下載內容若不符合就會被拒絕。外掛程式可以放在 zip 頂層，或放在其中的單一資料夾內。
+
+### Claude Code 市集條目
+
+Claude Code 市集條目與外掛程式自身 `plugin.json` 的搭配方式，與 Claude Code 的讀取規則一致：
+
+- 條目可以在外掛程式自身的基礎上新增 `commands`、`agents`、`skills`、`outputStyles` 與 `themes`，其 `hooks` 會取代外掛程式中相同事件的掛鉤。
+- 若條目設定了 `"strict": false` 卻同時列出上述任一項目，而該外掛程式本身又有 `plugin.json`，會因資訊清單衝突而遭拒絕。請將它們集中於同一處。
+- 若外掛程式沒有 `plugin.json`，條目本身就是它的資訊清單。
+- 介面會顯示條目的名稱、描述、作者與其他列表資訊；版本則以該外掛程式自身的版本為準。
+- 會遵循市集的 `renames` 設定。以舊名稱安裝的外掛程式會繼續以新名稱接收更新，以舊名稱安裝也能找到它。被重新命名為 `null` 的項目表示已從市集移除，Enconvo 會如實說明。如果外掛程式自身的資訊清單也變更了名稱，Enconvo 會請你解除安裝舊外掛程式並安裝新的，因為 Enconvo 依資訊清單為外掛程式命名。
+- 外掛程式在條目或 `plugin.json` 中的 `dependencies` 會隨之一起安裝。每項相依項目可以是名稱（`"formatter"`）、名稱與市集（`"formatter@acme-tools"`），兩者皆可接上 `^` 範圍（`"formatter@acme-tools@^2.1"`），或是包含 semver 範圍的 `{ "name", "marketplace", "version" }`。相依項目預設來自該外掛程式所屬的市集，除非另行指定其他市集；而其他市集必須列在你安裝來源市集的 `allowCrossMarketplaceDependenciesOn` 中。帶有 `version` 範圍的相依項目會安裝符合該範圍（以及符合其他已安裝外掛程式對其設定的範圍）的最高版本釋出標籤（`<plugin>--v<version>`），標籤取自外掛程式自己的儲存庫，或是位於市集內外掛程式的市集儲存庫（若市集資料夾位於 git 儲存庫內亦適用）。若找不到這類標籤，市集內的外掛程式會依市集現況安裝，位於獨立儲存庫的則會遭拒絕。若沒有任何單一版本能同時滿足所有範圍，安裝會遭拒絕，更新也會維持在範圍內。已安裝的相依項目會保持原樣，超出其 `version` 範圍者則會顯示警告。
+
+### 分享前檢查市集
+
+在分享外掛程式市集之前，請先檢查市集及其中每個外掛程式。檢查規則與 `claude plugin validate` 所用的一樣，針對 `.agents/plugins/marketplace.json` 則再加上 Codex 的規則；參閱[驗證代碼](/extensions/validation-codes#marketplaces)。錯誤代表 Claude Code 無法加入該市集或安裝該外掛程式，即使它仍可能列出清單：例如條目欄位型別錯誤、`renames` 未指向任何外掛程式、遭到拒絕的 `relevance` 訊號，或市集名稱看起來像 Anthropic 官方名稱（例如 `claude-plugins-hub`）。警告則涵蓋 Claude Code 會忽略的項目（例如拼錯的欄位）以及 Claude Desktop 會拒絕的名稱。
+
+```sh
+npx -p @enconvo/api enconvo plugin validate path/to/marketplace
+```
+
+## 更新
+
+Enconvo 的外掛程式更新檢查也會涵蓋從 GitHub、git、npm、資料夾與市集安裝的外掛程式，並將它們的更新與商店項目一起列出。它會在不下載的情況下讀取儲存庫的最新提交、向 npm 查詢最新版本、偵測已安裝資料夾的變更；對於市集以 `sha256` 鎖定的 zip，則會偵測該雜湊值是否變更。更新時會從同一來源重新安裝外掛程式。
+
+要檢查單一外掛程式，請開啟它的頁面並在 **⋯** 選單中選擇**檢查更新**。當有新版本時，點擊顯示訊息中的**更新**。
+
+或者像 Claude Code 中的 `claude plugin update` 一樣，在終端機中更新：
+
+```bash
+npx -p @enconvo/api enconvo plugin update notes                # from wherever it came from, or the store
+npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # only if it came from that marketplace
+```
+
+它會先進行檢查。如果沒有更新版本，會說明該外掛程式已是最新版且不做任何更動；否則會以與更新清單相同的方式更新該外掛程式。
+
+## 解除安裝
+
+你可以從外掛程式頁面的選單或其詳細頁面解除安裝外掛程式（執行前會先請你確認），或從終端機解除安裝：
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+清理只會移除那些因為其他外掛程式需要而被安裝、且目前已沒有任何已安裝外掛程式需要的項目，作法與 Claude Code 的 `claude plugin prune` 相同。你自己手動安裝的外掛程式永遠不會被清理，而將某個相依項目重新自行安裝一次，就會使它成為你自己安裝的項目。在終端機中，Enconvo 會列出將要移除的項目並先詢問你；加上 `-y` 可略過確認提問，這在無法互動提問的 `--prune` 情境下是必需的。外掛程式頁面上的解除安裝目前尚不會一併清理相依項目。
+
+## 發佈你自己的外掛程式
+
+要在 Enconvo 商店上架外掛程式，請參閱[外掛程式商店指南](/zh-hant/extensions/publishing-guidelines)。要傳送任何人都能安裝的連結，請點擊外掛程式頁面上的**分享…**；參閱[分享外掛程式](/zh-hant/extensions/overview)。若不透過 Enconvo 分享，可將它推送至 GitHub 或外掛程式市集，其他人便能使用**從 GitHub 加入…**或上述指令安裝。
+
+### 標記釋出版本
+
+`plugin tag` 會用名為 `<plugin>--v<version>` 的 git 標籤標記你要發佈的提交，與 `claude plugin tag` 相同。當其他外掛程式的相依設定要求版本範圍時，Claude Code 與 Enconvo 都會從這些標籤中挑選，任何人也能使用 Enconvo 安裝該釋出版本，例如 `acme/plugins/notes@notes--v1.2.0`。
+
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # tag HEAD and push the tag to origin
+```
+
+版本號取自外掛程式的資訊清單，若清單中沒有則取自其市集條目，且必須符合語意化版本格式（`1.2.0`）。在標記之前，`plugin tag` 會像 `plugin validate` 一樣檢查外掛程式；當市集條目記載了不同的版本、外掛程式資料夾中有尚未提交的檔案，或該標籤已經存在時，指令就會停止。發佈新版本時請調升版本號；加上 `--force` 則會改為移動既有標籤。它對 Codex、Claude Code、可移植與 Enconvo 外掛程式一視同仁，因此套件攜帶的每份資訊清單都必須標明相同的版本。`-m` 用於設定標籤訊息（`%s` 代表版本號），`--remote` 則指定 `--push` 要推送到的遠端儲存庫。與 `plugin install` 相同，它需要高於 0.1.174 版本的 `@enconvo/api`。

@@ -1,0 +1,86 @@
+---
+title: "워크플로"
+description: "프롬프트, 에이전트, 쉘 명령, 도구를 반복 가능한 과정으로 이어 실행하고 살펴보고 예약합니다."
+---
+
+워크플로는 단계로 저장된 반복 가능한 과정입니다. 정보를 읽고, 변환하고, 모델에 묻고, 에이전트에게 일을 넘기고, 설치된 도구를 호출합니다. 같은 여러 단계 일을 반복하고 각 단계가 만든 것을 보고 싶을 때 쓰세요. **설정 → 워크플로 → 관리**를 열어 워크플로와 실행 기록을 둘러봅니다.
+
+<Tip>
+워크플로가 처음인가요? 2½분 영상 안내 [첫 워크플로 만들기](/ko/workflows/build-your-first-workflow)에서 처음부터 끝까지 만들고 편집하고 실행합니다.
+</Tip>
+
+## 맞는 도구 고르기
+
+| 하고 싶은 일 | 쓸 것 |
+| --- | --- |
+| 선택한 텍스트에 프롬프트 재사용 | [AI 명령](/ko/features/ai-commands) |
+| 어시스턴트가 쓸 도구를 결정하게 하기 | [에이전트](/ko/ai/agents) |
+| 살펴볼 수 있는 출력이 있는 반복 가능한 순서 정의 | 워크플로 |
+| 정해진 시각에 에이전트 지침, 워크플로, 스크립트 실행 | [자동화](/ko/workflows/scheduled-jobs) |
+
+## 워크플로의 구성
+
+워크플로에는 세 부분이 있습니다.
+
+- `inputs`: 실행에 필요한 값. 주제나 텍스트 조각 같은 것.
+- `jobs`: 이름 붙인 단계 그룹. `needs`가 한 작업을 다른 작업을 기다리게 하지 않는 한 작업은 병렬로 시작합니다.
+- `steps`: 각 작업 안의 순서 있는 목록. 작업 안의 단계는 하나씩 실행됩니다.
+
+현재 워크플로는 `jobs` 맵이 있는 `version: agent-workflow/v1`을 쓰며, 각 작업은 `steps` 목록을 가집니다.
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+예전 최상위 `tasks` 형식은 더 이상 받지 않습니다. 각 순서를 `jobs.<name>.steps`로 옮기고, 단계에 명시적 ID를 주고, 작업 안에서는 `steps.<id>.output`, 작업 사이에서는 `jobs.<job>.<step>.output`을 쓰세요.
+</Note>
+
+## 단계가 할 수 있는 일
+
+각 단계는 다음 중 정확히 하나를 합니다.
+
+| 단계 | 필드 | 결과 |
+| --- | --- | --- |
+| 쉘 | `command` 또는 `run` | `stdout`, `stderr`, `exitCode`를 포함한 명령 출력 |
+| 프롬프트 | `prompt` | 모델 답. 구조화된 데이터에는 출력 스키마를 씁니다 |
+| 에이전트 | `agent`와 `message` | 선택한 에이전트의 답 |
+| 도구 | `tool`과 `with` | 설치된 Local API 엔드포인트의 결과 |
+| 변환 | `uses: transform`과 `value` | 템플릿이 적용된 값 |
+| 하위 워크플로 | `workflowId` 또는 `workflow`가 있는 `uses: workflow` | 자식 워크플로 실행 결과 |
+| 승인 | `uses: approval`과 `message` | 사용자의 답. 승인, 또는 선택적 피드백과 함께 거부 |
+| 판단 | `uses: judge`와 `question` | Enconvo Cloud의 빠른 결정 모델 Jev의 예 또는 아니오와 확률 |
+| 분류 | `uses: classify`, `question`, `options` | Jev가 고른 옵션과 확신도 |
+
+단계는 조건이 성립할 때만 실행하거나, 목록을 반복하거나, 재시도하거나, 구조화된 데이터를 반환할 수도 있습니다. [고급 워크플로](/ko/workflows/advanced-workflows)를 보세요.
+
+## 워크플로 실행
+
+- **워크플로**에서 열고 **입력**을 설정한 다음 **실행**을 고릅니다.
+- SmartBar에서 저장된 워크플로를 검색합니다. 런처 텍스트는 `inputs.input_text`로 쓸 수 있습니다.
+- 채팅에서 사용 가능한 워크플로를 `@`로 언급하면 에이전트가 쓸 수 있습니다.
+- [자동화](/ko/workflows/scheduled-jobs)로 일정에 따라 실행합니다.
+
+## 워크플로가 저장되는 곳
+
+각 워크플로는 `~/.enconvo/workflows/<id>.yaml`의 파일 하나입니다. 파일 이름이 워크플로 ID입니다. 실행 기록과의 연결을 유지하려면 그 ID를 안정적으로 두세요.
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="첫 워크플로 만들기" icon="play" href="/ko/workflows/build-your-first-workflow">템플릿에서 끝난 실행까지의 영상 안내.</Card>
+  <Card title="워크플로 만들기" icon="pen-to-square" href="/ko/workflows/creating-workflows">시각 편집기, YAML, 어시스턴트, 모든 단계 유형.</Card>
+  <Card title="고급 워크플로" icon="code-branch" href="/ko/workflows/advanced-workflows">조건, 루프, 재시도, 출력 스키마, 하위 워크플로.</Card>
+  <Card title="자동화" icon="clock" href="/ko/workflows/scheduled-jobs">일정에 따라 워크플로나 에이전트를 실행합니다.</Card>
+</CardGroup>

@@ -1,0 +1,159 @@
+---
+title: "在 Linux 伺服器上設定 Enconvo"
+description: "為執行在 Linux 伺服器上的 Enconvo 選擇模型、代理程式和外掛程式：可在其網頁介面、命令列或從 Mac 同步中進行設定。"
+---
+
+如果你的 Mac 在 **設定 → 連線** 下加入了一台 Linux 伺服器並在上面安裝了 Enconvo，本頁面就是為你準備的。該伺服器會在沒有螢幕的情況下執行 Enconvo，你的 Mac 可以開啟它的聊天，但無法開啟它的設定。你可以透過三種方式設定伺服器：使用它的網頁介面、命令列，或是將你 Mac 上的設定同步過去。
+
+## Mac 與伺服器之間共用了什麼
+
+配對能讓你的 Mac 使用伺服器的聊天、代理程式與檔案，但不會共用設定。伺服器會保留自己的模型、代理程式、外掛程式和 API 金鑰，不會從你的 Mac 複製過去。
+
+- 無法從 Mac 開啟伺服器的設定與 API 金鑰，你必須在伺服器上進行更改。
+- 預設情況下，伺服器的代理程式使用預設模型。在新安裝的環境中，這指的是伺服器登入帳號所使用的 Enconvo Cloud，因此其聊天會消耗你的 Cloud 點數。
+- 若要快速切換某個代理程式的模型，可以在 Mac 上的伺服器聊天中使用模型選擇器。這會設定該代理程式在伺服器上的模型、推理強度和速度。若服務供應商需要 API 金鑰，則伺服器上必須先擁有該金鑰。
+
+## 開啟伺服器的網頁介面
+
+伺服器可以將聊天視窗和設定頁面作為網站提供，讓你在 Mac 的瀏覽器中使用設定功能。從 Mac 進行安裝時不會自動開啟這項功能，請透過 SSH 開啟一次。
+
+<Steps>
+  <Step title="開啟網頁介面">
+    使用 `ssh` 連線到伺服器並執行：
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    這會以開啟網頁介面的設定重新寫入 Enconvo 服務並重新啟動。它只會監聽 `127.0.0.1`，因此伺服器外部無法直接連入。當你再次執行 `enconvo service install` 時，該服務只會套用該次執行時指定的新選項。
+  </Step>
+  <Step title="從 Mac 建立通道">
+    在 Mac 的終端機中，使用與 `ssh` 相同的主機名稱：
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    在使用網頁介面期間請保持它處於執行狀態。按 Control-C 即可關閉通道。
+  </Step>
+  <Step title="開啟網頁介面">
+    在 Mac 的瀏覽器中開啟 `http://127.0.0.1:54580`。設定的操作方式與 Mac 上相同：在 **設定 → AI 模型** 下挑選模型、在 **設定 → 外掛程式** 下加入外掛程式，並在該處輸入 API 金鑰。
+  </Step>
+</Steps>
+
+在伺服器上執行 `enconvo service url` 可以列印網頁介面的位址。
+
+### 不透過通道直接存取
+
+如果想不透過 SSH 從其他電腦開啟網頁介面，請將它繫結至網路：
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+這時網頁介面會需要一個連線權杖。執行 `enconvo service url` 可列印包含權杖的位址，結尾為 `?tkn=`。開啟該連結一次後，你的瀏覽器便會保留此權杖。若位於反向代理後方，請加上 `--web-url https://enconvo.example.com` 指定反向代理提供的位址，或使用 `--web-host <name>` 指定存取該伺服器的其他名稱。兩者同樣都需要權杖。
+
+<Warning>
+  任何持有該權杖的人都能存取伺服器上的 Enconvo 帳號，以及該使用者可讀取的所有檔案。請妥善保管此連結，將通訊埠放在防火牆或 VPN 後方，並優先使用 SSH 通道。若要更換權杖，請在伺服器上刪除 `~/.config/enconvo/.support/windows-shell/web-token` 並執行 `systemctl --user restart enconvo`。
+</Warning>
+
+## 從命令列進行設定
+
+每個已安裝外掛程式的路由都是伺服器上的 `enconvo` 指令：`enconvo <plugin> <route> --flags`，或使用 `--input-json` 傳遞整個請求。在任一層級加上 `-h` 即可查看可用選項：
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+請為包含 `|` 的鍵加上引號，例如 `'agent|main'`。未加引號時，shell 會把 `|` 視為管線符號。
+
+### 模型
+
+列出伺服器的模型服務供應商。每一個供應商的 `commandKey`（例如 `llm|enconvo_ai`）就是你要設定的值：
+
+```bash
+enconvo llm list_providers
+```
+
+設定預設模型，所有設為預設值的代理程式都會使用它：
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+設定單一代理程式的模型。主要代理程式是 `agent|main`；`enconvo agent list` 會顯示其他代理程式的 `command_key`：
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+將該值設為 `default` 即可重新跟隨預設模型。`enconvo config preferences 'agent|main'` 會列出某個代理程式擁有的所有設定。
+
+若要復原單一設定，請指定它的名稱：
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  不帶 `--keys` 執行 `enconvo config reset` 會重設該鍵的所有設定，而對代理程式或指令來說，這還會刪除它的工作區資料，且無法復原。
+</Warning>
+
+`config get` 會把已儲存的 API 金鑰和權杖顯示為 `[hidden]`。請在網頁介面的設定中輸入 API 金鑰，而不要用 `config set`，以免它們留存在你的 shell 歷史記錄中。
+
+### 外掛程式
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install` 接受 GitHub 的 `owner/repo`、git URL、指向 `.zip` 的 `https` 連結、`npm:<package>`、資料夾或 `<plugin>@<marketplace>`。需要螢幕才能運作的外掛程式在伺服器上會隱藏。
+
+### 代理程式
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+`enconvo agent -h` 會列出其餘選項，例如刪除或暫停代理程式。
+
+## 透過同步功能使用 Mac 上的設定
+
+同步功能會透過你的 Enconvo 帳號，將 Mac 的設定複製到伺服器。這項功能包含在 Enconvo Cloud 方案與終身授權中。
+
+1. 在你的 Mac 上開啟 **設定 → 同步**，開啟 **多台電腦同步**，並在 **儲存空間** 下選擇 **Enconvo 帳號**。Linux 伺服器無法連線至 iCloud。
+2. 在伺服器的網頁介面中開啟 **設定 → 同步**，並開啟 **多台電腦同步**。
+3. 在 **同步內容** 下，在兩台電腦上都勾選要同步過來的項目，例如 **設定**、**外掛程式** 和 **技能**。
+4. 如果也想把 API 金鑰同步過去，請在兩端都開啟 **API 金鑰**（預設關閉）。接著你的 Mac 會顯示一組代碼：確認伺服器上顯示的代碼一致後，點擊 **允許**。
+
+專屬於單一電腦的內容會留在各自機器上：快速鍵、資料夾路徑與工作資料夾、登入狀態、排程工作與即時通訊機器人。關於每個選項涵蓋的內容，請參閱[同步你的多台 Mac](/zh-hant/configuration/account)。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| `enconvo: command not found` | 請開啟新的 SSH 工作階段。安裝程式會將 Enconvo 的資料夾加入 shell 設定檔的 `PATH` 中，安裝前已開啟的工作階段尚未讀取該設定。 |
+| `enconvo service url` 沒有輸出位址 | Enconvo 未執行，或執行時未開啟網頁介面。請重新執行 `enconvo service install --web 127.0.0.1:54580`。 |
+| 瀏覽器無法開啟 `127.0.0.1:54580` | 檢查通道是否仍在開啟狀態，接著用 `systemctl --user status enconvo` 檢查服務狀態，並用 `journalctl --user -u enconvo` 查看日誌。 |
+| 網頁介面要求輸入連線權杖 | 請開啟 `enconvo service url` 輸出的完整連結，結尾包含 `?tkn=`。 |
+| `service install` 顯示 Enconvo 已在此使用者下執行 | 你的 Mac 曾將 Enconvo 作為背景程序啟動；當伺服器未在你登出後保留使用者服務繼續執行時，就會發生這種情況。請執行 `sudo loginctl enable-linger $USER`，再次執行 `enconvo service install --web 127.0.0.1:54580`，然後重新啟動伺服器讓該服務接管。 |
+| `service install` 顯示系統不支援 systemd | 請改用你自己的程序管理工具執行 `enconvo --headless --web 127.0.0.1:54580`。 |
+| 聊天使用的模型與 Mac 上不同 | 伺服器有自己獨立的模型設定。請檢查 `enconvo config get llm --includes selected`，或開啟同步功能。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="CLI 與 Local API" icon="terminal" href="/zh-hant/advanced/cli-local-api">
+    從終端機與指令碼執行 Enconvo 指令
+  </Card>
+  <Card title="帳號與同步" icon="rotate" href="/zh-hant/configuration/account">
+    在每台電腦上保持設定一致
+  </Card>
+</CardGroup>

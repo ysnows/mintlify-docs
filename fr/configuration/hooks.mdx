@@ -1,0 +1,440 @@
+---
+title: "Points d’accroche"
+description: "Lancez une commande shell ou envoyez un webhook automatiquement quand un Agent démarre, utilise un outil ou termine."
+---
+
+Les points d’accroche lancent une commande shell ou envoient une requête HTTP quand quelque chose se passe dans Enconvo, comme un agent qui démarre, termine, échoue ou utilise un outil. Vous les configurez dans un fichier JSON, pour ajouter des notifications, des journaux, une automatisation locale ou des intégrations sans créer d’extension.
+
+<Note>
+La plupart des points d’accroche sont déclenchés et oubliés : ils tournent en arrière-plan et ne bloquent pas Enconvo. `PreToolUse`, `Stop` et `SubagentStop` font exception pendant l’exécution d’un agent. L’agent les attend, donc ils peuvent bloquer un appel d’outil ou renvoyer l’agent au travail. Voir les points d’accroche bloquants plus bas.
+</Note>
+
+## Démarrage rapide
+
+<Steps>
+  <Step title="Créer le dossier des points d’accroche">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="Créer ~/.enconvo/hooks.json">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Déclencher un agent">
+    Démarrez n’importe quel agent ou commande de discussion. Quand son état change, Enconvo exécute la
+    commande configurée et ajoute une ligne à `/tmp/enconvo-hooks.log`.
+  </Step>
+</Steps>
+
+## Fichier de configuration
+
+Les points d’accroche se trouvent dans :
+
+```text
+~/.enconvo/hooks.json
+```
+
+Enconvo lit aussi l’ancien fichier `~/.config/enconvo/hooks.json` quand le nouveau n’existe pas. Si les deux existent, `~/.enconvo/hooks.json` l’emporte.
+
+Le fichier est relu à chaque événement, donc vous pouvez modifier les points d’accroche pendant qu’Enconvo tourne. Pas besoin de redémarrer.
+
+## Gérer les points d’accroche dans les Réglages
+
+Ouvrez **Réglages → Points d’accroche** pour voir ceux de `~/.enconvo/hooks.json`, regroupés par événement. Activez ou désactivez une entrée avec son interrupteur, ou cliquez sur **Ouvrir hooks.json** pour modifier le fichier. Désactiver ou activer une entrée écrit `enabled: false` ou `enabled: true` sur cette entrée, sans changer sa commande ni son webhook.
+
+## Points d’accroche des plugins
+
+Les plugins Claude Code et Codex, comme context-mode, peuvent apporter leurs propres points d’accroche. Une fois autorisés, ils tournent comme dans Claude Code : au début d’une discussion, autour de chaque message, appel d’outil et compactage, et quand une réponse échoue ou que l’Agent termine.
+
+1. Installez le plugin depuis **Plugins**, ou donnez à un Agent le dépôt GitHub du plugin, son adresse Git, son zip ou son paquet npm dans la discussion. Il propose la carte Installer du plugin.
+2. Cochez **Autoriser ses points d’accroche** avant d’installer. Un plugin installé sans cela indique que ses points d’accroche sont désactivés ; cliquez plus tard sur **Autoriser les points d’accroche** pour les activer.
+
+Si une mise à jour du plugin change ses points d’accroche, ils s’arrêtent jusqu’à ce que vous les vérifiiez et les autorisiez de nouveau. Ceux qu’Enconvo ne peut pas exécuter sont listés sur la carte comme non exécutés dans Enconvo.
+
+## Fonctionnement
+
+Quand un événement se déclenche, Enconvo :
+
+1. Charge `~/.enconvo/hooks.json`.
+2. Repli vers `~/.config/enconvo/hooks.json` seulement si le nouveau fichier est absent.
+3. Trouve les entrées dans l’objet `hooks` de premier niveau dont la clé correspond au nom de l’événement.
+4. Applique l’expression régulière `matcher` facultative.
+5. Ignore les entrées où `enabled` vaut `false`.
+6. Exécute tous les points d’accroche configurés en parallèle.
+
+Les noms d’événements suivent le cycle de vie de Claude Code et Codex : `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop` et `SubagentStop`. Les anciens noms d’événements Enconvo et l’ancienne forme JSON plate fonctionnent encore pour les installations existantes, mais les nouvelles écritures utilisent le format enveloppé de style Codex.
+
+## Référence de configuration
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| Champ | Type | Obligatoire | Description |
+|-------|------|----------|-------------|
+| `hooks` | object | Oui | Carte d’événements indexée par nom d’événement. |
+| `event_name` | string | Oui | Événement à écouter. Utilisez-le comme clé dans `hooks`. |
+| `matcher` | string | Non | Filtre par expression régulière. Pour les événements d’outil, il correspond à `toolName`, `toolTitle` ou `path` ; pour les autres, au nom de l’événement. |
+| `enabled` | boolean | Non | Mettez `false` pour garder l’entrée dans la configuration sans l’exécuter. Défaut : `true`. |
+| `hooks` | array | Oui | Points d’accroche commande et HTTP à exécuter. |
+
+### Point d’accroche commande
+
+Un point d’accroche commande exécute une commande shell. Enconvo écrit la charge utile de l’événement sur l’entrée standard de la commande, en JSON.
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| Champ | Type | Défaut | Description |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | Type de point d’accroche obligatoire. |
+| `command` | string | - | Commande shell à exécuter. |
+| `timeout` | number | `30000` | Délai d’expiration en millisecondes. |
+
+### Point d’accroche HTTP
+
+Un point d’accroche HTTP envoie la charge utile de l’événement comme corps JSON de la requête.
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| Champ | Type | Défaut | Description |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | Type de point d’accroche obligatoire. |
+| `url` | string | - | URL du point de terminaison HTTP. |
+| `method` | string | `"POST"` | Méthode HTTP. |
+| `headers` | object | `{}` | En-têtes de requête supplémentaires. |
+| `timeout` | number | `30000` | Délai d’expiration en millisecondes. |
+
+## Points d’accroche bloquants
+
+Pendant l’exécution d’un agent ou d’un bot, trois événements tournent comme points d’accroche bloquants. L’agent attend chaque point d’accroche correspondant (ils tournent en parallèle) avant de continuer, et lit leur résultat comme Claude Code et Codex.
+
+| Événement | Quand | Ce que le point d’accroche peut faire |
+|-------|------|----------------------|
+| `PreToolUse` | Juste avant l’exécution d’un appel d’outil. Le `matcher` est comparé au nom de l’outil, à son titre et au chemin de la route. | Bloquer l’appel, ou réécrire son entrée. |
+| `Stop` | Juste avant que l’agent termine son tour par une réponse. | Renvoyer l’agent au travail avec une instruction. |
+| `SubagentStop` | Juste avant qu’un sous-agent termine. | Renvoyer le sous-agent au travail avec une instruction. |
+
+Un point d’accroche décide de deux façons :
+
+- **Le code de sortie 2** bloque. Le texte que la commande écrit sur stderr est la raison.
+- **Le code de sortie 0 avec du JSON sur stdout.** Toute autre sortie, code de sortie, erreur ou expiration ne décide rien, et l’exécution continue comme si le point d’accroche n’était pas là.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| Sortie JSON | Effet |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse` : l’appel ne s’exécute pas. Le modèle voit `permissionDecisionReason` comme résultat de l’outil et peut choisir une autre voie. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Traité comme `deny`. Enconvo n’a pas encore de demande de confirmation pour les points d’accroche. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse` : l’appel s’exécute. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse` : l’appel s’exécute avec cette entrée au lieu de celle du modèle. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop` : l’agent continue, avec `reason` comme instruction suivante. Sur `PreToolUse`, cela bloque l’appel. |
+| `{ "decision": "approve" }` | Identique à `allow`. |
+
+Les points d’accroche HTTP décident avec une réponse 2xx dont le corps est le même JSON.
+
+Quand plusieurs points d’accroche correspondent, un refus l’emporte sur une demande, qui l’emporte sur une autorisation. Les raisons sont réunies, et le dernier `updatedInput` est utilisé.
+
+Un point d’accroche `Stop` peut renvoyer l’agent au travail au plus 5 fois dans un tour. Aux deuxième vérification et suivantes, `stop_hook_active` vaut `true`, donc un point d’accroche peut laisser l’agent s’arrêter une fois son instruction suivie. Le blocage de `Stop` ne s’applique que quand l’agent termine normalement ; une exécution échouée ou arrêtée déclenche encore `Stop` en arrière-plan.
+
+<Tip>
+L’agent attend les points d’accroche bloquants, donc un `PreToolUse` lent ralentit chaque appel d’outil, et un `Stop` lent retarde la fin du tour. Gardez-les rapides, fixez un `timeout` court, ou lancez le travail lent en arrière-plan (`command &`).
+</Tip>
+
+Les points d’accroche bloquants reçoivent la charge utile d’événement habituelle, plus les champs Claude Code au premier niveau :
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` et `SubagentStop` reçoivent `stop_hook_active` et `last_assistant_message` à la place des champs d’outil. Les points d’accroche commande tournent dans le dossier de travail de l’agent.
+
+### Bloquer une commande dangereuse
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### Faire exécuter les tests avant de terminer
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## Charge utile de l’événement
+
+Les points d’accroche commande reçoivent ce JSON sur stdin. Les points d’accroche HTTP reçoivent le même JSON comme corps de requête.
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| Champ | Description |
+|-------|-------------|
+| `event` | Nom court de l’événement. |
+| `fullEvent` | Nom interne de l’événement avec le préfixe `event-`. |
+| `sourceEvent` | Événement Enconvo d’origine qui a produit cet événement, quand il est mappé pour la compatibilité Codex. |
+| `sourceFullEvent` | Nom interne d’origine avec le préfixe `event-`. |
+| `params` | Charge utile propre à l’événement. |
+| `timestamp` | Horodatage Unix en millisecondes. |
+
+Les points d’accroche d’arrière-plan reçoivent aussi les champs Claude Code : `hook_event_name`, `session_id` quand l’événement en a un, et, pour les événements d’outil, `tool_name`, `tool_input` et `tool_use_id`.
+
+## Événements disponibles
+
+| Événement | Paramètres | Quand |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | Une nouvelle session de discussion est créée. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | Une exécution d’agent, de discussion ou de bot démarre à partir d’une saisie utilisateur. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Un appel d’outil démarre. Bloquant pendant les exécutions d’agent. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Un appel d’outil atteint un état d’autorisation ou de refus. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Un appel d’outil réussit, échoue, se termine ou est refusé. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | Une exécution d’agent, de discussion ou de bot atteint un état terminal. Bloquant quand un agent termine normalement. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | Un sous-agent est sur le point de terminer. Bloquant. Les sous-agents ne déclenchent pas `Stop`. |
+
+Les anciens noms Enconvo comme `run_status_changed` et `agent_tool_step_changed` fonctionnent encore, donc les fichiers existants n’ont pas besoin d’être migrés tout de suite.
+
+## Recettes
+
+### Notification macOS quand un agent échoue
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Journaliser les changements d’état d’un agent
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Journaliser les appels d’outils d’un agent
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Envoyer vers Slack
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Script personnalisé
+
+Créez un script qui lit la charge utile de l’événement depuis stdin :
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+Référencez-le depuis `~/.enconvo/hooks.json` :
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Rendez le script exécutable :
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Un point d’accroche ne s’est pas exécuté | Vérifiez que `~/.enconvo/hooks.json` est du JSON valide, que la clé de premier niveau correspond au nom de l’événement, et que la commande fonctionne quand vous la lancez vous-même. Si vous avez encore `~/.config/enconvo/hooks.json`, il est ignoré tant que le nouveau fichier existe. |
+| Vous ne savez pas si les points d’accroche bloquent Enconvo | Seuls `PreToolUse`, `Stop` et `SubagentStop` bloquent, pendant les exécutions d’agent. Tous les autres sont déclenchés et oubliés. Si un point d’accroche échoue ou expire, Enconvo journalise l’échec et continue comme s’il n’était pas là. |
+| Les points d’accroche d’un plugin ne tournent pas | Ouvrez le plugin et cliquez sur **Autoriser les points d’accroche**. Après une mise à jour qui les a changés, vérifiez-les et autorisez-les de nouveau. |
+| Une commande ne trouve pas un script ou un binaire | Utilisez des chemins absolus. L’expansion de `~` par le shell fonctionne quand la commande passe par un shell, mais les chemins absolus sont plus simples à déboguer. |
+
+### Tester un script à la main
+
+Envoyez un exemple de charge utile au script :
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">
+    Découvrez les agents Enconvo et les bots personnalisés
+  </Card>
+  <Card title="Référence de l’API d’extension" icon="code" href="/extensions/extension-api-reference">
+    Créez des extensions qui émettent ou écoutent des événements
+  </Card>
+</CardGroup>

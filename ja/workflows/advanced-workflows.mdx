@@ -1,0 +1,363 @@
+---
+title: "高度なワークフロー"
+description: "条件分岐、ループ、リトライ、構造化出力の取得、ステップごとのモデル切り替え、ワークフローの合成を、コピーして使える完全な例とともに紹介します。"
+---
+
+直線的なステップの並びだけでは足りない場合は、これらの機能をお使いください。条件を満たすときだけステップを実行する、リストの要素ごとにステップを繰り返す、1 つのステップが失敗しても実行を継続する、構造化された結果を取得する、別のワークフローを呼び出すといったことが可能です。末尾にはそのまま使えるワークフローの完全な例があります。`agent-workflow/v1` 形式が初めての方は、まず[ワークフローの作成](/ja/workflows/creating-workflows)をご覧ください。
+
+これらの例を実行する前に、シェルパスやツール・プロバイダーの利用可否がお使いの Mac 環境と一致しているか確認してください。
+
+<Tip>
+ビジュアルエディタでは、これらを手書きする必要はありません。ステップインスペクタの[動作](/ja/workflows/creating-workflows)セクションから、`if`、`else_of`、`run_when`、`foreach`、`loop`、`retries`、`required`、`needs`、および出力スキーマを分かりやすい選択肢で設定できます。
+</Tip>
+
+## 条件分岐
+
+### 条件が真のときだけステップを実行する（`if`）
+
+`if:` を付けると、条件が真のときだけそのステップが実行されます。条件が偽の場合、そのステップとそれに依存する後続のステップはスキップされます：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+条件には、真偽値として評価されるテンプレート式を指定します（例：`inputs.score >= 60`、`steps.check.output.exitCode == 0`、または単純なブール値の入力など）。
+
+### 反対側の分岐を実行する（`else_of`）
+
+`else_of:` は、指定したステップが条件によってスキップされたときにのみステップを実行します。`if` に対する「else」側に相当します：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### 合流と後処理を行う（`run_when: always`）
+
+`needs` を持つステップは通常、依存先のいずれかがスキップされるとスキップされ、必須の依存先が失敗すると実行全体が停止します。`run_when: always` を指定すると両方を上書きし、依存先が成功・スキップ・失敗のいずれで終了したかに関わらず、完了次第このステップが実行されます。合流処理やクリーンアップに使用します：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### ステップを無効にする（`enabled: false`）
+
+`enabled: false` を設定すると、ステップをワークフロー内に残したまま、実行のたびにスキップさせます。条件でスキップされた場合とは異なり、無効化されたステップは後続のステップをスキップさせません：
+
+- 後続の依存ステップは通常通り実行され、このステップの出力を参照する箇所には空の値が渡されます。
+- このステップを参照している `else_of` ステップもスキップされます。
+
+ステップを再び有効にするには、キーを削除するか `true` に設定します。エディタでは、インスペクタの**ステップをオフ**を使います。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## ループ
+
+### リストの各要素に対して繰り返す（`foreach`）
+
+`foreach:` は要素ごとに 1 回ずつステップを実行します。ステップ内では `{{ item }}` が現在の要素、`{{ index }}` がその位置を表します。後続のステップには、各実行の出力をまとめた配列が渡されます：
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` にはインライン配列も指定でき、`tool:` 呼び出しやサブワークフローなどあらゆる種類のステップで使えます。空のリストを渡すと空の結果が返り、後続のステップもそのまま実行されます。1 つの要素で失敗すると、`required: false` が指定されていない限り新しい要素の実行は開始されません。
+
+### 条件を満たすまで繰り返す（`loop`）
+
+`loop:` はステップを繰り返し実行します。各ラウンドの終了後に、そのラウンドの結果である `output` に対して `until:` が評価されます。`{{ round }}` は現在のラウンド番号、`{{ last }}` は前回のラウンドの出力です。`until` を満たす前に `maxRounds` に達すると、そのステップは失敗します。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+`until` を省略すると、指定した回数だけ固定でループします：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## 信頼性
+
+| フィールド | 役割 |
+| --- | --- |
+| `retries` | 失敗したステップを再試行します。回数（`retries: 2`）またはオブジェクト（`retries: { maxAttempts: 3, delayMs: 500 }`）で指定します。 |
+| `required: false` | このステップが失敗しても実行全体を中断せず、後続のステップを継続します。 |
+| `timeoutMs` | 実行時間が長すぎるシェルステップを停止します。 |
+
+20 分間応答がないステップは停止され、もう一度だけ再実行されます。ユーザー自身が停止した実行は、失敗ではなく**キャンセル済み**として記録されます。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## 出力コントラクト
+
+`prompt` または `agent` ステップに `output_schema`（JSON Schema オブジェクト）を付けると、返信の構造を強制できます。プロンプト文の中で JSON 形式を説明する必要はありません。要求される構造がモデルに渡され、返信はパースおよび検証されたうえで後続のステップに渡されます。検証失敗時に再試行したい場合は `retries` を設定してください。それでも検証を通らない場合はステップが失敗します。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## ステップごとのモデル上書き
+
+`prompt` と `agent` ステップでは、オプションの `provider:` と `model:` を使ってそのステップだけのモデルを切り替えられます。この切り替えはその実行限りのもので、保存済みのモデル設定には影響しません。大量処理のステップには低コストなモデルを使い、重要な箇所だけ高精度なモデルを使うといった運用が可能です。
+
+`provider` にはインストール済みプロバイダーのコマンド名、`model` には現在のビルドでそのプロバイダーが表示しているモデル ID を指定します。たとえば、動作中のプロバイダー設定から両方の値をコピーして prompt ステップに貼り付けてください。利用可能なモデルや権限はアカウントによって異なります。このページの例では、設定済みのデフォルトモデルを使用します。
+
+<Note>
+`provider` はプロバイダーコマンド（例：`enconvo_ai`、`open_ai`、`ollama`）、`model` はそのプロバイダー用のモデル ID です。どちらも `prompt` ステップと `agent` ステップでのみ有効です。
+</Note>
+
+## サブワークフロー
+
+`uses: workflow` を使うと、別のワークフローを組み込めます。`workflowId:` で保存済みワークフローを指定するか、インラインで `workflow:` ブロックを記述します。ステップの出力は子実行の結果になり、子ワークフローの各ステップの出力は `output.outputs['job.step']` で参照できます：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## テンプレートリファレンス
+
+| 参照式 | 使用できる場所 |
+|---|---|
+| `{{ inputs.x }}` | どこでも：ワークフローの入力値 |
+| `{{ steps.<id>.output }}` | どこでも：同じジョブ内の前のステップ |
+| `{{ jobs.<job>.<step>.output }}` | 依存するジョブ内の完了したステップ |
+| `{{ item }}` / `{{ index }}` | `foreach` ステップの内部 |
+| `{{ round }}` / `{{ last }}` | `loop` ステップの内部 |
+| `{{ now }}` | 現在のタイムスタンプ |
+| `{{ env.HOME }}` | プロセスの環境変数 |
+
+テンプレートでは Nunjucks フィルター（`| trim`、`| int`、`| dump`、`| default(...)`、`{% for %}` など）を利用でき、ステップ間でデータの形を自在に整えられます。
+
+## 完全なサンプル
+
+### 調査・要約・レポート作成
+
+ウェブを検索し、結果を要約し、Markdown レポートを組み立てます。1 つのジョブ内で順番に実行されるため、`needs` の指定は不要です：
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### 条件分岐ルーティング
+
+スコアに応じて承認または却下し、どちらの結果でも必ず最終レポートを出力します：
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### 収束するまでループする
+
+最大ラウンド数を上限として、自己チェックで承認されるまで下書きを繰り返し改善します：
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="ワークフローの作成" icon="pen-to-square" href="/ja/workflows/creating-workflows">
+    エディタ、編集アシスタント、およびすべてのステップタイプ。
+  </Card>
+  <Card title="ワークフロー" icon="book-open" href="/ja/workflows/introduction">
+    ジョブ、ステップ、ワークフローの実行方法。
+  </Card>
+</CardGroup>

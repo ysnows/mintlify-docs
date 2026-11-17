@@ -1,0 +1,103 @@
+---
+title: "Canali IM"
+description: "Collega un bot Telegram o Discord a un Agente Enconvo e scegli chi può parlargli."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+I Canali IM permettono di parlare con un Agente Enconvo da Telegram o Discord. Ogni canale è un bot legato a un Agente: i messaggi in arrivo vanno a quell'Agente, che scrive le risposte. Un Agente può servire più canali, ma ogni canale serve al massimo un Agente. Configurali in **Impostazioni → Canali IM**.
+
+Questo video configura un canale Telegram, tra uno sguardo ad Avatar e a Gestione credenziali.
+
+<YouTubePlayer videoId="O5rNJwqlisg" title="How to Use Avatars, IM Channels and Credentials in Enconvo | Step-by-Step Tutorial" />
+
+## Prima di iniziare
+
+- Crea un bot sulla piattaforma e copia il token del bot (vedi Telegram e Discord sotto).
+- Tieni Enconvo in esecuzione e il Mac online mentre il bot è in ascolto.
+
+<Note>
+Il piano gratuito esegue un bot IM alla volta. Un piano Enconvo Cloud o una licenza a vita ne esegue di più. Vedi [Piani e prezzi](/it/pricing).
+</Note>
+
+## Aggiungi un canale
+
+<Steps>
+  <Step title="Aggiungi il canale">
+    Apri **Impostazioni → Canali IM**, fai clic su **Aggiungi nuovo canale** e scegli **Telegram** o **Discord**.
+  </Step>
+  <Step title="Dagli un nome">
+    Dai al canale un nome che riconoscerai.
+  </Step>
+  <Step title="Incolla il token del bot">
+    Incolla il token del bot della piattaforma in **Token del bot**.
+  </Step>
+  <Step title="Scegli l'Agente">
+    In **bind agent**, scegli l'Agente che gestisce i messaggi in arrivo.
+  </Step>
+  <Step title="Attivalo">
+    Controlla chi può usare il bot (per Telegram, **Controllo degli accessi**), poi attiva **Abilita canale**.
+  </Step>
+  <Step title="Provalo">
+    Fai clic su **Controlla connessione** e verifica che il canale mostri **Connesso**. Poi invia un messaggio di prova da un account consentito.
+  </Step>
+</Steps>
+
+Il modello e gli strumenti dell'Agente legato decidono cosa può rispondere il bot.
+
+## Telegram
+
+Crea un bot con **BotFather** di Telegram e copia il token del bot. Prima di attivare il canale, apri il suo **Controllo degli accessi**:
+
+| Controllo | Cosa fa |
+| --- | --- |
+| **Criterio** | **Associazione richiesta** (predefinito): un nuovo utente condivide un codice di associazione e attende la tua approvazione. **Aperto (tutti)**: chiunque trovi il bot può usarlo. |
+| **Richieste in sospeso** | **Approva** o **Rifiuta** ogni utente che ha chiesto di associarsi. Approva solo le persone che intendi. |
+| **Utenti consentiti** | Gli utenti che hai approvato. **Rimuovi** ne toglie uno dall'elenco; per usare il bot deve associarsi di nuovo. |
+
+Se il bot funziona in una chat diretta ma non in un gruppo, controlla la privacy del bot e i permessi del gruppo su Telegram, oltre al criterio di accesso del canale. Un token da solo non dà al bot l'accesso a ogni conversazione.
+
+## Discord
+
+Crea un'applicazione e un bot nel Discord Developer Portal. Invita il bot nel tuo server e dagli i permessi e gli intent necessari per ricevere e inviare i messaggi che vuoi. Incolla il token del bot nel canale Discord e lega un Agente.
+
+Se si collega ma non risponde, controlla i permessi del canale su Discord e se il bot riceve quel tipo di messaggio. Tieni il bot limitato al server e ai canali che intendi.
+
+## Sessioni e risposte
+
+Ogni conversazione in arrivo ottiene la propria sessione di chat con l'Agente legato. Le risposte seguono quella conversazione; gli utenti collegati non condividono una trascrizione. Cambiare l'Agente legato riavvia il canale, quindi i messaggi successivi vanno al nuovo Agente.
+
+Digita un comando del bot nella chat per controllare la conversazione invece di inviare un messaggio all'Agente: `/new` avvia una nuova sessione di chat e `/stop` ferma la risposta in corso, compresi i messaggi inviati appena prima. I comandi del bot funzionano in Telegram e Discord, e un comando inviato con un allegato viene comunque eseguito come comando.
+
+Per un bot pubblico o di team, usa un Agente dedicato con istruzioni e strumenti adatti. Controlla quali strumenti può usare prima di lasciare che altre persone lo raggiungano.
+
+## Consegna programmata
+
+Le [Automazioni](/it/workflows/scheduled-jobs) possono inviare i risultati a una chat IM che configuri. Scegli tu la destinazione e usa la cronologia delle esecuzioni del compito per distinguere un'esecuzione fallita da una consegna fallita.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Disconnesso | Controlla il token del bot, la rete, che **Abilita canale** sia attivo e che Enconvo sia in esecuzione. Un bot Discord la cui connessione resta in silenzio si ricollega da solo. |
+| Connesso ma in silenzio | Controlla l'Agente legato, il fornitore del modello dell'Agente, i permessi della piattaforma e il criterio di associazione. |
+| Il bot risponde nel modo sbagliato | Controlla le istruzioni, gli strumenti e il modello dell'Agente legato. |
+| Un utente Telegram non riesce a collegarsi | Cerca la sua richiesta di associazione in **Richieste in sospeso** e controlla **Utenti consentiti**. |
+| Un secondo bot non si avvia | Il piano gratuito esegue un bot IM alla volta. Disattiva l'altro bot, oppure passa a un piano superiore. |
+| Le risposte si fermano dopo aver chiuso Enconvo | Il bot ascolta tramite Enconvo sul Mac, quindi l'app deve restare in esecuzione. |
+
+I Canali IM configurano solo Telegram e Discord. Se raggiungi Slack o Feishu tramite un altro plugin o un server MCP, segui la guida di quell'integrazione.
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">
+    Configura l'Agente che risponde al bot.
+  </Card>
+  <Card title="Automazioni" icon="clock" href="/it/workflows/scheduled-jobs">
+    Invia risultati programmati a una chat IM.
+  </Card>
+  <Card title="Piani e prezzi" icon="credit-card" href="/it/pricing">
+    Cosa include ogni piano.
+  </Card>
+</CardGroup>

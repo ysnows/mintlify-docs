@@ -1,0 +1,95 @@
+---
+title: "Extensión del navegador"
+description: "Instala la extensión Enconvo Companion para que Enconvo trabaje en tu navegador real, con tus sesiones, cookies y extensiones."
+---
+
+La extensión de navegador de Enconvo, Enconvo Companion, deja que Enconvo controle tu navegador real cuando una tarea necesita el estado de tu navegador con sesión iniciada. Úsala en sitios como LinkedIn, Gmail, Salesforce, paneles o herramientas internas, donde importan tus cookies y las extensiones del navegador. En Ajustes se llama **Complemento del navegador**.
+
+Para páginas públicas, vistas previas locales o flujos que no deben tocar tu perfil personal del navegador, usa en su lugar la automatización de navegador aislada.
+
+## Configurar la extensión
+
+<Steps>
+  <Step title="Instalar la extensión">
+    Abre **Ajustes → Uso del navegador** y pulsa **Instalar complemento del navegador** en **Extensiones del navegador**. Se abre la página de la extensión en Chrome Web Store. También puedes instalarla desde la tienda de extensiones de tu navegador. Funciona en Chrome, Edge, Brave, Arc, Vivaldi, Opera y Firefox. El [tutorial en vídeo de Uso del ordenador](https://youtu.be/0CbQA7d8zqU?t=33) muestra la instalación en Chrome.
+  </Step>
+  <Step title="Dejar el navegador abierto">
+    La extensión se conecta a Enconvo sola, por `ws://localhost:11225`.
+  </Step>
+  <Step title="Comprobar la ventana emergente">
+    Pulsa el icono de la extensión. La ventana emergente muestra **Connected Chrome**, **Connected Edge**, **Connected Firefox** o el nombre del navegador en el que estás.
+  </Step>
+  <Step title="Empezar una tarea de navegador">
+    Pide a Enconvo que lea, haga clic, escriba, tome una captura o gestione pestañas en el navegador.
+  </Step>
+</Steps>
+
+## La ventana emergente
+
+| Elemento | Qué muestra |
+| --- | --- |
+| Estado de la conexión | Si la extensión de este navegador está conectada a Enconvo |
+| Navegador actual | El navegador al que está conectada esta extensión, como Chrome, Edge, Brave o Firefox |
+| Navegadores conectados | Los otros navegadores cuya extensión está conectada a Enconvo ahora |
+| Versión | La versión instalada de la extensión |
+| **Más información** | Abre esta página |
+
+Si la ventana emergente dice que está desconectada, reinicia Enconvo y actualiza el navegador. Si sigue sin conectarse, apaga la extensión y vuelve a encenderla.
+
+## Usar más de un navegador
+
+Enconvo puede conectarse a varios navegadores a la vez. Cuando una tarea no nombra un navegador, Enconvo elige uno en este orden:
+
+1. El **Default Browser** que elegiste en los ajustes de Uso del navegador (**Ajustes → Uso del navegador**, y después **Ajustes** en el menú **⋯**).
+2. El navegador predeterminado de tu Mac.
+3. El navegador conectado que usaste más recientemente.
+
+Las API de automatización también pueden nombrar el navegador:
+
+```json
+{
+  "browser": "edge"
+}
+```
+
+Los valores habituales incluyen `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera` y `firefox`.
+
+## Quedarse en la pestaña correcta
+
+Cuando empieza una tarea de navegador, Enconvo anota el navegador y la pestaña en los que trabaja. Los pasos posteriores se quedan en esa pestaña siempre que pueden, aunque la página abra una ventana emergente, se recargue o pierda el foco.
+
+Para mejores resultados:
+
+- Deja la pestaña abierta hasta que termine la tarea.
+- Nombra el navegador cuando hay varios conectados.
+- Di “usa la pestaña actual” cuando quieras que Enconvo actúe en la página que tienes delante.
+- Pide una mirada nueva a la página después de que navegue o envíes un formulario.
+
+## Acceso a sitios y seguridad
+
+Las páginas web pueden contener instrucciones que tú no escribiste. En páginas sensibles, revisa el sitio y la acción antes de dejar que Enconvo continúe.
+
+La extensión usa permisos del navegador para leer páginas, hacer clic, escribir, tomar capturas, ver pestañas y leer cookies cuando una tarea lo necesita. Trata las páginas con sesión iniciada, el historial del navegador y las herramientas internas como datos sensibles.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| La ventana emergente dice que está desconectada | Asegúrate de que Enconvo esté en ejecución, reinicia el navegador y apaga la extensión y vuelve a encenderla. Comprueba que nada bloquee `localhost:11225`. |
+| Se controla el navegador equivocado | Define **Default Browser** en los ajustes de Uso del navegador, o pasa un valor de navegador como `edge`, `chrome` o `firefox` en la acción del navegador. |
+| Conectado, pero una página no se puede controlar | Las páginas del navegador como `chrome://` no se pueden controlar. Las páginas con una política de seguridad de contenido estricta, un Shadow DOM cerrado y los avisos de permiso del navegador también pueden estorbar. |
+| Una subida de archivo no funciona | En la página de detalles de la extensión en tu navegador, activa el acceso a URLs de archivo. Las tareas que suben archivos locales o abren páginas respaldadas por archivos lo necesitan. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Uso del navegador" icon="window-restore" href="/es/features/browser-control">
+    Qué pueden hacer los Agentes en tu navegador.
+  </Card>
+  <Card title="Uso del ordenador" icon="computer-mouse" href="/es/features/computer-use">
+    Controla apps del Mac y la barra de herramientas del propio navegador.
+  </Card>
+  <Card title="Imagen en imagen" icon="clone" href="/es/features/picture-in-picture">
+    Mira en directo la pestaña del agente y toma el control cuando te necesite.
+  </Card>
+</CardGroup>

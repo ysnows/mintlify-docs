@@ -1,0 +1,210 @@
+---
+title: "開發擴充功能"
+description: "用一個 TypeScript 指令和一個 Local API 路由建置 Enconvo 外掛程式，在 App 中試用，並發佈到外掛程式商店。"
+---
+
+本指南適合想為 Enconvo 新增自訂指令的開發者。你將建立一個包含一個指令和一個 Local API 路由的外掛程式，將它建置到 Enconvo 中進行測試，然後發佈到外掛程式商店。
+
+Enconvo 外掛程式是一個 ESM 套件，其中繼資料位於 `package.json`，指令放在 `src/` 下，可選的 API 路由放在 `src/api/` 下。指令透過 Enconvo 的擴充功能執行環境執行；外掛程式指令是一個預設匯出的函式，而不是實作 `Command` 介面的類別。
+
+## 開始之前
+
+你需要 Node.js 18 或更新版本、npm 或其他套件管理工具，以及在 Mac 上執行中的 Enconvo。
+
+## 快速開始
+
+在一個新資料夾中建立外掛程式專案：
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+這個專案包含一個指令（**Say Hello**）、一個 Local API 路由、一個預留位置圖示和一份 README。`npm run dev` 會將外掛程式建置到 Enconvo 中，並在每次儲存時自動重新建置。在 Enconvo 中搜尋 **Say Hello** 即可執行它。
+
+外掛程式名稱來自資料夾名稱。傳入 `--name`、`--title`、`--description` 或 `--author` 即可自行設定。請挑選一個尚未被 Enconvo 中已安裝外掛程式使用的名稱，因為建置時會取代已安裝外掛程式的檔案；`plugin create` 會拒絕使用重複的名稱。
+
+若要製作也能安裝在 Codex 和 Claude Code 中的外掛程式，請改從 `--template skills`（技能）或 `--template mcp`（MCP 伺服器）開始。參閱[外掛程式格式](/extensions/plugin-formats)了解這些套件，以及[安裝外掛程式](/zh-hant/extensions/installing-plugins)以了解如何從資料夾、GitHub 或市集試用任何外掛程式。
+
+<Note>
+`plugin create`、`plugin validate` 以及發佈供審核功能需要高於 0.1.173 的 `@enconvo/api` 版本。如果你的版本沒有這些功能，請按照下方的說明手動建立專案。
+</Note>
+
+## 手動建立專案
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+建立 `package.json`：
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+`categories` 中的第一個項目會決定外掛程式在「外掛程式」頁面與商店中顯示的分類：Productivity、Communication、Developer Tools、Data & Analytics、Finance、Creativity、Business & Operations、Education & Research 或 Security。
+
+安裝 SDK，並將建置工具安裝為開發相依套件：
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build` 會使用外掛程式自己的 `tsup` 來編譯程式碼。如果沒有它，建置時便無法編譯；較新的 SDK 會停止並報錯，較舊的 SDK 則會在不編譯指令的情況下結束。
+
+建立 `tsconfig.json`：
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+在 `assets/icon.png` 放一張最大 5 MB 的正方形 PNG、JPEG、WebP 或 GIF 圖示。
+
+## 新增指令
+
+`commands[].name` 對應原始碼檔案名稱。將以下內容放入 `src/hello.ts`：
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+這個指令的鍵為 `hello_enconvo|hello`。執行階段的偏好設定與請求參數會合併到請求主體中。
+
+## 新增 Local API 路由
+
+建置期間會自動探勘 `src/api/` 下的檔案，不需要在 `commands[]` 中宣告。將以下內容放入 `src/api/echo.ts`：
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+這會成為 `hello_enconvo/echo`。像 `src/api/items/list.ts` 這樣的目錄結構則會成為 `hello_enconvo/items/list`。請使用已安裝的 [Local API 結構描述](/zh-hant/advanced/cli-local-api) 來確認確切的請求格式。
+
+## 建置與測試
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+請從外掛程式目錄中執行建置。成功的建置會以 `ready - built extension successfully` 結尾。如果印出 `error` 行，請修復所指出的問題後再次建置。開發模式會監看檔案變更並自動重新建置。API 結構描述會產生在外掛程式的 `skills/` 目錄下。
+
+在 Enconvo 執行時呼叫該路由：
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+分享外掛程式之前，請先測試打招呼的正常流程與無效的 API 輸入。單靠建置成功並無法驗證原生操作或各個服務供應商呼叫。
+
+## 發佈到外掛程式商店
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### 檢查外掛程式
+
+`plugin validate` 會在不上傳任何檔案的情況下，依商店規則檢查外掛程式；[驗證碼](/extensions/validation-codes)會說明它回報的每一個問題。在建置完成後，它也會顯示套件將包含多少個檔案以及會略過哪些檔案。它會檢查：
+
+- 名稱僅使用英文字母、數字、點、連字號與底線
+- `version` 格式如 `1.2.3`
+- 外掛程式具有標題
+- 圖示為最大 5 MB 的 PNG、JPEG、WebP 或 GIF 檔案
+
+你可以在 `metadata/` 資料夾中加入最多 8 張截圖；商店中的外掛程式頁面會依檔案名稱順序將它們顯示在描述下方。
+
+### 上傳以供審核
+
+`plugin publish` 會建置外掛程式，並使用你目前已登入的 Enconvo 帳號將它上傳，因此 Enconvo 必須處於執行中且已登入的狀態。Enconvo 會在每個版本出現在商店前進行審核。在新外掛程式通過審核之前，只有你能看見它；在更新審核期間，商店會繼續提供先前的版本。
+
+每次更新時請提高 `package.json` 中的 `version`。在建置任何內容前，`plugin publish` 會先向商店查詢目前已發佈的版本，若你的版本沒有比它高，就會停止並告知下一個可使用的版本號。處於審核中或被退回的版本可以維持原版本號再次提交；新上傳的內容會覆蓋它。
+
+套件是從建置好的外掛程式產生的。`.env` 檔案、`node_modules`、版本控制資料夾和 `.zip` 封存檔會被排除，但請檢查不要讓其他憑證或私人檔案被打包進去。
+
+審核人員會依照[外掛程式商店審核指南](/zh-hant/extensions/publishing-guidelines)進行檢查。請在 `package.json` 中加入包含建議測試提示詞的 `review` 物件，並透過 `--review-notes` 傳入測試帳號的登入資訊；只有審核人員看得到這些資訊。
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="AI 模型與語音外掛程式" icon="microchip" href="/extensions/provider-plugins">
+    將你自己的 AI 模型或文字轉語音聲音加入 Enconvo 的選擇器
+  </Card>
+  <Card title="擴充功能 API 參考" icon="book" href="/extensions/extension-api-reference">
+    SDK 的建構區塊
+  </Card>
+  <Card title="外掛程式格式" icon="box" href="/extensions/plugin-formats">
+    也能安裝在 Codex 和 Claude Code 中的技能與 MCP 外掛程式
+  </Card>
+  <Card title="工作流程" icon="diagram-project" href="/zh-hant/workflows/introduction">
+    不需要撰寫外掛程式即可重複使用的多步驟流程
+  </Card>
+</CardGroup>

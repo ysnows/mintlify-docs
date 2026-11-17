@@ -1,0 +1,107 @@
+---
+title: "MCP サーバーを作成する"
+description: "小さなローカル MCP サーバーを作成して Enconvo に接続し、エージェントに独自のツールを持たせます。"
+---
+
+このページは、Enconvo のエージェントに独自のツールを提供したい開発者向けです。カスタム MCP サーバーを作成すると、Enconvo のエージェントから呼び出せるツールを公開できます。まずは小さなローカルサーバーで入力と出力を確認してから、目的に合わせた処理を追加してください。
+
+他の人が作成したサーバーをインストールする方法は [MCP サーバー](/ja/features/mcp)を参照してください。Codex や Claude Code にもそのままインストールできる形で配布したい場合は、`--template mcp` を使ってプラグインとしてパッケージ化してください（[プラグイン形式](/extensions/plugin-formats#one-package-for-enconvo-codex-and-claude-code)を参照）。
+
+## はじめる前に
+
+Node.js と npm が必要です。この例では TypeScript SDK の **1.x JavaScript API**（バージョン 1.29.0 固定）を使用します。SDK のメジャーバージョンによってインポート方法やセットアップ手順が異なる場合があるため、別のバージョンを選ぶ際は[公式の MCP サーバーガイド](https://modelcontextprotocol.io/docs/develop/build-server)を参照してください。
+
+## 最小限のローカルサーバーを書く
+
+```sh
+mkdir hello-mcp
+cd hello-mcp
+npm init -y
+npm install @modelcontextprotocol/sdk@1.29.0 zod@3
+```
+
+次の内容を `server.mjs` として保存します。
+
+```javascript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({ name: "hello-enconvo", version: "1.0.0" });
+
+server.registerTool("greet", {
+  description: "Return a greeting for the supplied name.",
+  inputSchema: { name: z.string().min(1).describe("Name to greet") },
+}, async ({ name }) => ({
+  content: [{ type: "text", text: `Hello, ${name}!` }],
+}));
+
+await server.connect(new StdioServerTransport());
+```
+
+stdio サーバーはプロトコルメッセージを待機するため、ターミナルで起動してもチャット画面は表示されません。また、標準出力（stdout）は MCP プロトコルメッセージの通信に使われるため、診断ログは標準エラー出力（たとえば `console.error`）に出力してください。このトランスポートの仕様については[公式ガイド](https://modelcontextprotocol.io/docs/develop/build-server)で解説されています。
+
+## Enconvo に接続する
+
+<Steps>
+  <Step title="サーバーを追加する">
+    **設定 → MCP サーバー**を開き、**サーバーを追加**をクリックします。`hello-mcp` などの**サーバー名**を入力します。
+  </Step>
+  <Step title="起動方法を設定する">
+    **STDIO** を選択します。**コマンド**に `node`、**引数**に `server.mjs` の絶対パスを入力します。Enconvo が Node を見つけられない場合は、`node` 実行ファイルの絶対パスを指定してください。
+  </Step>
+  <Step title="保存して確認する">
+    **保存**をクリックします。サーバーが接続され、`greet` ツールが認識されていることを確認します。
+  </Step>
+  <Step title="試してみる">
+    エージェントから利用できるようにし、「Ada」に挨拶するよう頼んでみます。ツール結果として `Hello, Ada!` が返れば成功です。
+  </Step>
+</Steps>
+
+同等の設定内容は次のとおりです。
+
+```json
+{
+  "command": "node",
+  "args": ["/absolute/path/to/hello-mcp/server.mjs"]
+}
+```
+
+例示のパスは、実際のファイルのパスに置き換えてください。
+
+## 使いやすいツールを設計する
+
+- 各ツールには具体的なアクションと分かりやすい説明を持たせます。
+- ツールの境界で入力値を検証し、対処しやすいエラーメッセージを返します。
+- データの読み取り処理と、送信や削除などの変更を伴う処理は分けます。
+- エージェントが解釈しやすいコンパクトな結果を返します。
+- 認証情報はソースの例やログに出さず、サーバー側の適切な設定に保管します。
+
+## リモートサーバーと認証
+
+リモートサーバーを使う場合は、そのサーバーの導入手順で案内されている HTTP または SSE トランスポートと、それに対応する Enconvo のフォーム（**STDIO** ではなく **HTTP** または **SSE**）を使用します。サーバー URL には通常のウェブサイト URL ではなく MCP エンドポイントを指定してください。対応する認証フローを完了し、接続を確認してからツールを有効にします。
+
+リモートのトランスポート、認証ディスカバリ、セッションの挙動はサーバーとプロトコルのバージョンによって異なります。Enconvo が読み取らない `auth` マニフェストを独自に定義するのではなく、公式 SDK およびプロトコル仕様に従ってください。
+
+## トラブルシューティング
+
+| 問題 | 対処法 |
+| --- | --- |
+| プロセスがすぐ終了する | 実行ファイルのパス、依存パッケージ、構文エラー、標準エラー出力を確認してください |
+| 接続はできたがツールが表示されない | ツールの登録内容、ツールが有効になっているか、選択中のエージェントを確認してください |
+| プロトコル応答が無効になる | 誤って標準出力（stdout）へログを出していないか、別のプログラムを起動していないか確認してください |
+| スキーマ検証エラーになる | 実際の入力形式と使用中の SDK バージョンの仕様を見比べてください |
+| リモート接続に失敗する | エンドポイント URL、トランスポート種別、認証設定、ネットワーク疎通を確認してください |
+
+Enconvo 自身のドキュメントを他の AI クライアントへ公開したい場合は、組み込みの[ナレッジベース MCP サーバー](/ja/advanced/knowledge-base-mcp)を使用してください。カスタムサーバーを作る必要はありません。
+
+## 関連情報
+
+<CardGroup cols={2}>
+  <Card title="MCP サーバー" icon="plug" href="/ja/features/mcp">
+    Enconvo で MCP サーバーをインストールおよび管理します
+  </Card>
+  <Card title="プラグイン形式" icon="box" href="/extensions/plugin-formats">
+    Enconvo、Codex、Claude Code 向けのプラグインとしてサーバーをパッケージ化します
+  </Card>
+</CardGroup>

@@ -1,0 +1,277 @@
+---
+title: "Linux (Beta)"
+description: "Installa la Beta di Enconvo su un desktop Linux o su un server, accedi e usala dal browser."
+tag: "BETA"
+---
+
+<Note>
+Enconvo per Linux è in beta e arriva sul canale di aggiornamento **Beta**. È fatto per l’uso quotidiano, ma le cose possono ancora cambiare tra una build e l’altra. Se qualcosa si rompe, diccelo sul [sito dei feedback](https://feedback.enconvo.com).
+</Note>
+
+**Beta attuale: 2.5.13 Beta 3** (`2.5.13-beta-3`). Per vedere quale versione hai, apri **Impostazioni → Generale → Aggiornamenti**. Su un server, `enconvo update --check` la stampa.
+
+## Scegli come eseguirlo
+
+| Hai | Cosa ottieni | Inizia qui |
+| --- | --- | --- |
+| Un desktop Linux (GNOME, KDE e altri) | L’app Enconvo con la finestra di chat e le finestre Impostazioni | [Installa su un desktop](/it/getting-started/linux) |
+| Un server o un computer cloud senza desktop | Enconvo in background, usato da un browser sul tuo computer | [Installa su un server](/it/getting-started/linux) |
+
+## Requisiti
+
+- **Intel/AMD a 64 bit (x86-64).** Non c’è ancora una build ARM.
+- **Ubuntu 22.04, Debian 12, RHEL 9, Amazon Linux 2023 o più recenti.** Rocky Linux e AlmaLinux 9 contano come RHEL 9. I sistemi più vecchi non possono eseguire Enconvo: la loro libreria C è troppo vecchia.
+- **Memoria:** consigliamo almeno 2 GB liberi, e 4 GB se l’agente userà un browser.
+- **Un account utente normale.** Esegui Enconvo come te stesso, non come root, perché il suo agente esegue i comandi con i diritti di quell’utente. Su un server, crea un utente solo per Enconvo.
+
+## Scaricare la Beta
+
+La Beta arriva in tre forme: un `.deb` per Debian e Ubuntu, un `.rpm` per Fedora, RHEL, Rocky, AlmaLinux e openSUSE, e un `.tar.gz` portatile per tutto il resto. Ogni nome di file porta il numero di versione della Beta. Per 2.5.13 Beta 3 sono:
+
+- `enconvo_2.5.13~beta~3_amd64.deb`
+- `enconvo-2.5.13~beta~3-1.x86_64.rpm`
+- `Enconvo-2.5.13-beta-3-linux-x64.tar.gz`
+
+Questi comandi trovano la Beta più recente e la scaricano.
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo_[^"]*\.deb')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Fedora, RHEL, Rocky, AlmaLinux, openSUSE">
+```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo-[^"]*\.rpm')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Portable .tar.gz">
+```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'Enconvo-[^"]*\.tar\.gz')
+    curl -fLO "$FEED/$FILE"
+    tar xzf "$FILE"
+    ```
+
+    Questo scompatta una cartella chiamata `Enconvo`. Eseguila da lì, e usa `./Enconvo/enconvo` ovunque questa pagina dice `enconvo`.
+  </Tab>
+</Tabs>
+
+## Installa su un desktop
+
+Il gestore dei pacchetti installa anche ciò che serve alle finestre dell’app, GTK e WebKitGTK.
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+```bash
+    sudo apt install ./enconvo_*.deb
+    ```
+  </Tab>
+  <Tab title="Fedora, openSUSE">
+```bash
+    sudo dnf install ./enconvo-*.rpm      # Fedora
+    sudo zypper install ./enconvo-*.rpm   # openSUSE
+    ```
+  </Tab>
+  <Tab title="Portable .tar.gz">
+    Installa GTK 3 e WebKitGTK 4.1 dalla tua distribuzione, poi avvia Enconvo dalla sua cartella:
+
+```bash
+    ./Enconvo/enconvo
+    ```
+  </Tab>
+</Tabs>
+
+RHEL 9, Rocky Linux 9 e AlmaLinux 9 non includono WebKitGTK 4.1, di cui le finestre dell’app hanno bisogno, quindi su quei sistemi [esegui Enconvo come su un server](/it/getting-started/linux).
+
+Apri **Enconvo** dal menu delle applicazioni, accedi e continua con la [Guida rapida](/it/quickstart). L’icona di Enconvo compare nella barra di sistema dove il desktop ne mostra una.
+
+## Installa su un server
+
+Un server non ha bisogno delle librerie desktop, quindi lasciale fuori.
+
+<Steps>
+  <Step title="Installa il pacchetto">
+    <Tabs>
+      <Tab title="Debian, Ubuntu">
+```bash
+        sudo apt install --no-install-recommends ./enconvo_*.deb
+        ```
+      </Tab>
+      <Tab title="Fedora, RHEL, Rocky, AlmaLinux">
+```bash
+        sudo dnf install --setopt=install_weak_deps=False ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="openSUSE">
+```bash
+        sudo zypper install --no-recommends ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="Portable .tar.gz">
+        Niente da installare: usa la cartella `Enconvo` che hai scompattato.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Avvia Enconvo come servizio">
+```bash
+    enconvo service install --web
+    ```
+
+    Enconvo ora gira in background e serve la finestra di chat e Impostazioni come sito solo su questa macchina, a `127.0.0.1:54580`. Riparte all’avvio del server. Se il comando dice che gira solo mentre sei connesso, esegui il comando `sudo loginctl enable-linger` che stampa.
+  </Step>
+  <Step title="Accedi">
+```bash
+    enconvo login
+    ```
+
+    Enconvo stampa un codice breve. Apri `enconvo.com/device` sul telefono o sul computer, controlla che la pagina indichi il tuo account e approva il codice entro 10 minuti.
+  </Step>
+  <Step title="Apri Enconvo dal tuo computer">
+    Esegui questo sul tuo computer, poi lascialo in esecuzione:
+
+```bash
+    ssh -N -L 54580:127.0.0.1:54580 you@your-server
+    ```
+
+    Apri [http://localhost:54580](http://localhost:54580) nel browser. Ottieni la stessa finestra di chat e le stesse Impostazioni dell’app desktop.
+  </Step>
+</Steps>
+
+Per usare questo server dall’app Enconvo sul telefono, esegui `enconvo companion pair --phone` e scansiona il codice che stampa. Vedi [Accoppia il telefono](/it/integrations/pair-your-phone).
+
+### Raggiungerlo senza un tunnel SSH
+
+Il tunnel è il modo più sicuro di entrare, perché nulla sul server è aperto alla rete. Il sito ha tutti i diritti del tuo account e può raggiungere i file del server, quindi chiunque possa aprirlo può usare entrambi.
+
+Per aprirlo da altri computer direttamente, per esempio su una rete privata o una VPN:
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+enconvo service url
+```
+
+`enconvo service url` stampa l’indirizzo con il suo token di connessione. Tieni privato quell’indirizzo, e non esporre questa porta a internet.
+
+Per un indirizzo pubblico, metti un reverse proxy con HTTPS davanti a Enconvo e di’ a Enconvo l’indirizzo che serve:
+
+```bash
+enconvo service install --web --web-url https://enconvo.example.com
+```
+
+Con HTTPS, il sito si può anche installare come app sul telefono o sul computer.
+
+## Usare Uso del browser su un server
+
+L’agente può navigare su un server senza schermo: Enconvo avvia il proprio browser headless, chiamato Enconvo Browser, la prima volta che l’agente ne ha bisogno. Installa prima Chromium.
+
+<Tabs>
+  <Tab title="Debian">
+```bash
+    sudo apt install chromium
+    ```
+  </Tab>
+  <Tab title="Ubuntu">
+```bash
+    sudo snap install chromium
+    ```
+  </Tab>
+  <Tab title="Fedora">
+```bash
+    sudo dnf install chromium
+    ```
+  </Tab>
+  <Tab title="RHEL, Rocky, AlmaLinux">
+    Chromium arriva da [EPEL](https://docs.fedoraproject.org/en-US/epel/):
+
+```bash
+    sudo dnf install epel-release
+    sudo dnf install chromium
+    ```
+  </Tab>
+</Tabs>
+
+Poi chiedi all’agente, per esempio: “Open news.ycombinator.com and tell me the top story.”
+
+Enconvo Browser tiene i propri accessi. Quando un sito ha bisogno di te, per un accesso o un controllo, l’agente ti dà una vista in tempo reale della pagina nel browser, dove puoi fare clic e scrivere tu. Si chiude dopo 30 minuti di inattività, e riporta le schede la volta dopo.
+
+Una pagina che solo il server può raggiungere, come un server di sviluppo che l’agente ha avviato su `localhost`, si apre accanto alla chat come vista in tempo reale, così funziona attraverso il tunnel SSH.
+
+## Cosa funziona dove
+
+| Funzione | Desktop Linux | Server |
+| --- | --- | --- |
+| Finestra di chat, Impostazioni | Sì | Sì, nel browser |
+| Agenti, strumenti, file, documenti, artefatti | Sì | Sì |
+| Uso del browser | Sì | Sì, con Chromium |
+| Base di conoscenza, Memoria, Automazioni, Flussi di lavoro | Sì | Sì |
+| Modelli Enconvo Cloud, ricerca web, OCR, creazione di immagini, voce | Sì | Sì |
+| Uso del computer | Sì | No: non c’è uno schermo da controllare |
+| Scorciatoie globali, Dettatura, Note vocali, Registrazioni, Disegno sullo schermo, Appshot, notifiche | Sì | No: servono un desktop |
+
+Su Wayland, le scorciatoie globali richiedono un desktop che le offra alle app.
+
+Queste funzioni non ci sono su Linux: Smart Bar, PopBar, Dynamic Island, Comando vocale, Avatar, Desktop Pet, barra laterale delle app, Live Talk e Sottotitoli in tempo reale. Smart Bar, PopBar, Dynamic Island, Comando vocale, Avatar e Desktop Pet sono nella [Beta di Windows](/it/getting-started/windows).
+
+I modelli di chat locali girano da file GGUF, su sistemi con glibc 2.38 o più recente. I modelli MLX richiedono un Mac.
+
+## Il tuo account su Linux
+
+Se il tuo account usa anche l’[app iPhone](/it/integrations/iphone-app), le scelte predefinite di chat, voce e immagini seguono l’account su questo computer. Un fornitore che gira sulla tua chiave API non segue, perché le chiavi non vengono copiate. Aggiungi la chiave in **Impostazioni** su questo computer se vuoi lo stesso fornitore qui.
+
+Se l’orologio del server è in un fuso orario diverso dal browser, Enconvo offre di usare il tuo per gli orari e le [Automazioni](/it/workflows/scheduled-jobs).
+
+## Aggiornare
+
+Una build Beta resta sul canale Beta. Per cambiarlo, apri **Impostazioni → Generale** e imposta **Canale di aggiornamento**. Vedi [Aggiornamenti](/it/configuration/updates).
+
+Su un desktop, usa **Aggiorna** nella finestra di chat quando compare. La build portatile si sostituisce da sola. Per un `.deb` o `.rpm`, Enconvo scarica il nuovo pacchetto nella cartella Download, e lo installi come in [Installa su un desktop](/it/getting-started/linux).
+
+Su un server:
+
+```bash
+enconvo update --check   # is there a newer version?
+enconvo update           # download and check it
+```
+
+Se hai installato il `.deb` o l’`.rpm`, `enconvo update` scarica il nuovo pacchetto e stampa il comando per installarlo come root. Esegui quel comando, poi riavvia il servizio:
+
+```bash
+systemctl --user restart enconvo
+```
+
+Se esegui il `.tar.gz` portatile, `enconvo update` sostituisce la cartella e riavvia il suo servizio per te. Se la nuova versione non parte, rimette quella vecchia.
+
+## Risoluzione dei problemi
+
+| Cosa vedi | Cosa fare |
+| --- | --- |
+| `enconvo` dice che l’app desktop ha bisogno di GTK 3 e WebKitGTK 4.1 | Su un desktop, installa i pacchetti che indica. Su un server, o su RHEL 9, usa `enconvo service install --web` |
+| `GLIBC_2.34 not found`, o un messaggio che elenca i sistemi supportati | Il sistema è troppo vecchio: usane uno da [Requisiti](/it/getting-started/linux) |
+| `dnf` dice `nothing provides libwebkit2gtk-4.1.so.0` | Hai un pacchetto più vecchio. Installa la Beta attuale con il [comando per il server](/it/getting-started/linux) |
+| Enconvo si ferma quando esci dal server, o non parte dopo un riavvio | Esegui `sudo loginctl enable-linger "$USER"` |
+| `localhost:54580` non si apre | Controlla che il comando `ssh -L` sia ancora in esecuzione, e che `systemctl --user status enconvo` dica active |
+| Il sito chiede un token | Esegui `enconvo service url` sul server e apri l’indirizzo che stampa |
+| L’agente dice che non può avviare Enconvo Browser | [Installa Chromium](/it/getting-started/linux). Google Chrome 137 e successivi non possono caricare l’estensione di cui Enconvo Browser ha bisogno |
+| Il codice è scaduto | Esegui di nuovo `enconvo login` per averne uno nuovo |
+
+Per leggere il log di Enconvo su un server:
+
+```bash
+journalctl --user -u enconvo -n 100
+```
+
+## Rimuovere Enconvo
+
+```bash
+enconvo service uninstall
+sudo apt remove enconvo     # Debian, Ubuntu
+sudo dnf remove enconvo     # Fedora, RHEL, Rocky, AlmaLinux
+sudo zypper remove enconvo  # openSUSE
+```
+
+Impostazioni e chat restano in `~/.config/enconvo`. Elimina quella cartella per rimuoverle anch’esse.

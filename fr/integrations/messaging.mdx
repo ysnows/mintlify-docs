@@ -1,0 +1,103 @@
+---
+title: "Canaux de messagerie"
+description: "Connectez un bot Telegram ou Discord à un Agent Enconvo, et choisissez qui peut lui parler."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Les canaux de messagerie permettent de parler à un Agent Enconvo depuis Telegram ou Discord. Chaque canal est un bot lié à un Agent : les messages entrants vont à cet Agent, et il écrit les réponses. Un Agent peut servir plusieurs canaux, mais chaque canal sert au plus un Agent. Configurez-les dans **Réglages → Canaux de messagerie**.
+
+Cette vidéo configure un canal Telegram, entre un aperçu d’Avatar et de la gestion des identifiants.
+
+<YouTubePlayer videoId="O5rNJwqlisg" title="Comment utiliser les Avatars, les canaux de messagerie et les identifiants dans Enconvo | Tutoriel pas à pas" />
+
+## Avant de commencer
+
+- Créez un bot sur la plateforme et copiez son jeton de bot (voir Telegram et Discord ci-dessous).
+- Laissez Enconvo ouvert et le Mac en ligne pendant que le bot écoute.
+
+<Note>
+Le forfait gratuit exécute un bot de messagerie à la fois. Un forfait Enconvo Cloud ou une licence à vie en exécute davantage. Voir [Forfaits et tarifs](/fr/pricing).
+</Note>
+
+## Ajouter un canal
+
+<Steps>
+  <Step title="Ajouter le canal">
+    Ouvrez **Réglages → Canaux de messagerie**, cliquez sur **Ajouter un nouveau canal**, et choisissez **Telegram** ou **Discord**.
+  </Step>
+  <Step title="Le nommer">
+    Donnez au canal un nom que vous reconnaîtrez.
+  </Step>
+  <Step title="Coller le jeton du bot">
+    Collez le jeton de bot de la plateforme dans **Jeton du bot**.
+  </Step>
+  <Step title="Choisir l’Agent">
+    Dans **lier un agent**, choisissez l’Agent qui traite les messages entrants.
+  </Step>
+  <Step title="L’activer">
+    Vérifiez qui peut utiliser le bot (pour Telegram, **Contrôle d’accès**), puis activez **Activer le canal**.
+  </Step>
+  <Step title="Le tester">
+    Cliquez sur **Vérifier la connexion** et assurez-vous que le canal affiche **Connecté**. Envoyez ensuite un message de test depuis un compte autorisé.
+  </Step>
+</Steps>
+
+Le modèle et les outils de l’Agent lié décident de ce que le bot peut répondre.
+
+## Telegram
+
+Créez un bot avec **BotFather** de Telegram et copiez son jeton de bot. Avant d’activer le canal, ouvrez son **Contrôle d’accès** :
+
+| Contrôle | Rôle |
+| --- | --- |
+| **Politique** | **Association requise** (le défaut) : un nouvel utilisateur partage un code d’association et attend votre approbation. **Ouvert (tout le monde)** : toute personne qui trouve le bot peut l’utiliser. |
+| **Demandes en attente** | **Approuver** ou **Refuser** chaque utilisateur qui a demandé à s’associer. N’approuvez que les personnes voulues. |
+| **Utilisateurs autorisés** | Les utilisateurs que vous avez approuvés. **Retirer** en enlève un de la liste ; il doit s’associer à nouveau pour utiliser le bot. |
+
+Si le bot fonctionne dans une discussion directe mais pas dans un groupe, vérifiez aussi la confidentialité du bot Telegram et les autorisations du groupe, ainsi que la politique d’accès du canal. Un jeton seul ne donne pas au bot l’accès à toutes les conversations.
+
+## Discord
+
+Créez une application et un bot dans le portail développeur Discord. Invitez le bot sur votre serveur, et donnez-lui les autorisations et les intents nécessaires pour recevoir et envoyer les messages voulus. Collez son jeton de bot dans le canal Discord et liez un Agent.
+
+S’il se connecte mais ne répond pas, vérifiez les autorisations du canal sur Discord et si le bot reçoit ce type de message. Limitez le bot au serveur et aux canaux voulus.
+
+## Sessions et réponses
+
+Chaque conversation entrante a sa propre session de chat avec l’Agent lié. Les réponses suivent cette conversation ; les utilisateurs connectés ne partagent pas une seule transcription. Changer l’Agent lié redémarre le canal, donc les messages suivants vont au nouvel Agent.
+
+Saisissez une commande de bot dans le chat pour contrôler la conversation au lieu d’envoyer un message à l’Agent : `/new` démarre une nouvelle session de chat, et `/stop` arrête la réponse en cours, y compris les messages envoyés juste avant. Les commandes de bot fonctionnent dans Telegram et Discord, et une commande envoyée avec une pièce jointe s’exécute quand même comme une commande.
+
+Pour un bot public ou d’équipe, utilisez un Agent dédié avec des instructions et des outils adaptés. Vérifiez quels outils il peut utiliser avant de laisser d’autres personnes l’atteindre.
+
+## Envoi planifié
+
+Les [Automatisations](/fr/workflows/scheduled-jobs) peuvent envoyer leurs résultats à un chat de messagerie que vous configurez. Choisissez vous-même la destination, et utilisez l’historique d’exécution de la tâche pour distinguer une exécution échouée d’un envoi échoué.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Déconnecté | Vérifiez le jeton du bot, le réseau, que **Activer le canal** est activé, et qu’Enconvo est en cours d’exécution. Un bot Discord dont la connexion se tait se reconnecte tout seul. |
+| Connecté mais silencieux | Vérifiez l’Agent lié, le fournisseur de modèle de l’Agent, les autorisations de la plateforme et la politique d’association. |
+| Le bot répond de travers | Vérifiez les instructions, les outils et le modèle de l’Agent lié. |
+| Un utilisateur Telegram ne peut pas se connecter | Cherchez sa demande d’association sous **Demandes en attente**, et vérifiez **Utilisateurs autorisés**. |
+| Un deuxième bot ne démarre pas | Le forfait gratuit exécute un bot de messagerie à la fois. Désactivez l’autre bot, ou passez à un forfait supérieur. |
+| Les réponses s’arrêtent après avoir quitté Enconvo | Le bot écoute via Enconvo sur votre Mac, donc l’app doit rester ouverte. |
+
+Les canaux de messagerie ne configurent que Telegram et Discord. Si vous atteignez Slack ou Feishu par un autre plugin ou un serveur MCP, suivez le guide de cette intégration.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">
+    Configurez l’Agent qui répond à votre bot.
+  </Card>
+  <Card title="Automatisations" icon="clock" href="/fr/workflows/scheduled-jobs">
+    Envoyez des résultats planifiés vers un chat de messagerie.
+  </Card>
+  <Card title="Forfaits et tarifs" icon="credit-card" href="/fr/pricing">
+    Ce que chaque forfait comprend.
+  </Card>
+</CardGroup>

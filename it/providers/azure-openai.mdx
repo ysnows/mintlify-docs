@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatta in Enconvo con le distribuzioni Azure OpenAI della tua organizzazione."
+---
+
+Usa i modelli OpenAI che la tua organizzazione distribuisce su Azure. Enconvo parla direttamente con la tua risorsa Azure, quindi accesso, quote e fatturazione seguono l’abbonamento Azure.
+
+## Prima di iniziare
+
+Ti serve una risorsa Azure OpenAI con almeno una distribuzione di modello. Dal portale Azure, copia la **chiave** della risorsa, il suo **endpoint** e il **nome della distribuzione** che hai dato al modello. Vedi [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview) se non ne hai ancora configurata una.
+
+## Collega
+
+<Steps>
+  <Step title="Aggiungi la credenziale">
+    Apri **Impostazioni → Modello di IA → Azure OpenAI**. In **Autenticazione**, compila **Chiave API**, **Endpoint** e **API Version**, poi fai clic su **Convalida**. L’endpoint ha una forma come `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Imposta la distribuzione">
+    Inserisci il nome della distribuzione in **Azure OpenAI Api Deployment Name**. Usa il nome della risorsa Azure, che può differire dal nome del modello.
+  </Step>
+  <Step title="Provalo">
+    Invia un messaggio breve. Una risposta significa che la connessione funziona.
+  </Step>
+</Steps>
+
+## Modelli e opzioni
+
+| Impostazione | Cosa fa |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | La distribuzione chiamata da questo fornitore. |
+| **Streaming** | Mostra la risposta mentre viene scritta. Attivo per impostazione predefinita; disattivalo se la distribuzione non supporta lo streaming. |
+| **API Version** | Nella credenziale. Il valore predefinito è `2025-01-01-preview`. |
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| **Convalida** fallisce | Verifica che la chiave e **Endpoint** provengano dalla stessa risorsa Azure. |
+| La distribuzione non viene trovata | Copia il nome della distribuzione esattamente dal portale Azure. |
+| La risposta non compare mai | Disattiva **Streaming** e riprova. |
+| Errori di frequenza o di quota | Alza la quota della distribuzione in Azure, oppure passa a un altro fornitore per ora. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/it/providers/openai">Usa invece l’API di OpenAI. </Card>
+  <Card title="Credenziali e profili" icon="key" href="/it/configuration/credentials">Conserva più chiavi e vedi cosa influenza una chiave condivisa.</Card>
+  <Card title="Scegli un modello" icon="list-check" href="/it/ai/model-selection-guide">Scegli un modello in base al compito e vedi dove sono impostati i predefiniti.</Card>
+  <Card title="Catalogo dei fornitori" icon="table" href="/it/providers/catalog">Ogni fornitore, raggruppato per la funzione che alimenta.</Card>
+</CardGroup>

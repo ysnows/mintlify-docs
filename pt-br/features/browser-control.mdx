@@ -1,0 +1,112 @@
+---
+title: "Utilização do navegador"
+description: "Deixe um Agente ler e trabalhar nos separadores reais do seu navegador, com as sessões que o navegador já tem."
+---
+
+A Utilização do navegador deixa um Agente trabalhar em separadores que têm a extensão Enconvo Companion ligada. Ele pode ler uma página, clicar em controlos, preencher campos, conferir o resultado e gerir separadores, tudo com as sessões que o seu navegador já tem. Use-a quando uma tarefa precisa de um site em que você tem sessão iniciada.
+
+## Configurar
+
+<Steps>
+  <Step title="Instalar a extensão">
+    Instale o [Enconvo Companion na Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) num navegador Chromium suportado, ou clique em **Install Browser Companion** em **Definições → Utilização do navegador**. Para outros navegadores, use o pacote de extensão feito para esse navegador.
+  </Step>
+  <Step title="Manter os dois a correr">
+    Mantenha o Enconvo e o navegador abertos.
+  </Step>
+  <Step title="Conferir a ligação">
+    Clique no ícone da extensão. O popup mostra **Connected** e o nome do navegador.
+  </Step>
+  <Step title="Conferir o acesso">
+    Confirme que o Agente que vai usar tem as ferramentas do navegador e aprove qualquer site sobre o qual a extensão pergunte.
+  </Step>
+  <Step title="Experimentar uma tarefa só de leitura">
+    Comece com algo que não muda nada, como "Lê esta página e resume os pontos principais."
+  </Step>
+</Steps>
+
+O Safari não usa a extensão Chromium. No Safari, a [Utilização do computador](/pt-br/features/computer-use) clica e escreve no ecrã, por isso nem todos os navegadores fazem as mesmas coisas. Veja [Extensão do navegador](/pt-br/features/browser-extension) para o popup, navegadores ligados, destino dos separadores e aprovações de sites.
+
+## Trabalhar num separador específico
+
+Nomeie o navegador e a página no pedido:
+
+> No Edge, lê o separador de documentação atual e lista os três passos de configuração. Mantém a página aberta.
+
+O Agente lê a página, escolhe um elemento, age e confere o que mudou. Os elementos da página podem mudar depois de uma navegação ou de uma atualização ao vivo. Se o Agente perder um elemento, peça uma vista nova da página.
+
+Enquanto o Agente trabalha num separador que você não vê, uma janela [Picture-in-Picture](/pt-br/features/picture-in-picture) mostra-o ao vivo no canto do ecrã. Clique nela para ir ao separador e assumir o controlo.
+
+## Quando a tarefa termina
+
+Os separadores que um Agente abre fecham-se quando o turno termina. Estes ficam abertos:
+
+- uma página que o Agente lhe entrega como resultado
+- um separador que lhe entregou
+- um separador que você fixou
+- o separador que você está a ver
+
+Os seus próprios separadores nunca são fechados.
+
+## O que pode fazer
+
+| Área | Exemplos |
+| --- | --- |
+| Navegação | Abrir um URL, ir para trás ou para a frente, recarregar, esperar por uma condição |
+| Leitura | Estado da página, texto visível, atributos, capturas de ecrã, conteúdo selecionado |
+| Interação | Clicar, escrever, preencher, selecionar, premir teclas, deslocar, arrastar |
+| Organização do navegador | Ver e gerir separadores, janelas e sessões ligadas |
+| Ferramentas avançadas | Avaliação da página, cookies, armazenamento, histórico e inspeção específica do navegador |
+
+### Capturar uma página inteira
+
+Peça ao agente para capturar uma página web inteira, como "Guarda uma captura de ecrã desta página inteira no Ambiente de trabalho." Ele guarda um ficheiro PNG onde você pede, na resolução da própria página e sem o cursor do agente.
+
+### Inícios de sessão e verificações humanas
+
+Quando uma tarefa chega a uma página de início de sessão, um cartão pede o nome de utilizador e a palavra-passe uma vez. O Enconvo preenche-os só nesse site, e o agente nunca vê a palavra-passe; veja [Credenciais](/pt-br/configuration/credentials). Quando uma página mostra uma verificação humana, o agente pode entregar-lhe o separador. Inicie sessão ou resolva a verificação nesse separador e clique em **Return to agent** para o devolver.
+
+O que funciona depende do navegador, da página, da versão da extensão e das ferramentas que você ligou. Páginas do navegador como `chrome://` e outro conteúdo restrito podem estar fora de alcance.
+
+<Warning>
+A Utilização do navegador age nas suas contas reais. Diga se uma tarefa deve só preparar um rascunho ou também enviá-lo.
+</Warning>
+
+## Definições
+
+| Definição | Onde | O que muda |
+| --- | --- | --- |
+| **Default Browser** | **Definições → Utilização do navegador**, depois **Definições** no menu **⋯** | O navegador que as tarefas usam quando você não nomeia um. **Auto (System Default)** segue o navegador padrão do Mac. |
+| **Browser Extensions** | **Definições → Utilização do navegador** | Lista os navegadores que têm a extensão, cada um **Connected** ou **Disconnected**. |
+| **Picture-in-Picture Window** | **Definições → Utilização do navegador** | Quando uma vista ao vivo do separador do Agente aparece no canto do ecrã: **Always** (padrão), **Only When I Am Needed** ou **Off**. Veja [Picture in Picture](/pt-br/features/picture-in-picture). |
+
+Também pode nomear um navegador na própria tarefa.
+
+Para programadores, a rota `browser-use/status` da Local API indica o estado da ligação, e **Definições → APIs** lista as rotas instaladas e os esquemas.
+
+## Solução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Não ligado | Confirme que a extensão está ligada e o Enconvo está a correr, e olhe o popup. A extensão liga-se ao Enconvo neste Mac pela porta 11225. |
+| Navegador ou separador errado | Nomeie o navegador e a página e peça uma vista nova da página. |
+| Um clique ou um preenchimento falha | Olhe a página como está agora. Um diálogo, uma navegação ou um frame incorporado podem ter movido o alvo. |
+| A captura de ecrã está em branco | Traga o separador para a frente e espere a página carregar. |
+| O site pede para iniciar sessão | Inicie sessão no site como de costume. Ter sessão no navegador não significa que a sessão de cada site ainda seja válida. |
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Extensão do navegador" icon="puzzle-piece" href="/pt-br/features/browser-extension">
+    O popup, os navegadores ligados e a segurança dos sites.
+  </Card>
+  <Card title="Utilização do computador" icon="computer-mouse" href="/pt-br/features/computer-use">
+    Apps nativas do Mac, diálogos de ficheiros e controlos do ambiente de trabalho.
+  </Card>
+  <Card title="Agentes" icon="robot" href="/pt-br/ai/agents">
+    Escolha que ferramentas um Agente pode usar.
+  </Card>
+  <Card title="CLI e Local APIs" icon="terminal" href="/pt-br/advanced/cli-local-api">
+    Chame rotas de Utilização do navegador a partir de scripts.
+  </Card>
+</CardGroup>

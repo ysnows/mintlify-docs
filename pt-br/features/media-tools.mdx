@@ -1,0 +1,65 @@
+---
+title: "Utilitários de mídia"
+description: "Comprima imagens, vídeo e áudio, guarde o som de um vídeo ou descarregue um vídeo a partir de um link."
+---
+
+Os Utilitários de mídia são comandos locais para tarefas do dia a dia: tornar imagens, vídeo ou áudio mais pequenos, guardar a faixa de som de um vídeo ou descarregar um vídeo de uma página web. Encontre-os no SmartBar ou em **Definições → Plugins**.
+
+| Comando | O que faz | Guarda em |
+| --- | --- | --- |
+| **Image Compress** | Comprime uma ou mais imagens, ou todas as imagens de uma pasta e das subpastas, com qualidade ajustável | Substitui as imagens originais |
+| **Video Compress** | Torna um ficheiro de vídeo mais pequeno | `~/Downloads` |
+| **Audio Compress** | Torna um ficheiro de áudio mais pequeno pela qualidade que você escolhe e mantém a capa (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Guarda a faixa de áudio de um vídeo, ou de todos os vídeos de uma pasta, como M4A (MP3 quando a faixa não pode ser copiada) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Descarrega o vídeo ou o áudio de um link, como YouTube, TikTok, Instagram, Reddit, X ou Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** substitui as imagens originais por padrão. Para as guardar, desligue primeiro **Overwrite Original Image File** nas definições; as cópias comprimidas vão então para uma pasta `enconvo-compressed-images` ao lado das imagens.
+</Warning>
+
+## Comprimir um ficheiro ou extrair o áudio
+
+1. Selecione os ficheiros no Finder, ou anexe-os. No Image Compress também pode escolher uma pasta: as imagens dela e das subpastas são comprimidas, e as cópias mantêm a mesma estrutura de pastas.
+2. Abra o SmartBar e corra o comando.
+3. Abra o resultado e confira-o.
+
+Guarde o original enquanto experimenta as definições de compressão. As definições de cada comando estão em **Definições → Plugins**: **Image Utils** para o Image Compress e **Media Utils** para os outros.
+
+| Definição | O que muda |
+| --- | --- |
+| **Qualidade** | De 0 a 100; mais alto mantém mais qualidade e faz um ficheiro maior. 80 por padrão |
+| **Destination Folder Path** | Para onde vai o ficheiro comprimido: um caminho absoluto, ou um caminho relativo ao ficheiro |
+| **Overwrite Original … File** | Substitui o ficheiro original. Ligado por padrão para imagens, desligado para vídeo e áudio |
+
+## Descarregar um vídeo
+
+1. Abra a página do vídeo no navegador, ou copie o link.
+2. Corra **Online Video Downloader** a partir do SmartBar. Ele usa o link do separador ativo do navegador, ou um link que você escreve.
+3. Acompanhe o progresso na Dynamic Island, onde pode cancelar. Quando terminar, clique em **Show in Finder**.
+
+O download fica no histórico do chat, e um ficheiro já descarregado é reutilizado em vez de ser pedido outra vez. Se um site funciona depende do site e do que ele deixa aceder. Descarregue só conteúdo que você pode guardar.
+
+| Definição | O que muda |
+| --- | --- |
+| **Output Directory** | Para onde vão os downloads. `~/Downloads` por padrão |
+| **Audio Only** | Descarrega só o áudio |
+| **Favorite Resolution** | A resolução a descarregar, de **Best** (o padrão) até 144p |
+| **Force Convert to Compatible MP4** | Converte o vídeo para um MP4 que toca em todo o lado. Ligado por padrão; demora mais tempo e CPU |
+| **Use Browser Cookies** | Inicia sessão com os cookies do navegador, para vídeos que só você pode ver. Escolha o navegador em **Browser** |
+
+## Solução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| **No images to compress** | Selecione as imagens no Finder ou anexe-as e corra o comando outra vez |
+| Uma conversão falha | Confira o formato do ficheiro, se a pasta de saída pode ser escrita e se há espaço livre no disco |
+| Um vídeo privado não descarrega | Ligue **Use Browser Cookies** e escolha o navegador em que tem sessão iniciada |
+| Os downloads de um site deixam de funcionar | Leia o erro e atualize o plugin antes de tentar outra vez. Os sites mudam os formatos e as regras de acesso |
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Geração de imagens" icon="image" href="/pt-br/ai/image-generation">Crie ou edite uma imagem no chat.</Card>
+  <Card title="Geração de vídeos" icon="film" href="/pt-br/ai/video-generation">Transforme um pedido ou uma imagem num clipe.</Card>
+  <Card title="Transcrição" icon="file-audio" href="/pt-br/features/transcription">Transforme áudio e vídeo em texto.</Card>
+</CardGroup>

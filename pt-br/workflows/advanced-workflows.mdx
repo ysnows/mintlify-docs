@@ -1,0 +1,388 @@
+---
+title: "Fluxos de trabalho avançados"
+description: "Ramifique, repita, tente novamente, obtenha resultados estruturados, troque de modelo por etapa e combine fluxos de trabalho, com exemplos completos para copiar."
+---
+
+Use estes recursos quando uma simples lista de etapas não for suficiente: executar uma etapa apenas quando uma condição for verdadeira, repetir uma etapa para cada item de uma lista, manter a execução quando uma etapa falhar, obter resultados estruturados e chamar um fluxo de trabalho a partir de outro. Exemplos completos de fluxos de trabalho estão no final. Se você ainda não conhece o formato `agent-workflow/v1`, comece por [Criando fluxos de trabalho](/pt-br/workflows/creating-workflows).
+
+Os caminhos de shell e a disponibilidade de ferramentas ou provedores precisam corresponder ao seu Mac antes de executar estes exemplos.
+
+<Tip>
+No editor Visual, você não precisa escrever isso à mão: a seção [Comportamento](/pt-br/workflows/creating-workflows) do inspetor de etapas define `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs` e o esquema de saída a partir de opções em linguagem simples.
+</Tip>
+
+## Ramificação
+
+### Executar uma etapa apenas se uma condição for verdadeira (`if`)
+
+Adicione `if:` para executar uma etapa apenas quando uma condição for verdadeira. Quando a condição é falsa, a etapa e tudo o que depende dela são ignorados:
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+
+As condições são expressões de template avaliadas como verdadeiras ou falsas, por exemplo `inputs.score >= 60`, `steps.check.output.exitCode == 0` ou uma entrada booleana simples.
+
+### Executar o outro ramo (`else_of`)
+
+`else_of:` executa uma etapa apenas quando a etapa indicada foi ignorada por causa da sua condição. É o lado "senão" de um `if`:
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+
+### Unir e limpar (`run_when: always`)
+
+Uma etapa com `needs` normalmente é ignorada se alguma dependência foi ignorada, e a execução para se uma dependência obrigatória falhar. `run_when: always` substitui ambos os comportamentos: a etapa é executada desde que suas dependências tenham terminado, seja com sucesso, ignoradas ou com falha. Use-o para junções e limpeza:
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+
+### Desativar uma etapa (`enabled: false`)
+
+`enabled: false` mantém a etapa no fluxo de trabalho, mas a ignora em todas as execuções. Diferente de uma condição não atendida, uma etapa desativada não faz com que as etapas seguintes sejam ignoradas:
+
+- As etapas dependentes continuam sendo executadas, e tudo o que lê sua saída recebe um valor vazio.
+- A etapa `else_of` correspondente também é ignorada.
+
+Remova a chave (ou defina-a como `true`) para reativar a etapa. No editor, use **Desativar etapa** no inspetor.
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+
+## Loops
+
+### Repetir para cada item de uma lista (`foreach`)
+
+`foreach:` executa a etapa uma vez por item. Dentro dela, `{{ item }}` é o elemento atual e `{{ index }}` é sua posição. As etapas seguintes recebem o array com todas as saídas coletadas:
+
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+
+`foreach` também aceita um array inline e funciona com qualquer tipo de etapa: um `foreach` de chamadas `tool:`, de subfluxos de trabalho e assim por diante. Uma lista vazia produz um resultado vazio, e as etapas seguintes ainda são executadas. Quando um item falha, a etapa não inicia novos itens, a menos que esteja marcada com `required: false`.
+
+### Repetir até que uma condição seja atendida (`loop`)
+
+`loop:` repete uma etapa. `until:` é verificado após cada rodada com base em `output`, o resultado daquela rodada. `{{ round }}` é o número da rodada e `{{ last }}` é a saída da rodada anterior. Se `maxRounds` se esgotar antes de `until` ser atendido, a etapa falha.
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+
+Omita `until` para repetir um número fixo de vezes:
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+
+## Confiabilidade
+
+| Campo | O que faz |
+| --- | --- |
+| `retries` | Tenta novamente uma etapa que falhou. Use um número (`retries: 2`) ou um objeto (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | Uma falha nesta etapa não interrompe a execução; as etapas seguintes continuam. |
+| `timeoutMs` | Interrompe uma etapa de shell que demora demais. |
+
+Uma etapa que fica sem atividade por 20 minutos é interrompida e executada mais uma vez. Uma execução que você interrompe aparece como **Cancelada**, não como falha.
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+
+## Contratos de saída
+
+Adicione um `output_schema` (um objeto JSON Schema) a uma etapa `prompt` ou `agent` para impor o formato da resposta. Não é preciso descrever o formato JSON no texto do prompt: o formato solicitado é passado ao modelo, e a resposta é analisada e validada antes de ser usada pelas etapas seguintes. Defina `retries` para tentar novamente uma etapa que falhou; uma resposta que continuar falhando na validação faz a etapa falhar.
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+
+## Substituição de modelo por etapa
+
+As etapas `prompt` e `agent` aceitam `provider:` e `model:` opcionais para trocar o modelo apenas naquela etapa. A troca vale durante a execução; sua configuração de modelo salva não é alterada. Use um modelo barato para etapas em massa e um mais potente onde fizer diferença.
+
+Defina `provider` como o nome do comando do provedor instalado e `model` como um ID de modelo exibido por esse provedor na sua versão atual. Por exemplo, copie os dois valores da configuração do provedor que está funcionando para a etapa de prompt. A disponibilidade de modelos e as permissões dependem de cada conta; os exemplos desta página usam o modelo padrão que você configurou.
+<Note>
+`provider` é um comando de provedor (por exemplo, `enconvo_ai`, `open_ai` ou `ollama`) e `model` é um ID de modelo desse provedor. Ambos são válidos apenas em etapas `prompt` e `agent`.
+</Note>
+
+## Subfluxos de trabalho
+
+Componha fluxos de trabalho com `uses: workflow`, seja por `workflowId:` (um fluxo de trabalho salvo) ou com um bloco `workflow:` inline. A saída da etapa é o resultado da execução filha. Referencie as saídas das etapas do fluxo filho com `output.outputs['job.step']`:
+
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+
+## Referência de templates
+
+| Referência | Onde |
+|---|---|
+| `{{ inputs.x }}` | Em qualquer lugar: entradas do fluxo de trabalho |
+| `{{ steps.<id>.output }}` | Em qualquer lugar: uma etapa anterior no mesmo job |
+| `{{ jobs.<job>.<step>.output }}` | Uma etapa concluída em um job de dependência |
+| `{{ item }}` / `{{ index }}` | Dentro de uma etapa `foreach` |
+| `{{ round }}` / `{{ last }}` | Dentro de uma etapa `loop` |
+| `{{ now }}` | Timestamp atual |
+| `{{ env.HOME }}` | Variáveis de ambiente do processo |
+
+Os templates suportam filtros do Nunjucks (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}` e outros), que são a forma de remodelar dados entre etapas.
+
+## Exemplos completos
+
+### Pesquisar, resumir e gerar relatório
+
+Pesquise na web, resuma as descobertas e monte um relatório em Markdown. As etapas são executadas em ordem dentro de um único job, então não é necessário configurar `needs`:
+
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+
+### Roteamento condicional
+
+Aprove ou rejeite com base em uma pontuação e, em seguida, sempre escreva um relatório final:
+
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+
+### Repetir até convergir
+
+Refine um rascunho repetidamente até que uma autoverificação o aprove, limitando o número de rodadas:
+
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Criando fluxos de trabalho" icon="pen-to-square" href="/pt-br/workflows/creating-workflows">
+    O editor, o assistente de edição e todos os tipos de etapa.
+  </Card>
+  <Card title="Fluxos de trabalho" icon="book-open" href="/pt-br/workflows/introduction">
+    Jobs, etapas e como os fluxos de trabalho são executados.
+  </Card>
+</CardGroup>

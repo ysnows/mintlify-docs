@@ -1,0 +1,55 @@
+---
+title: "Ollama"
+description: "Chatte mit Modellen, die Ollama auf deinem Mac oder auf einem anderen Computer bereitstellt."
+---
+
+Nutze Ollama, um Modelle auf eigener Hardware laufen zu lassen, auf diesem Mac oder auf einem anderen Computer in deinem Netzwerk. Enconvo schickt Chats an den Ollama-Server, deshalb brauchst du kein Anbieterkonto.
+
+## Auf diesem Mac verbinden
+
+<Steps>
+  <Step title="Ollama starten">
+    Installiere [Ollama](https://ollama.ai/), starte es und lade ein Modell mit den eigenen Werkzeugen von Ollama herunter.
+  </Step>
+  <Step title="Enconvo darauf zeigen">
+    Öffne **Einstellungen → KI-Modell → Ollama**. Unter **Authentifizierung** lasse **BaseUrl** bei `http://127.0.0.1:11434`, es sei denn, du hast den Port von Ollama geändert.
+  </Step>
+  <Step title="Modell wählen">
+    Wähle ein Modell unter **Modellname** und sende eine kurze Nachricht. Eine Antwort bedeutet, dass die Verbindung funktioniert.
+  </Step>
+</Steps>
+
+## Mit einem anderen Computer verbinden
+
+1. Stelle auf dem anderen Computer Ollama so ein, dass es Verbindungen aus deinem Netzwerk annimmt, nicht nur von sich selbst.
+2. Setze in Enconvo **BaseUrl** auf die Netzwerkadresse dieses Computers und behalte Port und Pfad. `127.0.0.1` und `localhost` bedeuten immer den Mac, auf dem Enconvo läuft.
+3. Wenn macOS die Verbindung blockiert, schalte Enconvo unter **Systemeinstellungen → Datenschutz & Sicherheit → Lokales Netzwerk** ein.
+
+Öffne den Server nur für Netzwerke, denen du vertraust.
+
+## Modelle und Optionen
+
+| Einstellung | Was sie tut |
+| --- | --- |
+| **Modellname** | Das Modell, das dieser Anbieter nutzt. **Aktualisieren** daneben lädt die Liste vom Server neu. |
+| **Antwort-Timeout** | Wie lange auf den Server gewartet wird, bis er eine Antwort startet oder fortsetzt. Der Standard ist **Kein Limit**; lange Prompts können auf eigener Hardware viele Minuten brauchen, bevor das erste Wort kommt. |
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Verbindung abgelehnt | Prüfe, dass Ollama läuft und dass **BaseUrl** die richtige Adresse und den richtigen Port hat. Bei einem anderen Computer prüfe, dass er Netzwerkverbindungen annimmt. |
+| Netzwerk nicht erreichbar | Prüfe das Netzwerk und die Berechtigung **Lokales Netzwerk** in den Systemeinstellungen. |
+| Die Modellliste ist leer | Lade ein Modell in Ollama oder lade es herunter und klicke dann auf **Aktualisieren**. |
+| Eine Antwort bricht unterwegs ab | Setze **Antwort-Timeout** auf einen längeren Wert oder auf **Kein Limit**. |
+| Werkzeuge oder Bilder schlagen fehl | Wähle ein Modell, das Tool-Aufrufe oder Bildeingabe unterstützt. |
+| Nicht genug Speicher | Wähle ein kleineres Modell oder kürze die Eingabe. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Lokale Modelle" icon="microchip" href="/de/ai/local-llm">Eine ganze Aufgabe auf deinem Mac behalten, nicht nur das Chat-Modell.</Card>
+  <Card title="Lokales LLM (MLX)" icon="laptop" href="/de/providers/mlx">Modelle in Enconvo selbst ausführen, ohne Server.</Card>
+  <Card title="LM Studio" icon="server" href="/de/providers/lm-studio">Modelle nutzen, die LM Studio bereitstellt.</Card>
+  <Card title="Berechtigungen" icon="shield" href="/de/configuration/permissions">Lokales Netzwerk und andere macOS-Berechtigungen.</Card>
+</CardGroup>

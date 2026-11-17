@@ -1,0 +1,107 @@
+---
+title: "建置 MCP 伺服器"
+description: "撰寫一個小型本機 MCP 伺服器，連接到 Enconvo，並讓代理程式使用它的工具。"
+---
+
+本頁面適合想為 Enconvo 代理程式提供專屬工具的開發者。自訂 MCP 伺服器會公開可供 Enconvo 代理程式呼叫的工具。建議從一個小型本機伺服器開始，驗證其輸入與結果，然後再加入特定服務所需的實作。
+
+若要安裝其他人製作的伺服器，請參閱 [MCP 伺服器](/zh-hant/features/mcp)。若要打包你的伺服器讓它也能安裝在 Codex 和 Claude Code 中，請使用 `--template mcp` 將它封裝為外掛程式（參閱[外掛程式格式](/extensions/plugin-formats#one-package-for-enconvo-codex-and-claude-code)）。
+
+## 開始之前
+
+你需要 Node.js 和 npm。本範例使用 TypeScript SDK 的 **1.x JavaScript API**，固定為 1.29.0 版本。SDK 的不同主要版本可能使用不同的匯入方式和設定；選擇其他版本時請查閱[官方 MCP 伺服器指南](https://modelcontextprotocol.io/docs/develop/build-server)。
+
+## 撰寫一個極簡本機伺服器
+
+```sh
+mkdir hello-mcp
+cd hello-mcp
+npm init -y
+npm install @modelcontextprotocol/sdk@1.29.0 zod@3
+```
+
+將以下內容儲存為 `server.mjs`：
+
+```javascript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({ name: "hello-enconvo", version: "1.0.0" });
+
+server.registerTool("greet", {
+  description: "Return a greeting for the supplied name.",
+  inputSchema: { name: z.string().min(1).describe("Name to greet") },
+}, async ({ name }) => ({
+  content: [{ type: "text", text: `Hello, ${name}!` }],
+}));
+
+await server.connect(new StdioServerTransport());
+```
+
+stdio 伺服器會等待協定訊息；在終端機中啟動它不會顯示聊天介面。請將診斷訊息輸出到 stderr（例如 `console.error`），因為 stdout 用於傳送 MCP 協定訊息。[官方指南](https://modelcontextprotocol.io/docs/develop/build-server)說明了這項傳輸需求。
+
+## 連接到 Enconvo
+
+<Steps>
+  <Step title="加入伺服器">
+    開啟 **設定 → MCP 伺服器** 並點擊 **加入伺服器**。為它指定一個 **伺服器名稱**，例如 `hello-mcp`。
+  </Step>
+  <Step title="設定啟動方式">
+    選擇 **STDIO**。在 **指令** 中輸入 `node`。在 **引數** 中輸入 `server.mjs` 的絕對路徑。如果 Enconvo 找不到 Node，請改用其執行檔的絕對路徑。
+  </Step>
+  <Step title="儲存並檢查">
+    點擊 **儲存**。確認伺服器已連線並公開了 `greet`。
+  </Step>
+  <Step title="試用看看">
+    將它提供給你的代理程式使用，並請它向「Ada」打招呼。預期的工具結果為 `Hello, Ada!`。
+  </Step>
+</Steps>
+
+等效設定：
+
+```json
+{
+  "command": "node",
+  "args": ["/absolute/path/to/hello-mcp/server.mjs"]
+}
+```
+
+請將範例路徑替換為你檔案的實際路徑。
+
+## 設計實用的工具
+
+- 為每個工具提供明確的操作與描述。
+- 在工具邊界驗證輸入並回傳實用的錯誤訊息。
+- 將讀取資料與傳送或刪除等變更操作分開。
+- 回傳代理程式容易判讀的精簡結果。
+- 將憑證保留在伺服器適當的設定中，避免出現在程式碼範例與日誌裡。
+
+## 遠端伺服器與驗證
+
+對於遠端伺服器，請使用其安裝說明提供的 HTTP 或 SSE 傳輸方式，並在 Enconvo 中填寫對應的表單（**HTTP** 或 **SSE** 而非 **STDIO**）。伺服器 URL 必須是 MCP 端點，而不是一般網站網址。在啟用工具之前，請完成所有支援的授權流程並確認連線正常。
+
+遠端傳輸、驗證探索與工作階段行為取決於伺服器與協定版本。請參閱官方 SDK 與協定文件了解實作細節，不要自行編造 Enconvo 不會讀取的 `auth` 清單。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 程序立即結束 | 檢查執行檔路徑、相依套件、語法錯誤與 stderr 輸出 |
+| 已連線但沒有出現工具 | 檢查工具是否已註冊、工具是否已啟用，以及目前選取的代理程式 |
+| 無效的協定回應 | 檢查是否不小心將日誌輸出到了 stdout，或啟動了錯誤的程式 |
+| 結構描述驗證錯誤 | 將實際輸入格式與你使用的 SDK 版本進行比對 |
+| 遠端連線失敗 | 檢查端點 URL、傳輸方式、驗證資訊與網路存取 |
+
+若要將 Enconvo 自己的文件公開給其他 AI 用戶端，請使用內建的[知識庫 MCP 伺服器](/zh-hant/advanced/knowledge-base-mcp)，無需撰寫自訂伺服器。
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="MCP 伺服器" icon="plug" href="/zh-hant/features/mcp">
+    在 Enconvo 中安裝與管理 MCP 伺服器
+  </Card>
+  <Card title="外掛程式格式" icon="box" href="/extensions/plugin-formats">
+    將伺服器封裝為適用於 Enconvo、Codex 與 Claude Code 的外掛程式
+  </Card>
+</CardGroup>

@@ -1,0 +1,112 @@
+---
+title: "Uso del browser"
+description: "Lascia che un Agente legga e lavori nelle schede reali del browser, con gli accessi che il browser ha già."
+---
+
+L’Uso del browser consente a un Agente di lavorare nelle schede del browser a cui è collegata l’estensione Enconvo Companion. Può leggere una pagina, fare clic sui controlli, compilare i campi, verificare il risultato e gestire le schede, tutto con gli accessi che il browser ha già. Usalo quando un compito richiede un sito a cui hai effettuato l’accesso.
+
+## Configura
+
+<Steps>
+  <Step title="Installa l’estensione">
+    Installa [Enconvo Companion dal Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in un browser Chromium supportato, oppure fai clic su **Installa Browser Companion** in **Impostazioni → Uso del browser**. Per gli altri browser, usa il pacchetto dell’estensione fatto per quel browser.
+  </Step>
+  <Step title="Tienili entrambi in esecuzione">
+    Tieni aperti Enconvo e il browser.
+  </Step>
+  <Step title="Controlla la connessione">
+    Fai clic sull’icona dell’estensione. Il popup mostra **Connesso** e il nome del browser.
+  </Step>
+  <Step title="Controlla l’accesso">
+    Verifica che l’Agente che userai abbia gli strumenti del browser, e approva ogni sito di cui chiede l’estensione.
+  </Step>
+  <Step title="Prova un compito in sola lettura">
+    Inizia con qualcosa che non cambia nulla, per esempio "Leggi questa pagina e riassumi i punti principali."
+  </Step>
+</Steps>
+
+Safari non usa l’estensione Chromium. In Safari, l’[Uso del computer](/it/features/computer-use) fa clic e digita sullo schermo, quindi non tutti i browser possono fare le stesse cose. Vedi [Estensione del browser](/it/features/browser-extension) per il popup, i browser collegati, la scelta delle schede e le approvazioni dei siti.
+
+## Lavora in una scheda precisa
+
+Indica il browser e la pagina nella richiesta:
+
+> In Edge, leggi la scheda della documentazione corrente ed elenca i tre passaggi di configurazione. Lascia la pagina aperta.
+
+L’Agente legge la pagina, sceglie un elemento, agisce e controlla cosa è cambiato. Gli elementi della pagina possono cambiare dopo una navigazione o un aggiornamento in diretta. Se l’Agente perde un elemento, chiedigli un nuovo sguardo alla pagina.
+
+Mentre l’Agente lavora in una scheda che non vedi, una finestra [Picture-in-Picture](/it/features/picture-in-picture) lo mostra in diretta nell’angolo dello schermo. Fai clic per andare alla scheda e prendere il controllo.
+
+## Quando il compito finisce
+
+Le schede che un Agente apre si chiudono al termine del suo turno. Restano aperte:
+
+- una pagina che l’Agente ti consegna come risultato
+- una scheda che ti ha passato
+- una scheda che hai fissato
+- la scheda che stai guardando
+
+Le tue schede non vengono mai chiuse.
+
+## Cosa può fare
+
+| Area | Esempi |
+| --- | --- |
+| Navigazione | Aprire un URL, andare indietro o avanti, ricaricare, attendere una condizione |
+| Lettura | Stato della pagina, testo visibile, attributi, screenshot, contenuto selezionato |
+| Interazione | Fare clic, digitare, compilare, selezionare, premere tasti, scorrere, trascinare |
+| Organizzazione del browser | Vedere e gestire schede, finestre e sessioni collegate |
+| Strumenti avanzati | Valutazione della pagina, cookie, archiviazione, cronologia e ispezione specifica del browser |
+
+### Cattura un’intera pagina
+
+Chiedi all’agente di catturare un’intera pagina web, per esempio "Salva uno screenshot di questa intera pagina sulla Scrivania." Salva un file PNG dove chiedi, alla risoluzione della pagina e senza il cursore dell’agente.
+
+### Accessi e controlli umani
+
+Quando un compito arriva alla pagina di accesso di un sito, una scheda chiede una volta nome utente e password. Enconvo li inserisce solo su quel sito, e l’agente non vede mai la password; vedi [Credenziali](/it/configuration/credentials). Quando una pagina mostra un controllo umano, l’agente può passarti la scheda. Accedi o risolvi il controllo in quella scheda, poi fai clic su **Torna all’agente** per restituirla.
+
+Ciò che funziona dipende dal browser, dalla pagina, dalla versione dell’estensione e dagli strumenti attivati. Pagine del browser come `chrome://` e altri contenuti riservati possono essere irraggiungibili.
+
+<Warning>
+L’Uso del browser agisce sui tuoi account reali. Di’ se un compito deve solo preparare una bozza o anche inviarla.
+</Warning>
+
+## Impostazioni
+
+| Impostazione | Dove | Cosa cambia |
+| --- | --- | --- |
+| **Browser predefinito** | **Impostazioni → Uso del browser**, poi **Impostazioni** nel menu **⋯** | Il browser usato dai compiti quando non ne indichi uno. **Auto (predefinito di sistema)** segue il browser predefinito del Mac. |
+| **Estensioni del browser** | **Impostazioni → Uso del browser** | Elenca i browser che hanno l’estensione, ciascuno **Connesso** o **Disconnesso**. |
+| **Finestra Picture-in-Picture** | **Impostazioni → Uso del browser** | Quando una vista in diretta della scheda dell’Agente compare nell’angolo dello schermo: **Sempre** (predefinito), **Solo quando servo io** o **Off**. Vedi [Picture in Picture](/it/features/picture-in-picture). |
+
+Puoi anche indicare un browser nel compito stesso.
+
+Per gli sviluppatori, la route Local API `browser-use/status` riporta lo stato della connessione, e **Impostazioni → API** elenca le route installate e i loro schemi.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Non connesso | Verifica che l’estensione sia attiva e che Enconvo sia in esecuzione, e guarda il popup. L’estensione si collega a Enconvo su questo Mac tramite la porta 11225. |
+| Browser o scheda sbagliati | Indica il browser e la pagina, e chiedi un nuovo sguardo alla pagina. |
+| Un clic o una compilazione fallisce | Guarda la pagina com’è ora. Una finestra di dialogo, una navigazione o un frame incorporato possono aver spostato il bersaglio. |
+| Lo screenshot è vuoto | Porta la scheda in primo piano e attendi che la pagina si carichi. |
+| Il sito chiede di accedere | Accedi al sito come al solito. Essere connessi al browser non significa che ogni sessione del sito sia ancora valida. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Estensione del browser" icon="puzzle-piece" href="/it/features/browser-extension">
+    Il popup, i browser collegati e la sicurezza dei siti.
+  </Card>
+  <Card title="Uso del computer" icon="computer-mouse" href="/it/features/computer-use">
+    App native del Mac, finestre di file e controlli del desktop.
+  </Card>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">
+    Scegli quali strumenti può usare un Agente.
+  </Card>
+  <Card title="CLI e Local API" icon="terminal" href="/it/advanced/cli-local-api">
+    Chiama le route di Uso del browser dagli script.
+  </Card>
+</CardGroup>

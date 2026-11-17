@@ -1,0 +1,277 @@
+---
+title: "Linux (ベータ)"
+description: "Linux デスクトップまたはサーバーに Enconvo ベータ版をインストールし、サインインしてブラウザから利用します。"
+tag: "BETA"
+---
+
+<Note>
+Linux 版 Enconvo はベータ版であり、**ベータ版** 更新チャンネルで提供されています。日常利用を想定して作られていますが、ビルド間で仕様が変わる場合があります。不具合を見つけた場合は、[フィードバックサイト](https://feedback.enconvo.com) までお知らせください。
+</Note>
+
+**現在のベータ版: 2.5.13 Beta 3**（`2.5.13-beta-3`）。使用中のバージョンを確認するには、**設定 → 一般 → アップデート** を開きます。サーバーでは `enconvo update --check` で表示できます。
+
+## 実行方法を選ぶ
+
+| 環境 | 利用できる形態 | はじめ方 |
+| --- | --- | --- |
+| Linux デスクトップ（GNOME、KDE など） | チャットウィンドウと設定ウィンドウを備えた Enconvo アプリ | [デスクトップにインストールする](#デスクトップにインストールする) |
+| デスクトップ環境のないサーバーまたはクラウドコンピュータ | バックグラウンドで Enconvo を実行し、手元のコンピュータのブラウザから操作 | [サーバーにインストールする](#サーバーにインストールする) |
+
+## 動作要件
+
+- **64-bit Intel/AMD (x86-64)。** ARM ビルドはまだありません。
+- **Ubuntu 22.04、Debian 12、RHEL 9、Amazon Linux 2023 以降。** Rocky Linux と AlmaLinux 9 は RHEL 9 と同等です。これより古いシステムでは C ライブラリが古いため Enconvo を実行できません。
+- **メモリ:** 空きメモリ 2 GB 以上を推奨します。エージェントがブラウザを使用する場合は 4 GB 以上を推奨します。
+- **一般ユーザーアカウント。** エージェントは実行ユーザーの権限でコマンドを実行するため、root ではなく自分自身のユーザーで Enconvo を起動してください。サーバーでは Enconvo 専用のユーザーを作成してください。
+
+## ベータ版をダウンロードする
+
+ベータ版には、Debian・Ubuntu 向けの `.deb`、Fedora・RHEL・Rocky・AlmaLinux・openSUSE 向けの `.rpm`、その他の環境向けのポータブルな `.tar.gz` の 3 形式があります。各ファイル名にはベータ版のバージョン番号が含まれます。2.5.13 Beta 3 のファイル名は次のとおりです。
+
+- `enconvo_2.5.13~beta~3_amd64.deb`
+- `enconvo-2.5.13~beta~3-1.x86_64.rpm`
+- `Enconvo-2.5.13-beta-3-linux-x64.tar.gz`
+
+次のコマンドで最新のベータ版を取得してダウンロードできます。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo_[^"]*\.deb')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Fedora, RHEL, Rocky, AlmaLinux, openSUSE">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo-[^"]*\.rpm')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Portable .tar.gz">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'Enconvo-[^"]*\.tar\.gz')
+    curl -fLO "$FEED/$FILE"
+    tar xzf "$FILE"
+    ```
+
+    展開すると `Enconvo` というフォルダができます。そこから実行し、このページで `enconvo` と記載されているコマンドは `./Enconvo/enconvo` に読み替えてください。
+  </Tab>
+</Tabs>
+
+## デスクトップにインストールする
+
+パッケージマネージャーにより、アプリのウィンドウに必要な GTK と WebKitGTK もあわせてインストールされます。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    sudo apt install ./enconvo_*.deb
+    ```
+  </Tab>
+  <Tab title="Fedora, openSUSE">
+    ```bash
+    sudo dnf install ./enconvo-*.rpm      # Fedora
+    sudo zypper install ./enconvo-*.rpm   # openSUSE
+    ```
+  </Tab>
+  <Tab title="Portable .tar.gz">
+    お使いのディストリビューションから GTK 3 と WebKitGTK 4.1 をインストールし、展開したフォルダから Enconvo を起動します。
+
+    ```bash
+    ./Enconvo/enconvo
+    ```
+  </Tab>
+</Tabs>
+
+RHEL 9、Rocky Linux 9、AlmaLinux 9 にはアプリのウィンドウに必要な WebKitGTK 4.1 が含まれていないため、これらのシステムでは [サーバーとして Enconvo を実行](#サーバーにインストールする) してください。
+
+アプリケーションメニューから **Enconvo** を開いてサインインし、[クイックスタート](/ja/quickstart) へ進みます。デスクトップにシステムトレイがある場合は、Enconvo のアイコンが表示されます。
+
+## サーバーにインストールする
+
+サーバーではデスクトップ用ライブラリが不要なため、除外してインストールします。
+
+<Steps>
+  <Step title="パッケージをインストール">
+    <Tabs>
+      <Tab title="Debian, Ubuntu">
+        ```bash
+        sudo apt install --no-install-recommends ./enconvo_*.deb
+        ```
+      </Tab>
+      <Tab title="Fedora, RHEL, Rocky, AlmaLinux">
+        ```bash
+        sudo dnf install --setopt=install_weak_deps=False ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="openSUSE">
+        ```bash
+        sudo zypper install --no-recommends ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="Portable .tar.gz">
+        インストールは不要です。展開した `Enconvo` フォルダをそのまま使用します。
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Enconvo をサービスとして起動">
+    ```bash
+    enconvo service install --web
+    ```
+
+    これにより Enconvo がバックグラウンドで起動し、このマシン上の `127.0.0.1:54580` のみでチャットウィンドウと設定をウェブサイトとして提供します。サーバー起動時にも自動起動します。ログイン中のみ動作する旨のメッセージが出た場合は、出力された `sudo loginctl enable-linger` コマンドを実行してください。
+  </Step>
+  <Step title="サインイン">
+    ```bash
+    enconvo login
+    ```
+
+    短いコードが表示されます。スマートフォンまたはコンピュータで `enconvo.com/device` を開き、自分のアカウント名が表示されていることを確認して、10 分以内にコードを承認してください。
+  </Step>
+  <Step title="手元のコンピュータから Enconvo を開く">
+    手元のコンピュータで次のコマンドを実行し、そのまま起動しておきます。
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 you@your-server
+    ```
+
+    ブラウザで [http://localhost:54580](http://localhost:54580) を開きます。デスクトップアプリと同じチャットウィンドウと設定を利用できます。
+  </Step>
+</Steps>
+
+スマートフォンの Enconvo アプリからこのサーバーを使うには、`enconvo companion pair --phone` を実行して表示されたコードをスキャンしてください。詳しくは [スマートフォンとペアリングする](/ja/integrations/pair-your-phone) を参照してください。
+
+### SSH トンネルなしでアクセスする
+
+サーバー上のポートをネットワークに公開しないため、SSH トンネルが最も安全な方法です。ウェブ画面はあなたのアカウントと同じ全権限を持ち、サーバーのファイルにもアクセスできるため、開ける人はどちらも操作できてしまいます。
+
+プライベートネットワークや VPN 上など、他のコンピュータから直接開く場合は次のようにします。
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+enconvo service url
+```
+
+`enconvo service url` は接続トークン付きのアドレスを表示します。このアドレスは非公開のまま保管し、このポートをインターネットに公開しないでください。
+
+公開アドレスを使う場合は、Enconvo の前段に HTTPS 対応のリバースプロキシを配置し、公開先のアドレスを Enconvo に指定してください。
+
+```bash
+enconvo service install --web --web-url https://enconvo.example.com
+```
+
+HTTPS を使うと、このウェブサイトをスマートフォンやコンピュータにアプリとしてインストールすることもできます。
+
+## サーバーでブラウザを使用機能を使う
+
+画面のないサーバーでもエージェントはブラウジングを行えます。初めて必要になったときに、Enconvo は独自のヘッドレスブラウザ「Enconvo Browser」を起動します。先に Chromium をインストールしておいてください。
+
+<Tabs>
+  <Tab title="Debian">
+    ```bash
+    sudo apt install chromium
+    ```
+  </Tab>
+  <Tab title="Ubuntu">
+    ```bash
+    sudo snap install chromium
+    ```
+  </Tab>
+  <Tab title="Fedora">
+    ```bash
+    sudo dnf install chromium
+    ```
+  </Tab>
+  <Tab title="RHEL, Rocky, AlmaLinux">
+    Chromium は [EPEL](https://docs.fedoraproject.org/en-US/epel/) からインストールします。
+
+    ```bash
+    sudo dnf install epel-release
+    sudo dnf install chromium
+    ```
+  </Tab>
+</Tabs>
+
+その後、「news.ycombinator.com を開いてトップ記事を教えて」のようにエージェントへ依頼してください。
+
+Enconvo Browser は独自のログイン状態を保持します。ログインや認証チェックで操作が必要になった場合は、ブラウザ上にページのライブビューが表示され、自分でクリックや入力を行えます。30 分間操作がないと終了し、次回起動時にタブを復元します。
+
+エージェントが `localhost` 上で起動した開発サーバーなど、サーバーからしかアクセスできないページもチャット横にライブビューとして開くため、SSH トンネル越しに利用できます。
+
+## 環境ごとの対応機能
+
+| 機能 | Linux デスクトップ | サーバー |
+| --- | --- | --- |
+| チャットウィンドウ、設定 | 対応 | 対応（ブラウザ上） |
+| エージェント、ツール、ファイル、ドキュメント、アーティファクト | 対応 | 対応 |
+| ブラウザを使用 | 対応 | 対応（Chromium 使用） |
+| ナレッジベース、メモリ、予約タスク、ワークフロー | 対応 | 対応 |
+| Enconvo Cloud モデル、ウェブ検索、OCR、画像生成、音声 | 対応 | 対応 |
+| コンピューター操作 | 対応 | 非対応（操作する画面がないため） |
+| グローバルショートカット、音声入力、音声メモ、録音、画面に描画、Appshots、通知 | 対応 | 非対応（デスクトップ環境が必要なため） |
+
+Wayland 環境では、グローバルショートカットを使用するにはデスクトップ環境側がアプリへの提供に対応している必要があります。
+
+SmartBar、PopBar、Dynamic Island、音声コマンド、アバター、デスクトップペット、アプリのサイドバー、Live Talk、リアルタイム字幕は Linux では利用できません。SmartBar、PopBar、Dynamic Island、音声コマンド、アバター、デスクトップペットは [Windows (ベータ)](/ja/getting-started/windows) に含まれています。
+
+ローカルチャットモデルは glibc 2.38 以降の環境で GGUF ファイルから実行できます。MLX モデルには Mac が必要です。
+
+## Linux でのアカウント設定
+
+[iPhone アプリ](/ja/integrations/iphone-app) と同じアカウントを使っている場合、チャット、音声、画像のデフォルト設定はこのコンピュータにも引き継がれます。API キーはコピーされないため、自分の API キーで動くプロバイダーは引き継がれません。同じプロバイダーを使いたい場合は、このコンピュータの **設定** でキーを追加してください。
+
+サーバーの時計がブラウザと別のタイムゾーンにある場合、時刻表示や [予約タスク](/ja/workflows/scheduled-jobs) にブラウザ側のタイムゾーンを使うかどうか確認が表示されます。
+
+## アップデート
+
+ベータ版ビルドでは更新チャンネルはベータ版のままになります。変更するには、**設定 → 一般** を開いて **更新チャンネル** を設定してください。詳しくは [アップデート](/ja/configuration/updates) を参照してください。
+
+デスクトップ版では、表示されたらチャットウィンドウの **アップデート** をクリックします。ポータブル版は自動で置き換わります。`.deb` または `.rpm` の場合は、新しいパッケージがダウンロードフォルダに保存されるので、[デスクトップにインストールする](#デスクトップにインストールする) の手順でインストールしてください。
+
+サーバーの場合：
+
+```bash
+enconvo update --check   # is there a newer version?
+enconvo update           # download and check it
+```
+
+`.deb` または `.rpm` をインストールしている場合、`enconvo update` は新しいパッケージをダウンロードし、root で実行するインストールコマンドを表示します。そのコマンドを実行してからサービスを再起動してください。
+
+```bash
+systemctl --user restart enconvo
+```
+
+ポータブル `.tar.gz` を使用している場合、`enconvo update` はフォルダを置き換えてサービスを再起動します。新しいバージョンが起動しない場合は、元のバージョンに戻します。
+
+## トラブルシューティング
+
+| 表示される症状 | 対処方法 |
+| --- | --- |
+| `enconvo` がデスクトップアプリに GTK 3 と WebKitGTK 4.1 が必要と表示する | デスクトップ環境では表示されたパッケージをインストールしてください。サーバーまたは RHEL 9 では `enconvo service install --web` を使用します |
+| `GLIBC_2.34 not found` や対応システム一覧が表示される | システムが古いため、[動作要件](#動作要件) の対象システムを使用してください |
+| `dnf` が `nothing provides libwebkit2gtk-4.1.so.0` と表示する | 古いパッケージです。[サーバーにインストールする](#サーバーにインストールする) のコマンドで現在のベータ版をインストールしてください |
+| サーバーからログアウトすると Enconvo が止まる、または再起動後に起動しない | `sudo loginctl enable-linger "$USER"` を実行してください |
+| `localhost:54580` が開かない | `ssh -L` コマンドがまだ実行中であるか、`systemctl --user status enconvo` が active になっているか確認してください |
+| ウェブサイトでトークンを求められる | サーバー上で `enconvo service url` を実行し、表示されたアドレスを開いてください |
+| エージェントが Enconvo Browser を起動できないと言う | [Chromium をインストール](#サーバーでブラウザを使用機能を使う) してください。Google Chrome 137 以降は Enconvo Browser に必要な拡張機能を読み込めません |
+| コードの有効期限が切れた | `enconvo login` を再度実行して新しいコードを取得してください |
+
+サーバー上で Enconvo のログを確認するには次を実行します。
+
+```bash
+journalctl --user -u enconvo -n 100
+```
+
+## Enconvo を削除する
+
+```bash
+enconvo service uninstall
+sudo apt remove enconvo     # Debian, Ubuntu
+sudo dnf remove enconvo     # Fedora, RHEL, Rocky, AlmaLinux
+sudo zypper remove enconvo  # openSUSE
+```
+
+設定とチャット履歴は `~/.config/enconvo` に残ります。これらも削除するには、そのフォルダを削除してください。

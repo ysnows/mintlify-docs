@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatte in Enconvo mit deinen Azure-OpenAI-Bereitstellungen."
+---
+
+Nutze die OpenAI-Modelle, die deine Organisation auf Azure bereitstellt. Enconvo spricht direkt mit deiner Azure-Ressource, deshalb folgen Zugriff, Kontingente und Abrechnung deinem Azure-Abonnement.
+
+## Bevor du startest
+
+Du brauchst eine Azure-OpenAI-Ressource mit mindestens einer Modellbereitstellung. Kopiere im Azure-Portal den **Schlüssel** der Ressource, ihren **Endpunkt** und den **Bereitstellungsnamen**, den du dem Modell gegeben hast. Siehe [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), wenn du noch keine eingerichtet hast.
+
+## Verbinden
+
+<Steps>
+  <Step title="Das Zugangsdatum hinzufügen">
+    Öffne **Einstellungen → KI-Modell → Azure OpenAI**. Fülle unter **Authentifizierung** **API-Schlüssel**, **Endpunkt** und **API-Version** aus und klicke dann auf **Prüfen**. Der Endpunkt sieht aus wie `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Die Bereitstellung setzen">
+    Gib deinen Bereitstellungsnamen in **Azure OpenAI Api Deployment Name** ein. Nutze den Namen aus deiner Azure-Ressource, der vom Namen des Modells abweichen kann.
+  </Step>
+  <Step title="Es testen">
+    Sende eine kurze Nachricht. Eine Antwort heißt, die Verbindung funktioniert.
+  </Step>
+</Steps>
+
+## Modelle und Optionen
+
+| Einstellung | Was sie tut |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | Die Bereitstellung, die dieser Anbieter aufruft. |
+| **Streaming** | Zeigt die Antwort, während sie geschrieben wird. Standardmäßig an; schalte es aus, wenn deine Bereitstellung Streaming nicht unterstützt. |
+| **API-Version** | Im Zugangsdatum. Der Standard ist `2025-01-01-preview`. |
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| **Prüfen** scheitert | Prüfe, dass Schlüssel und **Endpunkt** aus derselben Azure-Ressource kommen. |
+| Die Bereitstellung wird nicht gefunden | Kopiere den Bereitstellungsnamen genau aus dem Azure-Portal. |
+| Die Antwort erscheint nie | Schalte **Streaming** aus und versuche es erneut. |
+| Fehler zu Rate oder Kontingent | Erhöhe das Kontingent der Bereitstellung in Azure oder wechsle vorerst zu einem anderen Anbieter. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/de/providers/openai">Nutze stattdessen die eigene API von OpenAI.</Card>
+  <Card title="Zugangsdaten und Profile" icon="key" href="/de/configuration/credentials">Behalte mehrere Schlüssel und sieh, was ein geteilter Schlüssel betrifft.</Card>
+  <Card title="Ein Modell wählen" icon="list-check" href="/de/ai/model-selection-guide">Wähle ein Modell nach Aufgabe und sieh, wo Standards gesetzt werden.</Card>
+  <Card title="Anbieterkatalog" icon="table" href="/de/providers/catalog">Jeder Anbieter, gruppiert nach der Funktion, die er antreibt.</Card>
+</CardGroup>

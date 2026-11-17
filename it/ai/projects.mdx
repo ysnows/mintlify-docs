@@ -1,0 +1,230 @@
+---
+title: "Progetti e la Bacheca"
+description: "Tieni chat, idee e team di un Progetto in un solo posto, affida i compiti agli Agenti e agli agenti di coding e segui ogni compito sulla Bacheca."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Un Progetto tiene insieme le chat, le idee e il team di una cartella. Scrivi ciò che vuoi come idea, il responsabile del Progetto la pianifica con il team e ogni compito si sposta sulla Bacheca finché non è fatto. Usa un Progetto per un lavoro continuo, come un sito o un’app, quando vuoi vedere a colpo d’occhio cosa è in corso e cosa ha bisogno di te.
+
+Il video qui sotto apre un Progetto, aggiunge un’idea che affida parte del lavoro a Claude Code, la segue sulla Bacheca e archivia e ripristina il Progetto.
+
+<YouTubePlayer videoId="sDHMeGn6iX0" title="Progetti e la Bacheca in Enconvo" />
+
+## Prima di iniziare
+
+Ti serve un Progetto. Fai clic su **+** accanto a **Progetti** nella barra laterale della Finestra di chat e scegli una cartella: vedi [Crea un Progetto](/it/ai/agent-orchestrator). Per affidare compiti a un agente di coding come Claude Code o Codex, installalo e accedi prima: vedi [Agenti di coding](/it/ai/coding-agents).
+
+## Apri un Progetto
+
+Fai clic sul Progetto nella barra laterale. La sua pagina ha tre schede:
+
+| Scheda | Cosa mostra |
+| --- | --- |
+| **Chat** | La chat del Progetto con il responsabile, e un pannello di ciò che [ha bisogno di te](/it/ai/projects). |
+| **Bacheca** | Le idee del Progetto, da **Non iniziato** attraverso **Pianificazione** e **In corso** fino a **Fatto**. |
+| **Team e impostazioni** | Chi è nel team, e quando il team [si confronta con te](/it/ai/projects). |
+
+I volti del team, il responsabile per primo, compaiono in alto a sinistra. I compiti di una chat del Progetto compaiono anche sotto la sua riga nella barra laterale.
+
+## Aggiungi un’idea
+
+Un’idea è qualcosa che vuoi che il Progetto faccia.
+
+1. Apri la scheda **Bacheca** e fai clic su **Nuova idea**.
+2. Scrivi ciò che vuoi, come lo diresti. Puoi allegare screenshot o file, oppure fare clic sul microfono e parlare.
+3. Imposta una **Priorità** se vuoi. Enconvo indovina il **Tipo** dalle tue parole: **Funzione**, **Bug**, **Miglioramento**, **Documenti** o **Ricerca**. Cambialo se l’ipotesi è sbagliata.
+4. Fai clic su **Aggiungi idea**.
+
+L’idea compare come scheda sotto **Non iniziato**, con un titolo breve scritto dalle tue parole e una bandiera rossa, ambra o blu per la priorità. Il responsabile inizia subito a pianificarla e la sposta in **Pianificazione**. I file che hai allegato arrivano al responsabile quando l’idea parte. Per vedere solo un tipo di idea, usa **Filtra per tipo**.
+
+Le idee possono arrivare anche da sole. Dai a un’[Automazione](/it/workflows/scheduled-jobs) l’azione **Aggiungi alle idee**, e ogni issue di GitHub, messaggio Discord o Telegram, email o webhook che sente diventa un’idea sulla bacheca del Progetto. Il responsabile riproduce un bug e pianifica la correzione, oppure ricerca una richiesta e la chiude con un motivo o la pianifica, e chiede a te prima che qualcosa cambi.
+
+Quando il piano è pronto, mostra ogni compito, chi lo fa e su quale modello. Controllalo, poi fai clic su **Avvia**. L’idea passa a **In corso**. Il responsabile pianifica dall’**Obiettivo** dell’idea e dalla riga **Fatto quando**, e l’idea passa a **Fatto** solo quando il responsabile giudica raggiunto quell’obiettivo.
+
+## Segui un’idea
+
+Fai clic su un’idea per aprire la sua pagina. La chat con il responsabile è da un lato, e il piano, i compiti, le parole, i file e l’obiettivo dell’idea dall’altro. **A che punto è** mostra **Pianifica il lavoro**, **Fai il lavoro** e **Rivedi e testa**, con quanto è avanti ciascuno e chi lo fa.
+
+Per lavorare di nuovo su un’idea finita, fai clic su **Riapri**.
+
+Un’idea con compiti ha due viste in alto: **Compiti** mostra solo i suoi compiti come bacheca, e **Chatta con** e il nome del responsabile, come **Chatta con Mavis**, apre la chat in cui è stata pianificata.
+
+## Affida un compito a un agente di coding
+
+Indica l’Agente, e il modello se ne vuoi uno, nell’idea o nella chat del Progetto. Puoi anche indicare solo un modello, come Opus 5.5, e il responsabile fa quel compito su di esso. Funziona anche in un Progetto senza membri. Per esempio:
+
+```text
+Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
+```
+
+Il responsabile pianifica la parte indicata come compito per quell’Agente su quel modello, anche quando l’Agente non è tra i membri del Progetto, e può fare il resto da solo. Il piano e la Bacheca mostrano il modello accanto a chi fa il compito. Se il nome può indicare più modelli, o nessuno, il responsabile chiede.
+
+Quando l’agente di coding finisce, il suo compito aspetta la tua revisione sotto **Da rivedere** sulla bacheca **Compiti** dell’idea. In un Progetto la cui cartella non è un repository git, va direttamente a **Fatto**. Ogni compito di coding lavora in una copia propria del codice, e la scheda del risultato del piano ha **Unisci** per quando sei pronto. I membri non possono fare push o unire da soli.
+
+Ogni compito che dai al responsabile, nella scheda Chat o in Idee, compare sulla Bacheca, raggruppato per idea o per chat. Scegli una chat nel filtro chat della Bacheca, oppure scegli **Raggruppa per** **Chat**, per seguire una conversazione.
+
+Il lavoro che fai nelle chat del Progetto compare anche sulla Bacheca: quando una chat cambia file o esegue un comando, una scheda la segue fino a **Fatto** con un breve riassunto e i file che ha cambiato. Fai clic sulla scheda per aprire la chat. Il responsabile vede queste schede e tiene i propri compiti lontani dagli stessi file.
+
+## Unisci il lavoro finito
+
+Fai clic su **Unisci** su un compito, o sulla scheda del risultato del piano, per unirlo nel **Ramo di base** del Progetto. Le modifiche non committate su altre righe dello stesso file non fermano un’unione. Se git è occupato, Unisci aspetta un momento, e indica il file di lock quando ne resta uno.
+
+Per unire senza fare clic, attiva **Unisci il lavoro che passa** in **Impostazioni del progetto → Bacheca**. Serve un **Ramo di base**, impostato in **Worktree**. Ogni compito poi si unisce da solo quando il suo controllo e una revisione da un Agente di un altro fornitore passano. Sotto **Passa quando**, scegli **Nessun rilievo bloccante**, **Il revisore approva** o **Solo controllo**. Un compito con un conflitto torna al suo membro. Quando il revisore non può girare, ogni unione si mette in pausa invece di essere saltata.
+
+### Progetti fuori da git
+
+In un Progetto la cui cartella non è un repository git, ogni chat del responsabile salva i piani di lavoro nella propria cartella di chat, così due chat del responsabile possono eseguire piani insieme. La scheda del piano mostra **Salva in** e la cartella, e **Ha cambiato anche** elenca i file che un compito ha toccato fuori da essa.
+
+## Chiedi al responsabile in altri modi
+
+Nella chat del responsabile di un Progetto:
+
+- **Confronta le risposte** pone la stessa domanda a due fino a sei agenti, e il responsabile confronta ciò che dicono.
+- **Usa lo stile** sceglie come il responsabile scrive le risposte.
+
+Per far rivedere o testare il lavoro corrente a Codex, Claude Code o un altro dei tuoi Agenti, chiedilo e basta. In un Progetto, il responsabile avvia quell’Agente come Subagente e riporta il risultato nella stessa chat. Il responsabile può anche avviare Subagenti per il proprio lavoro, accanto ai compiti che dà ai membri del Progetto.
+
+Per eseguire un compito tramite uno dei flussi di lavoro del Progetto, scrivi `@` e scegli il flusso, oppure fai clic su **Usa nella chat** accanto a esso nella scheda **Team e impostazioni**. Vedi [Usa i tuoi flussi di lavoro](/it/ai/projects).
+
+## Vedi cosa ha bisogno di te
+
+Apri la scheda **Chat**. Il pannello sopra la casella dei messaggi ha tre colonne:
+
+| Colonna | Cosa elenca |
+| --- | --- |
+| **Ha bisogno di te** | Compiti in attesa della tua risposta, approvazione o revisione. |
+| **In corso** | Compiti in esecuzione. |
+| **Nuovi risultati** | Compiti finiti che non hai ancora aperto. |
+
+Fai clic su una riga per aprire la sua idea.
+
+## Usa la Bacheca per tutto
+
+**Bacheca**, nel menu **···** sulla barra delle icone della barra laterale della Finestra di chat, mostra i compiti di ogni chat, Progetto e team in un solo posto. Per tenerla sulla barra, scegli **Personalizza la barra laterale…** in quel menu. Vedi [Finestra di chat](/it/ai/chat).
+
+Per vedere solo alcuni Progetti, fai clic sul filtro in alto a sinistra (**Tutte le bacheche**) e scegli quelli che vuoi. Gli altri controlli della Bacheca sono in [Segui la Bacheca](/it/ai/agent-orchestrator).
+
+## Imposta il team
+
+Apri la scheda **Team e impostazioni**. In alto compaiono il responsabile e ogni membro, con **Aggiungi membro** per portare un altro Agente. Fai clic sui volti del team in alto a sinistra per vedere tutto il team insieme: il responsabile con **Cambia**, e ogni membro con un ruolo che puoi modificare sul posto.
+
+Il responsabile può essere uno dei tuoi Agenti o un agente di coding: Claude Code, Codex, Grok Build o Antigravity. Un responsabile agente di coding pianifica il lavoro dei membri in un piano di lavoro e legge i loro risultati, come qualsiasi altro responsabile.
+
+I membri possono essere Agenti sugli [altri computer associati](/it/integrations/other-computers). Il responsabile affida loro i compiti che richiedono quel computer, e la risposta torna come risultato del compito. Se quel computer non ha l’accesso dispositivo sul tuo account, il compito lo dice e indica **Gestisci i dispositivi**.
+
+### Come lavora il team
+
+Ogni obiettivo che dai al responsabile, da Chat o Idee, passa da **Standard**: **Pianifica il lavoro**, **Fai il lavoro**, poi **Rivedi e testa**. Scegli chi fa ogni passo. Affida la pianificazione a un membro, e quel membro scrive il piano quando chiedi; il responsabile poi propone i suoi compiti come piano di lavoro che aspetta il tuo **Avvia**. Puoi anche attivare o disattivare il controllo e impostare i **Giri di correzione**, quante volte un compito torna indietro per essere corretto.
+
+### Usa i tuoi flussi di lavoro
+
+**Flussi di lavoro personalizzati**, nella scheda **Team e impostazioni**, è disattivato finché non lo attivi. Finché è disattivato, ogni obiettivo passa da **Standard**. Attivalo per eseguire obiettivi o singoli compiti tramite i [Flussi di lavoro](/it/workflows/introduction):
+
+- **Oppure esegui ogni obiettivo con un flusso di lavoro** elenca i flussi del team. Punta a uno e fai clic su **Usa per ogni obiettivo**, oppure fai clic su **Nuovo flusso di lavoro del team** per crearne uno.
+- **Flussi di lavoro dei compiti** elenca i flussi che il responsabile può dare a un singolo compito, come correggere un bug. Fai clic su **Usa nella chat** per nominarne uno nella chat del responsabile, oppure su **Nuovo flusso di lavoro** per crearne uno.
+
+I flussi integrati:
+
+| Flusso di lavoro | Cosa fa |
+| --- | --- |
+| **Ship** | Trasforma un’idea in una specifica, un design e un piano che approvi, costruisce ogni compito con test, controlli, revisione e verifica, poi rivede l’intero ramo. |
+| **Planner** | Trasforma un’idea in una specifica, un design e compiti che approvi, e affida i compiti al responsabile come piano di lavoro. |
+| **Sprint** | Costruisce un compito pianificato con test, controlli, revisione e verifica. |
+| **Compound** | Applica le lezioni che hai tenuto ai documenti e alle regole del repository. |
+| **Verifica la configurazione** | Capisce come controllare ed eseguire il Progetto, scrive un runbook di verifica che approvi e lo dimostra eseguendolo. |
+
+Ogni riga mostra l’icona del flusso, i volti dei membri che lo fanno e quante esecuzioni ha avuto e quante sono fallite. Quando a un flusso manca un membro, fai clic su **Scegli un Agente…** nella sua riga. Fai clic su una riga per aprire il flusso e cambiare i passi o chi li fa.
+
+Le modifiche che salvi a un flusso in un Progetto restano una **Bozza**: i nuovi piani continuano a usare la versione pubblicata finché non fai clic su **Pubblica**. **Torna alla versione precedente** riporta la versione di prima. Il flusso di un compito mostra i token e il costo di ogni passo, con un totale ai prezzi API.
+
+### Imposta il comando di controllo
+
+Il comando di controllo gira nella copia del codice di un compito finito prima che vada in revisione. Un controllo che fallisce torna al membro del compito per la correzione.
+
+1. Nella scheda **Team e impostazioni**, fai clic su **Impostazioni del progetto**, poi su **Bacheca**.
+2. Accanto a **Comando di controllo**, fai clic su **Trovalo**. Enconvo legge il comando dai file del Progetto e lo compila solo se passa.
+3. Se non ne trova, fai clic su **Chiedi a Mavis di configurarlo** (il pulsante indica il tuo responsabile). Il responsabile trova o aggiunge il comando nella sua chat.
+
+Un Progetto senza comando di controllo mostra il passo di controllo come **Non controllato**.
+
+### Ripulisci i worktree
+
+Ogni chat e compito in un Progetto git lavora nel proprio worktree. Per liberare spazio su disco, Enconvo archivia i worktree che hai finito e ne rimuove le cartelle. In **Impostazioni del progetto → Worktree**:
+
+| Impostazione | Cosa fa |
+| --- | --- |
+| **Archivia i worktree uniti** | Archivia un worktree quando il suo lavoro è nel ramo di base e non resta nulla di non committato o non inviato. |
+| **Archivia i worktree senza chat** | Archivia un worktree quando nessuna delle sue chat resta nell’elenco chat. |
+| **Archivia i worktree inattivi** | Archivia un worktree, con le sue chat, dopo che non vedono attività per i giorni che scegli sotto **Archivia dopo nessuna attività per**: 3, 7, 14 o 30. |
+
+Un worktree con modifiche non committate resta sempre. **Ripristina** riporta un worktree archiviato.
+
+## Scegli quando il team si confronta con te
+
+Apri la scheda **Team e impostazioni**.
+
+Sotto **Quando confrontarsi con te**:
+
+| Impostazione | Cosa fa |
+| --- | --- |
+| **Quando un piano è pronto** | **Intelligente**, il predefinito, avvia subito il piano quando fa ciò che hai già chiesto, e aspetta il tuo **Avvia** quando va oltre o è rischioso. **Chiedimi sempre** aspetta **Avvia** ogni volta. **Avvia sempre** avvia ogni piano appena è pronto. |
+| **Inizia a pianificare appena si aggiunge una cosa da fare** | Attivo: il responsabile pianifica subito ogni nuova idea. Disattivo: le nuove idee aspettano in **Non iniziato** finché non le avvii. |
+
+Le azioni che eliminano, inviano, pubblicano, pagano o fanno push chiedono sempre, qualunque cosa tu scelga. Cartella, worktree, autorizzazioni, budget e confine sono in **Impostazioni del progetto**.
+
+## Lascia che il responsabile agisca mentre sei via
+
+In un Progetto con **Accesso completo**, il responsabile può far avanzare il lavoro quando un compito risponde e nessuno è nella chat. Attiva **Il responsabile agisce mentre sei via** in **Impostazioni del progetto → Bacheca**.
+
+Il responsabile poi corregge, riprova e unisce da solo, entro 6 turni all’ora e 100.000 punti al giorno. Non invia, non fa push, non pubblica, non paga e non elimina nulla fuori dalla copia del codice del compito.
+
+Quando torni, una scheda **Mentre eri via** in cima alla chat del responsabile elenca cosa ha fatto e i passi che ha lasciato per te. Dopo due turni falliti di fila, o a un limite, il responsabile si mette in pausa e **Ha bisogno di te** chiede se **Riprendere** o **Tenere in pausa**.
+
+## Archivia un Progetto
+
+Quando un Progetto è finito, archivalo per toglierlo dalla barra laterale senza eliminare nulla.
+
+1. Punta al Progetto nella barra laterale e fai clic su **⋯**.
+2. Scegli **Archivia progetto**.
+
+Il Progetto e le sue chat lasciano la barra laterale, e i suoi compiti programmati si mettono in pausa. Una chat in un Progetto archiviato non può ricevere messaggi finché non lo ripristini.
+
+Per riportarlo:
+
+1. Apri **Impostazioni → Archiviati**.
+2. Fai clic su **Progetti**.
+3. Fai clic su **Ripristina** accanto al Progetto.
+
+Il Progetto torna nella barra laterale con le sue chat, e i suoi compiti programmati si riattivano.
+
+## Progetti sul telefono
+
+L’app iPhone apre anche i tuoi Progetti: Idee, la Bacheca, le impostazioni del Progetto, **Nuovo progetto** e la scheda del piano di lavoro, dove rispondi, unisci, avvii o riprovi un compito. Il menu `@` lì elenca i membri e i flussi di lavoro del Progetto. Vedi [App iPhone](/it/integrations/iphone-app).
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Una nuova idea resta in **Non iniziato** | Attiva **Inizia a pianificare appena si aggiunge una cosa da fare** in **Team e impostazioni**, oppure apri l’idea e avviala tu. |
+| Un piano aspetta anche se hai scelto **Intelligente** | Il piano va oltre ciò che hai chiesto, o include un passo rischioso. Controllalo e fai clic su **Avvia**. |
+| Il compito di un agente di coding non parte | Installa l’agente di coding e accedi. |
+| Un compito aspetta come **In attesa** con un avviso di accesso | L’agente di coding è disconnesso, o il suo accesso finisce presto. Fai clic su **Accedi di nuovo**. I compiti in attesa ripartono quando accedi. |
+| Una scheda della Bacheca mostra un problema in ambra | È un problema di configurazione. Segui la correzione della scheda; il responsabile non riprova. Un errore di Enconvo dice che è sicuro riprovare. |
+| Un compito fallisce in un Progetto tenuto in iCloud | Con Ottimizza archiviazione Mac attivo, i file potrebbero non essere sul Mac. Nel Finder, scegli **Mantieni scaricato** per la cartella del Progetto. |
+| Un compito dice che la cartella del Progetto non c’è più | La cartella è stata spostata o eliminata. Rimettla dov’era, oppure crea un nuovo Progetto per il nuovo posto. |
+| Un compito si ferma al **Confine** del Progetto | Fai clic su **Modifica confine** sul compito per consentire ciò che gli serve. Solo tu cambi un Confine. |
+| Un compito segnala un’unione o un rebase lasciato a metà | Il suo agente si è fermato a metà. Finisci o annulla l’unione o il rebase prima di unire il compito. |
+| Ogni piano aspetta **Avvia** | I piani aspettano mentre non hai effettuato l’accesso a Enconvo. Accedi in **Impostazioni → Account**. |
+| Un Progetto manca dalla barra laterale | Potrebbe essere archiviato. Cercalo in **Impostazioni → Archiviati** sotto **Progetti**. |
+| Un compito di flusso di lavoro è fallito | Apri il compito. Dice cosa ha scritto per ultimo il suo comando e il passo di quale membro è fallito. |
+| Un obiettivo non usa il flusso di lavoro del team che hai scelto | Attiva **Flussi di lavoro personalizzati** nella scheda **Team e impostazioni**. Finché è disattivato, ogni obiettivo passa da **Standard**. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Orchestratore di agenti" icon="sitemap" href="/it/ai/agent-orchestrator">Piani di lavoro, i controlli della Bacheca e la creazione di un Progetto.</Card>
+  <Card title="Agenti di coding" icon="code" href="/it/ai/coding-agents">Installa e accedi a Claude Code, Codex e gli altri.</Card>
+  <Card title="Finestra di chat" icon="message" href="/it/ai/chat">Chat, Progetti e la barra laterale.</Card>
+  <Card title="Spazi di lavoro" icon="layer-group" href="/it/configuration/account">Tieni le chat e la Memoria di un cliente separate dalle tue.</Card>
+</CardGroup>

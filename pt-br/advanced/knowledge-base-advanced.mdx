@@ -1,0 +1,186 @@
+---
+title: "Como funcionam as bases de conhecimento"
+description: "Veja como o Enconvo guarda, divide, indexa e pesquisa as bases de conhecimento, e como manter bons resultados de busca."
+---
+
+Esta página é para quem quer saber o que acontece com um documento depois que ele entra numa base de conhecimento: onde o Enconvo o guarda, como o divide e indexa, e como a busca escolhe os resultados. Use-a para ajustar uma coleção, corrigir resultados fracos ou chamar bases de conhecimento do seu próprio código. Se você está começando, comece por [Base de conhecimento](/pt-br/ai/knowledge-base).
+
+Em resumo: o Enconvo lê o texto de cada item, divide-o em trechos, transforma cada trecho num vetor e guarda os trechos num banco LanceDB local. Uma busca procura trechos pelo sentido e pelas palavras exatas ao mesmo tempo, e depois combina os dois.
+
+## Onde os dados ficam
+
+| O quê | Onde |
+|---|---|
+| Trechos, vetores e o índice de texto completo | Um banco LanceDB em `~/.config/enconvo/.support/knowledge_base/vector/knowledge_base/` |
+| Bases de conhecimento, itens e seus detalhes | Um banco SQLite (Drizzle ORM) em `~/.config/enconvo/.support/knowledge_base/db` |
+
+Todas as bases de conhecimento compartilham o mesmo banco LanceDB, e cada base é uma tabela nele. Quando o Enconvo reconstrói o índice de uma base, grava uma tabela nova ao lado da antiga e troca quando a nova está pronta, para a busca continuar funcionando durante a reconstrução.
+
+Cada base de conhecimento tem um id. As APIs o recebem como `knowledge_base_id`, e o Enconvo executa a base como o comando `knowledge_base|<id>`. Para copiar o id de uma base, abra **Definições da base de conhecimento** no cabeçalho dela e vá a **Avançado**.
+
+O espaço depende dos arquivos originais, do texto extraído, da quantidade de trechos e das dimensões do embedding. Acompanhe o uso real de disco da sua coleção em vez de estimá-lo só pelo número de documentos. Guarde os arquivos de origem e os backups à parte do índice de busca.
+
+## Como o conteúdo entra
+
+### Leitura
+
+O Enconvo lê cada tipo de item com a ferramenta adequada:
+
+| Conteúdo | Lido por |
+|---|---|
+| **PDF** | O plugin Document Parser. Ele usa o texto do PDF e só executa o seu fornecedor de OCR em páginas digitalizadas |
+| **Word, PowerPoint, Excel, EPUB, CSV** | O plugin Document Parser |
+| **Texto e Markdown** | Lidos como estão |
+| **Imagens** | O seu fornecedor de OCR |
+| **Áudio e vídeo** | O seu fornecedor de transcrição |
+| **Páginas da web** | O seu fornecedor de Web Fetch |
+| **Sites inteiros** | Um rastreador de sites, página por página |
+| **YouTube** | A transcrição do vídeo |
+
+### Divisão em trechos
+
+O Enconvo divide o texto em trechos no tamanho adequado ao idioma em que foi escrito:
+
+| Texto | Tamanho do trecho | Sobreposição |
+|---|---|---|
+| Maior parte em escrita latina, como inglês | 1.500 caracteres | 200 caracteres |
+| Maior parte em chinês, japonês ou coreano | 560 caracteres | 80 caracteres |
+| Uma mistura | No meio, conforme a parte de cada um | No meio |
+
+Ele corta no limite mais natural que mantém o trecho dentro do tamanho, nesta ordem:
+
+1. Parágrafos
+2. Linhas
+3. Frases
+4. Orações
+5. Palavras
+6. Um corte forçado (último recurso)
+
+Planilhas são divididas com cerca de uma linha por trecho, para uma busca por uma linha encontrar essa linha. Esses tamanhos são fixos; não há ajuste para eles.
+
+### Embedding
+
+Toda base de conhecimento usa o mesmo modelo de embedding, EmbeddingGemma 300M. Escolha onde ele roda em **Definições → Memória → Modelo de embedding**:
+
+- **Este Mac**: gratuito, e nada sai do seu Mac, mas usa a GPU enquanto o conteúdo novo é indexado. Precisa de um Mac com Apple silicon.
+- **Enconvo Cloud**: gratuito com a sua conta Enconvo. O texto que está sendo indexado ou pesquisado é enviado para lá.
+
+Os dois rodam o mesmo modelo, então trocar mantém o índice de busca como está. O Enconvo gera embeddings dos trechos em lotes.
+
+### Armazenamento
+
+Cada trecho é uma linha na tabela da base de conhecimento:
+
+| Campo | Contém |
+|---|---|
+| `text` | O texto do trecho |
+| `vector` | O embedding dele |
+| `id` | O id do trecho |
+| `attachment_id` | O item de onde o trecho veio |
+| `type`, `url`, `title`, `ext`, `loc` | O tipo, o endereço, o título e a extensão do item, e onde o trecho fica nele |
+| `metadata` | Outros detalhes do item |
+
+O Enconvo também mantém um índice de texto completo de `text`, feito de sequências curtas de caracteres, para encontrar nomes exatos, números, código e palavras em CJK.
+
+## Como a busca funciona
+
+Cada busca faz até três consultas ao mesmo tempo sobre os trechos da base:
+
+1. **Pelo sentido**: a consulta é convertida em embedding com o mesmo modelo, e os vetores mais próximos são encontrados.
+2. **Pelas palavras**: uma busca de texto completo (BM25) para cada palavra da consulta, deixando de fora palavras comuns em inglês.
+3. **Pelo título**: itens cujo título corresponde à consulta, cada um com o trecho mais próximo dela.
+
+O Enconvo então combina os resultados. As pontuações de cada lista são escaladas de 0 a 1, e a pontuação de um trecho é 0,6 da pontuação de sentido mais 0,4 da pontuação de palavras. Um item cujo título corresponde, ou um trecho que contém a consulta inteira, sobe no ranking. Só alguns trechos de cada item são mantidos, para um documento longo não abafar o resto, e cada trecho volta com o texto ao redor.
+
+Não há uma etapa separada de reranking na busca da base de conhecimento.
+
+## Manter o índice saudável
+
+O Enconvo cria o índice de texto completo e organiza as tabelas sozinho. Também reconstrói o índice de uma base quando ela foi feita com um divisor mais antigo ou um modelo de embedding diferente, a partir do texto que já tem, sem reler os arquivos.
+
+Para reconstruir à mão:
+
+- **A base inteira**: abra **Definições da base de conhecimento** no cabeçalho, vá a **Índice e busca** e clique em **Reindexar…** ao lado de **Reconstruir o índice inteiro**. As buscas continuam funcionando enquanto isso roda.
+- **Um item**: clique com o botão direito nele e escolha **Reindexar**.
+
+**Definições da base de conhecimento** tem cinco seções: **Geral** (nome e descrição), **Índice e busca** (saúde, itens que precisam de atenção, o modelo de busca e a reindexação), **Fontes e captura** (pastas vinculadas e ferramentas de captura), **Clientes de IA (MCP)** e **Avançado** (o id e a exclusão da base).
+
+Apague bases de conhecimento que você não usa mais para liberar espaço em disco.
+
+### Pastas vinculadas
+
+Para um item ausente, veja primeiro o estado de importação e sincronização da pasta de origem. Em **Fontes e captura**, cada pasta vinculada mostra se está sincronizando, quando sincronizou pela última vez, ou que a pasta de origem não foi encontrada, com **Sincronizar agora**, **Vincular de novo…** e **Sincronização automática**.
+
+Depois veja à parte o estado de extração de conteúdo e o estado de embedding do item: o **Pipeline** do item mostra **Análise de conteúdo** e **Índice de busca** como duas etapas, e um texto extraído legível não garante que a indexação vetorial terminou. Reindexe o item depois de corrigir o erro do fornecedor ou de acesso ao arquivo.
+
+A pasta de origem continua sendo a autoridade dos arquivos vinculados. Separe a recuperação de um disco offline da exclusão de arquivos: quando uma pasta de origem não é encontrada, a base de conhecimento mantém os itens. Revise a contagem de arquivos ignorados antes de tratar uma importação como concluída.
+
+## Organizar várias bases de conhecimento
+
+Cada base de conhecimento tem os próprios documentos, índice e tabela. Divida o conteúdo do jeito que você pesquisa:
+
+| Estratégia | Descrição | Exemplo |
+|----------|-------------|---------| 
+| **Por projeto** | Uma base por projeto | `project-alpha`, `project-beta` |
+| **Por tipo** | Bases separadas por tipo de conteúdo | `code-docs`, `meeting-notes`, `research` |
+| **Por equipe** | Conhecimento específico da equipe | `engineering`, `marketing`, `support` |
+| **Por alcance** | Pessoal e compartilhado | `personal-notes`, `company-wiki` |
+
+Para pesquisar várias de uma vez, anexe-as com o seletor de contexto ou defina as bases de conhecimento anexadas do Agente. Uma busca que não nomeia nenhuma base percorre todas as suas, exceto a Memória.
+
+## Usar bases de conhecimento a partir do código
+
+O plugin Knowledge Base serve as rotas na [Local API](/pt-br/advanced/cli-local-api), para outros plugins, fluxos de trabalho e scripts poderem chamá-las. As principais:
+
+| Rota | Finalidade |
+|---|---|
+| `knowledge_base/create` | Criar uma base de conhecimento |
+| `knowledge_base/delete` | Remover uma base de conhecimento e todos os dados dela |
+| `knowledge_base/add`, `knowledge_base/add_attachments` | Adicionar arquivos, texto, links ou mídia |
+| `knowledge_base/search` | Pesquisar uma ou mais bases de conhecimento |
+| `knowledge_base/list` | Listar as bases de conhecimento |
+| `knowledge_base/get_attachments` | Listar os itens de uma base de conhecimento |
+| `knowledge_base/delete_attachments` | Remover itens de uma base de conhecimento |
+| `knowledge_base/reindex` | Reconstruir o índice de uma base ou de um item |
+| `knowledge_base/summarize` | Resumir um item |
+
+Abra **Definições → APIs** para os parâmetros de cada rota na versão instalada.
+
+Etapas de base de conhecimento cabem em fluxos de trabalho e automações, por exemplo:
+
+```
+Trigger: New file in ~/Documents/research/
+  → Add to Knowledge Base "research"
+  → Search for related content
+  → Generate summary
+  → Save summary to notes
+```
+
+Para outro cliente de IA, use [MCP da base de conhecimento](/pt-br/advanced/knowledge-base-mcp). Ele expõe bases selecionadas por um serviço local somente leitura; não exporta a Memória do Agente nem gravações.
+
+## Solução de problemas
+
+| Problema | O que fazer |
+|---|---|
+| A busca devolve resultados irrelevantes | Confira se a etapa **Índice de busca** do item terminou e reindexe a base. Pesquise com as palavras que o documento usa: nomes e números exatos correspondem pelo índice de texto completo |
+| A indexação está lenta | Documentos grandes demoram mais. Com **Este Mac**, a indexação usa a GPU; mude **Modelo de embedding** para **Enconvo Cloud** para deixar o Mac livre |
+| Itens novos não são pesquisáveis no Enconvo Cloud | Entre na sua conta Enconvo. Até lá, o conteúdo novo não é indexado e a busca só encontra palavras correspondentes |
+| Um tipo de arquivo não é suportado | Converta-o para PDF, TXT ou MD e adicione de novo |
+| Uma base não é encontrada pelo id | Copie o id em **Definições da base de conhecimento → Avançado** e passe-o como `knowledge_base_id` |
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Noções de base de conhecimento" icon="book" href="/pt-br/ai/knowledge-base">
+    Começar com bases de conhecimento
+  </Card>
+  <Card title="MCP da base de conhecimento" icon="plug" href="/pt-br/advanced/knowledge-base-mcp">
+    Pesquisar as suas bases a partir de outro cliente de IA
+  </Card>
+  <Card title="Memória" icon="brain" href="/pt-br/ai/memory">
+    O modelo de busca e o que os agentes lembram
+  </Card>
+  <Card title="Fluxos de trabalho" icon="diagram-project" href="/pt-br/workflows/introduction">
+    Automatizar tarefas da base de conhecimento
+  </Card>
+</CardGroup>

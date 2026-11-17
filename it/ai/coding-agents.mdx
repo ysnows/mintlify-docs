@@ -1,0 +1,108 @@
+---
+title: "Agenti di coding"
+description: "Chatta con Claude Code, Codex, Grok Build, Antigravity, Muse Code e Grok Bot dentro Enconvo, e scegli quali funzioni di Enconvo possono usare."
+---
+
+Gli agenti di coding sono gli strumenti di coding con IA che usi già, come Claude Code e Codex, eseguiti dentro le chat di Enconvo. Usane uno quando il lavoro è codice in una cartella di progetto: modifica i file con diff, esegue comandi e chiede prima di agire, mentre Enconvo tiene la chat, la cronologia e le approvazioni nella Finestra di chat, in SmartBar e sul telefono.
+
+| Agente di coding | Di | Gira |
+| --- | --- | --- |
+| **Claude Code** | Anthropic | Sul tuo Mac, con accesso Claude |
+| **Codex** | OpenAI | Sul tuo Mac, con accesso ChatGPT |
+| **Grok Build** | xAI | Sul tuo Mac, con accesso Grok |
+| **Antigravity** | Google | Sul tuo Mac, con accesso Google |
+| **Muse Code** | Meta | Sul tuo Mac, con accesso Meta, o sul suo modello locale |
+| **Grok Bot** | xAI | Nel cloud di xAI, tramite una routine che colleghi |
+
+## Prima di iniziare
+
+Ogni agente di coding ha una pagina propria in **Impostazioni → Elenco agenti**. Fai clic per vedere il suo **Stato**:
+
+1. Se mostra **Non installato**, fai clic su **Installa**, oppure esegui il comando mostrato nel Terminale e fai clic su **Controlla di nuovo**. Una versione troppo vecchia mostra **Aggiorna**.
+2. Sotto **Account**, fai clic su **Accedi con Claude**, **Accedi con ChatGPT**, **Accedi con Grok**, **Accedi con Google** o **Accedi con Meta**. Enconvo usa lo stesso accesso della riga di comando dell’agente nel Terminale.
+
+Quando l’accesso di Claude Code o Codex scade entro dieci giorni, la pagina dell’agente, l’elenco **Aggiornamenti** e la Bacheca di un Progetto lo dicono, con **Accedi di nuovo**. Un compito della Bacheca il cui agente di coding è disconnesso resta in **In attesa** e riparte quando accedi.
+
+Muse Code sul suo modello locale non richiede l’accesso Meta. Grok Bot ha bisogno di una routine; vedi Collega Grok Bot più sotto.
+
+## Chatta con un agente di coding
+
+1. Nella Finestra di chat, scegli l’agente di coding dalle schede Agente o dal menu Agente.
+2. Scegli la cartella di progetto in cui lavora.
+3. Scrivi la richiesta e inviala. I suoi passaggi, diff e comandi arrivano nella chat, e le domande di approvazione compaiono come schede a cui rispondere.
+
+Le approvazioni della chat seguono la [modalità Permessi](/it/ai/agents) di Enconvo. Con **Accesso completo**, una nuova chat Claude Code parte in **Bypass permissions** (dove le impostazioni di Claude Code lo consentono) e una nuova chat Codex in **Accesso completo**, così nessuno dei due chiede prima di agire.
+
+In una chat di worktree, la scheda **Pull request** del pannello laterale (**⌃⇧P**) mostra la pull request del branch su GitHub, o ne crea una. Vedi [Finestra di chat](/it/ai/chat).
+
+Per riprendere una sessione precedente, scegli **Riprendi una sessione precedente**. Anche le sessioni avviate dalla riga di comando dell’agente sono in elenco, con i nomi che hai dato loro.
+
+Puoi anche passare una chat iniziata con Mavis a un agente di coding continuandola in una nuova chat con esso. Altri Agenti possono usare gli agenti di coding come sottoagenti, e un Progetto può assegnare loro compiti o farne guidare uno. Vedi [Sottoagenti](/it/ai/agents) e [Progetti](/it/ai/projects).
+
+### Claude Code: sforzo, modalità veloce e Ultracode
+
+Il selettore di sforzo in una chat Claude Code imposta lo sforzo di ragionamento. Quando la sessione lo supporta, il selettore mostra anche **Fast mode** e un interruttore **Ultracode**. Ultracode attiva l’orchestrazione del flusso di lavoro per il resto della sessione allo sforzo che scegli, e resta attivo se cambi lo sforzo. Digitare `/effort ultracode` fa lo stesso. In una nuova chat puoi impostare la modalità veloce e Ultracode prima del primo messaggio.
+
+### Codex: avvisi
+
+Gli avvisi di Codex restano fuori dalla conversazione. Digita `/warnings` per elencarli.
+
+### Muse Code: continua nel Terminale
+
+Per continuare una chat Muse Code nel Terminale, scegli **Continua nel Terminale**, oppure **Copia comando** per copiarlo. La chat si apre con `muse resume` nella sua cartella. Quando esci da Muse Code lì e invii di nuovo da Enconvo, i turni eseguiti nel Terminale tornano nella chat.
+
+Le domande di approvazione di Muse Code mostrano la modifica che farebbe un edit. Quando rifiuti un passaggio, ciò che scrivi con **Rifiuta** va a Muse Code nello stesso turno, così può agire subito. Le sue competenze e `/compact` sono nel menu `/`.
+
+<Note>
+La modalità Contributor di Muse Code è attiva per impostazione predefinita, e consente a Meta di addestrare i suoi modelli sui tuoi prompt e sul codice. Enconvo la lascia com’è; disattivala nelle impostazioni di Muse Code.
+</Note>
+
+## Scegli cosa può usare un agente di coding in Enconvo
+
+Gli agenti di coding possono usare i plugin di Enconvo nelle loro chat, come messaggiare i tuoi Agenti Enconvo, creazione di immagini e video, memoria, il browser e Uso del computer. Nella pagina dell’agente in **Impostazioni → Elenco agenti**, sotto **Funzionalità di Enconvo**:
+
+- Disattiva **Funzionalità di Enconvo** per tenere quell’agente lontano da tutti i plugin di Enconvo.
+- Oppure fai clic su **Personalizza** accanto a **Plugin** e disattiva un plugin alla volta. Un plugin spento è nascosto a quell’agente, e le sue chiamate vengono rifiutate.
+
+La modifica vale anche per le chat aperte dell’agente. Le chat degli agenti di coding nel Workspace di un client restano interamente dentro quel Workspace.
+
+## Collega Grok Bot
+
+Grok Bot gira nel cloud di xAI. Enconvo invia ogni messaggio a una routine Webhook che crei in Grok Bot, e mostra la risposta nella chat, anche se arriva in ritardo.
+
+1. In Grok Bot, crea una routine con un trigger Webhook.
+2. Apri **Grok Bot** in **Impostazioni → Elenco agenti**, fai clic su **Copia** accanto a **Istruzioni della routine** e incollale nella routine.
+3. Aggiungi l’URL webhook e la chiave della routine come credenziale nella stessa pagina, poi fai clic su **Test**. Il test attende la risposta della routine fino a circa 90 secondi.
+
+Finché la routine non è collegata, il selettore degli agenti mostra Grok Bot come **Non configurato**. Ogni messaggio usa l’utilizzo settimanale del tuo piano Grok Bot. **Ferma** ferma solo l’attesa di Enconvo: l’esecuzione della routine continua nel cloud, e una risposta che arriva dopo viene comunque aggiunta alla chat.
+
+Un messaggio può arrivare a 32.000 caratteri. File e immagini allegati restano sul Mac; viene inviato solo il testo.
+
+### Lascia che Grok Bot chiami Enconvo
+
+Con il server MCP di Enconvo, Grok Bot può rispondere alle tue chat, avvisare il Mac e i telefoni abbinati, e chiedere a un Agente sul Mac di eseguire un compito.
+
+1. Nella pagina di Grok Bot, sotto **Grok Bot chiama Enconvo**, fai clic su **Connetti**. Devi essere connesso al tuo account Enconvo.
+2. In Grok Bot, apri **Plugin**, aggiungi l’**URL del server** mostrato e accedi con il tuo account Enconvo quando Grok Bot lo chiede.
+
+Ogni richiesta a un Agente sul Mac attende la tua approvazione, a meno che non attivi **Consenti sempre ask_mac**. Le richieste restano elencate nella chat **Grok Bot su questo Mac**. Fai clic su **Disconnetti** per impedire a Grok Bot di chiamare Enconvo; la disconnessione, o il Mac che va offline, ritira una richiesta ancora in attesa.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Una chat dice che l’agente non ha effettuato l’accesso | Apri la pagina dell’agente in **Impostazioni → Elenco agenti** e fai clic su **Accedi di nuovo**. Una chat Mavis o un’app che ha chiamato l’agente riceve lo stesso errore di accesso, e i suoi compiti della Bacheca restano **In attesa** finché non accedi. |
+| L’agente mostra **Non installato** o una versione troppo vecchia | Fai clic su **Installa** o **Aggiorna** nella sua pagina, poi su **Controlla di nuovo**. |
+| Muse Code dice che Enconvo ha bisogno di un aggiornamento | Aggiorna Enconvo per funzionare con il Muse Code più recente. |
+| Grok Bot mostra **Non configurato** | Aggiungi l’URL webhook e la chiave della routine nella pagina di Grok Bot e fai clic su **Test**. |
+| Il test di Grok Bot dice troppi messaggi | La routine o Enconvo sta rifiutando troppi messaggi per ora. Riprova più tardi. |
+| Una chat Muse Code aperta nel Terminale non invia | Esci da Muse Code nel Terminale per riportare i suoi turni, poi invia da Enconvo. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Sottoagenti, ruoli e approvazioni.</Card>
+  <Card title="Progetti" icon="folder" href="/it/ai/projects">Assegna compiti di coding a un team in una cartella.</Card>
+  <Card title="Finestra di chat" icon="comments" href="/it/ai/chat">Avvia, guida e organizza le chat.</Card>
+  <Card title="Hook" icon="anchor" href="/it/configuration/hooks">Esegui i tuoi comandi quando un Agente agisce.</Card>
+</CardGroup>

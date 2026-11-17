@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Converse com as implantações Azure OpenAI no Enconvo."
+---
+
+Use os modelos OpenAI que a organização implanta no Azure. O Enconvo fala diretamente com o recurso Azure, por isso o acesso, as quotas e a faturação seguem a subscrição Azure.
+
+## Antes de começar
+
+Precisa de um recurso Azure OpenAI com pelo menos uma implantação de modelo. No portal Azure, copie a **chave** do recurso, o **endpoint** e o **nome da implantação** que deu ao modelo. Veja [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview) se ainda não configurou um.
+
+## Ligar
+
+<Steps>
+  <Step title="Acrescentar a credencial">
+    Abra **Definições → Modelo de IA → Azure OpenAI**. Em **Autenticação**, preencha **Chave de API**, **Endpoint** e **Versão da API** e clique em **Validar**. O endpoint parece-se com `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Definir a implantação">
+    Introduza o nome da implantação em **Azure OpenAI Api Deployment Name**. Use o nome do recurso Azure, que pode diferir do nome do modelo.
+  </Step>
+  <Step title="Testar">
+    Envie uma mensagem curta. Uma resposta significa que a ligação funciona.
+  </Step>
+</Steps>
+
+## Modelos e opções
+
+| Definição | O que faz |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | A implantação que este fornecedor chama. |
+| **Transmissão** | Mostra a resposta à medida que é escrita. Ligado por predefinição; desligue se a implantação não suportar transmissão. |
+| **Versão da API** | Na credencial. A predefinição é `2025-01-01-preview`. |
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| **Validar** falha | Confira se a chave e o **Endpoint** vêm do mesmo recurso Azure. |
+| A implantação não é encontrada | Copie o nome da implantação exatamente do portal Azure. |
+| A resposta nunca aparece | Desligue **Transmissão** e tente de novo. |
+| Erros de taxa ou quota | Aumente a quota da implantação no Azure, ou mude para outro fornecedor por agora. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/pt-br/providers/openai">Use a API da própria OpenAI.</Card>
+  <Card title="Credenciais e perfis" icon="key" href="/pt-br/configuration/credentials">Guarde várias chaves e veja o que uma chave partilhada afeta.</Card>
+  <Card title="Escolher um modelo" icon="list-check" href="/pt-br/ai/model-selection-guide">Escolha um modelo pela tarefa e veja onde as predefinições estão definidas.</Card>
+  <Card title="Catálogo de fornecedores" icon="table" href="/pt-br/providers/catalog">Todos os fornecedores, agrupados pelo recurso que alimentam.</Card>
+</CardGroup>

@@ -1,0 +1,186 @@
+---
+title: "So funktionieren Wissensdatenbanken"
+description: "Erfahre, wie Enconvo deine Wissensdatenbanken speichert, aufteilt, indiziert und durchsucht, und wie du die Suchergebnisse gut hältst."
+---
+
+Diese Seite ist für alle, die wissen wollen, was mit einem Dokument passiert, nachdem es in eine Wissensdatenbank kommt: wo Enconvo es ablegt, wie es aufgeteilt und indiziert wird, und wie die Suche Ergebnisse auswählt. Damit stimmst du eine Sammlung ab, behebst schwache Ergebnisse oder rufst Wissensdatenbanken aus deinem eigenen Code auf. Wenn du Wissensdatenbanken neu bist, beginne mit [Wissensdatenbank](/de/ai/knowledge-base).
+
+Kurz gesagt: Enconvo liest den Text jedes Eintrags, teilt ihn in Abschnitte, wandelt jeden Abschnitt in einen Vektor und speichert die Abschnitte in einer lokalen LanceDB-Datenbank. Eine Suche sucht gleichzeitig nach Bedeutung und nach exakten Wörtern und mischt beides.
+
+## Wo die Daten liegen
+
+| Was | Wo |
+|---|---|
+| Abschnitte, Vektoren und der Volltextindex | Eine LanceDB-Datenbank unter `~/.config/enconvo/.support/knowledge_base/vector/knowledge_base/` |
+| Wissensdatenbanken, Einträge und ihre Details | Eine SQLite-Datenbank (Drizzle ORM) unter `~/.config/enconvo/.support/knowledge_base/db` |
+
+Alle Wissensdatenbanken teilen sich die eine LanceDB-Datenbank, und jede Wissensdatenbank ist darin eine Tabelle. Wenn Enconvo den Index einer Wissensdatenbank neu aufbaut, schreibt es eine neue Tabelle neben die alte und wechselt erst, wenn die neue bereit ist. Die Suche bleibt während des Neuaufbaus also verfügbar.
+
+Jede Wissensdatenbank hat eine ID. Die APIs nehmen sie als `knowledge_base_id`, und Enconvo führt die Wissensdatenbank als Befehl `knowledge_base|<id>` aus. Um die ID zu kopieren, öffne **Wissensdatenbank-Einstellungen** in der Kopfzeile und gehe zu **Erweitert**.
+
+Der Speicherbedarf hängt von den Originaldateien, dem extrahierten Text, der Anzahl der Abschnitte und den Embedding-Dimensionen ab. Beobachte den tatsächlichen Speicherverbrauch deiner Sammlung, statt ihn nur aus der Dokumentzahl zu schätzen. Bewahre Quelldateien und Sicherungen unabhängig vom Suchindex auf.
+
+## Wie Inhalte hineinkommen
+
+### Lesen
+
+Enconvo liest jede Art von Eintrag mit dem passenden Werkzeug:
+
+| Inhalt | Gelesen von |
+|---|---|
+| **PDF** | Das Document-Parser-Plugin. Es nutzt den Text der PDF und startet deinen OCR-Anbieter nur bei gescannten Seiten |
+| **Word, PowerPoint, Excel, EPUB, CSV** | Das Document-Parser-Plugin |
+| **Text und Markdown** | Werden so gelesen, wie sie sind |
+| **Bilder** | Dein OCR-Anbieter |
+| **Audio und Video** | Dein Transkriptionsanbieter |
+| **Webseiten** | Dein Web-Fetch-Anbieter |
+| **Ganze Websites** | Ein Website-Crawler, Seite für Seite |
+| **YouTube** | Das Transkript des Videos |
+
+### In Abschnitte teilen
+
+Enconvo teilt den Text in Abschnitte, deren Größe zur Sprache passt:
+
+| Text | Abschnittsgröße | Überlappung |
+|---|---|---|
+| Überwiegend lateinische Schrift, etwa Englisch | 1.500 Zeichen | 200 Zeichen |
+| Überwiegend Chinesisch, Japanisch oder Koreanisch | 560 Zeichen | 80 Zeichen |
+| Eine Mischung | Dazwischen, nach dem Anteil jeder Schrift | Dazwischen |
+
+Es teilt an der natürlichsten Grenze, die den Abschnitt innerhalb seiner Größe hält, in dieser Reihenfolge:
+
+1. Absätze
+2. Zeilen
+3. Sätze
+4. Teilsätze
+5. Wörter
+6. Ein harter Schnitt (letzter Ausweg)
+
+Tabellen werden ungefähr eine Zeile pro Abschnitt geteilt, damit die Suche nach einer Zeile genau diese Zeile findet. Diese Größen sind fest eingebaut; es gibt keine Einstellung dafür.
+
+### Embedding
+
+Jede Wissensdatenbank nutzt dasselbe Embedding-Modell, EmbeddingGemma 300M. Wähle in **Einstellungen → Erinnerungen → Embedding-Modell**, wo es läuft:
+
+- **Dieser Mac**: kostenlos, und nichts verlässt deinen Mac, aber während neuer Inhalt indiziert wird, wird die GPU genutzt. Dafür brauchst du einen Mac mit Apple Silicon.
+- **Enconvo Cloud**: kostenlos mit deinem Enconvo-Konto. Der Text, der indiziert oder durchsucht wird, wird dorthin gesendet.
+
+Beide laufen dasselbe Modell, deshalb bleibt der Suchindex beim Wechsel erhalten. Enconvo embeddet Abschnitte in Stapeln.
+
+### Speichern
+
+Jeder Abschnitt ist eine Zeile in der Tabelle der Wissensdatenbank:
+
+| Feld | Inhalt |
+|---|---|
+| `text` | Der Text des Abschnitts |
+| `vector` | Sein Embedding |
+| `id` | Die ID des Abschnitts |
+| `attachment_id` | Der Eintrag, aus dem der Abschnitt stammt |
+| `type`, `url`, `title`, `ext`, `loc` | Typ, Adresse, Titel und Dateiendung des Eintrags sowie die Stelle des Abschnitts darin |
+| `metadata` | Weitere Details zum Eintrag |
+
+Enconvo hält außerdem einen Volltextindex von `text`, aufgebaut aus kurzen Zeichenfolgen, damit exakte Namen, Zahlen, Code und CJK-Wörter gefunden werden.
+
+## So funktioniert die Suche
+
+Jede Suche führt bis zu drei Abfragen gleichzeitig über die Abschnitte der Wissensdatenbank aus:
+
+1. **Nach Bedeutung**: Die Anfrage wird mit demselben Modell embeddet, und die nächsten Vektoren werden gesucht.
+2. **Nach Wörtern**: Eine Volltextsuche (BM25) nach jedem Wort der Anfrage, ohne gängige englische Wörter.
+3. **Nach Titel**: Einträge, deren Titel zur Anfrage passt, jeweils mit dem Abschnitt, der der Anfrage am nächsten ist.
+
+Enconvo mischt sie danach. Die Werte jeder Liste werden auf 0 bis 1 skaliert, und der Wert eines Abschnitts ist 0,6 seines Bedeutungswerts plus 0,4 seines Wortwerts. Ein Eintrag mit passendem Titel oder ein Abschnitt, der die ganze Anfrage enthält, steht höher. Von jedem Eintrag bleiben nur wenige Abschnitte, damit ein langes Dokument den Rest nicht verdrängt, und jeder Abschnitt kommt mit dem Text drumherum zurück.
+
+Es gibt keinen eigenen Reranking-Schritt in der Suche der Wissensdatenbank.
+
+## Den Index gesund halten
+
+Enconvo legt den Volltextindex an und räumt die Tabellen von selbst auf. Es baut den Index einer Wissensdatenbank auch neu auf, wenn er mit einem älteren Chunker oder einem anderen Embedding-Modell erstellt wurde, aus dem bereits vorhandenen Text, ohne die Dateien erneut zu lesen.
+
+So baust du von Hand neu auf:
+
+- **Die ganze Wissensdatenbank**: Öffne **Wissensdatenbank-Einstellungen** in der Kopfzeile, gehe zu **Index & Suche** und klicke neben **Den ganzen Index neu aufbauen** auf **Neu indizieren…**. Die Suche bleibt währenddessen verfügbar.
+- **Ein Eintrag**: Klicke mit der rechten Maustaste darauf und wähle **Neu indizieren**.
+
+**Wissensdatenbank-Einstellungen** hat fünf Bereiche: **Allgemein** (Name und Beschreibung), **Index & Suche** (Zustand, Einträge, die Aufmerksamkeit brauchen, das Suchmodell und die Neuindizierung), **Quellen & Erfassung** (verknüpfte Ordner und Erfassungswerkzeuge), **KI-Clients (MCP)** und **Erweitert** (die ID und das Löschen der Wissensdatenbank).
+
+Lösche Wissensdatenbanken, die du nicht mehr brauchst, um Speicherplatz freizugeben.
+
+### Verknüpfte Ordner
+
+Bei einem fehlenden Eintrag prüfe zuerst den Import- und Synchronisierungsstatus des Quellordners. Unter **Quellen & Erfassung** zeigt jeder verknüpfte Ordner, ob er synchronisiert, wann er zuletzt synchronisiert wurde oder dass der Quellordner nicht gefunden wird, mit **Jetzt synchronisieren**, **Erneut verknüpfen…** und **Automatische Synchronisierung**.
+
+Prüfe danach den Status der Inhaltsextraktion und des Embeddings getrennt: Die **Pipeline** des Eintrags zeigt **Inhaltsanalyse** und **Suchindex** als zwei Stufen, und lesbarer extrahierter Text garantiert nicht, dass die Vektorindizierung fertig ist. Indiziere den Eintrag neu, nachdem du den Anbieter- oder Dateizugriffsfehler behoben hast.
+
+Der Quellordner bleibt die maßgebliche Quelle für verknüpfte Dateien. Halte die Wiederherstellung eines offline gegangenen Laufwerks vom Löschen von Dateien getrennt: Wenn ein Quellordner nicht gefunden wird, behält die Wissensdatenbank ihre Einträge. Prüfe die Zahl übersprungener Dateien, bevor du einen Import als abgeschlossen betrachtest.
+
+## Mehrere Wissensdatenbanken ordnen
+
+Jede Wissensdatenbank hat eigene Dokumente, einen eigenen Index und eine eigene Tabelle. Teile deine Inhalte so, wie du sie durchsuchst:
+
+| Strategie | Beschreibung | Beispiel |
+|----------|-------------|---------||
+| **Nach Projekt** | Eine Wissensdatenbank pro Projekt | `project-alpha`, `project-beta` |
+| **Nach Typ** | Getrennte Wissensdatenbanken nach Inhaltstyp | `code-docs`, `meeting-notes`, `research` |
+| **Nach Team** | Teambezogenes Wissen | `engineering`, `marketing`, `support` |
+| **Nach Umfang** | Persönlich gegenüber geteilt | `personal-notes`, `company-wiki` |
+
+Um mehrere zugleich zu durchsuchen, hänge sie über die Kontextauswahl an oder lege die angehängten Wissensdatenbanken des Agenten fest. Eine Suche ohne genannte Wissensdatenbank durchsucht alle deine Wissensdatenbanken außer Erinnerungen.
+
+## Wissensdatenbanken aus Code nutzen
+
+Das Wissensdatenbank-Plugin stellt seine Routen über die [Local API](/de/advanced/cli-local-api) bereit, sodass andere Plugins, Workflows und Skripte sie aufrufen können. Die wichtigsten:
+
+| Route | Zweck |
+|---|---|
+| `knowledge_base/create` | Eine Wissensdatenbank anlegen |
+| `knowledge_base/delete` | Eine Wissensdatenbank und alle ihre Daten entfernen |
+| `knowledge_base/add`, `knowledge_base/add_attachments` | Dateien, Text, Links oder Medien hinzufügen |
+| `knowledge_base/search` | Eine oder mehrere Wissensdatenbanken durchsuchen |
+| `knowledge_base/list` | Die Wissensdatenbanken auflisten |
+| `knowledge_base/get_attachments` | Die Einträge einer Wissensdatenbank auflisten |
+| `knowledge_base/delete_attachments` | Einträge aus einer Wissensdatenbank entfernen |
+| `knowledge_base/reindex` | Den Index einer Wissensdatenbank oder eines Eintrags neu aufbauen |
+| `knowledge_base/summarize` | Einen Eintrag zusammenfassen |
+
+Öffne **Einstellungen → APIs**, um die Parameter jeder Route in deiner installierten Version zu sehen.
+
+Schritte der Wissensdatenbank passen in Workflows und Automatisierungen, zum Beispiel:
+
+```
+Trigger: New file in ~/Documents/research/
+  → Add to Knowledge Base "research"
+  → Search for related content
+  → Generate summary
+  → Save summary to notes
+```
+
+Für einen anderen KI-Client nutze [Knowledge Base MCP](/de/advanced/knowledge-base-mcp). Er stellt ausgewählte Wissensdatenbanken über einen lokalen, nur lesenden Dienst bereit; Agenten-Erinnerungen oder Aufnahmen exportiert er nicht.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+|---|---|
+| Die Suche liefert irrelevante Ergebnisse | Prüfe, ob die Stufe **Suchindex** des Eintrags fertig ist, und indiziere die Wissensdatenbank neu. Suche mit den Wörtern, die das Dokument verwendet: Exakte Namen und Zahlen treffen über den Volltextindex |
+| Die Indizierung ist langsam | Große Dokumente dauern länger. Mit **Dieser Mac** nutzt die Indizierung die GPU; stelle **Embedding-Modell** auf **Enconvo Cloud**, damit dein Mac frei bleibt |
+| Neue Einträge sind bei Enconvo Cloud nicht durchsuchbar | Melde dich bei deinem Enconvo-Konto an. Bis dahin wird neuer Inhalt nicht indiziert, und die Suche findet nur passende Wörter |
+| Ein Dateityp wird nicht unterstützt | Wandle ihn in PDF, TXT oder MD um und füge ihn erneut hinzu |
+| Eine Wissensdatenbank wird über ihre ID nicht gefunden | Kopiere die ID aus **Wissensdatenbank-Einstellungen → Erweitert** und übergib sie als `knowledge_base_id` |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Grundlagen der Wissensdatenbank" icon="book" href="/de/ai/knowledge-base">
+    Einstieg in Wissensdatenbanken
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/de/advanced/knowledge-base-mcp">
+    Wissensdatenbanken aus einem anderen KI-Client durchsuchen
+  </Card>
+  <Card title="Erinnerungen" icon="brain" href="/de/ai/memory">
+    Das Suchmodell und was Agenten sich merken
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/de/workflows/introduction">
+    Aufgaben der Wissensdatenbank automatisieren
+  </Card>
+</CardGroup>

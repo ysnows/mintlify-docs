@@ -1,0 +1,160 @@
+---
+title: "MCP 伺服器"
+description: "加入 MCP 伺服器讓 Enconvo 代理程式使用它們的工具：可從設定、CLI、現有設定檔或安裝連結加入。"
+---
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) 是一項開放標準，讓 AI 模型能夠使用外部工具與資料。每個 MCP 伺服器都提供代理程式可呼叫的工具，例如讀取檔案、查詢資料庫或傳送訊息。將伺服器加入 Enconvo 後，代理程式就會在任務需要時自行呼叫這些工具。
+
+## 在設定中加入伺服器
+
+<Steps>
+  <Step title="開啟 MCP 伺服器">
+    從選單列的 Enconvo 圖示開啟 **設定**（**設定...**），或按 **⌘,**，接著前往 **設定 → MCP 伺服器**。
+  </Step>
+  <Step title="加入伺服器">
+    點選 **新增伺服器** 並輸入 **伺服器名稱**。選擇傳輸方式：**STDIO** 代表在你 Mac 上執行的指令，**HTTP** 或 **SSE** 代表透過網址連線的伺服器。填寫欄位並點選 **儲存**。
+  </Step>
+  <Step title="確認連線狀態">
+    伺服器旁的圓點會變成綠色，該列也會顯示它提供了多少個工具。點選工具數量即可查看完整列表。
+  </Step>
+  <Step title="選擇工具的適用範圍">
+    使用該伺服器那一列上的開關。開啟：無論在何處，只要助手準備回覆，Enconvo 都會載入該伺服器的工具。關閉：不會在所有地方載入，但你仍可從 SmartBar 手動加入，或在 App 側邊欄中為單一 App 開啟。
+  </Step>
+</Steps>
+
+使用 OAuth 的伺服器在首次連線時會開啟登入頁面。如果伺服器顯示 **進行身分驗證**，請點選並完成登入。當已連線的伺服器需要比原本授權更多的權限時，則會顯示 **授予存取權限**。
+
+隨外掛程式附帶的伺服器會列在 **來自外掛程式** 下方。
+
+<Tip>
+設定頁面的側邊欄很長。在設定視窗按 **⌘F** 並輸入「MCP」即可跳至該面板，或使用 Deeplink `enconvo://preference?pane=mcp_management` 直接開啟。
+</Tip>
+
+## 從 CLI 加入伺服器
+
+```bash
+# Add a stdio server
+enconvo mcp add github --command npx --args "-y @modelcontextprotocol/server-github"
+
+# Add an HTTP server
+enconvo mcp add notion --transport http --url "https://mcp.notion.com/mcp"
+
+# List servers
+enconvo mcp servers list
+
+# List tools
+enconvo mcp tools list
+```
+
+## 從其他 App 匯入伺服器
+
+你可以直接匯入原本在 Claude Desktop、Cursor 或其他工具中使用的 MCP 設定。
+
+1. 在 **設定 → MCP 伺服器** 中點選 **匯入**。
+2. 在 **設定格式** 下方選擇 **Claude Desktop** 或 **Codex CLI**。
+3. 將設定內容貼進 **JSON 設定** 欄位。
+4. 點選 **匯入**。其中的所有伺服器都會一併加入。
+
+## 安裝 MCP 套件
+
+MCP 套件是一個 `.mcpb` 檔案，裡面打包了要在你 Mac 上執行的伺服器。在 **設定 → MCP 伺服器** 中點選 **安裝套件** 並選擇該檔案，或在 Finder 中直接開啟 `.mcpb` 檔案也能跳轉到同一個頁面。
+
+套件中的伺服器會以你的權限在 Mac 上執行，因此請只安裝來自可信來源的套件。若要更新套件，安裝較新版本的 `.mcpb` 檔案即可。
+
+## 分享安裝連結
+
+安裝連結只需點一下就能將 MCP 伺服器加入 Enconvo。它使用與 `mcp.json` 相同的格式：包含名稱與傳輸設定。
+
+```
+https://enconvo.com/mcp/install?name=$NAME&config=$BASE64_ENCODED_CONFIG
+```
+
+| 組成部分 | 說明 |
+|-----------|-------------|
+| `https://enconvo.com` | 網頁安裝頁面 |
+| `/mcp/install` | 路徑 |
+| `name` | 伺服器名稱的查詢參數 |
+| `config` | 經過 Base64 編碼之 JSON 設定的查詢參數 |
+
+該網頁會開啟 `enconvo://` Deeplink，並在 App 未自動開啟時顯示伺服器設定供參考。
+
+### 製作安裝連結
+
+1. 取得伺服器的名稱與 JSON 設定。
+2. 使用 `JSON.stringify` 序列化該設定，再進行 Base64 編碼。
+3. 將 `$NAME` 與 `$BASE64_ENCODED_CONFIG` 替換為伺服器名稱及編碼後的設定。
+
+例如，以下這段設定：
+
+```json Single MCP server config
+{
+  "exa": {
+    "url": "https://mcp.exa.ai/mcp"
+  }
+}
+```
+
+會產生下列結果：
+
+| 格式 | 範例 |
+|--------|---------|
+| 文字連結 | `https://enconvo.com/mcp/install?name=exa&config=eyJ1cmwiOiJodHRwczovL21jcC5leGEuYWkvbWNwIn0=` |
+| 深色按鈕 | <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" /> |
+| 淺色按鈕 | <img src="https://file.enconvo.com/badges/mcp-install-light.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" /> |
+
+### 在 README 中加入按鈕
+
+<CodeGroup>
+
+```markdown Markdown
+[![Add to Enconvo](https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo)](https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG)
+```
+
+```html HTML
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" />
+</a>
+```
+
+```jsx JSX
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height={44} />
+</a>
+```
+
+</CodeGroup>
+
+### 當他人開啟連結時會發生什麼事
+
+1. 對方點擊連結或將連結貼到瀏覽器中。
+2. Enconvo 會詢問 **是否新增 MCP 伺服器「name」？**，並顯示該伺服器會執行的指令或連線位址。對方點選 **新增**。
+3. **設定 → MCP 伺服器** 隨即開啟，該伺服器加入清單並開始連線。
+4. 連線成功後，代理程式就能使用它的工具。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 伺服器無法啟動 | 檢查指令與參數。對於 STDIO 伺服器，確認程式已安裝且位於你的 `PATH` 上；對於 Node.js 伺服器，確認 `npx` 或 `node` 可用。 |
+| 找不到它的工具 | 檢查伺服器的圓點是否為綠色。某些伺服器需要先填入 API 金鑰才會提供工具。嘗試將伺服器關閉後再重新開啟。 |
+| 伺服器顯示 **進行身分驗證** | 點選該按鈕並在開啟的網頁中完成登入。 |
+| 身分驗證錯誤 | 檢查 API 金鑰是否正確且未過期，並確認伺服器所需的環境變數皆已設定。 |
+
+完整 MCP 規格請參閱 [modelcontextprotocol.io](https://modelcontextprotocol.io)。
+
+## 相關指南
+
+<CardGroup cols={2}>
+  <Card title="建立自訂 MCP 伺服器" icon="code" href="/zh-hant/advanced/mcp-advanced">
+    為 Enconvo 建置你自己的伺服器。
+  </Card>
+  <Card title="外掛程式" icon="puzzle-piece" href="/zh-hant/extensions/overview">
+    尋找外掛程式、連接器與技能。
+  </Card>
+  <Card title="App 側邊欄" icon="table-columns" href="/zh-hant/features/app-sidebar">
+    只為單一 App 開啟伺服器的工具。
+  </Card>
+  <Card title="CLI 與 Local API" icon="terminal" href="/zh-hant/advanced/cli-local-api">
+    從終端機以腳本操作 Enconvo。
+  </Card>
+</CardGroup>

@@ -1,0 +1,86 @@
+---
+title: "Flux de travail"
+description: "Enchaînez consignes, agents, commandes shell et outils dans un processus répétable que vous pouvez lancer, inspecter et planifier."
+---
+
+Un flux de travail est un processus répétable enregistré sous forme d’étapes : lire des informations, les transformer, interroger un modèle, confier le travail à un agent ou appeler un outil installé. Utilisez-en un lorsque vous refaites le même travail en plusieurs étapes et voulez voir ce que chaque étape a produit. Ouvrez **Réglages → Flux de travail → Gérer** pour parcourir vos flux de travail et leur historique d’exécution.
+
+<Tip>
+Vous débutez avec les flux de travail ? Regardez le tutoriel vidéo de 2 min 30 [Créer votre premier flux de travail](/fr/workflows/build-your-first-workflow) pour en créer un, le modifier et le lancer du début à la fin.
+</Tip>
+
+## Choisir le bon outil
+
+| Vous voulez | Utilisez |
+| --- | --- |
+| Réutiliser une consigne sur le texte sélectionné | [Commandes IA](/fr/features/ai-commands) |
+| Laisser un assistant décider quels outils utiliser | [Agents](/fr/ai/agents) |
+| Définir une suite répétable avec des résultats inspectables | Un flux de travail |
+| Lancer une instruction d’agent, un flux de travail ou un script à une heure fixée | [Automatisations](/fr/workflows/scheduled-jobs) |
+
+## Comment un flux de travail est organisé
+
+Un flux de travail a trois parties :
+
+- `inputs` : les valeurs dont une exécution a besoin, comme un sujet ou un texte.
+- `jobs` : des groupes d’étapes nommés. Les jobs démarrent en parallèle, sauf si `needs` en fait attendre un autre.
+- `steps` : la liste ordonnée dans chaque job. Les étapes d’un job s’exécutent l’une après l’autre.
+
+Les flux de travail actuels utilisent `version: agent-workflow/v1` avec une carte `jobs`, et chaque job contient une liste `steps` :
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+L’ancien format `tasks` de premier niveau n’est plus accepté. Déplacez chaque suite dans `jobs.<name>.steps`, donnez aux étapes des ID explicites, et utilisez `steps.<id>.output` dans un job ou `jobs.<job>.<step>.output` entre les jobs.
+</Note>
+
+## Ce qu’une étape peut faire
+
+Chaque étape fait exactement l’une de ces choses :
+
+| Étape | Champs | Résultat |
+| --- | --- | --- |
+| Shell | `command` ou `run` | Sortie de la commande, y compris `stdout`, `stderr` et `exitCode` |
+| Consigne | `prompt` | Une réponse du modèle ; utilisez un schéma de sortie pour des données structurées |
+| Agent | `agent` et `message` | La réponse de l’agent sélectionné |
+| Outil | `tool` et `with` | Le résultat d’un point de terminaison Local API installé |
+| Transformation | `uses: transform` et `value` | Une valeur issue d’un modèle |
+| Sous-flux | `uses: workflow` avec `workflowId` ou `workflow` | Le résultat d’un flux de travail enfant |
+| Approbation | `uses: approval` et `message` | Votre réponse : approuvée, ou refusée avec un retour facultatif |
+| Juge | `uses: judge` et `question` | Un oui ou un non de Jev, le modèle de décision rapide d’Enconvo Cloud, avec sa probabilité |
+| Classement | `uses: classify`, `question` et `options` | L’option choisie par Jev, avec son niveau de confiance |
+
+Une étape peut aussi ne s’exécuter que si une condition est remplie, se répéter sur une liste, réessayer, ou renvoyer des données structurées. Voir [Flux de travail avancés](/fr/workflows/advanced-workflows).
+
+## Lancer un flux de travail
+
+- Ouvrez-le dans **Flux de travail**, définissez **Entrées**, et choisissez **Exécuter**.
+- Cherchez un flux de travail enregistré dans SmartBar. Le texte du lanceur est disponible comme `inputs.input_text`.
+- Mentionnez un flux de travail disponible avec `@` dans le chat pour qu’un agent puisse l’utiliser.
+- Lancez-le selon un calendrier avec une [automatisation](/fr/workflows/scheduled-jobs).
+
+## Où les flux de travail sont enregistrés
+
+Chaque flux de travail est un fichier dans `~/.enconvo/workflows/<id>.yaml`. Le nom du fichier est l’ID du flux de travail. Gardez cet ID stable pour préserver le lien avec son historique d’exécution.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Créer votre premier flux de travail" icon="play" href="/fr/workflows/build-your-first-workflow">Un tutoriel vidéo, du modèle à l’exécution terminée.</Card>
+  <Card title="Créer des flux de travail" icon="pen-to-square" href="/fr/workflows/creating-workflows">L’éditeur visuel, le YAML, l’assistant et chaque type d’étape.</Card>
+  <Card title="Flux de travail avancés" icon="code-branch" href="/fr/workflows/advanced-workflows">Conditions, boucles, nouvelles tentatives, schémas de sortie et sous-flux.</Card>
+  <Card title="Automatisations" icon="clock" href="/fr/workflows/scheduled-jobs">Lancez un flux de travail ou un agent selon un calendrier.</Card>
+</CardGroup>

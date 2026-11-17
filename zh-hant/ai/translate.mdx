@@ -1,0 +1,79 @@
+---
+title: "翻譯"
+description: "翻譯你選取的文字、螢幕上的區域，或你口述的內容。"
+---
+
+Enconvo 透過 **Translator** 翻譯你選取的文字、透過 **Screenshot Translate** 翻譯螢幕上的文字，並能在你聽寫時即時翻譯你的語音。這些功能都屬於[寫作工具](/zh-hant/features/writing-tools)，並由你的 AI 模型驅動。
+
+## 翻譯選取的文字
+
+1. 在任何 App 中選取段落。
+2. 點擊 PopBar 中的 **Translate**，或開啟 SmartBar 並執行 **Translator**。
+3. 閱讀譯文，然後點擊 **貼上** 取代原文，或直接複製。
+
+## 選擇語言
+
+開啟 **設定 → AI 指令**，在 **內建** 下方選擇 **Translator**，並在 **語言** 區段設定其語言。
+
+| 設定 | 作用 |
+| --- | --- |
+| **目標語言** | Translator 寫出譯文所使用的語言。任何非來源語言的文字都會被翻譯成此語言。**自動** 會使用你的回覆語言（**設定 → 關於你**），若該項也設為自動，則使用你 Mac 的系統語言 |
+| **來源語言** | 與目標語言配對的語言：已經是目標語言的文字會被翻譯成此語言。**自動** 會使用你的回覆語言，若該項剛好就是目標語言，則使用英文 |
+
+舉例來說，當目標語言為英文、來源語言為中文時，中文或法文文字會被翻譯為英文，而英文文字則會被翻譯為中文。
+
+## 選擇翻譯風格
+
+在 **設定 → AI 指令** 的 Translator 頁面中，**翻譯風格** 會決定譯文的讀起來的語氣。Screenshot Translate 也會套用這項設定。變更會在輸入時自動儲存。
+
+| 風格 | 譯文呈現方式 |
+| --- | --- |
+| **標準** | 準確且貼近原文 |
+| **道地自然** | 自由重寫，如同母語人士撰寫一般 |
+| **自訂** | 依照你在輸入框中描述的風格翻譯 |
+
+聽寫也擁有專屬的 **翻譯風格** 來處理你的語音輸入內容。
+
+## 翻譯螢幕上的部分區域
+
+1. 從 SmartBar 執行 **Screenshot Translate**。
+2. 拖曳框選你想翻譯的區域。
+3. 譯文會顯示在動態島中。點擊它即可開啟聊天，讓你針對螢幕截圖與其譯文繼續提問。
+
+Screenshot Translate 會將框選區域作為圖片傳送給 Translator 的模型。如果想先使用你的 OCR 服務供應商辨識文字再翻譯該文字，請在 **設定 → 外掛程式 → Writing Toolkit → Screenshot Translate** 中開啟 **Need OCR**。開啟後 OCR 辨識錯誤可能會改變文意，因此請務必與螢幕原文對照。設定服務供應商請參閱 [OCR](/zh-hant/ai/ocr)。
+
+| 設定 | 作用 |
+| --- | --- |
+| **Need OCR** | 翻譯前先以你的 OCR 服務供應商讀取文字。預設為關閉 |
+| **Follow-up Command** | 負責回覆你在翻譯後繼續傳送訊息的指令 |
+| **Clear After Closing** | 關閉翻譯結果 10 秒後將動態島恢復為空白輸入框，除非你已回覆過該結果 |
+
+## 邊說邊翻譯
+
+聽寫時，在聽寫的 **清理** 選項中選擇 **翻譯**，Enconvo 就會將你說的內容以你的回覆語言輸入；若你說的本來就是該語言，則輸入為英文。此選項使用的是 **Dictation Translate** 指令，會在文字插入前先處理辨識出的內容。參閱[聽寫](/zh-hant/features/dictation)。
+
+若需要即時翻譯字幕，請在[即時字幕](/zh-hant/features/live-captioning)中選擇支援即時翻譯的語音服務供應商。
+
+## 保持詞彙一致
+
+Translator 預設使用 **設定 → AI 指令 → 所有指令** 中設定的模型。若想單獨改用其他模型，請變更 Translator 頁面上的 **AI 模型**。
+
+對於經常使用的專有名詞，點擊 Translator 頁面上的 **自訂**，或撰寫一段[代理程式](/zh-hant/ai/agents)指令，加入詞彙表。說明哪些內容必須保留原貌，例如人名、技術識別碼或引文段落。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 譯文的語言不正確 | 檢查 Translator 的 **目標語言** 與 **來源語言**，以及任何 **後續操作（Post Action）** |
+| 譯文聽起來太生硬或太過意譯 | 在 Translator 頁面上變更 **翻譯風格** |
+| 譯文中遺漏部分文字 | 若為選取文字，請檢查「輔助使用」權限。若為開啟了 **Need OCR** 的 Screenshot Translate，請檢查 OCR 辨識出來的原文 |
+| Screenshot Translate 沒有擷取到任何內容 | 請在[權限](/zh-hant/configuration/permissions)中檢查「螢幕錄製」權限 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="寫作工具" icon="pen-to-square" href="/zh-hant/features/writing-tools">重寫、精簡與解釋選取的文字。</Card>
+  <Card title="OCR" icon="font" href="/zh-hant/ai/ocr">讀取螢幕上的文字。</Card>
+  <Card title="聽寫" icon="microphone" href="/zh-hant/features/dictation">邊說邊整理或翻譯內容。</Card>
+  <Card title="即時字幕" icon="closed-captioning" href="/zh-hant/features/live-captioning">為播放中的音訊加上即時字幕。</Card>
+</CardGroup>

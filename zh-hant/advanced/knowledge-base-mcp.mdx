@@ -1,0 +1,65 @@
+---
+title: "知識庫 MCP"
+description: "讓 Mac 上的 Claude、Cursor、Codex 等 MCP 用戶端搜尋並讀取你共享的知識庫。"
+---
+
+Enconvo 可以為同一台 Mac 上相容 MCP 的 AI 用戶端提供知識庫服務。用戶端僅能搜尋與讀取你明確共享的知識庫，無法執行其他操作，存取權限為唯讀。此功能與**設定 → MCP 伺服器**不同，後者是用於將外部工具加入 Enconvo 自己的代理程式。
+
+## 連接用戶端
+
+1. 開啟[知識庫](/zh-hant/ai/knowledge-base)，點擊齒輪圖示（**知識庫設定**），然後選擇 **AI 用戶端（MCP）**。
+2. 開啟**啟用知識庫 MCP**。此功能預設為關閉；關閉時所有連線請求都會被拒絕。
+3. 選擇用戶端可以存取的範圍。**與 AI 用戶端共享這個知識庫**套用於你目前開啟的知識庫，而**共用知識庫**則會列出所有知識庫。聽寫歷史記錄與記憶預設為隱藏，直到你手動開啟為止。
+4. 在**連接用戶端**底下選擇你的用戶端（Claude Code、Cursor、Codex 或 Claude Desktop），並複製其設定內容。
+5. 請用戶端列出可用的知識庫，接著搜尋其中一個並讀取相符的項目。
+
+本機端點位址為：
+
+```text
+http://localhost:54535/knowledge_base/mcp
+```
+
+它使用 Streamable HTTP 傳輸協定。用戶端使用期間請保持 Enconvo 處於執行狀態。Claude Desktop 需透過輕量橋接程式 `mcp-remote` 連線，因此其設定需要 Node.js；請依照對話框中顯示的該用戶端專屬指示進行設定。
+
+## 可用工具
+
+| 工具 | 用途 |
+| --- | --- |
+| `kb_list` | 列出可見的知識庫 |
+| `kb_search` | 搜尋指定的知識庫 |
+| `item_list` | 列出知識庫中的項目 |
+| `item_read` | 分頁讀取已建立索引的項目文字 |
+
+這些工具皆為唯讀。此端點不會開放一般記憶或錄音工具。讀取項目時，系統可能會一併回傳其來源路徑或網址作為中繼資料（metadata）。
+
+## 存取權限與資料處理
+
+此伺服器僅接受本機迴環（loopback）連線且無需權杖。開啟後，本機上的其他程序就能讀取你所共享的知識庫。已連線的 AI 用戶端可能會將取得的內容傳送給它自己的模型供應商，因此請務必同時檢視該用戶端的隱私設定。
+
+搜尋功能會使用你在**設定 → 記憶**的**搜尋**底下設定的嵌入（embedding）模型。當它透過 Enconvo Cloud 執行時，搜尋文字會傳送至雲端。「本機端點」並不代表檢索與回答的所有環節都完全離線運作。
+
+## 疑難排解
+
+| 問題 | 解決方式 |
+| --- | --- |
+| 連線被拒絕（Connection refused） | 確認 Enconvo 及其本機 API 正在執行中。 |
+| 禁止存取 / 403（Forbidden / 403） | 確認已開啟**啟用知識庫 MCP**、用戶端是從同一台 Mac 發起連線，且其設定與對話框所示一致。 |
+| 找不到知識庫（Knowledge base not found） | 在**共用知識庫**底下開啟該知識庫。對用戶端而言，隱藏的知識庫與不存在的知識庫表現相同。 |
+| 在瀏覽器開啟網址顯示 405 | 瀏覽器的 GET 請求並非 MCP 請求。請使用 MCP 用戶端連線。 |
+| 長文件只回傳部分內容 | 請讓用戶端透過 `item_read` 請求後續頁數。 |
+
+若要停止所有存取，請關閉**啟用知識庫 MCP**。若要縮小用戶端可檢索的範圍，請在**共用知識庫**底下關閉個別知識庫。
+
+## 相關文件
+
+<CardGroup cols={2}>
+  <Card title="知識庫" icon="book" href="/zh-hant/ai/knowledge-base">
+    建立供用戶端搜尋的知識庫。
+  </Card>
+  <Card title="MCP 伺服器" icon="plug" href="/zh-hant/features/mcp">
+    為 Enconvo 自己的代理程式加入外部工具。
+  </Card>
+  <Card title="CLI 與本機 API" icon="terminal" href="/zh-hant/advanced/cli-local-api">
+    從你的 Mac 存取 Enconvo 的其他方式。
+  </Card>
+</CardGroup>

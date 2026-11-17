@@ -1,0 +1,51 @@
+---
+title: "변수"
+description: "현재 입력, 선택한 텍스트, 앱 컨텍스트, 날짜를 프롬프트와 템플릿을 받는 다른 칸에 넣습니다."
+---
+
+변수는 매번 바뀌는 값을 채웁니다. SmartBar에 입력한 텍스트, 다른 앱에서 선택한 텍스트, 오늘 날짜 등입니다. 템플릿을 지원하는 프롬프트와 환경설정에 쓰면, 하나의 AI 명령, 에이전트 지침, 워크플로가 앞에 있는 것에 맞춰 동작합니다. **설정 → 변수**에서 쓸 수 있는 변수를 둘러봅니다.
+
+## 쓸 수 있는 변수
+
+| 변수 | 제공되는 값 |
+| --- | --- |
+| Input Text | 현재 SmartBar 입력 |
+| Selection Text | 현재 앱에서 선택한 텍스트 |
+| Latest Clipboard | 가장 최근 클립보드 내용 |
+| Active Application | 맨 앞 앱 정보 |
+| Active Application Screenshot | 맨 앞 창의 이미지 |
+| Active Screen Screenshot | 활성 화면의 이미지 |
+| Focused Window Content | 포커스된 창에서 추출한 내용 |
+| Browser Active Tab | 활성 탭 URL과 쓸 수 있는 페이지 내용 |
+| Current Folder | Finder에 열린 폴더 |
+| Selected Files | Finder에서 선택한 파일 |
+| History Messages | 현재 대화 기록 |
+| Now | 현재 날짜와 시간 |
+| Your Language | 읽는 언어입니다. **응답 언어**이거나, 자동일 때는 시스템 언어입니다 |
+| Opened Applications | 실행 중인 앱 정보 |
+| Opened Application Names | 실행 중인 앱의 이름 |
+
+## 변수 사용
+
+1. 사용자화할 AI 명령, 에이전트 지침, 워크플로 칸을 엽니다.
+2. 칸이 변수를 지원하는지 확인합니다. 선택기가 있으면 그것을 씁니다.
+3. 필요한 값을 넣고 무해한 샘플 내용으로 시험합니다.
+4. 빈 입력이나 없는 권한이 결과를 바꾸는지 확인합니다.
+
+텍스트 프롬프트는 지원되는 템플릿 이름을 쓸 수 있습니다.
+
+```text
+Today is {{ now }}.
+Rewrite the following input as a concise checklist:
+{{ input_text }}
+```
+
+쓸 수 있는 변수는 명령과 컨텍스트에 따르며, 모든 텍스트 칸이 템플릿을 평가하는 것은 아닙니다. 스크린샷과 앱 내용은 macOS 권한과 그 종류의 입력을 받는 모델이 필요할 수 있습니다.
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="AI 명령" icon="wand-magic-sparkles" href="/ko/features/ai-commands">선택한 텍스트에 변수가 있는 프롬프트를 다시 씁니다.</Card>
+  <Card title="컨텍스트 인식" icon="eye" href="/ko/features/context-awareness">Enconvo가 화면과 앱을 이해하는 방법입니다.</Card>
+  <Card title="워크플로 만들기" icon="pen-to-square" href="/ko/workflows/creating-workflows">워크플로 단계에서 실행 입력과 이전 결과를 읽습니다.</Card>
+</CardGroup>

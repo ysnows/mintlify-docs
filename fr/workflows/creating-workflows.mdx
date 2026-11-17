@@ -1,0 +1,450 @@
+---
+title: "Créer des flux de travail"
+description: "Créez, modifiez, exécutez et partagez des flux de travail dans l’éditeur visuel ou en YAML, avec un assistant qui construit et corrige les étapes pour vous."
+---
+
+Ce guide couvre tout ce que vous faites dans l’éditeur de flux de travail : démarrer un flux, le construire sur le canevas ou en YAML, laisser l’assistant le modifier, l’exécuter, et lire les résultats. Les dernières sections sont une référence du format de fichier et de chaque type d’étape.
+
+Pour ouvrir l’éditeur, sélectionnez **Flux de travail** dans la barre latérale de la Fenêtre de chat, ou ouvrez **Réglages → Flux de travail → Gérer**. Puis sélectionnez **Nouveau flux de travail**, ou ouvrez un flux existant avec **Modifier**. Dans la Fenêtre de chat, passer à un chat puis revenir garde ouvert le flux que vous étiez en train de modifier.
+
+Cette page couvre, dans l’ordre :
+
+- Pour commencer : les idées clés, votre liste de flux, et démarrer un nouveau flux.
+- Construire : l’éditeur visuel, le comportement des étapes, et l’assistant d’édition.
+- Exécuter : exécuter un flux et lire ses résultats.
+- Référence : le fichier YAML, lire les résultats précédents, et chaque type d’étape.
+
+## Idées clés
+
+- Un flux déclare ses **Entrées**, puis un ou plusieurs jobs qui contiennent chacun une liste ordonnée d’étapes. Voir [Flux de travail](/fr/workflows/introduction) pour la vue d’ensemble.
+- Les étapes d’un job s’exécutent de haut en bas. Les jobs s’exécutent côte à côte, sauf si l’un attend l’autre.
+- Une étape lit les entrées d’exécution et les résultats précédents avec des modèles `{{ }}`, comme `{{ inputs.topic }}` ou `{{ steps.fetch.output }}`.
+- Modifier un flux et l’exécuter sont des actions distinctes. Enregistrer écrit le fichier ; exécuter appelle de vrais modèles et outils.
+
+## Gérer vos flux de travail
+
+La liste des flux est l’endroit où vous ouvrez, exécutez, triez, trouvez et supprimez des flux.
+
+### La liste des flux
+
+Chaque ligne affiche le nombre d’étapes du flux, quand il a été modifié pour la dernière fois, et comment s’est passée sa dernière exécution.
+
+- Sélectionnez la dernière exécution pour ouvrir le flux avec les résultats de cette exécution sur le canevas.
+- Sélectionnez le bouton de lecture pour ouvrir le flux et l’exécuter tout de suite. S’il a besoin d’entrées que vous n’avez pas remplies, le panneau **Entrées** s’ouvre d’abord. Pendant l’exécution, le bouton de lecture devient un bouton d’arrêt ; sélectionnez-le pour arrêter l’exécution sans ouvrir le flux.
+- Un flux qui s’exécute selon un planning affiche sa prochaine exécution, ou **Planning en pause** quand toutes ses automatisations sont désactivées. Sélectionnez-le pour ouvrir le flux avec ses plannings dans le panneau Exécutions.
+- Sélectionnez le bouton de copie pour dupliquer un flux sous un nouveau titre, afin de modifier la copie sans toucher l’original. La liste défile jusqu’à la copie et la met en évidence.
+- Utilisez le menu de tri au-dessus de la liste pour ordonner les flux par **Modifiés récemment**, **Exécutés récemment** ou **Nom**. Votre choix est mémorisé.
+
+La liste se met à jour d’elle-même quand vous y revenez et quand une exécution planifiée démarre.
+
+### Trouver un flux
+
+Saisissez dans **Rechercher des flux** ; la liste se met à jour pendant que vous tapez. Le bouton d’effacement ou Échap affiche à nouveau tous les flux.
+
+Sélectionnez une étiquette sur une ligne pour n’afficher que les flux avec cette étiquette ; cela fonctionne avec **Rechercher des flux**. Une ligne affiche jusqu’à quatre étiquettes ; sélectionnez **+N** pour voir le reste. Pour afficher à nouveau tous les flux, sélectionnez l’étiquette à nouveau, sélectionnez le × à côté au-dessus de la liste, ou appuyez sur Échap dans **Rechercher des flux**.
+
+| Touche | Dans la liste des flux |
+| --- | --- |
+| **⌘F** ou **/** | Aller à **Rechercher des flux** |
+| ↓ dans **Rechercher des flux** | Aller au premier flux |
+| ↑ et ↓ | Passer d’un flux à l’autre |
+| Retour | Ouvrir le flux sélectionné |
+| Supprimer | Supprimer le flux sélectionné |
+
+### Renommer ou supprimer un flux
+
+Pour renommer un flux, sélectionnez son nom en haut de l’éditeur, saisissez le nouveau nom, et appuyez sur Retour. Échap conserve l’ancien nom.
+
+Supprimer un flux arrête d’abord son exécution s’il est en cours. Les [automatisations](/fr/workflows/scheduled-jobs) qui l’exécutent sont mises en pause et conservées, afin que vous puissiez leur donner un autre flux ou les supprimer. La confirmation indique combien avant la suppression.
+
+## Démarrer un nouveau flux
+
+Sélectionnez **Nouveau flux de travail** pour ouvrir une boîte de dialogue avec ces façons de commencer. Choisissez d’abord de quel genre de flux il s’agit :
+
+- **Flux de tâche** : comment un type de tâche est accompli.
+- **Flux d’équipe** : comment un objectif passe du plan au terminé, avec plusieurs membres. Ses modèles comprennent **Planifier, construire, relire** et **Un membre**.
+
+Quand vous n’avez encore aucun flux, la liste propose les mêmes départs sur place : **Décrire ce qu’il doit faire**, **Flux vide**, et les modèles.
+
+| Départ | Comment |
+| --- | --- |
+| Le décrire | Écrivez ce que le flux doit faire, par exemple « Traduire un texte en japonais et en espagnol en même temps », et sélectionnez **Le construire** (ou appuyez sur **⌘↩**). Le flux s’ouvre avec l’assistant déjà en train de le construire. Relisez ses étapes et sélectionnez **Enregistrer** quand elles vous conviennent. |
+| Partir d’un modèle | Choisissez **Vide**, **Rechercher un sujet**, **Résumer une page web**, **Notes d’une vidéo YouTube**, **Écrire et lire à voix haute**, ou **Tour des types d’étapes** (une commande shell, un outil, une consigne, et un agent, avec deux jobs côte à côte). Chaque modèle est un flux complet que vous pouvez exécuter tout de suite. |
+| Importer un fichier | Sélectionnez **Choisir un fichier…**, ou déposez un fichier de flux `.yaml`, `.yml` ou `.json` n’importe où sur la boîte de dialogue, par exemple un fichier partagé par un coéquipier. Il est enregistré comme un nouveau flux, donc il ne remplace jamais un flux que vous avez déjà. Si son titre correspond à un de votre liste, il est nommé comme une copie, par exemple « News copy ». Si le fichier n’est pas un flux valide, la boîte de dialogue reste ouverte et vous dit pourquoi. |
+| Le coller | Collez le YAML ou le JSON d’un flux, par exemple un flux partagé dans un chat, dans la zone de description. **Le construire** devient **L’importer**, et le flux est créé exactement tel qu’il a été collé. |
+
+### Flux intégrés
+
+Les flux qui viennent avec Enconvo s’ouvrent en lecture seule. Pour en modifier un, sélectionnez **Faire une copie** et modifiez la copie.
+
+### Partager un flux
+
+Pour partager un flux ou en garder une copie, sélectionnez le bouton de partage (l’icône de téléchargement) sur sa ligne dans la liste, ou dans la barre d’outils de l’éditeur :
+
+- **Exporter comme fichier YAML…** enregistre un fichier `.yaml` où vous choisissez. Importez-le avec **Nouveau flux de travail** > **Choisir un fichier…** sur n’importe quel Mac.
+- **Copier le YAML** copie le flux, prêt à coller dans un chat ou dans la zone de description de **Nouveau flux de travail**, qui l’importe.
+
+Les deux incluent les modifications pas encore enregistrées quand vous les utilisez depuis l’éditeur.
+
+## Construire avec l’éditeur visuel
+
+<Frame caption="L’éditeur visuel montre des jobs parallèles, des étapes séquentielles, et la configuration de l’étape sélectionnée.">
+  <img src="/images/guides/workflow-visual.jpg" alt="Graphe de flux Enconvo réel avec deux jobs parallèles et un inspecteur d’étape" />
+</Frame>
+
+L’éditeur a deux façons de regarder le même flux :
+
+- **Visuel** : les étapes comme des cartes sur un canevas, avec les jobs parallèles côte à côte.
+- **Étapes** : les étapes listées de haut en bas avec leurs conditions, leurs répétitions et leurs étapes parallèles. Utilisez le menu **Ajouter** entre deux étapes pour en insérer une là.
+
+Sélectionnez **Guide** dans l’en-tête pour une explication en mots simples du flux, dans votre langue.
+
+1. Sélectionnez **Visuel** dans la barre d’outils de l’éditeur.
+2. Utilisez **Ajouter une étape ici** entre les nœuds pour insérer une étape, ou **Ajouter un job parallèle** pour une branche distincte. La liste des étapes s’ouvre avec **Utilisés récemment**, les dernières étapes et outils que vous avez choisis, afin que ceux que vous ajoutez souvent soient à un clic. Un plugin avec beaucoup d’outils liste ses huit premiers ; sélectionnez **Afficher N de plus** pour voir le reste, ou tapez pour chercher.
+3. Sélectionnez une étape pour ouvrir son inspecteur. Modifiez son ID, son titre et les réglages de l’exécuteur, et ouvrez **Comportement** pour changer la façon dont elle s’exécute.
+4. Sélectionnez le nœud **Entrées** pour configurer les entrées déclarées du flux : un nom, un type (texte, nombre, vrai/faux, liste ou objet), une description, une valeur par défaut, et si une exécution a besoin d’une valeur. Sous chaque nom, le panneau montre comment les étapes lisent l’entrée, comme `{{ inputs.topic }}`, et combien d’étapes le font. Renommer une entrée met à jour ces étapes avec le nouveau nom. Un nom peut utiliser des lettres, des chiffres et des traits de soulignement, ne peut pas commencer par un chiffre, et ne doit pas correspondre à une autre entrée.
+5. Relisez le graphe et utilisez **Annuler** ou **Rétablir** pendant l’édition.
+6. Sélectionnez **Enregistrer** après avoir relu vos modifications.
+
+### Lire une carte d’étape
+
+Chaque carte d’étape affiche le nom de l’étape et, en dessous, ce qu’elle fait : l’outil ou le type d’étape, puis le début de son réglage principal, comme *Recherche web · actualités ‹sujet›* ou les premiers mots d’une consigne. Les valeurs lues depuis les entrées et les étapes précédentes apparaissent entre ‹ › par leur nom. Une étape sans nom affiche son ID en mots ; survolez une carte pour voir son ID.
+
+La carte d’une étape outil affiche l’icône de son plugin. De petites marques sur la carte montrent comment l’étape s’exécute : seulement quand une condition est vraie, une fois pour chaque élément d’une liste, en répétition, en réessayant si elle échoue, en s’exécutant même après l’échec d’une étape précédente, ou en laissant le flux continuer si elle échoue. Survolez une marque pour lire ce qu’elle signifie ; changez-la dans la section **Comportement** de l’étape.
+
+### Choisir une étape
+
+Le sélecteur d’étapes cherche les étapes intégrées, les outils installés et les outils MCP. Il laisse de côté les outils qui ne font qu’ouvrir une fenêtre Enconvo ou lister les modèles et les voix d’un fournisseur ; un flux peut quand même les appeler par leur nom dans son YAML.
+
+Si vous ne savez pas lequel il vous faut, tapez ce que l’étape doit faire, comme « résumer l’article en trois puces », et sélectionnez **Demander à l’assistant d’ajouter** en bas du sélecteur (**⌘↩**). Quand rien ne correspond, Retour fait la même chose. L’assistant ajoute l’étape exactement là où vous avez ouvert le sélecteur, avant ou après l’étape voisine ou comme un nouveau job parallèle, et vous pouvez l’annuler comme n’importe quelle autre réponse de l’assistant.
+
+### Modifier une étape
+
+L’inspecteur a les onglets **Config** et **Sortie**. **Exécuter l’étape** exécute l’étape sélectionnée ; elle peut effectuer de vrais appels d’outils ou des commandes shell. Vérifiez que les valeurs en amont requises existent avant d’exécuter une étape seule.
+
+L’onglet **Config** commence par le **Nom** de l’étape, que la carte affiche, et son **ID d’étape**, que les autres étapes utilisent pour lire son résultat. **Ce qu’elle fait** nomme l’outil ou le type de l’étape.
+
+Pour faire faire autre chose à l’étape, sélectionnez **Changer** et choisissez un autre outil ou type d’étape, ou décrivez ce qu’elle doit faire et sélectionnez **Demander à l’assistant de le changer** :
+
+- L’étape garde son ID, donc les étapes qui lisent son résultat fonctionnent encore.
+- Elle garde quand et comment elle s’exécute : sa condition, sa répétition, ses nouvelles tentatives, et ce qu’elle attend.
+- Les réglages du nouvel outil commencent vides. Une consigne qui devient un agent, ou un agent qui devient une consigne, garde son texte, son modèle et son schéma de sortie.
+- Un nom que l’éditeur a donné à l’étape suit le nouvel outil ; un nom que vous avez écrit reste.
+
+Sélectionnez **Annuler** pour revenir en arrière.
+
+### Dupliquer, réordonner ou désactiver une étape
+
+Pour réutiliser une étape, sélectionnez **Dupliquer** dans l’inspecteur, ou sur la carte quand vous la survolez. La copie garde tous les réglages de l’étape, apparaît juste après l’original, et reçoit le prochain ID libre, comme `fetch_2`.
+
+Les étapes d’un job s’exécutent de haut en bas. Pour changer l’ordre, faites glisser la carte d’une étape vers le haut ou le bas dans son job ; les autres cartes se décalent pour montrer où elle atterrira. Vous pouvez aussi sélectionner une étape et choisir **Monter** ou **Descendre** dans l’inspecteur, ou appuyer sur **⌥↑** ou **⌥↓**. Appuyez sur **⌘Z** pour annuler un déplacement. Si une étape se retrouve au-dessus d’une étape dont elle lit le résultat, sa carte affiche un avertissement jusqu’à ce que vous la remettiez en dessous.
+
+Pour laisser une étape de côté pour l’instant sans la supprimer, sélectionnez-la et choisissez **Désactiver l’étape**. Sa carte s’estompe et affiche **Désactivée**, les exécutions la sautent, et les étapes suivantes s’exécutent quand même. Choisissez **Activer l’étape** pour la ramener.
+
+### Travailler avec plusieurs étapes
+
+Pour changer plusieurs étapes à la fois, maintenez ⌘ ou Maj et cliquez sur leurs cartes. Une barre en haut du canevas indique combien d’étapes sont choisies, avec **Désactiver** (ou **Activer**) et **Supprimer** pour toutes. Appuyez sur Échap ou cliquez sur un endroit vide du canevas pour effacer la sélection, et sur **⌘Z** pour annuler.
+
+Si une suppression casserait d’autres étapes, ou viderait un job, Enconvo demande d’abord. La confirmation liste chaque étape qui dépend de celles que vous supprimez et pourquoi, comme **Utilise sa sortie** ou **Attend qu’elle se termine**. Sélectionnez-en une pour annuler la suppression et ouvrir cette étape afin de la corriger d’abord. La même chose se produit quand vous supprimez une seule étape.
+
+Pour copier des étapes, sélectionnez-en une (ou plusieurs) et appuyez sur **⌘C**, ou sélectionnez **Copier** dans la barre ; **⌘X** les coupe. Puis sélectionnez l’étape qu’elles doivent suivre et appuyez sur **⌘V** :
+
+- Les copies atterrissent juste après cette étape, ou à la fin du job quand un job est sélectionné, et gardent leurs réglages.
+- Une copie dont l’ID est déjà pris en reçoit un nouveau, comme `fetch_2`, et les étapes collées qui se lisent entre elles suivent les nouveaux noms.
+- Les étapes se collent dans un autre flux de la même façon, et **⌘V** accepte aussi une liste d’étapes YAML ou JSON copiée depuis un fichier de flux.
+
+Quand vous supprimez ou collez des étapes, un avis indique ce qui a changé ; sélectionnez Annuler dedans pour revenir sur ce changement.
+
+### Trouver, zoomer, enregistrer et exécuter
+
+- Pour aller à une étape dans un grand flux, appuyez sur **⌘F** ou sélectionnez le bouton de recherche sur le canevas, tapez une partie du nom, de l’ID, de l’outil ou du texte de l’étape, et choisissez-la. L’étape est sélectionnée et amenée dans la vue.
+- Utilisez les commandes de zoom dans le coin inférieur droit du canevas. Sélectionnez le niveau de zoom pour revenir à 100 %.
+- Sélectionnez **Trouver une étape**, ou appuyez sur **⌘F** sur le canevas, et tapez une partie du nom d’une étape pour sélectionner cette étape et l’amener dans la vue. Cela fonctionne aussi dans les flux intégrés en lecture seule.
+- Appuyez sur **⌘S** pour enregistrer depuis n’importe où dans l’éditeur, en Visuel ou en YAML, même pendant que vous tapez dans les réglages d’une étape.
+- Appuyez sur **⌘↩** pour exécuter le flux ; il est d’abord enregistré s’il a des modifications. Dans l’éditeur YAML, l’assistant et les autres champs multilignes, sélectionnez **Exécuter** à la place.
+- Pendant une exécution, **Exécuter** devient **Arrêter**. Après l’avoir sélectionné, il affiche **Arrêt…** jusqu’à ce que l’exécution se soit arrêtée.
+
+Si le flux a un problème, comme une étape avec une consigne vide ou une description manquante, Enregistrer et Exécuter s’arrêtent et disent quoi corriger. Sélectionnez **Afficher** pour ouvrir l’étape ou le titre et la description du flux. Les étapes qui ont un problème ont une marque rouge sur leur carte ; survolez-la pour lire ce qui ne va pas. En YAML, sélectionnez **Valider** pour vérifier tout le document.
+
+### Modifications non enregistrées
+
+Tant qu’un flux a des modifications non enregistrées, l’en-tête de l’éditeur affiche **Non enregistré**. Sélectionnez-le pour voir les lignes YAML ajoutées et retirées depuis le dernier enregistrement, et sélectionnez **Abandonner les modifications** pour revenir à la version enregistrée ; dans l’éditeur visuel, **⌘Z** ramène vos modifications. Si vous revenez à la liste avec des modifications non enregistrées, choisissez **Enregistrer et quitter**, **Abandonner** ou **Continuer à modifier**.
+
+Les modifications non enregistrées sont aussi conservées sur ce Mac pendant que vous modifiez. Si la fenêtre se ferme ou se recharge avant l’enregistrement, rouvrir le flux affiche une barre en haut avec **Restaurer**, qui remet vos modifications comme une seule étape que vous pouvez annuler, ou **Abandonner**. Les modifications ne sont proposées que si le flux enregistré n’a pas changé depuis. Dans la liste, un tel flux affiche une étiquette **Modifications non enregistrées**, et le supprimer abandonne aussi ces modifications.
+
+### Raccourcis du canevas
+
+| Raccourci | Rôle |
+| --- | --- |
+| **⌘S** | Enregistrer |
+| **⌘↩** | Exécuter (enregistre d’abord) |
+| **⌘F** | Trouver une étape |
+| **⌘Z** | Annuler |
+| **⌘C**, **⌘X**, **⌘V** | Copier, couper et coller des étapes |
+| **⌘A** | Choisir toutes les étapes |
+| **⌫** | Supprimer les étapes sélectionnées ou choisies |
+| **⌥↑**, **⌥↓** | Déplacer l’étape sélectionnée vers le haut ou le bas |
+| **⌘=**, **⌘-** | Zoomer et dézoomer |
+| **⌘0** | Ajuster tout le flux dans la vue |
+| **?** | Afficher tous les raccourcis du canevas |
+
+Vous pouvez aussi voir tous les raccourcis du canevas avec le bouton clavier à côté d’**Ajouter un job parallèle**.
+
+## Comportement de l’étape
+
+La section **Comportement** de l’inspecteur règle comment une étape s’exécute sans modifier le YAML. Son en-tête liste ce que vous avez changé, comme *Seulement si… · 2 nouvelles tentatives*, ou affiche **Par défaut**.
+
+| Réglage | Choix | YAML qu’il écrit |
+|---|---|---|
+| **S’exécute** | À chaque fois ; seulement si une condition est vraie ; sinon, quand la condition d’une étape précédente est fausse. **Exécuter même si des étapes précédentes échouent ou sont sautées** garde l’étape en exécution après un échec en amont. | `if`, `else_of`, `run_when` |
+| **Répète** | Une fois ; une fois pour chaque élément d’une liste ; en tours jusqu’à ce qu’une condition soit remplie, jusqu’à un nombre maximal de tours | `foreach`, `loop` |
+| **Si elle échoue** | Arrêter le flux, ou continuer pour que les étapes suivantes s’exécutent quand même. **Nouvelles tentatives** réexécute l’étape avant qu’elle compte comme échouée, avec une attente facultative entre les essais. | `required: false`, `retries` |
+| **Attend** | L’étape précédente ; rien, donc elle démarre tout de suite ; ou les étapes que vous cochez dans une liste d’étapes précédentes et d’étapes d’autres jobs | `needs` |
+
+**Schéma de sortie** prend un JSON Schema facultatif pour un résultat structuré. Choisir à nouveau un défaut retire le réglage du YAML. [Flux de travail avancés](/fr/workflows/advanced-workflows) explique chaque réglage en détail.
+
+## Utiliser l’assistant d’édition
+
+Sélectionnez **Assistant** dans la barre d’outils de l’éditeur pour ouvrir le panneau de l’assistant à côté du canevas, puis décrivez ce que vous voulez, par exemple : « Ajoute une étape de consigne qui résume le résultat précédent. » Pour un nouveau flux vide, vous pouvez décrire tout le processus, comme « Chaque matin, récupère les principales actualités de Hacker News et résume-les. » Appuyez sur Retour pour envoyer et sur **⇧↩** pour une nouvelle ligne, et choisissez le modèle sous le compositeur.
+
+Pendant que l’assistant travaille, le panneau montre ce qu’il fait, comme lire le flux, vérifier les paramètres d’un outil, ou modifier, et le canevas se met à jour au fur et à mesure. Le canevas est en lecture seule jusqu’à la fin de la réponse ; sélectionnez **Arrêter** pour terminer plus tôt.
+
+### En envoyer davantage pendant qu’il travaille
+
+Vous n’avez pas à attendre la fin d’une réponse avant d’en demander plus. Appuyez sur Retour pendant que l’assistant travaille et votre message attend dans une file au-dessus du compositeur. Les messages en file sont envoyés un par un, dans l’ordre, à la fin de chaque réponse.
+
+- Faites glisser un message en file pour le réordonner, utilisez son menu **⋯** pour le modifier, ou sélectionnez l’icône de corbeille pour le retirer.
+- Si vous sélectionnez **Arrêter** ou qu’une réponse échoue, la file est marquée **En attente** et plus rien n’est envoyé tout seul. Sélectionnez **Envoyer** sur un message en file quand vous êtes prêt.
+- Quand un message ne peut pas attendre, comme une correction de ce que l’assistant est en train de faire, appuyez sur **⌘↩** au lieu de Retour, ou sélectionnez **Envoyer maintenant** sur un message en file. La réponse en cours s’arrête, garde les modifications déjà faites, et est marquée **Interrompue**, et votre message est envoyé tout de suite. Le reste de la file n’est pas mis en attente ; il est envoyé dans l’ordre ensuite.
+
+### Relire ce qu’il a changé
+
+Chaque réponse qui change le flux se termine par une carte qui liste les étapes ajoutées, modifiées ou retirées. Quand une réponse se termine, les étapes ajoutées sont étiquetées **Ajoutée** sur le canevas et les étapes modifiées sont étiquetées **Modifiée**, afin que vous voyiez quoi relire. Les étiquettes restent jusqu’à ce que vous enregistriez, annuliez ou annuliez la réponse.
+
+- Sélectionnez une étape sur la carte pour la sélectionner sur le canevas et l’amener dans la vue. Les ID d’étape que l’assistant nomme dans sa réponse, comme `summarize`, fonctionnent de la même façon.
+- Sélectionnez **Exécuter** sur la carte de réponse pour essayer le dernier changement de l’assistant. Cela exécute le flux de la même façon que **Exécuter** dans la barre d’outils, en demandant les entrées d’abord quand il en a besoin.
+- Sélectionnez **Annuler** sur la dernière carte pour remettre le flux comme il était avant cette réponse. **Annuler** (**⌘Z**) reprend aussi toute une réponse en une étape.
+
+Si une réponse laisse le flux invalide, l’éditeur passe en YAML et affiche les erreurs. Corrigez-les là, ou demandez à l’assistant de les corriger. Les modifications de l’assistant restent non enregistrées jusqu’à ce que vous sélectionniez **Enregistrer**.
+
+### Le pointer vers une étape ou un résultat
+
+- Pour poser une question sur une étape, sélectionnez-la sur le canevas et choisissez **Demander à l’assistant** dans son inspecteur. L’étape est jointe à votre prochain message, donc « rends ceci plus fiable » désigne cette étape.
+- Quand une étape échoue dans une exécution, choisissez **Corriger avec l’assistant** sur le résumé de l’exécution ou dans l’onglet **Sortie** de l’étape. Votre message porte l’étape et son erreur, donc vous n’avez pas à copier l’erreur.
+- Pour poser une question sur une partie du résultat d’une étape, sélectionnez du texte dans son onglet **Sortie** et choisissez **Demander à l’assistant** sous la sélection. Le texte apparaît comme une citation au-dessus de la zone de message et accompagne votre prochain message, afin que vous puissiez demander ce qu’il signifie ou comment changer l’étape qui l’a produit.
+
+### Chats et instructions permanentes
+
+Sélectionnez **Nouveau chat** en haut du panneau pour recommencer ; le chat précédent reste dans la liste. Sélectionnez le nom du chat en haut du panneau pour revenir à un chat précédent sur le même flux ou pour en supprimer un. Un flux enregistré garde ses dix derniers chats dans ce navigateur.
+
+Pour définir des défauts que l’assistant doit toujours suivre, sélectionnez **Réglages** (l’icône de curseurs) en haut du panneau et écrivez-les sous **Instructions**, par exemple « Enregistre les fichiers dans ~/Downloads. », « Utilise anthropic/claude-haiku-4-5 pour les étapes de consigne. », ou « Réponds en chinois. » Appuyez sur **⌘↩** ou sélectionnez **Enregistrer**. Les instructions s’appliquent à chaque flux que l’assistant construit ou modifie, et un point sur l’icône Réglages indique qu’elles sont actives. Pour cesser de les utiliser, videz la zone et enregistrez.
+
+## Exécuter et inspecter
+
+1. Sélectionnez **Entrées** et remplissez les valeurs de cette exécution.
+2. Validez la définition et inspectez les commandes ou les appels d’outils.
+3. Choisissez **Exécuter** et suivez l’état des étapes dans le graphe.
+4. Sélectionnez l’onglet **Sortie** d’une étape pour inspecter son résultat ou son erreur. Après une exécution, chaque carte d’étape affiche aussi la première ligne de ce que l’étape a renvoyé, ou pourquoi elle a échoué, à la place de sa description ; sélectionnez cette ligne pour ouvrir l’onglet **Sortie** de l’étape. Sélectionnez **Copier** dans l’onglet **Sortie** pour copier le résultat de l’étape, ou son erreur quand elle n’a rien renvoyé, par exemple pour le coller dans un chat ou un document.
+5. Ouvrez **Exécutions** pour inspecter les exécutions précédentes.
+6. Enregistrez le flux quand sa définition vous convient.
+
+<Warning>
+Une exécution peut consommer des crédits de fournisseur ou modifier des données externes, selon ses étapes. Les étapes Shell et Outil agissent avec les autorisations du compte de votre Mac.
+</Warning>
+
+### Entrées d’exécution
+
+**Entrées** dans la barre d’outils ouvre un formulaire avec un champ pour chaque entrée que le flux déclare, en montrant son type, sa description et sa valeur par défaut :
+
+- Laissez un champ vide pour utiliser sa valeur par défaut. Les listes et les objets prennent du JSON, comme `["a", "b"]`.
+- Une entrée marquée **Obligatoire** qui n’a pas de valeur par défaut a besoin d’une valeur. Si elle est vide, ou qu’une valeur a le mauvais type, **Exécuter** s’arrête avant d’enregistrer ou d’exécuter quoi que ce soit et indique le champ à corriger.
+- Appuyez sur **⌘↩** dans un champ pour exécuter.
+- Le formulaire part des valeurs avec lesquelles le flux a été exécuté pour la dernière fois dans Enconvo. Sélectionnez **Effacer** pour vider tous les champs d’un coup, afin que la prochaine exécution utilise à nouveau les valeurs par défaut. Renommer une entrée conserve la valeur que vous avez saisie pour elle.
+- Tant qu’une exécution passée de **Exécutions récentes** est sur le canevas, sélectionnez **Utiliser les valeurs de cette exécution** pour remplir le formulaire avec les entrées avec lesquelles elle a été exécutée, puis réexécutez-la telle quelle ou avec un changement.
+- Un champ vide affiche sa valeur par défaut en gris. Pour modifier une longue valeur par défaut plutôt que de la retaper, sélectionnez **Modifier la valeur par défaut** à côté du champ pour la mettre dans le champ, puis modifiez.
+- Dans l’éditeur visuel, sélectionnez **Modifier les entrées** pour changer ce que le flux demande. Si des étapes lisent encore une entrée que vous retirez, Enconvo les nomme et demande avant de la retirer. Sélectionnez **Modifier en JSON** pour saisir les entrées comme un seul objet JSON, y compris des clés que le flux ne déclare pas. **Utiliser le formulaire** revient en arrière.
+
+### Quand une exécution se termine
+
+Quand une exécution se termine, un résumé apparaît en bas du canevas :
+
+- Si une étape a échoué, le résumé la nomme et affiche la ligne de son erreur qui dit ce qui n’a pas marché, comme `command not found: datex` plutôt qu’un simple code de sortie. Sélectionnez **Afficher l’erreur** pour ouvrir l’onglet **Sortie** de cette étape et amener l’étape dans la vue sur le canevas.
+- Sélectionnez **Corriger avec l’assistant** pour remettre l’étape échouée et son erreur à l’assistant. Il commence sa réponse par la cause, puis corrige l’étape. Si la cause est en dehors du flux, comme une clé API manquante, une erreur réseau ou un fichier manquant, il vous dit quoi changer au lieu de modifier. L’onglet **Sortie** d’une étape échouée a le même bouton **Corriger avec l’assistant**.
+- Sélectionnez **Reprendre** pour continuer une exécution échouée ou arrêtée. Les étapes déjà terminées gardent leurs résultats ; l’étape échouée et tout ce qui suit s’exécutent à nouveau. Si vous avez modifié une étape après l’exécution, cette étape et les suivantes s’exécutent aussi à nouveau. Si vous changez les entrées d’exécution, tout le flux s’exécute depuis le début. **Reprendre** apparaît aussi à côté d’**Exécuter** dans la barre d’outils jusqu’à ce que vous démarriez une autre exécution.
+- Après une exécution propre, sélectionnez **Afficher la sortie** pour voir le résultat de la dernière étape. Le résumé s’estompe après quelques secondes, sauf si quelque chose demande votre attention ; sélectionnez **×** pour le fermer plus tôt.
+
+### Exécutions récentes
+
+**Exécutions récentes** liste les exécutions précédentes du flux, les plus récentes d’abord. Chaque ligne affiche :
+
+- si l’exécution a réussi, a échoué, ou est encore en cours ;
+- quand elle a commencé et combien de temps elle a pris ;
+- si un planning (**Planifié**) ou un chat (**Depuis le chat**) l’a démarrée ;
+- les entrées avec lesquelles elle a été exécutée (survolez pour toutes les voir), et l’erreur si elle a échoué.
+
+L’exécution affichée sur le canevas est marquée **Affichée**. Sélectionnez une ligne pour afficher les résultats d’étapes de cette exécution sur le canevas. Quand certaines exécutions ont échoué et d’autres non, sélectionnez **Échouées** au-dessus de la liste pour ne voir que les exécutions échouées, et **Toutes les exécutions** pour toutes les revoir.
+
+### Exécuter selon un planning
+
+**Planning**, en haut du panneau Exécutions, liste les automatisations qui exécutent ce flux, avec la prochaine exécution de chacune et les entrées avec lesquelles elle s’exécute.
+
+- Quand la dernière exécution d’une automatisation a échoué, survolez **La dernière exécution a échoué** pour voir pourquoi, ou sélectionnez-le pour ouvrir cette exécution sur le canevas et voir quelle étape a échoué.
+- Désactivez ou activez une automatisation avec son interrupteur, ou sélectionnez le crayon pour changer son planning.
+- Choisissez **Ajouter un planning** pour ouvrir le formulaire sur place, avec ce flux déjà choisi et ses entrées remplies depuis **Entrées d’exécution**.
+- Sélectionnez **Supprimer** sur un planning pour retirer cette automatisation.
+
+Les exécutions planifiées utilisent le flux enregistré, donc enregistrez vos modifications avant la prochaine exécution. Chaque automatisation est aussi listée dans **Automatisations** dans la barre latérale de la Fenêtre de chat ; voir [Automatisations](/fr/workflows/scheduled-jobs).
+
+## Modifier le YAML
+
+L’enregistrement écrit le flux dans `~/.enconvo/workflows/<id>.yaml`. Sélectionnez **YAML** pour travailler avec le même document comme source. L’éditeur vérifie pendant que vous tapez : une erreur nomme sa ligne et sa colonne, et un avertissement marque les champs qui ne font rien. Le badge **Valide** ou **Invalide** et l’action **Valider** vérifient tout le document. Utilisez des lettres, des chiffres et des traits de soulignement pour les ID de jobs et d’étapes, et commencez par une lettre ou un trait de soulignement. Quand vous revenez à **Visuel**, **⌘Z** reprend vos modifications YAML en une étape.
+
+```yaml
+version: agent-workflow/v1
+title: Greeting
+description: Produce a greeting and a formatted result without calling a model.
+inputs:
+  name:
+    type: string
+    default: world
+jobs:
+  main:
+    steps:
+      - id: greeting
+        uses: transform
+        value: "Hello, {{ inputs.name }}!"
+      - id: result
+        uses: transform
+        value: "Result: {{ steps.greeting.output }}"
+```
+
+Exécutez cet exemple avec `Ada` dans le champ **name** sous **Entrées**. L’étape finale produit `Result: Hello, Ada!`.
+
+## Référencer des résultats précédents
+
+| Expression | Valeur |
+| --- | --- |
+| `{{ inputs.name }}` | Une valeur d’entrée |
+| `{{ steps.greeting.output }}` | Une étape précédente du même job |
+| `{{ jobs.research.search.output }}` | Une étape terminée d’un autre job |
+| `{{ item }}` et `{{ index }}` | Élément et index actuels dans `foreach` |
+| `{{ round }}` et `{{ last }}` | Tour et sortie précédente dans une boucle |
+
+Ajoutez un `needs` au niveau du job avant de lire la sortie d’un autre job. Inspectez les résultats d’outils dans **Sortie** plutôt que de supposer que chaque outil renvoie les mêmes champs.
+
+### Insérer une valeur sans la taper
+
+Dans l’éditeur visuel, vous n’avez pas besoin de les taper à la main. Sélectionnez **Insérer une valeur** (le bouton `{x}` à droite d’un champ d’étape, comme la consigne, la commande, un réglage d’outil ou une condition) pour lister ce que cette étape peut lire : les entrées du flux, les résultats des étapes précédentes de son job, les étapes des jobs qu’elle attend, et, pour une étape répétée, l’élément ou le tour actuel. Cherchez dans la liste et choisissez-en un ; il va là où était votre curseur, ou remplace le texte sélectionné.
+
+- Une étape shell propose son texte affiché comme `{{ steps.<id>.stdout | trim }}`.
+- Une étape avec un schéma de sortie ou une exécution précédente liste aussi les champs de son résultat.
+- Les conditions, **Arrêter quand**, et la liste sur laquelle une étape se répète reçoivent la forme adaptée à ce champ, comme un `steps.check.output.ok` nu dans une condition.
+
+Un champ qui lit quelque chose qu’il ne peut pas atteindre affiche un avertissement en dessous avec quoi changer : une entrée que le flux ne déclare pas, une étape qui s’exécute plus tard ou qui est l’étape elle-même, une étape qui appartient à un autre job, ou un job que celui-ci n’attend pas. Sur le canevas, une carte d’étape avec une telle valeur affiche une icône d’avertissement à côté de son titre ; survolez-la pour voir quoi corriger. Les avertissements ne vous empêchent pas d’enregistrer.
+
+## Types d’étapes
+
+Chaque extrait ci-dessous est une entrée d’étape : placez-le dans la liste `steps` d’un job. Dans l’éditeur visuel, choisissez le même type d’étape dans le sélecteur.
+
+### Shell
+
+```yaml
+- id: today
+  command: 'date "+%Y-%m-%d"'
+```
+
+Lisez le résultat avec `steps.today.output.stdout`. Les réglages facultatifs comprennent `cwd`, `shell`, `timeoutMs` et `env`. Les commandes utilisent les autorisations du compte de votre Mac ; relisez les commandes avant de les exécuter.
+
+### Consigne
+
+```yaml
+- id: summarize
+  prompt: "Summarize this text: {{ inputs.text }}"
+```
+
+Cela appelle un modèle une fois. Utilisez les [schémas de sortie](/fr/workflows/advanced-workflows) quand les étapes suivantes ont besoin de champs structurés.
+
+### Agent
+
+```yaml
+- id: plan
+  agent: agent/main
+  message: "Propose a three-step plan for {{ inputs.topic }}."
+```
+
+Utilisez une clé de commande pour un Agent installé. Ses outils activés et les réglages de son fournisseur déterminent ce qu’il peut faire.
+
+### Outil
+
+```yaml
+- id: saved
+  tool: workflow/list
+  with:
+    limit: 5
+```
+
+`tool` est une route de l’API locale en forme avec des barres obliques. `with` fournit les paramètres (`params` est un alias). Découvrez les routes disponibles dans **Réglages → API**, ou demandez à l’assistant d’édition d’inspecter les outils installés.
+
+### Transform
+
+Utilisez `uses: transform` avec une `value` pour combiner des entrées ou des sorties précédentes sans appeler un modèle. L’exemple Modifier le YAML utilise deux étapes transform.
+
+### Sous-flux
+
+Utilisez `uses: workflow` avec un `workflowId` enregistré, ou un document `workflow` en ligne, pour exécuter un processus enfant réutilisable. Dans l’éditeur visuel, choisissez le flux enregistré par son nom et remplissez les entrées qu’il demande dans un formulaire. Une étape Sous-flux sans flux choisi ne passe pas ; elle arrête l’exécution et dit ce qui manque. Voir [Flux de travail avancés](/fr/workflows/advanced-workflows).
+
+### Approbation
+
+```yaml
+- id: confirm
+  uses: approval
+  message: "Post this summary to the team? {{ inputs.text }}"
+```
+
+Enconvo vous pose le `message` avec **Approuver** et **Refuser**, et attend votre réponse, jusqu’à 24 heures sauf si l’étape définit `timeoutMs`. Approuvée, les étapes suivantes s’exécutent. Refusée ou sans réponse, elle est sautée comme une condition fausse : les étapes suivantes sont sautées, et son étape `else_of` s’exécute. `steps.confirm.output.feedback` contient ce que vous avez tapé en refusant. Placez-la juste avant une étape qui envoie, publie, supprime ou paie. Quand vous sélectionnez **Réessayer** après un refus, la nouvelle exécution est informée de ce que vous avez refusé et pourquoi. Refuser une approbation dans un sous-flux arrête toute l’exécution, pas seulement le sous-flux.
+
+### Juge
+
+```yaml
+- id: urgent
+  uses: judge
+  question: Does this message ask for a reply today?
+  input: "{{ inputs.text }}"
+```
+
+Jev, le modèle de décision rapide d’Enconvo Cloud, répond à la `question` sur `input` avec `yes` et une `probability`. `yes` est vrai quand la probabilité atteint `threshold` (0,5 sauf si vous le définissez). Branchez dessus avec `if: "{{ steps.urgent.output.yes }}"` et une étape `else_of`.
+
+### Classer
+
+```yaml
+- id: kind
+  uses: classify
+  question: What kind of request is this?
+  input: "{{ inputs.text }}"
+  options:
+    billing: A question about payments or invoices
+    bug: A report that something is broken
+    other: Anything else
+```
+
+Dans l’inspecteur, saisissez une ligne par option. Jev choisit une des `options` et renvoie son `label`, une `confidence`, et les `probabilities` de chaque option. `options` est une liste d’au moins deux étiquettes, ou une correspondance de chaque étiquette vers ce qu’elle signifie. Branchez avec `if: "{{ steps.kind.output.label == 'billing' }}"`.
+
+Les étapes Juge et Classer s’exécutent sur Enconvo Cloud, donc elles nécessitent que vous soyez connecté avec des points restants. Elles ne prennent pas d’`output_schema`.
+
+## Regarder les étapes
+
+<video controls playsInline preload="none" poster="/images/guides/workflow-visual.jpg" aria-label="Explorer l’éditeur de flux de travail" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/workflow-editor.mp4" type="video/mp4" />
+  [Télécharger la visite](/videos/guides/workflow-editor.mp4).
+</video>
+
+Passez de Visuel à YAML, inspectez les entrées d’exécution, et ouvrez un inspecteur d’étape. Le flux n’est ni modifié ni exécuté. Cette visite silencieuse utilise de vraies captures d’interface avec des pauses ajoutées pour la lecture. Les étapes écrites ci-dessus donnent les mêmes instructions.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Flux de travail" icon="diagram-project" href="/fr/workflows/introduction">Jobs, étapes, et comment les flux sont exécutés.</Card>
+  <Card title="Construire votre premier flux" icon="play" href="/fr/workflows/build-your-first-workflow">Un tutoriel vidéo du modèle à l’exécution terminée.</Card>
+  <Card title="Flux de travail avancés" icon="code-branch" href="/fr/workflows/advanced-workflows">Conditions, boucles, nouvelles tentatives, schémas de sortie et sous-flux.</Card>
+  <Card title="Automatisations" icon="clock" href="/fr/workflows/scheduled-jobs">Exécutez un flux selon un planning.</Card>
+</CardGroup>

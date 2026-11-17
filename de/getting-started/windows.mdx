@@ -1,0 +1,99 @@
+---
+title: "Windows (Beta)"
+description: "Installiere die Enconvo-Beta unter Windows, melde dich an, halte sie aktuell und sieh, welche Funktionen dort funktionieren."
+tag: "BETA"
+---
+
+<Note>
+Enconvo für Windows ist in der Beta und erscheint auf dem Update-Kanal **Beta**. Es ist für den Alltag gebaut, aber zwischen Builds kann sich noch etwas ändern. Wenn etwas kaputtgeht, sag es uns auf der [Feedback-Seite](https://feedback.enconvo.com).
+</Note>
+
+**Aktuelle Beta: 2.5.13 Beta 3** (`2.5.13-beta-3`). Um zu sehen, welche Version du hast, öffne **Einstellungen → Allgemein → Updates**.
+
+## Voraussetzungen
+
+- **Windows 10 Version 2004 (Build 19041) oder neuer, oder Windows 11.**
+- **64-Bit Intel/AMD (x64).** Für Windows auf Arm gibt es noch keinen Build.
+- **Microsoft Edge WebView2 Runtime.** Die Fenster von Enconvo laufen darauf. Windows 11 hat sie eingebaut. Unter Windows 10 siehe [Fehlerbehebung](/de/getting-started/windows), wenn die Fenster leer bleiben.
+
+## Die Beta herunterladen
+
+Die Beta kommt als Installer, `Enconvo-<version>-win32-x64-setup.exe`. Der Dateiname trägt die Versionsnummer der Beta.
+
+Für die aktuelle Beta, 2.5.13 Beta 3, lade [Enconvo-2.5.13-beta-3-win32-x64-setup.exe](https://file.enconvo.com/win32-x64/beta/Enconvo-2.5.13-beta-3-win32-x64-setup.exe) herunter.
+
+Um immer die neueste Beta zu bekommen, führe das in PowerShell aus. Es liest den Beta-Feed, lädt den Installer in deinen Ordner Downloads und prüft, dass die Datei unbeschädigt angekommen ist.
+
+```powershell
+$feed = "https://file.enconvo.com/win32-x64/beta"
+$latest = Invoke-RestMethod "$feed/latest.json"
+$file = $latest.files.exe.url
+$out = "$env:USERPROFILE\Downloads\$file"
+$ProgressPreference = "SilentlyContinue"   # downloads much faster in Windows PowerShell
+Invoke-WebRequest "$feed/$file" -OutFile $out
+if ((Get-FileHash $out -Algorithm SHA256).Hash -eq $latest.files.exe.sha256) {
+  "Downloaded Enconvo $($latest.version) to $out"
+} else {
+  "The download is damaged. Delete it and run this again."
+}
+```
+
+## Installieren
+
+<Steps>
+  <Step title="Den Installer ausführen">
+    Öffne die heruntergeladene `.exe`. Zeigt Windows **Windows protected your PC**, klicke auf **More info** und dann auf **Run anyway**. SmartScreen zeigt das für Apps, die es noch nicht kennt.
+  </Step>
+  <Step title="Einen Ordner wählen">
+    Enconvo installiert sich nur für dein Konto und braucht keine Administratorrechte. Der Standardordner ist `%LOCALAPPDATA%\Programs\Enconvo`. Wählst du einen anderen, muss er leer sein oder schon Enconvo enthalten.
+  </Step>
+  <Step title="Enconvo öffnen">
+    Lass **Open Enconvo** auf der letzten Seite angehakt oder öffne **Enconvo** später aus dem Startmenü. Sein Symbol erscheint im Infobereich der Taskleiste.
+  </Step>
+  <Step title="Anmelden">
+    Melde dich mit deinem Enconvo-Konto an und mach dann mit dem [Schnellstart](/de/quickstart) weiter.
+  </Step>
+</Steps>
+
+Läuft Enconvo, wenn du installierst, bittet der Installer, es zuerst zu schließen.
+
+## Was unter Windows funktioniert
+
+| Funktion | Windows |
+| --- | --- |
+| Chatfenster, Einstellungen | Ja |
+| Agenten, Werkzeuge, Dateien, Dokumente, Artefakte | Ja |
+| Browsernutzung, Computernutzung | Ja |
+| Wissensdatenbank, Erinnerungen, Automationen, Workflows | Ja |
+| Enconvo-Cloud-Modelle, Websuche, OCR, Bilderzeugung, Sprache | Ja |
+| Globale Tastenkürzel, Diktat, Sprachnotizen, Aufnahmen, Bildschirmkritzelei, Appshots, Mitteilungen | Ja |
+| Zwischenablageverlauf, Schnipsel | Ja |
+| [SmartBar](/de/features/smartbar), [PopBar](/de/features/popbar), [Dynamic Island](/de/features/dynamic-island), Sprachbefehl | Ja |
+| [Avatar](/de/features/avatar), [Desktop-Haustier](/de/features/pet) | Ja |
+| Lokale Chatmodelle aus GGUF-Dateien | Ja |
+| App-Seitenleiste, Live Talk, Untertitelung | Nein |
+| MLX-Modelle | Nein: sie brauchen einen Mac |
+
+## Aktualisieren
+
+Ein Beta-Build bleibt auf dem Beta-Kanal. Um ihn zu ändern, öffne **Einstellungen → Allgemein** und setze **Update-Kanal**. Siehe [Updates](/de/configuration/updates).
+
+Enconvo prüft von selbst auf eine neue Version. Wenn eine bereit ist, klicke im Chatfenster auf **Aktualisieren**. Du kannst auch jetzt unter **Einstellungen → Allgemein → Updates** prüfen.
+
+Das Update installiert sich an Ort und Stelle: Enconvo schließt sich, zeigt den Fortschritt des Installers und öffnet sich auf der neuen Version wieder.
+
+## Fehlerbehebung
+
+| Was du siehst | Was du tun kannst |
+| --- | --- |
+| **Windows protected your PC**, wenn du den Installer öffnest | Klicke auf **More info** und dann auf **Run anyway** |
+| **Enconvo needs 64-bit Windows** | Enconvo läuft nicht auf 32-Bit-Windows |
+| Der Installer nimmt den gewählten Ordner nicht | Wähle einen leeren Ordner oder den Ordner, in dem Enconvo schon liegt |
+| Die Fenster von Enconvo bleiben leer oder öffnen sich nicht | Installiere die [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) und öffne Enconvo erneut |
+| Ein Klick auf eine Enconvo-Mitteilung tut nichts | Öffne Enconvo normal, nicht mit **Run as administrator** |
+
+## Enconvo entfernen
+
+Öffne **Einstellungen → Apps → Installierte Apps** (unter Windows 10 **Einstellungen → Apps → Apps & Features**), finde **Enconvo** und wähle **Deinstallieren**.
+
+Deine Einstellungen und Chats bleiben im Ordner `.config\enconvo` in deinem Benutzerordner (`%USERPROFILE%\.config\enconvo`). Lösche diesen Ordner, um sie ebenfalls zu entfernen.

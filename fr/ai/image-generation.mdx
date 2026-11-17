@@ -1,0 +1,78 @@
+---
+title: "Génération d’images"
+description: "Demandez à un Agent de créer une image, ou d’en modifier une que vous joignez, avec le fournisseur d’images de votre choix."
+---
+
+Demandez à un Agent, dans le chat, de créer une image ou d’en modifier une que vous joignez. Enconvo envoie la demande au fournisseur d’images défini dans **Réglages → Génération d’images**, distinct du modèle avec lequel vous discutez.
+
+## Avant de commencer
+
+1. Ouvrez **Réglages → Génération d’images** et choisissez un fournisseur.
+2. Définissez son **Fournisseur d’identifiants** (la clé ou le compte qu’il utilise) et son **Nom du modèle**.
+3. Cliquez sur **Définir par défaut**.
+
+Les fournisseurs Enconvo Cloud, **OpenAI (Enconvo Cloud)** et **Google Gemini (Enconvo Cloud)**, n’exigent pas de clé API personnelle.
+
+## Créer une image
+
+1. Dans un chat avec un Agent, décrivez le sujet, la composition, le style et l’usage de l’image.
+2. Demandez une taille, un format ou une qualité seulement si le modèle les prend en charge.
+3. Attendez l’image. La génération peut prendre plus de temps qu’une réponse texte.
+4. Cliquez sur l’image pour l’ouvrir à côté du chat, où vous pouvez continuer à la modifier.
+
+Exemple :
+
+```text
+Create a square illustration for a guide to organizing research.
+Show three labeled folders on a tidy desk, with a warm neutral palette.
+Leave the top third clear for a title.
+```
+
+Vous pouvez aussi choisir **Image** sous le champ de message d’un nouveau chat. Le modèle, ses réglages et **À éviter** apparaissent en pastilles sous le champ, pour les régler avant l’envoi. Pour une bibliothèque de tout ce que vous avez créé, des sujets enregistrés et des corrections en un clic, utilisez [Médias](/fr/features/media).
+
+## Modifier une image
+
+1. Joignez l’image source à votre message, ou cliquez sur une image créée par un Agent pour l’ouvrir dans l’éditeur d’images.
+2. Décrivez les changements précis, et dites ce qui doit rester identique.
+3. Vérifiez le résultat pour des changements que vous n’avez pas demandés.
+
+Utilisez un modèle qui prend en charge la modification d’images ou les images de référence.
+
+Dans l’éditeur d’images, le panneau de réglages n’affiche que ce que le modèle choisi accepte :
+
+| Réglage | Ce qu’il change |
+| --- | --- |
+| Résolution, format et qualité | La taille et le niveau de détail de la version suivante |
+| **À éviter** | Ce qu’il faut exclure, pour les modèles qui acceptent un prompt négatif |
+| Variations | Combien de versions chaque demande produit ; vous gardez celles que vous voulez |
+| **Zone à modifier** et **Annotations** | Peignez sur l’image pour ne changer que cette zone, ou dessinez pour guider le changement |
+| GIF et **Images** | Une image animée créée à partir de vos mots |
+
+Chaque modification est une nouvelle version, et chaque image est conservée dans [Médias](/fr/features/media) et dans `~/Enconvo/Media`. Pour animer une image, cliquez sur **Créer une vidéo**.
+
+### GPT Image 2.6
+
+GPT Image 2.6 Flare et Sunburst sont disponibles via OpenAI, Enconvo Cloud, PipeLLM et OpenRouter. Ils ajoutent un réglage de complexité (faible, moyenne ou élevée), des modifications guidées par les annotations que vous dessinez, et une sortie SVG ou GIF animé. Le SVG et le GIF créent une nouvelle image à partir de vos mots ; ils ne modifient pas l’image actuelle.
+
+## Fournisseurs
+
+Le [catalogue des fournisseurs d’images](/fr/providers/catalog) comprend OpenAI, Gemini, xAI, OpenRouter, PipeLLM, Pollinations, Kie.ai, Topview, Azure, Together, et leurs versions Enconvo Cloud lorsqu’elles existent. Le fournisseur OpenAI fonctionne aussi avec votre connexion ChatGPT comme identifiant. Ce qu’un fournisseur peut faire dépend du modèle : le nom du fournisseur seul ne garantit pas tous les modes de modification.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| L’image ne se génère pas | Vérifiez l’accès et le modèle du fournisseur, puis lisez son erreur |
+| Une modification ignore votre image | Vérifiez que le modèle accepte une image en entrée et que le fichier est joint au message |
+| Le fichier d’entrée est refusé | Vérifiez que le fournisseur prend en charge le format du fichier |
+| GPT Image 2.6 n’est pas proposé avec votre connexion ChatGPT | OpenAI ne le sert pas aux forfaits ChatGPT ; utilisez une clé API OpenAI ou Enconvo Cloud |
+| Un réglage voulu n’est pas dans l’éditeur | Le modèle choisi ne l’accepte pas ; choisissez un autre modèle |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Médias" icon="images" href="/fr/features/media">Toutes les images, vidéos et extraits audio au même endroit.</Card>
+  <Card title="Génération de vidéo" icon="film" href="/fr/ai/video-generation">Transformez un prompt ou une image en clip.</Card>
+  <Card title="Utilitaires médias" icon="photo-film" href="/fr/features/media-tools">Compressez images, vidéo et audio.</Card>
+  <Card title="Catalogue des fournisseurs" icon="list" href="/fr/providers/catalog">Tous les fournisseurs d’images et leurs réglages.</Card>
+</CardGroup>

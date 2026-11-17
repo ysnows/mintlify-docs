@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Enconvo에서 Azure OpenAI 배포와 대화합니다."
+---
+
+조직이 Azure에 배포한 OpenAI 모델을 씁니다. Enconvo는 Azure 리소스와 직접 이야기하므로, 접근, 할당량, 청구는 Azure 구독을 따릅니다.
+
+## 시작하기 전에
+
+모델 배포가 하나 이상 있는 Azure OpenAI 리소스가 필요합니다. Azure 포털에서 리소스의 **키**, **엔드포인트**, 모델에 준 **배포 이름**을 복사합니다. 아직 설정하지 않았다면 [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)를 보세요.
+
+## 연결
+
+<Steps>
+  <Step title="인증 정보 추가">
+    **설정 → AI 모델 → Azure OpenAI**를 엽니다. **인증** 아래에 **API 키**, **엔드포인트**, **API 버전**을 채운 다음 **검증**을 클릭합니다. 엔드포인트는 `https://<resource>.cognitiveservices.azure.com/` 형태입니다.
+  </Step>
+  <Step title="배포 설정">
+    **Azure OpenAI Api Deployment Name**에 배포 이름을 입력합니다. Azure 리소스의 이름을 쓰며, 모델 이름과 다를 수 있습니다.
+  </Step>
+  <Step title="시험">
+    짧은 메시지를 보냅니다. 답변이 오면 연결이 된 것입니다.
+  </Step>
+</Steps>
+
+## 모델과 옵션
+
+| 설정 | 하는 일 |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | 이 제공업체가 호출하는 배포입니다. |
+| **스트리밍** | 쓰이는 대로 답변을 보여 줍니다. 기본은 켜짐입니다. 배포가 스트리밍을 지원하지 않으면 끕니다. |
+| **API 버전** | 인증 정보에 있습니다. 기본은 `2025-01-01-preview`입니다. |
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| **검증** 실패 | 키와 **엔드포인트**가 같은 Azure 리소스에서 왔는지 확인합니다. |
+| 배포를 찾을 수 없음 | Azure 포털에서 배포 이름을 정확히 복사합니다. |
+| 답변이 나타나지 않음 | **스트리밍**을 끄고 다시 시도합니다. |
+| 속도 또는 할당량 오류 | Azure에서 배포 할당량을 올리거나, 지금은 다른 제공업체로 바꿉니다. |
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/ko/providers/openai">대신 OpenAI 자체 API를 씁니다.</Card>
+  <Card title="인증 정보와 프로필" icon="key" href="/ko/configuration/credentials">여러 키를 두고, 공유 키가 무엇에 영향을 주는지 봅니다.</Card>
+  <Card title="모델 고르기" icon="list-check" href="/ko/ai/model-selection-guide">작업별로 모델을 고르고, 기본값이 어디에 설정되는지 봅니다.</Card>
+  <Card title="제공업체 카탈로그" icon="table" href="/ko/providers/catalog">기능을 구동하는 제공업체마다 묶은 목록입니다.</Card>
+</CardGroup>

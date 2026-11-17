@@ -1,0 +1,439 @@
+---
+title: "훅"
+description: "에이전트가 시작하거나 도구를 사용하거나 끝낼 때 자동으로 셸 명령을 실행하거나 웹훅을 보냅니다."
+---
+
+훅은 에이전트 시작, 완료, 실패, 도구 사용 등 Enconvo에서 어떤 이벤트가 발생할 때 셸 명령을 실행하거나 HTTP 요청을 보냅니다. JSON 파일에 설정하므로 확장 프로그램을 따로 만들지 않고도 알림, 로그, 로컬 자동화, 외부 연동을 추가할 수 있습니다.
+
+<Note>
+대부분의 훅은 한 번 실행하고 끝나는 방식(fire-and-forget)으로 백그라운드에서 동작하며 Enconvo를 막지 않습니다. 단, 에이전트 실행 중 `PreToolUse`, `Stop`, `SubagentStop`은 예외입니다. 에이전트가 이 훅들의 응답을 기다리므로 도구 호출을 차단하거나 에이전트에게 다시 작업을 이어가게 할 수 있습니다. [차단 훅](#차단-훅)을 참고하세요.
+</Note>
+
+## 빠른 시작
+
+<Steps>
+  <Step title="hooks 폴더 만들기">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="~/.enconvo/hooks.json 만들기">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="에이전트 실행하기">
+    아무 에이전트나 채팅 명령을 실행합니다. 상태가 바뀔 때 Enconvo가 설정된 명령을 실행하고 `/tmp/enconvo-hooks.log`에 한 줄을 추가합니다.
+  </Step>
+</Steps>
+
+## 설정 파일
+
+훅은 다음 경로에 저장됩니다.
+
+```text
+~/.enconvo/hooks.json
+```
+
+새 파일이 없을 때는 기존 경로인 `~/.config/enconvo/hooks.json`도 읽습니다. 두 파일이 모두 있으면 `~/.enconvo/hooks.json`이 우선합니다.
+
+이벤트가 발생할 때마다 파일을 다시 읽으므로 Enconvo가 실행 중인 상태에서 훅을 수정할 수 있습니다. 앱을 다시 시작하지 않아도 됩니다.
+
+## 설정에서 훅 관리하기
+
+**설정 → 훅**을 열면 `~/.enconvo/hooks.json`의 훅이 이벤트별로 묶여 표시됩니다. 스위치로 각 항목을 켜거나 끄고, **hooks.json 열기**를 클릭해 파일을 편집할 수 있습니다. 항목을 끄거나 켜면 해당 명령이나 웹훅 내용은 그대로 둔 채 `enabled: false` 또는 `enabled: true`만 기록됩니다.
+
+## 플러그인에서 가져온 훅
+
+`context-mode` 같은 Claude Code 및 Codex 플러그인은 자체 훅을 함께 가져올 수 있습니다. 사용자가 실행을 허용하면 Claude Code에서와 마찬가지로 채팅 시작 시, 각 메시지·도구 호출·압축 전후, 응답 실패나 에이전트 완료 시 실행됩니다.
+
+1. **플러그인**에서 플러그인을 설치하거나 채팅에서 에이전트에게 플러그인의 GitHub 리포지토리, Git 주소, zip 또는 npm 패키지를 넘겨 설치 카드를 띄웁니다.
+2. 설치하기 전에 **훅 실행 허용**에 체크하세요. 체크하지 않고 설치한 플러그인은 훅이 꺼져 있다고 표시되며, 나중에 해당 항목에서 **훅 허용**을 클릭해 켤 수 있습니다.
+
+플러그인 업데이트로 훅이 바뀌면 사용자가 내용을 확인하고 다시 허용할 때까지 훅 실행이 중지됩니다. Enconvo가 실행할 수 없는 훅은 카드에 Enconvo에서 실행되지 않는 항목으로 표시됩니다.
+
+## 훅 작동 방식
+
+이벤트가 발생하면 Enconvo는 다음 순서로 동작합니다.
+
+1. `~/.enconvo/hooks.json`을 불러옵니다.
+2. 새 파일이 없을 때만 `~/.config/enconvo/hooks.json`을 읽습니다.
+3. 최상위 `hooks` 객체에서 키가 이벤트 이름과 일치하는 항목을 찾습니다.
+4. 선택 항목인 `matcher` 정규식을 적용합니다.
+5. `enabled`가 `false`인 항목은 건너뜁니다.
+6. 설정된 모든 훅을 동시에 실행합니다.
+
+훅 이벤트 이름은 Claude Code와 Codex의 수명 주기 세트인 `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop`, `SubagentStop`을 따릅니다. 기존 설치 환경을 위해 예전 Enconvo 이벤트 이름과 평면 JSON 구조도 계속 동작하지만, 새로 기록할 때는 래핑된 Codex 스타일 형식을 사용합니다.
+
+## 설정 레퍼런스
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| 필드 | 유형 | 필수 | 설명 |
+|-------|------|----------|-------------|
+| `hooks` | object | 예 | 이벤트 이름을 키로 하는 이벤트 맵입니다. |
+| `event_name` | string | 예 | 수신할 이벤트입니다. `hooks` 안의 키로 지정합니다. |
+| `matcher` | string | 아니요 | 정규식 필터입니다. 도구 이벤트에서는 `toolName`, `toolTitle`, `path`에 일치하고, 그 외 이벤트에서는 훅 이벤트 이름에 일치합니다. |
+| `enabled` | boolean | 아니요 | `false`로 설정하면 설정 파일에 항목을 남긴 채 실행만 건너뜁니다. 기본값은 `true`입니다. |
+| `hooks` | array | 예 | 실행할 명령 훅과 HTTP 훅 목록입니다. |
+
+### 명령 훅
+
+명령 훅은 셸 명령을 실행합니다. Enconvo는 명령의 표준 입력(stdin)으로 이벤트 페이로드를 JSON 형식으로 전달합니다.
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| 필드 | 유형 | 기본값 | 설명 |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | 필수 훅 유형입니다. |
+| `command` | string | - | 실행할 셸 명령입니다. |
+| `timeout` | number | `30000` | 제한 시간(밀리초)입니다. |
+
+### HTTP 훅
+
+HTTP 훅은 이벤트 페이로드를 JSON 요청 본문으로 전송합니다.
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| 필드 | 유형 | 기본값 | 설명 |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | 필수 훅 유형입니다. |
+| `url` | string | - | HTTP 엔드포인트 URL입니다. |
+| `method` | string | `"POST"` | HTTP 메서드입니다. |
+| `headers` | object | `{}` | 추가 요청 헤더입니다. |
+| `timeout` | number | `30000` | 제한 시간(밀리초)입니다. |
+
+## 차단 훅
+
+에이전트나 봇이 실행되는 동안 다음 세 이벤트는 차단 훅으로 동작합니다. 에이전트는 일치하는 모든 훅(병렬로 실행)이 끝날 때까지 기다린 뒤, Claude Code 및 Codex와 같은 방식으로 그 결과를 읽고 계속 진행합니다.
+
+| 이벤트 | 시점 | 훅이 할 수 있는 일 |
+|-------|------|----------------------|
+| `PreToolUse` | 도구 호출이 실행되기 직전입니다. `matcher`는 도구 이름, 제목, 라우트 경로와 비교합니다. | 호출을 차단하거나 입력값을 고쳐 씁니다. |
+| `Stop` | 에이전트가 답변을 내며 차례를 마치기 직전입니다. | 지시문을 전달해 에이전트가 계속 작업하게 합니다. |
+| `SubagentStop` | 하위 에이전트가 끝나기 직전입니다. | 지시문을 전달해 하위 에이전트가 계속 작업하게 합니다. |
+
+훅은 두 가지 방식 중 하나로 판단을 내립니다.
+
+- **종료 코드 2**는 차단입니다. 명령이 표준 오류(stderr)에 출력한 텍스트가 사유가 됩니다.
+- **종료 코드 0과 표준 출력(stdout)의 JSON.** 그 외의 출력, 종료 코드, 오류, 시간 초과는 아무 결정도 내리지 않은 것으로 처리되어 훅이 없는 것처럼 실행이 이어집니다.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| JSON 출력 | 효과 |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: 호출이 실행되지 않습니다. 모델은 `permissionDecisionReason`을 도구 결과로 보고 다른 방법을 고를 수 있습니다. |
+| `hookSpecificOutput.permissionDecision: "ask"` | `deny`로 취급됩니다. Enconvo에는 아직 훅용 확인 프롬프트가 없습니다. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: 호출이 실행됩니다. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`: 모델이 만든 입력 대신 이 입력으로 호출을 실행합니다. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: `reason`을 다음 지시로 삼아 에이전트가 계속 작업합니다. `PreToolUse`에서는 호출을 차단합니다. |
+| `{ "decision": "approve" }` | `allow`와 같습니다. |
+
+HTTP 훅은 같은 JSON을 본문으로 담은 2xx 응답으로 결정합니다.
+
+여러 훅이 일치할 때는 deny가 ask보다, ask가 allow보다 우선합니다. 사유들은 합쳐지고, `updatedInput`은 마지막 값이 사용됩니다.
+
+`Stop` 훅은 한 차례에서 최대 5번까지 에이전트를 다시 일하게 보낼 수 있습니다. 두 번째 확인부터는 `stop_hook_active`가 `true`이므로 훅은 지시가 이행된 뒤 에이전트가 멈추도록 허용할 수 있습니다. `Stop` 차단은 에이전트가 정상적으로 끝날 때만 적용되며, 실패하거나 중지된 실행에서는 `Stop`이 백그라운드에서 실행됩니다.
+
+<Tip>
+에이전트는 차단 훅이 끝날 때까지 기다리므로 느린 `PreToolUse` 훅은 모든 도구 호출을 늦추고 느린 `Stop` 훅은 응답 종료를 지연시킵니다. 빠르게 실행되도록 유지하고, 짧은 `timeout`을 설정하거나, 오래 걸리는 작업은 백그라운드(`command &`)로 돌리세요.
+</Tip>
+
+차단 훅은 일반 [이벤트 페이로드](#이벤트-페이로드)와 함께 최상위에 Claude Code 필드를 받습니다.
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop`과 `SubagentStop`은 도구 필드 대신 `stop_hook_active`와 `last_assistant_message`를 받습니다. 명령 훅은 에이전트의 작업 디렉터리에서 실행됩니다.
+
+### 위험한 명령 차단하기
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### 마치기 전에 에이전트가 테스트를 실행하게 하기
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## 이벤트 페이로드
+
+명령 훅은 이 JSON을 표준 입력(stdin)으로 받습니다. HTTP 훅은 같은 JSON을 요청 본문으로 받습니다.
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| 필드 | 설명 |
+|-------|-------------|
+| `event` | 짧은 이벤트 이름입니다. |
+| `fullEvent` | `event-` 접두사가 붙은 내부 이벤트 이름입니다. |
+| `sourceEvent` | Codex 호환을 위해 매핑된 경우 이 훅 이벤트를 만들어 낸 원래 Enconvo 이벤트입니다. |
+| `sourceFullEvent` | `event-` 접두사가 붙은 원래 내부 이벤트 이름입니다. |
+| `params` | 이벤트별 페이로드입니다. |
+| `timestamp` | 밀리초 단위의 Unix 타임스탬프입니다. |
+
+백그라운드 훅도 Claude Code 필드인 `hook_event_name`, 이벤트에 세션이 있는 경우 `session_id`, 도구 이벤트의 경우 `tool_name`·`tool_input`·`tool_use_id`를 함께 받습니다.
+
+## 사용 가능한 이벤트
+
+| 이벤트 | 매개변수 | 시점 |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | 새 채팅 세션이 생성됩니다. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | 사용자 입력으로 에이전트, 채팅 또는 봇 실행이 시작됩니다. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 도구 호출이 시작됩니다. 에이전트 실행 중에는 차단됩니다. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 도구 호출이 권한 요청 또는 거부 상태에 도달합니다. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | 도구 호출이 성공, 실패, 완료 또는 거부됩니다. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | 에이전트, 채팅 또는 봇 실행이 종료 상태에 도달합니다. 에이전트가 정상 종료될 때는 차단됩니다. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | 하위 에이전트가 곧 종료됩니다. 차단됩니다. 하위 에이전트는 `Stop`을 발생시키지 않습니다. |
+
+`run_status_changed`, `agent_tool_step_changed` 같은 기존 Enconvo 이름도 계속 작동하므로 기존 훅 파일을 바로 옮기지 않아도 됩니다.
+
+## 활용 예제
+
+### 에이전트가 실패할 때 macOS 알림 표시
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 에이전트 상태 변경 기록
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 에이전트 도구 호출 기록
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Slack으로 보내기
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 사용자 지정 스크립트
+
+표준 입력에서 이벤트 페이로드를 읽는 스크립트를 작성합니다.
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+`~/.enconvo/hooks.json`에서 이 스크립트를 연결합니다.
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+스크립트에 실행 권한을 부여합니다.
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| 훅이 실행되지 않음 | `~/.enconvo/hooks.json`이 올바른 JSON인지, 최상위 키가 이벤트 이름과 일치하는지, 직접 실행했을 때 명령이 잘 동작하는지 확인하세요. 새 파일이 있으면 `~/.config/enconvo/hooks.json`은 무시됩니다. |
+| 훅이 Enconvo를 멈추게 하는지 헷갈림 | 에이전트 실행 중에는 `PreToolUse`, `Stop`, `SubagentStop`만 차단합니다. 나머지 모든 훅은 비동기로 실행됩니다. 훅이 실패하거나 시간 초과되어도 Enconvo는 오류만 기록하고 훅이 없었던 것처럼 계속 진행합니다. |
+| 플러그인의 훅이 실행되지 않음 | 플러그인을 열고 **훅 허용**을 클릭하세요. 업데이트로 훅이 바뀌었다면 내용을 확인한 뒤 다시 허용해야 합니다. |
+| 명령이 스크립트나 실행 파일을 찾지 못함 | 절대 경로를 사용하세요. 셸을 통해 실행할 때는 `~` 확장이 되지만 절대 경로를 쓰는 편이 디버깅하기 쉽습니다. |
+
+### 스크립트를 직접 테스트하기
+
+샘플 페이로드를 스크립트로 파이프해 봅니다.
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## 관련 항목
+
+<CardGroup cols={2}>
+  <Card title="에이전트" icon="robot" href="/ko/ai/agents">
+    Enconvo 에이전트와 사용자 지정 봇을 알아봅니다
+  </Card>
+  <Card title="확장 API 레퍼런스" icon="code" href="/extensions/extension-api-reference">
+    이벤트를 발생시키거나 수신하는 확장 프로그램을 만듭니다
+  </Card>
+</CardGroup>

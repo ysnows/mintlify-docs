@@ -1,0 +1,225 @@
+---
+title: "Instalando Plugins"
+description: "Instale plugins do Enconvo, Codex, Claude Code e portáteis a partir da loja, de um arquivo, do GitHub, git, npm, de uma pasta ou de um marketplace de plugins, e mantenha-os atualizados."
+---
+
+A maioria das pessoas instala plugins pela loja de plugins na página **Plugins** do Enconvo. O Enconvo também instala plugins de outras fontes, incluindo os plugins do Codex e do Claude Code que seus desenvolvedores publicam no GitHub e em marketplaces de plugins. Veja [Formatos de Plugin](/extensions/plugin-formats) para conhecer os pacotes que o Enconvo lê.
+
+Para instalar pelo app, leia [Pela página Plugins](#pela-página-plugins) e [Por um chat](#por-um-chat). O restante da página é para desenvolvedores e usuários avançados: instalar pelo Terminal, adicionar marketplaces de plugins, atualizar e desinstalar, e compartilhar um plugin seu.
+
+<Warning>
+Somente os plugins da loja do Enconvo são revisados pelo Enconvo. Um plugin de qualquer outra fonte pode executar programas no seu Mac por meio dos servidores MCP dele, então instale-o apenas de uma fonte em que você confia.
+</Warning>
+
+## Pela página Plugins
+
+Clique em **Add** na página **Plugins**:
+
+| Opção | O que faz |
+|---|---|
+| **Create plugin** | Inicia um chat em que o Agente do Enconvo cria um plugin com você. |
+| **Upload plugin archive…** | Instala um arquivo: um pacote `.enconvo`, uma extensão de desktop `.dxt` ou um `.zip` de um plugin do Claude Code ou do Codex. |
+| **Add from GitHub…** | Instala um plugin, ou um plugin de um marketplace de plugins, a partir do GitHub, git, npm ou de uma pasta (veja abaixo). |
+| **Add MCP server…** | Abre as Definições de MCP, para conectar um único servidor sem um plugin em volta dele. |
+| **Add PopBar extension…** | Instala uma extensão do PopBar a partir de um link, de um arquivo ou de um snippet `#popclip` (veja [Extensões do PopBar](/pt-br/features/popbar)). |
+| **New skill…** | Abre as Definições de Skills, para escrever uma skill sua. |
+| **Developer guide** | Abre [Desenvolvendo Extensões](/pt-br/extensions/developing). |
+
+O que você adicionou fica em **Installed**, no topo da aba **Enconvo**: os Connectors que você conectou e os plugins que você instalou ou criou, por nome. Clique em **Installed** para ver todos eles. Os plugins que vêm com o Enconvo não aparecem ali. As extensões do PopBar têm sua própria aba **PopBar**, com o catálogo revisado do Enconvo; veja [Extensões do PopBar](/pt-br/features/popbar).
+
+### Adicionar do GitHub
+
+Cole o local do plugin e pressione **Preview**:
+
+- `owner/repo`, ou um link do GitHub, inclusive para uma pasta (`/tree/<branch>/<folder>`)
+- `owner/repo/folder` para um plugin dentro de um repositório, com `@branch` ou `@tag` para fixar uma versão
+- qualquer endereço git https
+- `npm:<package>`, com `@version` para fixar uma versão
+- um link https para o `.zip` de um plugin
+- uma pasta no seu Mac
+
+Um repositório privado do GitHub ou git também funciona. O Enconvo usa a conta do GitHub já conectada no seu Mac, ou sua chave SSH, então você não precisa digitar uma senha.
+
+O Enconvo mostra o plugin antes de instalar qualquer coisa: seu formato (Codex, Claude Code, portátil, extensão de desktop ou Enconvo), versão, desenvolvedor, skills, servidores MCP e hooks, além de quaisquer apps do ChatGPT que ele inclua, que o Enconvo não carrega. Para cada servidor MCP, ele informa se o servidor é iniciado no seu Mac ou se conecta pela internet. Os hooks de um plugin executam comandos no seu Mac, então ficam desativados a menos que você marque **Allow its hooks to run**. Clique em **Install**, e o Enconvo abre a página do plugin. A linha **Source** informa de onde o plugin veio (para GitHub e git, com o commit) e traz um link para o repositório ou para a página do npm, e a nota na parte inferior mostra o desenvolvedor indicado pelo plugin: somente os plugins do próprio Enconvo e os plugins da sua loja dizem que são feitos pelo Enconvo. Os plugins instalados dessa forma aparecem em **Personal**. Instalar novamente a partir do mesmo local atualiza o plugin. Se um plugin com o mesmo nome já estiver instalado a partir de outra fonte, desinstale-o primeiro.
+
+Quando o endereço é um marketplace de plugins, a caixa de diálogo lista os plugins dele com um botão **Install** em cada um. Instalar um deles adiciona o marketplace, que passa a aparecer em **Your marketplaces** na próxima vez que você abrir a caixa de diálogo.
+
+O código-fonte de um plugin do Enconvo precisa ser compilado antes de funcionar, então a caixa de diálogo fornece o comando `enconvo plugin install` para você executar no Terminal.
+
+## Por um chat
+
+Quando você pede ao Agente do Enconvo algo que seus plugins não conseguem fazer, ele pode procurar um plugin nos marketplaces de plugins do seu Mac: os que você adicionou no Enconvo e os que o Codex ou o Claude Code têm e o Enconvo ainda não, incluindo o marketplace OpenAI Curated que vem com o Codex (veja [Marketplaces que você adicionou no Codex ou no Claude Code](#marketplaces-que-você-adicionou-no-codex-ou-no-claude-code)). Ele lê as cópias dos catálogos que já estão no seu Mac e não baixa nada durante a busca. Ele deixa de fora os plugins que você já instalou e os plugins com o mesmo nome de um que você instalou a partir de outra fonte.
+
+Quando encontra um, o Agente mostra um cartão no chat, e nada é instalado até você clicar em **Install**:
+
+- Para um marketplace que você adicionou no Enconvo, o cartão informa quais servidores MCP o plugin inicia no seu Mac ou aos quais se conecta, suas skills e os outros plugins de que ele precisa.
+- Para um marketplace que só o Codex ou o Claude Code têm, o cartão informa que a instalação adiciona esse marketplace ao Enconvo. O Enconvo não consegue ler o conteúdo do plugin antes disso, então o cartão não pode listá-lo.
+
+Em ambos os casos, os hooks do plugin ficam desativados até você ativá-los em **Plugins**. Quando um plugin não pode ser instalado, por exemplo porque um plugin de que ele precisa não pode ser instalado, o Agente informa isso em vez de mostrar o cartão.
+
+### Plugins do ChatGPT
+
+Os plugins do [diretório de plugins do ChatGPT](https://chatgpt.com/plugins) não podem ser instalados no Enconvo. A maioria deles são apps do ChatGPT, que só funcionam dentro do ChatGPT, e a OpenAI disponibiliza o restante apenas para o ChatGPT e o Codex. Se você entrou no Codex no seu Mac, o Agente conhece o diretório pela cópia que o Codex mantém. Quando você menciona um dos plugins dele ou cola o link do chatgpt.com, o Agente explica por que não pode instalá-lo e oferece algo que faz o mesmo: um Connector, um servidor MCP, uma skill ou um plugin com o mesmo nome em um dos seus marketplaces. Muitos dos plugins do diretório que vêm com arquivos também têm um plugin de mesmo nome no OpenAI Curated, o marketplace que vem com o Codex (o repositório público `openai/plugins` da OpenAI). O Agente oferece esse plugin, e instalá-lo adiciona o OpenAI Curated ao Enconvo. O Enconvo não carrega os apps do ChatGPT que esses plugins incluem, apenas suas skills e servidores MCP.
+Um link do chatgpt.com também não funciona em **Add from GitHub**; a caixa de diálogo exibe a mesma mensagem.
+
+## Pela linha de comando
+
+`plugin install` instala um plugin do GitHub, do git, do npm, de um zip na web, de uma pasta ou de um marketplace. O Enconvo 2.5.6 ou posterior precisa estar em execução.
+
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+
+| Origem | Exemplo |
+|---|---|
+| Um repositório do GitHub, opcionalmente com uma pasta dentro dele e um branch, tag ou commit | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| Um endereço do GitHub | `https://github.com/acme/plugins/tree/main/notes` |
+| Qualquer outro repositório git via https (requer git); um endereço ssh só funciona para o GitHub | `https://git.example.com/notes.git`, `git@github.com:acme/notes.git` |
+| Um pacote npm | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| Um zip de plugin na web (somente https público) | `https://downloads.acme.com/notes-1.2.0.zip` |
+| Uma pasta no seu Mac | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| Um plugin de um marketplace adicionado | `notes@acme-plugins` |
+
+<Note>
+`plugin install` e `plugin marketplace` exigem uma versão do `@enconvo/api` mais recente que a 0.1.174. Dentro de um projeto que depende do `@enconvo/api`, basta usar `npx enconvo …`. `marketplace import` também exige o Enconvo 2.5.7 ou posterior.
+</Note>
+
+Adicione `--preview` para ver o que seria instalado, e de onde, sem instalar nada.
+
+Quando a origem é um marketplace de plugins, e não um plugin, `plugin install` lista os plugins dele. Um marketplace com mais de 200 plugins mostra os primeiros 200 e informa quantos restam; `plugin marketplace add` lista todos. Escolha um com `--plugin`, que também adiciona o marketplace:
+
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+
+### O que acontece na instalação
+
+- **Definições**: um plugin com definições obrigatórias, como uma chave de API, é instalado e depois pede que você as preencha. `plugin install` informa quais são; preencha-as na página do plugin.
+- **Plugins do Enconvo a partir do código-fonte**: quando um repositório do GitHub ou uma pasta contém um plugin do Enconvo que ainda não foi compilado, `plugin install` o compila primeiro. Uma pasta é compilada no próprio local, após `npm install`.
+- **Configuração inicial**: quando um plugin indica uma skill de configuração inicial, o Enconvo oferece executá-la após a primeira instalação.
+- **Login**: quando os servidores MCP de um plugin exigem login, como os do Notion ou do Figma, a página de Plugins mostra **Sign in** assim que ele é instalado. O Enconvo abre a página de login do servidor no navegador e oferece o próximo servidor assim que esse se conecta. `plugin install`, em vez disso, informa quais são os servidores. Um login que você pular fica pendente em **Definições → Servidores MCP**.
+- **Hooks**: os [hooks](/extensions/plugin-formats) de um plugin são instalados desativados, porque executam comandos. `--preview` os lista; permita-os com a chave **Allow hooks** na página do plugin. Hooks que você permitiu continuam ativos em atualizações que não os alteram.
+- **Dependências**: quando um plugin do Claude Code vindo de um marketplace precisa de outros plugins, o Enconvo os instala junto (veja [Marketplaces de plugins](#marketplaces-de-plugins)). `--preview` os lista e indica quais já estão instalados, quais seriam instalados e quais não podem ser. Uma dependência declarada pela entrada do marketplace e vinda de um marketplace não permitido interrompe a instalação; uma declarada no próprio `plugin.json` do plugin fica de fora e a instalação continua. Os hooks delas ficam desativados, e desinstalar o plugin as mantém até que você as remova (veja [Desinstalação](#desinstalação)).
+- **Uso**: assim como no Codex, digite `@` em um chat e escolha o plugin, ou clique em um dos prompts em **Try asking** na página dele. De qualquer forma, o plugin é anexado ao chat. Todo plugin instalado aparece no menu `@`, inclusive um plugin do Codex ou do Claude Code que não indica nenhuma categoria.
+- **Mesmo nome**: instalar novamente a partir da mesma origem atualiza o plugin. Se já houver um plugin com o mesmo nome instalado de outra origem, como a loja, o Enconvo não mexe nele e pede que você o desinstale primeiro.
+
+Quando o Enconvo não está em execução, `plugin install` ainda consegue instalar um plugin do Enconvo a partir do GitHub compilando-o. Para qualquer outro caso, abra o Enconvo e tente novamente.
+
+## Marketplaces de plugins
+
+Um marketplace é um catálogo de plugins em um repositório ou pasta. O Enconvo lê os dois tipos: o `.agents/plugins/marketplace.json` do Codex e o `.claude-plugin/marketplace.json` do Claude Code.
+
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, a git address or a folder
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins --ref v2   # at a branch, tag or commit
+npx -p @enconvo/api enconvo plugin marketplace list               # added marketplaces and their plugins
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # install one of them
+npx -p @enconvo/api enconvo plugin marketplace refresh            # fetch them again for new plugins
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+
+`refresh` também responde por `upgrade` (o nome no Codex) e `update` (o nome no Claude Code), e `--ref v2` equivale a `acme/plugins@v2`.
+
+Na página de Plugins, abra **Add → Add from GitHub…** e cole o endereço do marketplace, ou escolha um que você já adicionou em **Your marketplaces**.
+
+O Enconvo mantém uma cópia de um marketplace vindo do GitHub ou do git e lê um marketplace de pasta no próprio local. Remover um marketplace mantém os plugins que você instalou a partir dele.
+
+### Marketplaces que você adicionou no Codex ou no Claude Code
+
+Se você adicionou marketplaces no Codex ou no Claude Code neste Mac, ou se o Codex baixou o marketplace OpenAI Curated, `marketplace list` mostra os que o Enconvo ainda não tem, e `import` os adiciona, para que você não precise digitar os endereços de novo:
+
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace import                            # all of them
+npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # only these
+```
+
+
+O Enconvo os encontra no `~/.codex/config.toml` do Codex, na cópia do OpenAI Curated feita por ele e no `~/.agents/plugins/marketplace.json` pessoal, além da lista de marketplaces conhecidos do Claude Code. Ele apenas lê esses arquivos e não altera nada em nenhum dos dois apps. O OpenAI Curated é adicionado a partir de `openai/plugins` no GitHub. Ficam de fora os outros marketplaces que acompanham o Codex, que contêm plugins para as ferramentas do próprio Codex, e os marketplaces do Claude Code adicionados a partir do endereço web de um arquivo `marketplace.json`, que o Enconvo não adiciona. Quando os dois apps têm um marketplace com o mesmo nome, ele oferece o do Codex.
+
+Marketplaces do Codex, como o OpenAI Curated, listam apenas o nome de cada plugin e sua origem. Para um plugin que está na própria pasta do marketplace, o Enconvo mostra o título, a descrição, a categoria e o desenvolvedor a partir do manifesto do plugin, assim como o Codex, e o agente o encontra tanto pelo que ele faz quanto pelo nome. O que a própria entrada do marketplace informa tem prioridade.
+
+Alguns plugins do OpenAI Curated, como Gmail, Google Drive, Outlook e Teams, só funcionam quando você faz login no Codex com o ChatGPT, por isso o Codex não os oferece a quem faz login com uma chave de API. O Enconvo também não faz login no ChatGPT, então os mostra como exigindo login no ChatGPT, não os instala e o agente não os oferece. Para esses serviços, adicione o servidor MCP do próprio provedor ou um Connector.
+### De onde vêm os plugins de um marketplace
+
+Os plugins de um marketplace podem vir de uma pasta no próprio marketplace, de outro repositório do GitHub, de um endereço git, de uma pasta em um repositório git, do npm ou de um zip na web (a fonte `archive` do Claude Code). Um plugin que um marketplace do Codex marca como `NOT_AVAILABLE` não pode ser instalado.
+
+Uma fonte de pasta escrita como `./plugins/notes` é lida a partir da raiz do marketplace. Um nome simples, como `notes`, é lido a partir da pasta indicada em `metadata.pluginRoot`, como no Claude Code, e exige esse campo.
+
+Um download do GitHub, do npm ou da web pode levar até três minutos; se demorar mais, o Enconvo o interrompe e pede que você verifique sua conexão.
+
+Um zip, seja colando o link ou listado por um marketplace, só é baixado de um endereço https público, com no máximo cinco redirecionamentos. Quando o marketplace informa o `sha256`, um download que não corresponda é recusado. O plugin pode estar na raiz do zip ou dentro de uma pasta.
+
+### Entradas de marketplace do Claude Code
+
+As entradas de marketplace do Claude Code funcionam com o `plugin.json` do próprio plugin da mesma forma que o Claude Code as lê:
+
+- Uma entrada pode adicionar `commands`, `agents`, `skills`, `outputStyles` e `themes` aos do próprio plugin, e seus `hooks` substituem os hooks do plugin para os mesmos eventos.
+- Uma entrada com `"strict": false` que também liste qualquer um desses itens, para um plugin que tenha um `plugin.json`, é recusada por conflito de manifestos. Mantenha-os em um único lugar.
+- Quando o plugin não tem `plugin.json`, a entrada é o seu manifesto.
+- O nome, a descrição, o autor e outros detalhes da listagem exibidos são os da entrada; a versão é a do plugin.
+- Os `renames` de um marketplace são respeitados. Um plugin instalado com o nome antigo continua recebendo atualizações com o novo, e instalar pelo nome antigo o encontra. Um nome renomeado para `null` foi removido do marketplace, e o Enconvo avisa isso. Se o próprio manifesto do plugin também mudou de nome, o Enconvo pede que você desinstale o plugin antigo e instale o novo, porque o Enconvo nomeia um plugin de acordo com seu manifesto.
+- As `dependencies` de um plugin, na entrada ou no `plugin.json`, são instaladas junto com ele. Cada uma é um nome (`"formatter"`), um nome e um marketplace (`"formatter@acme-tools"`), qualquer um deles seguido de um intervalo `^` (`"formatter@acme-tools@^2.1"`), ou `{ "name", "marketplace", "version" }` com um intervalo semver. Uma dependência vem do marketplace do próprio plugin, a menos que indique outro, e esse outro marketplace precisa estar listado em `allowCrossMarketplaceDependenciesOn` pelo marketplace de onde você instalou. Uma dependência com intervalo `version` é instalada na tag de release mais alta (`<plugin>--v<version>`) dentro desse intervalo, e dos intervalos que outros plugins instalados impõem a ela, a partir do repositório do próprio plugin ou, para um plugin dentro do marketplace, do repositório do marketplace (uma pasta de marketplace conta quando está em um repositório git). Sem essa tag, um plugin dentro do marketplace é instalado como está no marketplace, e um em seu próprio repositório é recusado. Intervalos que nenhuma versão única satisfaz impedem a instalação, e as atualizações ficam dentro dos intervalos. Uma dependência já instalada é mantida como está, e uma fora do seu intervalo `version` gera um aviso.
+
+### Verifique um marketplace antes de compartilhá-lo
+
+Antes de compartilhar um marketplace, verifique-o e cada plugin nele. As regras são as que o `claude plugin validate` aplica, mais as do Codex para um `.agents/plugins/marketplace.json`; veja [Códigos de validação](/extensions/validation-codes). Um erro significa que o Claude Code não consegue adicionar o marketplace ou instalar o plugin, mesmo que ainda possa listá-lo: um campo de tipo errado em uma entrada, `renames` que não levam a um plugin, sinais de `relevance` que ele recusa, ou um nome de marketplace que parece ser da própria Anthropic, como `claude-plugins-hub`. Um aviso cobre o que o Claude Code ignora, como um campo com erro de digitação, e nomes que o Claude Desktop rejeita.
+
+
+```sh
+npx -p @enconvo/api enconvo plugin validate path/to/marketplace
+```
+
+
+## Atualizações
+
+A verificação de atualizações de plugins do Enconvo também cobre plugins instalados do GitHub, git, npm, pastas e marketplaces, e lista suas atualizações junto com as da loja. Ela lê o commit mais recente de um repositório sem baixá-lo, consulta o npm pela versão mais recente, percebe quando uma pasta instalada foi alterada e, para um zip que um marketplace fixa por `sha256`, percebe quando esse valor muda. Atualizar instala o plugin novamente a partir da mesma fonte.
+
+Para verificar um plugin, abra a página dele e escolha **Check for updates** no menu **⋯**. Quando houver uma versão mais nova, clique em **Update** na mensagem que aparecer.
+
+Ou atualize um pelo Terminal, como o `claude plugin update` faz no Claude Code:
+
+
+```bash
+npx -p @enconvo/api enconvo plugin update notes                # from wherever it came from, or the store
+npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # only if it came from that marketplace
+```
+
+
+Ele verifica primeiro. Quando não há nada mais novo, informa que o plugin já está na versão mais recente e não altera nada; caso contrário, atualiza o plugin da mesma forma que a lista de Atualizações.
+
+## Desinstalação
+
+Desinstale um plugin pelo menu dele ou pela página dele na página Plugins, que pede confirmação antes, ou pelo Terminal:
+
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+
+A limpeza (prune) remove apenas plugins que foram instalados porque outro plugin precisava deles, quando nenhum plugin instalado precisa mais deles, como o `claude plugin prune` faz no Claude Code. Um plugin que você mesmo instalou nunca é removido pela limpeza, e instalar uma dependência novamente por conta própria a torna sua. No Terminal, o Enconvo lista o que vai remover e pergunta antes; adicione `-y` para pular a pergunta, o que o `--prune` exige quando não pode perguntar. A desinstalação da página Plugins ainda não faz a limpeza.
+
+## Publique o seu
+
+Para listar um plugin na loja do Enconvo, veja [Diretrizes da Loja de Plugins](/pt-br/extensions/publishing-guidelines). Para enviar um link que qualquer pessoa possa instalar, clique em **Share…** na página do plugin; veja [Compartilhar um plugin](/pt-br/extensions/overview). Para compartilhá-lo sem o Enconvo, envie-o para o GitHub ou para um marketplace, e as pessoas poderão instalá-lo com **Add from GitHub…** ou com os comandos acima.
+
+### Marque uma release com tag
+
+O `plugin tag` marca o commit que você está lançando com uma tag git chamada `<plugin>--v<version>`, como faz o `claude plugin tag`. O Claude Code e o Enconvo escolhem entre essas tags quando a dependência de outro plugin pede um intervalo de versões, e qualquer pessoa pode instalar essa release com o Enconvo, por exemplo `acme/plugins/notes@notes--v1.2.0`.
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # tag HEAD and push the tag to origin
+```
+
+
+A versão vem do manifesto do plugin ou, quando o manifesto não define uma, da entrada dele no marketplace, e precisa seguir o semver (`1.2.0`). Antes de criar a tag, `plugin tag` verifica o plugin da mesma forma que `plugin validate` e é interrompido quando a entrada no marketplace indica uma versão diferente, quando há arquivos na pasta do plugin sem commit ou quando a tag já existe. Incremente a versão para um novo lançamento; `--force`, por sua vez, move uma tag existente. Ele cria tags igualmente para plugins do Codex, do Claude Code, portáteis e do Enconvo, então todos os manifestos incluídos no pacote precisam indicar a mesma versão. `-m` define a mensagem da tag (`%s` é a versão), e `--remote` define o remote para o qual `--push` envia. Assim como `plugin install`, ele exige uma versão do `@enconvo/api` mais recente que a 0.1.174.

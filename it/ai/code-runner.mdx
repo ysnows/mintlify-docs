@@ -1,0 +1,80 @@
+---
+title: "Code Runner"
+description: "Lascia che un Agente esegua comandi shell, script, build e server di sviluppo in un terminale reale sul Mac."
+---
+
+Code Runner dà a un Agente un terminale reale sul Mac. Usalo per build, test, script, strumenti dei pacchetti e server di sviluppo. I programmi installati e le autorizzazioni del tuo account decidono cosa può essere eseguito.
+
+<Warning>
+I comandi vengono eseguiti davvero, con l’accesso del tuo account ai file e alla rete, a meno che non attivi la **Sandbox** dell’Agente. Rivedi ogni comando che installa software, modifica file o tocca un servizio online prima che venga eseguito.
+</Warning>
+
+## Prima di iniziare
+
+- Attiva Code Runner per l’Agente che stai usando.
+- Il chip **Autorizzazioni** nella chat decide quando l’Agente chiede prima. **Chiedi approvazione** chiede prima di eseguire un comando, e **Approva per me** chiede solo per le azioni che sembrano non sicure. Vedi [Approva le azioni](/it/ai/agents).
+- Per limitare i comandi dell’Agente alla cartella di lavoro e tenerli lontani dalle chiavi e dalle altre app, attiva **Sandbox** nello stesso chip. Vedi [Sandbox dell’Agente](/it/configuration/sandbox).
+
+## Esegui un comando
+
+Dai all’Agente una cartella e un compito preciso:
+
+> Nel mio progetto di esempio, esegui il comando di test esistente e riporta il risultato. Non modificare i file.
+
+L’Agente mostra l’output del comando e dice se è terminato o è ancora in esecuzione. Per leggere, modificare e cercare i file, l’Agente usa gli [strumenti per i file](/it/ai/file-tools).
+
+## Come vengono eseguiti i comandi
+
+Ogni comando gira in uno pseudo-terminale, così un comando che chiede input può ricevere una risposta senza avviare un nuovo processo.
+
+| Modalità | Usala per |
+| --- | --- |
+| **oneshot** | Comandi che terminano da soli, come test, build o uno script |
+| **long_running** | Server, watcher e processi che attendono un evento esterno |
+| **interactive** | REPL, app da terminale e sessioni interattive da riga di comando |
+
+Un risultato con `status: running` e un `session_id` significa che il processo continua. L’Agente può **leggere** l’output, **scrivere** input, oppure **fermarlo**. Per rispondere a un prompt, l’Agente scrive in quella sessione; avviare un altro comando non risponde al prompt.
+
+## Attendi che qualcosa finisca
+
+Quando un compito deve attendere, per esempio che una build scriva l’output o che un server parta, l’Agente usa lo strumento **Wait For** invece di un ciclo nella shell. Attende una di queste condizioni, senza un comando in esecuzione:
+
+- Che compaia un file
+- Una riga in un file di log
+- Che un processo o la sessione di un comando termini
+- Che si apra una porta, o che un indirizzo risponda
+
+L’attesa compare nei compiti in background della chat. L’Agente viene avvisato quando è soddisfatta, fallisce o scade, e nel frattempo può fare altro.
+
+## Cartella di lavoro e limiti di tempo
+
+I comandi girano in `workDir` quando l’Agente lo imposta, altrimenti nella cartella di lavoro della chat. Usano la tua shell, con il progetto e l’ambiente virtuale Python già impostati. Comandi separati non condividono variabili temporanee della shell, a meno che non girino nella stessa sessione.
+
+La prima attesa è distinta dal limite di tempo rigido del comando. Un comando oneshot attende fino a 30 secondi il risultato; se è ancora in esecuzione, l’Agente riceve l’output fin lì mentre il lavoro continua. Il comando viene fermato dopo 30 minuti per impostazione predefinita. Per un server o un watcher, usa la modalità long_running invece di trattarlo come un comando oneshot fallito.
+
+## Impostazioni
+
+Apri **Impostazioni → Plugin → Code Runner**.
+
+| Impostazione | Cosa cambia |
+| --- | --- |
+| **Enable RTK** | Comprime l’output lungo dei comandi prima che l’Agente lo legga, così usa meno token. Attivo per impostazione predefinita |
+
+Se manca un dettaglio nell’output compresso, chiedi un comando più mirato o la parte pertinente del log. Un output troncato non dimostra che il comando sia riuscito.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Comando non trovato | Verifica che il programma sia installato e disponibile nella shell |
+| Il comando attende un input | Fai rispondere all’Agente al prompt nella stessa sessione. Un comando in attesa di un input che nessuno può dare termina subito |
+| Permesso negato | Controlla il percorso di destinazione e le autorizzazioni di macOS. Con la Sandbox attiva, fai clic sulla riga sotto il passaggio per vedere cosa ha bloccato |
+| Il comando è scaduto | Leggi l’ultimo output e scegli la modalità giusta prima di eseguirlo di nuovo |
+| Un server resta in esecuzione | Fai fermare all’Agente la sua sessione quando non ti serve più |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="File e cartelle" icon="folder-open" href="/it/ai/file-tools">Lascia che un Agente trovi, legga e modifichi i file.</Card>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Imposta gli strumenti di un Agente e quando chiede prima.</Card>
+</CardGroup>

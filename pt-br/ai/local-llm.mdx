@@ -1,0 +1,56 @@
+---
+title: "Modelos locais"
+description: "Execute modelos no seu próprio hardware e mantenha uma tarefa inteira no Mac."
+---
+
+Execute modelos no Mac, ou noutro computador seu, quando quiser que os chats fiquem privados ou funcionem sem uma conta de fornecedor. O Enconvo tem um motor integrado e também se liga ao Ollama e ao LM Studio.
+
+## Escolher um runtime
+
+| Runtime | Melhor para | Configuração |
+| --- | --- | --- |
+| [LLM local (MLX)](/pt-br/providers/mlx) | Executar modelos dentro do Enconvo num Mac com Apple Silicon e macOS 15 ou posterior | Escolha e baixe um modelo em Definições |
+| [Ollama](/pt-br/providers/ollama) | Modelos que você já gere com o Ollama, neste Mac ou num servidor | Inicie o Ollama e defina o endereço |
+| [LM Studio](/pt-br/providers/lm-studio) | Modelos que você já usa no LM Studio, neste Mac ou num servidor | Inicie o servidor do LM Studio e defina o endereço |
+
+## Começar pelo simples
+
+1. Configure o runtime e baixe ou carregue um modelo.
+2. Envie uma mensagem de texto curta.
+3. Quando isso funcionar, acrescente documentos ou ferramentas.
+4. Observe o uso de memória e a velocidade antes de tentar um modelo maior. **Definições → Modelos locais** mostra os modelos neste Mac e quanta memória usam.
+
+O tamanho do modelo, a quantização, o comprimento do contexto e as outras tarefas em execução afetam a memória. Use o tamanho que o seletor de modelos mostra, em vez de uma regra fixa.
+
+## Manter a tarefa inteira local
+
+Um modelo de chat local, sozinho, não mantém tudo no Mac. Reconhecimento de fala, síntese de voz, OCR, análise de documentos, embeddings, reranking, pesquisa e ferramentas MCP usam cada um o seu fornecedor. O Enconvo tem fornecedores locais para vários deles; o [catálogo de fornecedores](/pt-br/providers/catalog) lista-os.
+
+**Definições → Modelos locais** mostra quais recursos rodam neste Mac e quais rodam na nuvem. A Pesquisa na Web e outros serviços online ainda precisam da internet, e um modelo local ainda pode chamar ferramentas que enviam conteúdo para fora do Mac.
+
+## Usar um servidor de modelos noutro computador
+
+Configure o servidor para aceitar ligações de rede e defina o **BaseUrl** do Enconvo com o endereço desse computador. `localhost` significa sempre o Mac em que o Enconvo está a correr. Se o macOS bloquear a ligação, ative o Enconvo em **Ajustes do Sistema → Privacidade e Segurança → Rede local**.
+
+## Usar outro servidor de modelos
+
+Para um servidor como llama.cpp, vLLM, KoboldCpp ou text-generation-webui, clique em **Adicionar novo fornecedor** no fim de **Definições → Modelo de IA** e escolha **Compatível com OpenAI**. Cole o endereço do servidor como URL base; o Enconvo aceita-o com ou sem `/v1`, e com o endpoint completo colado. Deixe a chave de API vazia quando o servidor não a verifica.
+
+## Chats longos num contexto pequeno
+
+Os servidores locais costumam executar um modelo com um contexto menor do que o modelo permite. O Enconvo lê o contexto com que o Ollama, o llama.cpp, o LM Studio, o KoboldCpp e o text-generation-webui realmente rodam, e compacta o chat para caber. Num contexto pequeno, resume um chat longo em partes. Para dar mais espaço ao modelo, aumente o comprimento do contexto nas próprias definições do servidor.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| O modelo esquece o início de um chat longo | O servidor roda com um contexto pequeno. Aumente o comprimento do contexto nas definições do servidor, ou comece um chat novo. |
+| O modelo ignora ferramentas ou imagens | Ele não as aceita, por isso o Enconvo responde sem elas. Escolha um modelo que suporte chamadas de ferramentas ou entrada de imagem. |
+| A ligação falha | Leia o erro: o Enconvo mostra a mensagem do próprio servidor e indica a causa. Confira se o servidor está em execução e se o endereço e a porta estão corretos. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="LLM local (MLX)" icon="laptop" href="/pt-br/providers/mlx">O motor integrado do Enconvo.</Card>
+  <Card title="Privacidade e segurança" icon="shield" href="/pt-br/configuration/privacy-security">Para onde os seus dados vão, recurso a recurso.</Card>
+</CardGroup>

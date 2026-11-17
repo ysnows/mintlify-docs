@@ -1,0 +1,363 @@
+---
+title: "Flujos de trabajo avanzados"
+description: "Ramifica, repite, reintenta, obtén resultados estructurados, cambia de modelo en cada paso y combina flujos de trabajo, con ejemplos completos para copiar."
+---
+
+Usa estas funciones cuando una simple lista de pasos no basta: ejecutar un paso solo si se cumple una condición, repetir un paso sobre una lista, mantener la ejecución aunque falle un paso, obtener resultados estructurados y llamar a un flujo de trabajo desde otro. Al final encontrarás flujos de trabajo de ejemplo completos. Si no conoces el formato `agent-workflow/v1`, empieza por [Crear flujos de trabajo](/es/workflows/creating-workflows).
+
+Las rutas de shell y la disponibilidad de herramientas o proveedores deben coincidir con tu Mac antes de ejecutar estos ejemplos.
+
+<Tip>
+En el editor visual no necesitas escribirlos a mano: la sección [Comportamiento](/es/workflows/creating-workflows) del inspector de pasos configura `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs` y el esquema de salida a partir de opciones en lenguaje sencillo.
+</Tip>
+
+## Ramificación
+
+### Ejecutar un paso solo si una condición es verdadera (`if`)
+
+Añade `if:` para ejecutar un paso solo cuando una condición sea verdadera. Si la condición es falsa, se omiten el paso y todo lo que depende de él:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+Las condiciones son expresiones de plantilla que se evalúan como verdaderas o falsas, por ejemplo `inputs.score >= 60`, `steps.check.output.exitCode == 0` o una entrada booleana simple.
+
+### Ejecutar la otra rama (`else_of`)
+
+`else_of:` ejecuta un paso solo cuando el paso que indica se ha omitido por su condición. Es la parte «else» de un `if`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### Unir y limpiar (`run_when: always`)
+
+Un paso con `needs` normalmente se omite si alguna dependencia se ha omitido, y la ejecución se detiene si falla una dependencia obligatoria. `run_when: always` anula ambos comportamientos: el paso se ejecuta en cuanto terminan sus dependencias, tanto si han tenido éxito como si se han omitido o han fallado. Úsalo para uniones y tareas de limpieza:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### Desactivar un paso (`enabled: false`)
+
+`enabled: false` mantiene un paso en el flujo de trabajo, pero lo omite en cada ejecución. A diferencia de una condición no cumplida, un paso desactivado no hace que se omita lo que viene después:
+
+- Sus dependientes se siguen ejecutando y todo lo que lea su salida recibe un valor vacío.
+- Su paso `else_of` también se omite.
+
+Elimina la clave (o ponla a `true`) para volver a activar el paso. En el editor, usa **Desactivar paso** en el inspector.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## Bucles
+
+### Repetir para cada elemento de una lista (`foreach`)
+
+`foreach:` ejecuta el paso una vez por elemento. Dentro, `{{ item }}` es el elemento actual y `{{ index }}` su posición. Los pasos posteriores reciben el array con todas las salidas:
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` también acepta un array en línea y funciona con cualquier tipo de paso: un `foreach` de llamadas `tool:`, de subflujos de trabajo, etc. Una lista vacía produce un resultado vacío y los pasos posteriores se siguen ejecutando. Cuando falla un elemento, el paso no inicia elementos nuevos, salvo que esté marcado como `required: false`.
+
+### Repetir hasta que se cumpla una condición (`loop`)
+
+`loop:` repite un paso. `until:` se comprueba tras cada ronda con `output`, el resultado de esa ronda. `{{ round }}` es el número de ronda y `{{ last }}` la salida de la ronda anterior. Si se agota `maxRounds` antes de cumplirse `until`, el paso falla.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+Omite `until` para repetir un número fijo de veces:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## Fiabilidad
+
+| Campo | Qué hace |
+| --- | --- |
+| `retries` | Reintenta un paso fallido. Usa un número (`retries: 2`) o un objeto (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | Si este paso falla, la ejecución no se interrumpe; los pasos posteriores continúan. |
+| `timeoutMs` | Detiene un paso de shell que tarda demasiado. |
+
+Un paso que no da señales durante 20 minutos se detiene y se ejecuta una vez más. Una ejecución que detienes aparece como **Cancelada**, no como fallida.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## Contratos de salida
+
+Añade un `output_schema` (un objeto JSON Schema) a un paso `prompt` o `agent` para imponer la forma de la respuesta. No hace falta describir el formato JSON en el texto del prompt: la forma solicitada se le indica al modelo y la respuesta se analiza y valida antes de que la usen los pasos posteriores. Configura `retries` para reintentar un paso fallido; si una respuesta sigue sin superar la validación, el paso falla.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## Modelo distinto en cada paso
+
+Los pasos `prompt` y `agent` aceptan `provider:` y `model:` opcionales para cambiar el modelo solo en ese paso. El cambio dura lo que la ejecución; tu configuración de modelo guardada no se modifica. Usa un modelo barato para los pasos masivos y uno más potente donde importe.
+
+Pon en `provider` el nombre del comando del proveedor instalado y en `model` un ID de modelo que muestre ese proveedor en tu versión actual. Por ejemplo, copia ambos valores de una configuración de proveedor que funcione en el paso de prompt. La disponibilidad de modelos y los permisos dependen de cada cuenta; los ejemplos de esta página usan tu modelo predeterminado configurado.
+
+<Note>
+`provider` es un comando de proveedor (por ejemplo `enconvo_ai`, `open_ai` u `ollama`) y `model` es un ID de modelo de ese proveedor. Ambos solo son válidos en pasos `prompt` y `agent`.
+</Note>
+
+## Subflujos de trabajo
+
+Combina flujos de trabajo con `uses: workflow`, ya sea mediante `workflowId:` (un flujo de trabajo guardado) o con un bloque `workflow:` en línea. La salida del paso es el resultado de la ejecución hija. Para referenciar las salidas de los pasos del flujo hijo, usa `output.outputs['job.step']`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## Referencia de plantillas
+
+| Referencia | Dónde |
+|---|---|
+| `{{ inputs.x }}` | En cualquier lugar: entradas del flujo de trabajo |
+| `{{ steps.<id>.output }}` | En cualquier lugar: un paso anterior del mismo job |
+| `{{ jobs.<job>.<step>.output }}` | Un paso completado de un job del que se depende |
+| `{{ item }}` / `{{ index }}` | Dentro de un paso `foreach` |
+| `{{ round }}` / `{{ last }}` | Dentro de un paso `loop` |
+| `{{ now }}` | Marca de tiempo actual |
+| `{{ env.HOME }}` | Variables de entorno del proceso |
+
+Las plantillas admiten filtros de Nunjucks (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}` y otros), que sirven para transformar los datos entre pasos.
+
+## Ejemplos completos
+
+### Investigar, resumir e informar
+
+Busca en la web, resume los hallazgos y genera un informe en Markdown. Los pasos se ejecutan en orden dentro de un mismo job, así que no hace falta conectar `needs`:
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### Enrutamiento condicional
+
+Aprueba o rechaza según una puntuación y después escribe siempre un informe final:
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### Repetir hasta converger
+
+Mejora un borrador una y otra vez hasta que una autoevaluación lo apruebe, con un límite de rondas:
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Crear flujos de trabajo" icon="pen-to-square" href="/es/workflows/creating-workflows">
+    El editor, el asistente de edición y todos los tipos de paso.
+  </Card>
+  <Card title="Flujos de trabajo" icon="book-open" href="/es/workflows/introduction">
+    Jobs, pasos y cómo se ejecutan los flujos de trabajo.
+  </Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "LM Studio"
+description: "在你的 Mac 或其他電腦上與 LM Studio 提供的模型對話。"
+---
+
+使用 LM Studio 在你自己的硬體上執行模型，無論是在這台 Mac 上，還是區域網路裡的另一台電腦。Enconvo 會將對話傳送給 LM Studio 伺服器，因此不需要任何線上服務供應商帳號。
+
+## 在這台 Mac 上連線
+
+<Steps>
+  <Step title="啟動 LM Studio">
+    在 [LM Studio](https://lmstudio.ai/) 中載入模型並啟動其本機 API 伺服器。
+  </Step>
+  <Step title="將 Enconvo 指向該伺服器">
+    開啟 **設定 → AI 模型 → LM Studio**。在 **身分驗證** 下方，除非你改過 LM Studio 的連接埠，否則將 **BaseUrl** 維持在 `http://127.0.0.1:1234/v1`。
+  </Step>
+  <Step title="挑選模型">
+    在 **模型名稱** 中選擇一個模型並送出簡短訊息。收到回覆即代表連線成功。
+  </Step>
+</Steps>
+
+## 連線到另一台電腦
+
+1. 在另一台電腦上，設定 LM Studio 接受來自區域網路的連線，而不僅限於本機連線。
+2. 在 Enconvo 中，將 **BaseUrl** 改為那台電腦的網路位址，並保留原本的連接埠與路徑。`127.0.0.1` 與 `localhost` 一律代表正在執行 Enconvo 的這台 Mac。
+3. 如果 macOS 阻擋了連線，請前往 **系統設定 → 隱私權與安全性 → 區域網路** 開啟 Enconvo。
+
+請只對你信任的網路開放伺服器連線。
+
+## 模型與選項
+
+| 設定 | 作用 |
+| --- | --- |
+| **模型名稱** | 此服務供應商使用的模型。旁邊的 **重新整理** 會從伺服器重新載入模型清單。 |
+| **回應逾時時間** | 等待伺服器開始或繼續回覆的最長時間。預設為 **不限**；在自己的硬體上執行較長的提示詞時，往往需要數分鐘才會吐出第一個字。 |
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 連線被拒絕 | 檢查 LM Studio 是否正在執行，以及 **BaseUrl** 中的位址與連接埠是否正確。若是連線另一台電腦，請確認它有開啟網路連線存取。 |
+| 無法連上網路 | 檢查網路連線，以及系統設定中的 **區域網路** 權限。 |
+| 模型清單是空的 | 在 LM Studio 中載入或下載模型，然後點選 **重新整理**。 |
+| 回覆到一半中斷 | 將 **回應逾時時間** 設為更長的值，或設為 **不限**。 |
+| 工具呼叫或圖片失敗 | 請改選支援工具呼叫或圖片輸入的模型。 |
+| 記憶體不足 | 改用較小的模型，或縮短輸入內容。 |
+
+## 相關指南
+
+<CardGroup cols={2}>
+  <Card title="本機模型" icon="microchip" href="/zh-hant/ai/local-llm">讓整項任務都在你的 Mac 上完成，而不只是對話模型。</Card>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/zh-hant/providers/mlx">直接在 Enconvo 內部執行模型，無須額外啟動伺服器。</Card>
+  <Card title="Ollama" icon="server" href="/zh-hant/providers/ollama">使用由 Ollama 提供的模型。</Card>
+  <Card title="權限" icon="shield" href="/zh-hant/configuration/permissions">區域網路與其他 macOS 權限。</Card>
+</CardGroup>

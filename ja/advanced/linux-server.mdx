@@ -1,0 +1,159 @@
+---
+title: "Linux サーバー上の Enconvo を設定する"
+description: "Linux サーバーで稼働する Enconvo のモデル、エージェント、プラグインを、Web UI、コマンドライン、または Mac からの同期で選択・管理します。"
+---
+
+このページは、Mac の**設定 → 接続**から Linux サーバーを追加し、そのサーバーに Enconvo をインストールした方向けのガイドです。サーバー上では画面なしで Enconvo が動作するため、Mac からはサーバーのチャットは開けますが、設定画面は直接開きません。サーバーの設定は、Web UI、コマンドライン、または Mac の設定の同期という 3 つの方法で行えます。
+
+## Mac とサーバー間で共有されるもの
+
+ペアリングを行うと、Mac からサーバー上のチャット、エージェント、ファイルを利用できるようになりますが、設定自体は共有されません。サーバーは独自のモデル、エージェント、プラグイン、API キーを保持しており、Mac から自動コピーされることはありません。
+
+- サーバーの設定や API キーは Mac から直接開けないため、サーバー側で変更します。
+- 初期状態では、サーバーのエージェントはデフォルトモデルを使用します。新規インストール直後はサーバーがサインインしているアカウントの Enconvo Cloud が設定されているため、チャットでは Cloud のポイントが消費されます。
+- 特定のエージェントのモデルを手早く切り替えたい場合は、Mac 上で開いたサーバーのチャットにあるモデルピッカーを使います。これによりサーバー上のそのエージェントのモデル、推論レベル、速度が変更されます。API キーが必要なプロバイダーを使う場合は、先にサーバー側へそのキーを登録しておく必要があります。
+
+## サーバーの Web UI を開く
+
+サーバーはチャットウィンドウと設定をウェブサイトとして提供でき、Mac のブラウザから設定を操作できます。Mac からのインストール時には無効になっているため、SSH 経由で一度有効にしてください。
+
+<Steps>
+  <Step title="Web UI を有効にする">
+    `ssh` でサーバーに接続し、次を実行します。
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    これにより Web UI を有効にした状態で Enconvo サービスが書き換えられ、再起動されます。`127.0.0.1` のみで待ち受けるため、サーバー外部からはアクセスできません。`enconvo service install` を再度実行すると、新しい実行時のオプションのみでサービスが動作します。
+  </Step>
+  <Step title="Mac からトンネルを開く">
+    Mac のターミナルで、`ssh` に使っているのと同じホスト名を指定して実行します。
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    Web UI を使っている間は実行したままにしておきます。終了するには Control-C を押します。
+  </Step>
+  <Step title="Web UI を開く">
+    Mac のブラウザで `http://127.0.0.1:54580` を開きます。Mac と同じように設定を行えます。**設定 → AI モデル**でモデルを選び、**設定 → プラグイン**でプラグインを追加し、API キーもそこから入力できます。
+  </Step>
+</Steps>
+
+サーバー上で `enconvo service url` を実行すると、Web UI のアドレスが表示されます。
+
+### トンネルなしでアクセスする
+
+SSH トンネルを使わず他のコンピュータから Web UI を開くには、ネットワークインターフェースにバインドします。
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+この場合、Web UI へのアクセスには接続トークンが必要になります。`enconvo service url` を実行すると、末尾に `?tkn=` が付いたアドレスが表示されます。そのリンクを一度開くと、ブラウザにトークンが保存されます。リバースプロキシの背後で公開する場合はプロキシが提供するアドレスを `--web-url https://enconvo.example.com` で指定し、別のホスト名で到達する場合は `--web-host <name>` を追加してください。どちらも同様にトークンが必要です。
+
+<Warning>
+  このトークンを持つ人は誰でも、サーバー上のあなたの Enconvo アカウントと、そのユーザーが読めるすべてのファイルにアクセスできてしまいます。リンクは厳重に保管し、ポートはファイアウォールまたは VPN の背後に置き、可能な限り SSH トンネルを使用してください。トークンを再発行するには、サーバー上の `~/.config/enconvo/.support/windows-shell/web-token` を削除し、`systemctl --user restart enconvo` を実行します。
+</Warning>
+
+## コマンドラインから設定する
+
+インストールされているすべてのプラグインのルートは、サーバー上で `enconvo` コマンド（`enconvo <plugin> <route> --flags`、またはリクエスト全体を渡す `--input-json`）として実行できます。どの階層でも `-h` を付けると利用可能な内容を確認できます。
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+`'agent|main'` のように `|` を含むキーは引用符で囲んでください。囲まないとシェルが `|` をパイプと解釈します。
+
+### モデル
+
+サーバーのモデルプロバイダーを一覧表示します。それぞれの `commandKey`（`llm|enconvo_ai` など）が設定値になります。
+
+```bash
+enconvo llm list_providers
+```
+
+デフォルトモデル（デフォルトを使用するように設定されたすべてのエージェントが使います）を設定します。
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+特定のエージェントのモデルを設定します。メインエージェントは `agent|main` で、その他のエージェントの `command_key` は `enconvo agent list` で確認できます。
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+再びデフォルトモデルに従わせるには値を `default` にします。`enconvo config preferences 'agent|main'` を実行すると、そのエージェントが持つすべての設定項目を確認できます。
+
+特定の 1 項目だけを元に戻すには、キー名を指定します。
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  `--keys` を付けずに `enconvo config reset` を実行すると、そのキーのすべての設定がリセットされ、エージェントやコマンドの場合はワークスペースのデータも削除されます。この操作は取り消せません。
+</Warning>
+
+`config get` では保存されている API キーやトークンが `[hidden]` と表示されます。シェル履歴にキーを残さないためにも、API キーは `config set` ではなく Web UI の設定画面から入力してください。
+
+### プラグイン
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install` には GitHub の `owner/repo`、git URL、`.zip` への `https` リンク、`npm:<package>`、フォルダ、または `<plugin>@<marketplace>` を指定できます。画面を必要とするプラグインはサーバー上では非表示になります。
+
+### エージェント
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+削除や一時停止などのその他の操作は `enconvo agent -h` で一覧を確認できます。
+
+## 同期機能を使って Mac の設定を反映する
+
+同期（Sync）を使うと、Enconvo アカウント経由で Mac の設定をサーバーへコピーできます。同期は Enconvo Cloud プランおよび買い切りライセンスに含まれています。
+
+1. Mac で**設定 → 同期**を開き、**コンピュータ間で同期**をオンにして、**ストレージ**で **Enconvo アカウント**を選択します。Linux サーバーは iCloud にアクセスできません。
+2. サーバーの Web UI で**設定 → 同期**を開き、**コンピュータ間で同期**をオンにします。
+3. 両方のコンピュータで、**同期する内容**から持ち込む項目（**設定**、**プラグイン**、**スキル**など）を選びます。
+4. API キーも反映したい場合は、両方で **API キー**をオンにします（初期設定はオフ）。Mac に確認コードが表示されるので、サーバー側と同じコードであることを確かめて**許可**をクリックします。
+
+ホットキー、フォルダパスや作業フォルダ、サインイン状態、オートメーション、メッセージングボットなど、各コンピュータ固有のものはそのまま残ります。各項目の対象範囲については[Mac 間の同期](/ja/configuration/account)をご覧ください。
+
+## トラブルシューティング
+
+| 問題 | 対処法 |
+| --- | --- |
+| `enconvo: command not found` | 新しい SSH セッションを開き直してください。インストーラーはシェルプロファイルの `PATH` に Enconvo のフォルダを追加するため、インストール前から開いていたセッションには反映されていません。 |
+| `enconvo service url` でアドレスが出力されない | Enconvo が起動していないか、Web UI 無効で動いています。もう一度 `enconvo service install --web 127.0.0.1:54580` を実行してください。 |
+| ブラウザで `127.0.0.1:54580` を開けない | SSH トンネルがまだ開いているか確認したうえで、`systemctl --user status enconvo` でサービスの状態を、`journalctl --user -u enconvo` でログを確認してください。 |
+| Web UI で接続トークンを求められる | `enconvo service url` が出力する、末尾に `?tkn=` が付いた完全なリンクを開いてください。 |
+| `service install` でこのユーザー向けに Enconvo がすでに実行中と出る | ログアウト後にユーザーサービスを維持しない設定のサーバーで、Mac がバックグラウンドプロセスとして Enconvo を起動した状態です。`sudo loginctl enable-linger $USER` を実行して `enconvo service install --web 127.0.0.1:54580` を再実行し、その後サーバーを再起動して systemd サービスへ切り替えてください。 |
+| `service install` で systemd が利用できないと出る | 代わりに独自のプロセスマネージャー配下で `enconvo --headless --web 127.0.0.1:54580` を実行してください。 |
+| チャットで使われるモデルが Mac と違う | サーバーは独自のモデル設定を持っています。`enconvo config get llm --includes selected` を確認するか、同期機能を有効にしてください。 |
+
+## 関連情報
+
+<CardGroup cols={2}>
+  <Card title="CLI と Local API" icon="terminal" href="/ja/advanced/cli-local-api">
+    ターミナルやスクリプトから Enconvo のコマンドを実行します
+  </Card>
+  <Card title="アカウントと同期" icon="rotate" href="/ja/configuration/account">
+    すべてのコンピュータで設定を揃えて保ちます
+  </Card>
+</CardGroup>

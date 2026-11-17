@@ -1,0 +1,521 @@
+---
+title: "Навыки"
+description: "Научите Агентов Enconvo повторяемой задаче навыком: инструкции, справочники и необязательные скрипты в одной папке."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Навык упаковывает инструкции, ресурсы и необязательные скрипты, чтобы Enconvo надёжно следовал рабочему процессу. Сделайте один, когда снова и снова объясняете одну процедуру, например как рецензировать код или как оформлять заметки встречи. Навыками можно делиться с командой или сообществом.
+
+<Note>
+Навыки используют **progressive disclosure**, чтобы эффективно управлять контекстом: Enconvo начинает с метаданных каждого навыка (имя, описание, путь к файлу). Полные инструкции загружаются, только когда навык активирован.
+</Note>
+
+Это видео охватывает Навыки, затем MCP Servers, Плагины и магазин расширений.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="Как пользоваться Навыками, MCP и Плагинами в Enconvo | Пошаговый урок" />
+
+## Управляйте навыками
+
+Откройте **Настройки → Навыки**. Все Агенты делят эти навыки, и каждый Агент может добавить свои в своих настройках.
+
+- Карточки сверху считают **All skills**, те, что **On, never used**, те, что **In more than one folder**, и те, что **Off**. Нажмите карточку, чтобы показать только их.
+- Каждая строка показывает **Where it is** (встроенный или папка или приложение, откуда он) и когда был **Last used**. Выключите навыки, которые Агентам не нужны, переключателем в конце строки или выберите несколько и выключите вместе.
+- **Add from GitHub** устанавливает навык из репозитория, а **Import** добавляет его из папки на Mac. См. раздел «Установите навыки».
+- **Your skills** перечисляет сделанные вами навыки по тому, откуда они: **Recorded**, **Learned**, **Script**, **Written** или **Installed**. Нажмите один, чтобы увидеть **Steps**, **Gotchas** и **History**. См. раздел «Навыки с сохранёнными шагами».
+
+В Окне чата Навыки также можно открыть прямо в окне из **Плагины** на рейке значков.
+
+## Как выглядит навык
+
+Навык — папка с файлом `SKILL.md` плюс необязательные скрипты и справочники.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### Формат SKILL.md
+
+`SKILL.md` должен начинаться с блока frontmatter, в котором есть `name` и `description`:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo выбирает навык по `description`, поэтому дайте ясную область и границы. Скажите, **когда** использовать навык и **когда не**.
+</Tip>
+
+## Используйте навык
+
+Можно вызвать навык по имени или позволить Enconvo выбрать тот, что совпадает с запросом.
+
+### Вызовите навык по имени
+
+Наберите `/` и имя навыка в SmartBar или чате:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+Это самый надёжный способ: вы получаете именно нужный навык. Чтобы показать только навыки, наберите `$`.
+
+Навыки установленных плагинов тоже в меню `/` и `$`, названные `plugin:skill`, как в Claude Code.
+
+### Пусть Enconvo выберет
+
+Когда вы не называете навык, Enconvo сопоставляет запрос с самым уместным навыком по его `description`:
+
+1. Вы пишете: «Summarize these meeting notes into action items»
+2. Enconvo просматривает все доступные описания навыков
+3. Навык `meeting-notes` совпадает («...format raw meeting transcripts into structured notes with action items...»)
+4. Навык активируется, и его инструкции ведут ответ
+
+Совпадение идёт по смыслу, а не только по общим ключевым словам, поэтому запрос, сформулированный иначе, чем описание, или написанный на другом языке, всё равно находит навык. Чтобы Агент всегда видел навык, закрепите его в настройках **Tools & Skills** Агента; см. [Агенты](/ru/ai/agents).
+
+### Пишите описания, которые хорошо совпадают
+
+Хорошее совпадение зависит от хорошо написанного `description`:
+
+| Качество | Пример |
+|---------|---------|
+| **Слишком расплывчато** | «Helps with code» |
+| **Слишком широко** | «Does anything related to programming» |
+| **Хорошо** | «Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.» |
+
+У хорошего описания три части:
+
+- **Что делает**: «Review code for bugs, security issues, and best practices»
+- **Когда срабатывать**: «Use when the user asks for a code review»
+- **Когда не срабатывать**: «Do not use for code generation or writing new code»
+
+## Где живут навыки
+
+Enconvo читает навыки из нескольких мест, у каждого своя область:
+
+| Область | Место | Для чего |
+|-------|----------|------------|
+| **Проект** | `$PROJECT/.agents/skills/` (также `.enconvo/skills/`, `.claude/skills/` и `.codex/skills/`) | Навыки для одного проекта или рабочего пространства |
+| **Пользователь** | `~/.agents/skills/` (также `~/.enconvo/skills/`, `~/.claude/skills/` и `~/.codex/skills/`) | Личные навыки для всех проектов |
+| **Система** | В комплекте с Enconvo | Встроенные навыки, доступные всем |
+
+Каждый Агент также может нести свои навыки: добавьте их в **Навыки** в настройках Агента.
+
+Если два навыка в разных местах делят имя, оба остаются доступны; Enconvo их не сливает. **Настройки → Навыки** перечисляет эти навыки в **In more than one folder**.
+
+### Навыки проекта
+
+Навыки проекта живут в папке проекта и доступны, только когда этот проект активен:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+Используйте их для навыков, которые зависят от соглашений проекта, структуры файлов или инструментов.
+
+### Навыки пользователя
+
+Навыки пользователя в `~/.agents/skills/` доступны в каждом проекте. Используйте их для личных навыков, которые не принадлежат одному проекту:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## Создайте навык
+
+### С создателем навыков
+
+Самый быстрый способ создать навык — встроенный создатель:
+
+```
+/skill-creator
+```
+
+Создатель проводит вас через:
+
+1. Что делает навык
+2. Когда он должен срабатывать
+3. Только ли инструкции или со скриптами
+
+Только инструкции — значение по умолчанию и рекомендуемый подход. Добавляйте скрипты, только когда нужно детерминированное поведение или внешние инструменты.
+
+### Вручную
+
+Создайте папку с файлом `SKILL.md`:
+
+<Steps>
+  <Step title="Создайте каталог навыка">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="Напишите SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Проверьте, что он появился">
+    Enconvo замечает изменения навыков автоматически. Если новый навык не появляется, перезапустите Enconvo.
+  </Step>
+</Steps>
+
+### Напишите инструкции
+
+Тело `SKILL.md` под frontmatter держит инструкции, которым следует AI. Пишите их ясными повелительными шагами:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### Советы для хороших навыков
+
+- **Держите каждый навык узким.** Один навык делает одну работу. Навык, который делает слишком много, труднее правильно вызвать и труднее поддерживать. Если вы пишете 10 или больше шагов, покрывающих несколько задач, разделите на отдельные навыки.
+- **Будьте конкретны о вводе.** Скажите точно, откуда ввод: «Read the selected text», «Parse the attached file», «Use the URL from the user's message».
+- **Задайте формат вывода.** Включите конкретный пример того, как должен выглядеть вывод, чтобы результаты оставались согласованными.
+- **Обработайте крайние случаи.** Добавьте инструкции для частых крайних случаев: «If no commits are found, report that the range is empty» или «If the input is not valid JSON, ask the user to check the format».
+- **Пишите повелительные шаги.** Будьте явны о вводе, шагах и ожидаемом выводе. Расплывчатые инструкции ведут к несогласованным результатам.
+- **Предпочитайте инструкции скриптам.** Инструкции простым языком легче писать, отлаживать и менять. Используйте скрипты, только когда нужно детерминированное поведение или внешние инструменты.
+- **Используйте ясные границы.** В описании укажите и то, что навык должен обрабатывать, и то, чего не должен.
+- **Проверяйте описания срабатывания.** Пробуйте разные подсказки, чтобы убедиться, что навык срабатывает и не срабатывает, когда нужно.
+- **Версионируйте навыки.** Держите общие для команды навыки в системе контроля версий (git), чтобы отслеживать изменения, откатывать и сотрудничать.
+
+## Добавьте скрипты
+
+Для навыков, которым нужна исполняемая логика, добавьте папку `scripts/`:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Ссылайтесь на скрипты в `SKILL.md`:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### Когда использовать скрипты
+
+| Когда скрипты | Когда только инструкции |
+|-----------------|---------------------------|
+| Нужен детерминированный вывод (точные форматы, вычисления) | Задача в основном о рассуждении и языке |
+| Вы взаимодействуете с внешними API или базами данных | Задача использует только встроенные возможности AI |
+| Нужно программно обработать или преобразовать данные | Задача о письме, резюме или анализе |
+| Нужна аутентификация или работа с учётными данными | Одних инструкций достаточно |
+
+## Добавьте справочники
+
+Включите документацию или файлы контекста, к которым навык может обратиться:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Ссылайтесь на них в инструкциях:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+Справочники полезны для:
+
+- Документации API, которой навык должен следовать
+- Руководств по стилю или бренду
+- Примеров кода и шаблонов
+- Знаний предметной области
+
+## Установите навыки
+
+Используйте `/skill-installer`, чтобы установить навык из магазина навыков Enconvo или с GitHub. Он также может установить с Skills.sh, ClawHub и прямых URL ZIP.
+
+### Из магазина навыков Enconvo
+
+Найдите навык по имени и установите его:
+
+```
+/skill-installer pdf
+```
+
+Это ищет в магазине навыков Enconvo и устанавливает совпавший навык. Enconvo замечает новые навыки автоматически.
+
+### С GitHub
+
+Установите навык прямо по URL репозитория GitHub:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+URL может указывать на подпапку, поэтому можно установить один навык из большого репозитория, не клонируя его целиком.
+
+### Из папки на Mac
+
+1. Откройте **Настройки → Навыки** и нажмите **Import**.
+2. Выберите папку, которая держит подпапки навыков, каждая с `SKILL.md`.
+
+Enconvo добавляет папку в места, откуда читает навыки, и её навыки общие для всех Агентов. Чтобы перестать использовать папку, выберите её в меню источника, затем **Remove folder**. Сама папка остаётся на диске.
+
+## Навыки с сохранёнными шагами
+
+Каждый сохранённый рабочий процесс — тоже навык со своим `SKILL.md`, и навык может хранить шаги задачи, которую уже делал. Когда вы запускаете такой навык, сохранённые шаги идут первыми, без основной модели, что быстрее и дешевле. Шаг, который больше не подходит, например сдвинувшаяся кнопка, чинится по собственным заметкам и снимкам навыка. Только когда это не удаётся, Агент делает задачу по `SKILL.md`.
+
+В **Your skills** навык с пометкой **Runs its saved steps first** имеет шаги; с пометкой **Instructions only** — нет. **History** каждого навыка показывает, как шли запуски и чему он научился, и можно восстановить более раннюю версию.
+
+### Превратите запись в навык
+
+Можно превратить запись сделанной задачи в навык. Каждое записанное действие становится проверенным шагом, и его снимок хранится для починки. Навык остаётся **Draft**, пока его запуск не сработает.
+
+### Запустите скрипт как шаг
+
+Навык может хранить скрипт [Режима кода](/ru/configuration/code-mode) в своей папке `scripts` и запускать его как один из шагов, чтобы задача со многими вызовами инструментов шла одним шагом.
+
+## Пусть навыки учатся, как вы работаете
+
+Навыки могут учиться, как вам нравится делать задачи, как Память учит факты. Откройте **Настройки → Память** и включите **Learn how-tos**:
+
+- Когда вы исправляете, как была сделана задача, или шаг пришлось чинить, навык учится сразу. Чат показывает заметку **Learned** с **Undo**.
+- Когда задача возникает второй раз, она становится новым навыком.
+- Обзор памяти и Memory Tidy смотрят и за навыками.
+
+В **When it changes steps** выберите **Use right away** или **Ask me first**, чтобы изменение шагов навыка ждало, пока вы нажмёте **Apply** в заметке. Подводные камни всё равно входят сразу в любом случае. Платежи, отправка и удаление всегда спрашивают сначала, а ключи и пароли никогда не запоминаются.
+
+## Управляйте навыками
+
+### Посмотрите навыки
+
+**Настройки → Навыки** перечисляет навыки, общие для всех Агентов. Выберите вид сверху:
+
+| Вид | Показывает |
+| --- | --- |
+| **All skills** | Каждый навык один раз, даже когда в нескольких папках есть копия |
+| **On, never used** | Навыки, которые Агентам предлагаются в каждом чате, но они их не использовали |
+| **In more than one folder** | Навыки с копией больше чем в одной папке, например для Claude Code и Codex |
+| **Off** | Навыки, которые Агенты не получают |
+
+Ищите, фильтруйте по источнику (**All sources**, **Built-in**, **From Plugins** или одна папка) или сортируйте по **Name A to Z** или **Last used**.
+
+### Обновляйте навыки
+
+- **Навыки магазина**: снова запустите `/skill-installer`, чтобы проверить более новую версию.
+- **Навыки GitHub**: снова запустите установщик с тем же URL.
+- **Свои навыки**: правьте файл `SKILL.md` напрямую. Enconvo замечает изменение автоматически.
+
+### Выключите навык
+
+Можно выключить навык, не удаляя его:
+
+1. Откройте **Настройки → Навыки**.
+2. Найдите навык.
+3. Выключите его переключатель.
+
+Агенты не могут использовать выключенный навык, по имени или по совпадению, пока вы не включите его снова. Профиль приложения, который закрепляет навык, всё ещё может им пользоваться.
+
+## Примеры навыков
+
+### Рецензент кода
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Заметки встречи
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Сообщение коммита Git
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### Генератор документации API
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## См. также
+
+<CardGroup cols={2}>
+  <Card title="Агенты" icon="robot" href="/ru/ai/agents">Дайте Агенту свои навыки и инструменты.</Card>
+  <Card title="Интеграция MCP" icon="plug" href="/ru/features/mcp">Сочетайте навыки с инструментами MCP.</Card>
+  <Card title="Enconvo на GitHub" icon="github" href="https://github.com/enconvo">Смотрите расширения и навыки с открытым исходным кодом.</Card>
+  <Card title="Discord сообщества" icon="discord" href="https://discord.gg/jYsdVRRK2k">Делитесь навыками и получайте помощь сообщества.</Card>
+</CardGroup>

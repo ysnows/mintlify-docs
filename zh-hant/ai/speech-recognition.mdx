@@ -1,0 +1,62 @@
+---
+title: "語音辨識"
+description: "為各項語音功能選擇使用的語音模型：Enconvo Cloud、自己的金鑰，或 Mac 上的本機模型。"
+---
+
+Enconvo 的每項語音功能都有各自獨立的語音模型設定，因此你可以為聽寫挑選反應快速的串流模型，並為長音訊檔案挑選另一種模型。請直接在你實際使用的功能中選擇對應的模型。
+
+| 功能 | 設定位置 | 指南 |
+| --- | --- | --- |
+| 語音輸入為文字 | **設定 → 聽寫模型** | [聽寫](/zh-hant/features/dictation) |
+| 語音指令 | **設定 → 語音指令 → 收音** | [語音指令](/zh-hant/features/dictation) |
+| Live Talk 通話 | **設定 → Live Talk → 收音** | [Live Talk](/zh-hant/features/live-voice) |
+| 會議或演講錄音 | **設定 → 錄音模型** | [會議錄音](/zh-hant/features/meeting-recording) |
+| 現有的音訊或影片檔案 | **設定 → 語音轉寫模型** | [語音轉寫](/zh-hant/features/transcription) |
+| 即時字幕 | **設定 → 字幕產生模型** | [即時字幕](/zh-hant/features/live-captioning) |
+
+## 選擇模型
+
+1. 從上表找到你要使用的功能並開啟對應設定。
+2. 在聽寫、錄音、語音轉寫或字幕產生模型頁面中，可以使用**全部**、**Enconvo Cloud**、**本機**或**自訂供應商**篩選列表。在語音指令與 Live Talk 中，**收音**會優先列出推薦模型，再顯示其他語音模型。
+3. 挑選模型後，檢查它的語言與模型選項。
+
+**Enconvo Cloud** 模型透過你的 Enconvo 帳號使用，無須 API 金鑰。Enconvo Cloud 內建的語音辨識 **Enconvo Cloud Fast** 對所有人免費開放，並帶有綠色的**免費**標籤。**自訂供應商**使用你自己在該供應商的 API 金鑰。**本機**模型（MLX 與 Core ML）在下載模型檔案後，即可直接在你的 Mac 上進行語音辨識。
+
+[語音供應商目錄](/zh-hant/providers/catalog)列出了所有已註冊的供應商，包括雲端服務以及本機的 Parakeet、Qwen、Whisper、SenseVoice、Paraformer 與 Nemotron 變體模型。硬體支援與實際可用性取決於你的執行環境與應用程式版本。
+
+## 精選模型
+
+| 模型 | 說明重點 |
+| --- | --- |
+| ElevenLabs Scribe v3 Live | 可在一秒內串流輸出最初的文字，對中文與吵雜音訊的辨識錯誤率較低。可搭配你的 ElevenLabs API 金鑰或 Enconvo Cloud 用於聽寫與語音輸入。中文與日文輸出時不會在詞間加入空格。當 Live Talk 使用 ElevenLabs 時，也會採用此模型。 |
+| ElevenLabs Scribe v3 | 用於檔案轉寫，可搭配你的 ElevenLabs API 金鑰或 Enconvo Cloud。 |
+| Enconvo Cloud Fast | 免費使用。即時模型會在你說話時同步顯示文字，非同步模型則用於轉寫已錄製的檔案。 |
+| Soniox | 在聽寫、錄音、語音轉寫、字幕、Live Talk 與會議字幕中使用 Soniox 的 v6 模型。先前選擇的 v5 模型會自動升級為 v6；Soniox 將於 2026 年 12 月 15 日停止支援 v5。 |
+| DeepSeek | 支援語音轉寫與聽寫，可使用你自己的 DeepSeek API 金鑰，或免金鑰使用 **DeepSeek (Enconvo Cloud)**。支援自動偵測 21 種語言。 |
+| Fluid Speech Pro by FluidVoice | 可在 Mac 與 iPhone 上執行，支援 25 種歐洲語言離線轉寫，錯誤率比 Parakeet 更低，並支援邊說邊轉寫或說完後一次轉寫。需 macOS 15 或 iOS 18 及以上版本。 |
+
+## 依任務挑選合適的模型
+
+| 能力 | 說明重點 |
+| --- | --- |
+| 串流輸出 | 在你說話的同時即時輸出部分文字。若希望文字隨口說同步出現，請選擇即時模型。 |
+| 批次轉寫 | 在錄音或上傳完成後才對整份檔案進行處理。 |
+| 語言提示與熱詞（Hot words） | 當供應商支援時，可用來引導提升特定詞彙的辨識準確度。 |
+| 說話者分離（Diarization） | 區分不同的聲音來源，但無法保證一定能辨識出正確的人名。 |
+| 即時翻譯 | 僅部分供應商與模型提供，可設定來源語言與目標語言。 |
+| 時間戳記與結構化輸出 | 取決於所選供應商以及語音轉寫的輸出格式。 |
+
+## 先用短樣本測試
+
+處理長時間會議前，建議先使用你實際會用到的語言、麥克風與專有名詞錄製一段短樣本並檢查結果。若發生失敗，請查看錯誤訊息中的檔案大小、格式、音訊擷取、帳號或網路相關細節。
+
+本機模型的下載檔案可能遠大於應用程式本身。下載前請確認實際檔案大小與可用的儲存空間；不同本機語音模型所需的容量各不相同。
+
+## 相關文件
+
+<CardGroup cols={2}>
+  <Card title="詞典與說話人" icon="book" href="/zh-hant/configuration/speech-assets">教導語音功能辨識你的專有名詞與人名。</Card>
+  <Card title="權限" icon="shield" href="/zh-hant/configuration/permissions">麥克風與系統音訊存取權限。</Card>
+  <Card title="本機模型" icon="microchip" href="/zh-hant/ai/local-llm">在你的 Mac 上執行本機模型。</Card>
+  <Card title="供應商目錄" icon="table" href="/zh-hant/providers/catalog">Enconvo 支援的所有語音供應商。</Card>
+</CardGroup>

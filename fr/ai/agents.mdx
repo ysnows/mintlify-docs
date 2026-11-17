@@ -1,0 +1,245 @@
+---
+title: "Agents"
+description: "Créez un assistant avec ses propres instructions, son modèle et ses outils, et choisissez quand il demande avant d’agir."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Un agent réunit des instructions, un modèle et des outils pour un type de travail. Créez-en un lorsque vous répétez les mêmes instructions, ou lorsqu’une tâche a besoin d’un ensemble d’outils particulier. Gérez vos agents dans **Réglages → Liste des agents**.
+
+La vidéo ci-dessous parcourt la liste des agents en moins de 2 minutes : Mavis et les agents intégrés, les agents de code, de quoi un agent est fait, et créer le vôtre.
+
+<YouTubePlayer videoId="X0e_atQEQ0I" title="Comment utiliser les agents dans Enconvo | Tutoriel pas à pas" />
+
+## Les agents avec lesquels vous commencez
+
+**Mavis** est l’agent par défaut : il répond, et il peut aussi utiliser vos apps, naviguer sur le web et travailler avec vos fichiers. Les agents intégrés sont chacun faits pour une tâche : **Rédacteur**, **Planificateur**, **Réviseur**, **Conseiller**, **Chercheur**, **Designer** et **Codeur**. **Claude Code**, **Codex**, **Grok Build**, **Antigravity** et **Muse Code** discutent avec les agents de code que vous avez installés, dans un dossier de projet, et **Grok Bot** discute avec l’agent de xAI dans le cloud. Voir [Agents de code](/fr/ai/coding-agents).
+
+Choisissez un agent dans le menu Agent en haut de n’importe quel chat, ou dans les cartes au-dessus de la saisie de la fenêtre de chat. Les listes d’agents mettent en premier les agents avec lesquels vous avez discuté le plus récemment.
+
+## De quoi un agent est fait
+
+Cliquez sur un agent dans **Réglages → Liste des agents** pour ouvrir sa page. Les sections à gauche sautent à chaque partie :
+
+| Section | Ce qu’elle règle |
+| --- | --- |
+| **Instructions** | Ce qu’on dit à l’agent avant chaque conversation. Les changements s’enregistrent au fil de la frappe. |
+| **Style** | Son **Style de réponse**, et son niveau d’**Interface intelligente** : à quel point il répond volontiers avec des graphiques, des tableaux et des cartes. Voir [Définir son style](#définir-son-style). |
+| **Modèle** | Le modèle d’IA avec lequel il écrit. Chaque agent peut en utiliser un différent. |
+| **Outils et compétences** | Ce qu’il peut utiliser et comment il trouve le reste, plus ses dossiers de compétences et le **Dossier de travail** qui contient ses compétences spécialisées et les fichiers sur lesquels il travaille. Voir [Choisir les outils et les compétences](#choisir-les-outils-et-les-compétences). |
+| **Connaissances** | Dans quelles bases de connaissances il cherche, dans quel ordre, et s’il cherche sur le web lorsqu’elles n’ont pas la réponse. Voir [Choisir ses bases de connaissances](#choisir-ses-bases-de-connaissances). |
+| **Mémoire** | Quels souvenirs il lit, et s’il retient des choses nouvelles. |
+| **Voix** | La voix qui lit ses réponses à voix haute. |
+| **Comportement** | Ce qu’il voit, comment il s’exécute et comment il répond, comme la **Langue des réponses** et le **Plafond de points cloud par exécution**. |
+| **Utilisé par** | Ce qui démarre cet agent en plus du chat, et sa ligne **Lien, CLI et API**. |
+
+## Créer un agent
+
+1. Dans **Réglages → Liste des agents**, cliquez sur **Nouvel agent**, ou lancez **Créer un agent** depuis la SmartBar.
+2. Saisissez un **Titre**, et éventuellement un **Avatar** et une **Description** de son rôle.
+3. Sous **Instructions de l’agent**, décrivez ce qu’il doit faire, de quelle entrée il a besoin, et comment il doit présenter les résultats.
+4. Sous **Que peut-il utiliser ?**, partez d’un préréglage : **Quotidien** (tous les outils intégrés), **Code**, **Recherche** ou **Rédaction**. Vous pourrez le changer plus tard sous **Outils et compétences**.
+5. Choisissez son modèle. Sous **Modèle recommandé**, Enconvo lit la description et suggère un modèle Enconvo Cloud, avec un moins cher et un plus fort à côté. Cliquez sur **Utiliser**, ou choisissez l’un des autres. Voir [Utiliser les recommandations](/fr/ai/model-selection-guide).
+6. Cliquez sur **Créer un bot**. Puis ouvrez l’agent pour choisir ses compétences et ses connaissances.
+7. Démarrez un nouveau chat avec lui et testez une petite tâche typique.
+
+Pour dessiner un avatar au lieu d’en téléverser un, ouvrez l’onglet **Générer** du sélecteur d’Avatar, ici ou plus tard dans les réglages de l’agent. Choisissez un style (**À plat**, **3D**, **Anime**, **Photo**, **Ligne** ou **Aquarelle**) et cliquez sur **Générer** : votre modèle d’image dessine quatre avatars à partir du nom et de la description de l’agent. Ajoutez des détails et dessinez à nouveau, ou cliquez sur celui que vous voulez. Rien n’est dessiné tant que vous ne cliquez pas sur **Générer**.
+
+Exemple d’instruction :
+
+```text
+Help me turn meeting notes into actionable follow-ups.
+Separate decisions, open questions, and action items.
+For action items, preserve the owner and due date if stated;
+otherwise mark them as unspecified.
+```
+
+## Définir son style
+
+Sous **Style**, deux réglages décident comment se lisent les réponses de l’agent. Un chat peut choisir un autre style pour lui-même depuis **Utiliser un style** du menu **+**.
+
+**Style de réponse** règle le ton, la longueur et le format : **Normal**, **Concis**, **Explicatif**, **Formel**, ou un style à vous. Cliquez sur **Nouveau style** pour en créer un à partir d’une description ou d’un échantillon de votre écriture, et sur **Gérer** pour modifier vos styles.
+
+**Interface intelligente** règle à quel point il répond avec des graphiques, des tableaux et des cartes sans qu’on le lui demande :
+
+| Niveau | Ce qu’il fait |
+| --- | --- |
+| **Sélectif** | Dessine les données, les comparaisons et les plans. Les résumés et les explications restent en texte. |
+| **Proactif** (par défaut) | Ajoute un graphique, un tableau ou une carte chaque fois que cela se lit mieux, même dans une explication. |
+| **Visuel d’abord** | Commence par le visuel, et peut en utiliser plusieurs dans une réponse. Les réponses prennent un peu plus de temps. |
+
+Plus de visuels prend plus de temps et utilise plus de points. Les canaux de messagerie et les réponses vocales restent en texte.
+
+## Choisir les outils et les compétences
+
+Sous **Outils et compétences**, choisissez comment l’agent trouve ce qu’il utilise :
+
+- **Découverte automatique** (recommandé) commence par l’essentiel et trouve toute compétence, plugin, Connecteur ou serveur MCP installé lorsqu’une tâche en a besoin. Il correspond par le sens, donc une demande formulée autrement que la description d’un outil, ou écrite dans une autre langue, le trouve quand même.
+- **Seulement ce que je choisis** donne à l’agent un ensemble fixe. Choisissez les outils intégrés, les compétences et les serveurs MCP qu’il peut utiliser. Lorsqu’une tâche a besoin d’autre chose, il vous dit ce qui manque au lieu de le chercher.
+
+Avec **Découverte automatique**, vous pouvez encore désactiver les **Outils intégrés** que cet agent ne doit jamais toucher, épingler des compétences sous **Compétences épinglées** pour qu’elles soient listées dans chaque chat, et désactiver **Suggérer des plugins de l’Enconvo Store** pour qu’il cesse de proposer des plugins à installer. **Dossiers de compétences** désactive des compétences individuelles pour cet agent.
+
+Ne donnez à l’agent que les outils dont sa tâche a besoin :
+
+| Besoin | Capacité |
+| --- | --- |
+| Lire et modifier des documents | [Outils de fichiers](/fr/ai/file-tools) |
+| Trouver des informations à jour | [Recherche web](/fr/ai/web-search) et [Récupération web](/fr/ai/web-fetch) |
+| Travailler dans des sites | [Contrôle du navigateur](/fr/features/browser-control) |
+| Utiliser des apps de bureau | [Contrôle de l’ordinateur](/fr/features/computer-use) |
+| Chercher dans vos documents | [Base de connaissances](/fr/ai/knowledge-base) |
+| Réutiliser une procédure | [Compétences](/fr/configuration/skills) |
+| Connecter un service externe | [Serveurs MCP](/fr/features/mcp) |
+| Exécuter du code | [Exécuteur de code](/fr/ai/code-runner) |
+| Faire de nombreux appels d’outils en une étape | [Mode code](/fr/configuration/code-mode) |
+
+Le modèle doit prendre en charge les outils et les types d’entrée que vous choisissez. Les outils ont aussi besoin de leurs propres identifiants, accès et configuration, et une instruction ne peut pas accorder une autorisation que l’agent n’a pas.
+
+## Choisir ses bases de connaissances
+
+Sous **Connaissances**, choisissez où l’agent cherche :
+
+| Option | Ce qu’elle fait |
+| --- | --- |
+| **Toutes les bases de connaissances** | Cherche dans n’importe laquelle des vôtres lorsqu’une question en a besoin. |
+| **D’abord celles choisies** | Cherche d’abord dans celles que vous ajoutez, puis dans les autres lorsqu’elles n’ont pas la réponse. |
+| **Seulement celles choisies** | Ne cherche que dans celles que vous ajoutez. Les autres ne s’ouvrent que lorsque vous les mentionnez avec `@`. |
+
+Cliquez sur **Ajouter des bases de connaissances** pour les choisir, et faites-les glisser dans l’ordre où il doit chercher.
+
+## Approuver les actions
+
+La puce **Autorisations** à côté du mode d’exécution définit quand un agent s’arrête pour demander avant d’agir. Elle apparaît en mode agent dans la fenêtre de chat, la SmartBar, la barre latérale d’app et la Dynamic Island. Toutes changent le même réglage pour cet agent, donc un changement dans l’une se voit dans les autres.
+
+| Mode | Demande avant |
+| --- | --- |
+| **Demander l’approbation** | D’exécuter des commandes, de modifier des fichiers hors du dossier de travail, et d’agir dans des apps, des navigateurs ou des services en ligne |
+| **Approuver pour moi** (par défaut) | Seulement les actions qui semblent potentiellement risquées, comme supprimer des fichiers, envoyer des messages, publier ou payer |
+| **Accès complet** | Rien. L’agent agit sans demander |
+
+Lire des fichiers, chercher et regarder l’écran ne demandent jamais. **Approuver pour moi** ne demande pas non plus avant une commande qui ne fait que définir `PATH` pour elle-même, ou une qui supprime ce qu’elle a créé dans le dossier temporaire ; supprimer autre chose demande encore.
+
+Lorsqu’un agent confie du travail à un autre agent ou à un agent de code, celui qu’il appelle travaille dans le même mode que l’agent avec lequel vous discutez. Chaque carte d’approbation dit quel réglage l’a fait demander, par exemple « Demandé parce que ce projet est sur Approuver pour moi. » Voir [Bac à sable de l’agent](/fr/configuration/sandbox) pour ce qui limite une commande une fois qu’elle s’exécute.
+
+### Où la question apparaît
+
+La question apparaît dans la fenêtre où le chat s’exécute. Si cette fenêtre n’affiche pas le chat (par exemple elle est masquée, ou c’est le panneau en ligne), la question passe à la Dynamic Island. Si personne n’y répond dans les 30 secondes, votre iPhone appairé reçoit une notification de rappel, même lorsque la fenêtre du chat est encore ouverte derrière l’app que vous utilisez.
+
+Si vous fermez la carte de l’île sans répondre, cliquez sur l’étape en attente dans le chat de l’île pour revoir les options. Les questions que l’agent vous pose fonctionnent de la même façon.
+
+### Y répondre
+
+- **Oui, autoriser une fois** laisse cette seule action s’exécuter.
+- **Oui, et ne plus demander** l’autorise pour le reste de ce chat, et est mémorisé même après un redémarrage d’Enconvo.
+- Ou tapez ce que l’agent devrait faire à la place.
+
+Pendant qu’un chat attend, il affiche **En attente d’approbation** au lieu d’être en cours dans la liste de la fenêtre de chat, les chats récents de la SmartBar et la Dynamic Island. La liste des chats de l’app iPhone le marque **Approbation requise**.
+
+Les sous-agents demandent dans le chat parent, et la question dit qu’un sous-agent demande et sur quelle tâche il travaille. Les tâches planifiées, les workflows et les canaux de messagerie s’exécutent sans demander, parce que personne n’est à la fenêtre pour répondre.
+
+## Sous-agents
+
+En mode agent, un agent peut découper une tâche en parties et démarrer jusqu’à six sous-agents qui travaillent en même temps, chacun dans sa propre conversation. Il répond une fois qu’ils ont rendu compte. Il ne le fait que lorsque le découpage aide clairement, comme plusieurs recherches indépendantes, ou lorsque vous le demandez. Si une erreur d’IA, comme une limite de débit, arrête un sous-agent en cours de route, l’agent reçoit quand même ce qu’il a trouvé jusque-là, et peut le laisser continuer une fois l’erreur levée.
+
+Lorsqu’il démarre un sous-agent, l’agent peut lui donner son propre modèle, effort de raisonnement, instructions et nom, ou y bifurquer la conversation en cours. Lorsque l’agent choisit lui-même le modèle, les recherches rapides, la lecture et le travail simple répété tournent sur le petit modèle de votre fournisseur, le raisonnement plus difficile reçoit un effort plus élevé, et tout le reste reste sur le modèle que vous avez choisi. Un sous-agent peut démarrer ses propres sous-agents, jusqu’à trois niveaux de profondeur.
+
+- **Agents de code comme sous-agents.** Claude Code, Codex, Antigravity, Grok Build et Muse Code peuvent travailler comme sous-agents. La carte montre l’icône de l’agent de code, où il travaille, et les appels d’outils, le temps et les jetons qu’il a utilisés.
+- **Arbres de travail séparés.** Lorsqu’un sous-agent modifie des fichiers pendant qu’un autre le fait, il reçoit son propre git worktree, pour que deux sous-agents n’écrasent jamais le travail l’un de l’autre. Un worktree sans changement est retiré lorsque son sous-agent se termine. Les sous-agents qui ne font que des designs, des documents, des diapositives, des recherches ou des relectures travaillent sans worktree, donc en démarrer plusieurs ne copie pas le projet pour chacun.
+- **Autres ordinateurs.** Un agent peut exécuter un sous-agent sur un autre de vos ordinateurs appairés, en remettant la tâche à l’agent de cet ordinateur ou à un agent de code là-bas. Voir [Autres ordinateurs](/fr/integrations/other-computers).
+- **Pilotage.** Un agent peut ajouter un message à la tâche d’un sous-agent en cours, l’interrompre, ou atteindre le chat d’un autre agent dans le même projet. Arrêter un chat arrête chaque sous-agent en dessous.
+- **Pipelines.** Un agent peut exécuter un ensemble planifié de sous-agents en une étape, comme la même vérification sur une liste de fichiers. Une exécution échouée reprend sans relancer les sous-agents déjà terminés.
+
+### Chats en parallèle
+
+Lorsque vous demandez à un agent d’ouvrir un nouveau chat pour une tâche séparée, il en ouvre un, à l’effort de raisonnement que vous demandez, qui apparaît dans votre liste de chats sur le Mac, l’iPhone et Android comme un chat que vous avez démarré. Une note en haut dit quel chat l’a démarré. Les relectures et les tests de cette tâche s’exécutent encore comme ses sous-agents. Un chat qu’un agent a démarré pour lui-même peut être déplacé vers votre liste de chats depuis sa carte.
+
+### Suivre les sous-agents et leur parler
+
+Une carte dans le chat liste chaque sous-agent par sa tâche, avec une icône qui montre s’il tourne, attend votre approbation, a fini ou a échoué. La ligne d’un sous-agent en cours montre aussi ce qu’il fait en ce moment, et le modèle et l’effort sur lesquels il tourne. Les nouveaux sous-agents apparaissent aussi dans le plateau d’arrière-plan au-dessus de la zone de message dès que la carte apparaît.
+
+Ce qu’un sous-agent crée, comme un design ou un document, s’affiche sous sa ligne au fur et à mesure. Cliquez dessus pour l’ouvrir à côté du chat ; l’agent le remet comme une carte dans sa réponse.
+
+- Cliquez sur une ligne pour ouvrir la conversation de ce sous-agent. Son panneau Espace de travail et la recherche de fichiers `@` montrent le dossier de travail du chat qui l’a démarré. Dans la SmartBar et la Dynamic Island, son travail s’ouvre sur place.
+- Tapez dans la conversation d’un sous-agent pour lui parler. Il vous répond là, peut vous poser des questions, demande l’approbation dans cette conversation, et continue de travailler dans le même dossier. L’agent qui l’a démarré attend pendant qu’il vous répond, puis voit sa dernière réponse. Un message à un sous-agent déjà terminé le redémarre tout de suite, même pendant qu’un autre sous-agent modifie des fichiers dans le même dossier.
+- Dans la conversation d’un sous-agent, chaque message est marqué de l’agent qui l’a envoyé. Un message de l’agent parent dit s’il a piloté la tâche en cours, attendu, l’a interrompue, ou a démarré un nouveau tour.
+- La **Lignée** du chat, dans ses détails, montre tout l’arbre des sous-agents, sur trois niveaux. Dans le chat d’un agent de code, elle montre le chat Enconvo qui l’a démarré.
+- Dans la barre latérale de la fenêtre de chat, les sous-agents d’un chat sont listés en dessous, et un bouton sur la ligne du chat replie la liste.
+
+### Rôles des sous-agents
+
+Chaque sous-agent commence dans un rôle :
+
+| Rôle | Ce qu’il fait |
+| --- | --- |
+| **Par défaut** | Travaille comme l’agent qui l’a démarré, avec les mêmes instructions, outils et modèle |
+| **Explorateur** | Ne fait que lire des fichiers, chercher et regarder des apps. Il ne peut pas modifier, exécuter des commandes qui changent quelque chose, ni agir en ligne, quoi que dise la puce Autorisations |
+| **L’un de vos agents** | S’exécute comme cet agent, avec ses propres instructions, outils et modèle, dans le même dossier de travail que le chat qui l’a démarré |
+| **Un assistant de projet** | Défini par le projet dans `.claude/agents`, `.codex/agents` ou `.enconvo/agents`, dans le dossier de travail ou un dossier au-dessus jusqu’à la racine du dépôt. Travaille comme l’agent qui l’a démarré, en suivant les instructions propres de l’assistant. Il n’utilise que les outils que le fichier liste, ne fait que lire lorsque le fichier le dit, et utilise le modèle de l’assistant lorsque votre fournisseur de modèle le propose |
+| **Votre propre assistant** | Défini dans `~/.enconvo/agents`, `~/.claude/agents` ou `~/.codex/agents` dans votre dossier de départ, et disponible dans chaque chat. Fonctionne comme un assistant de projet |
+
+Pour en choisir un vous-même, tapez `@` dans un chat en mode agent et choisissez-le dans le groupe **Sous-agents**, qui liste les assistants, **Explorateur** et un **Sous-agent** général. L’agent démarre ce sous-agent pour votre message, lui écrit la tâche, et répond une fois qu’il a rendu compte. Vos propres agents restent dans le groupe Agents du menu.
+
+Décrivez chaque agent clairement dans ses réglages : l’agent qui découpe le travail lit ces descriptions pour décider lequel convient à une tâche. Pour remettre une tâche à l’un de vos agents ou agents de code comme coéquipier, avec son propre effort de raisonnement, voir [Orchestrateur d’agents](/fr/ai/agent-orchestrator).
+
+### Assistants de projet
+
+Les assistants de projet et les vôtres utilisent les mêmes fichiers que les sous-agents de Claude Code et les rôles d’agent de Codex, donc un dépôt ou un dossier de départ qui en a déjà n’a besoin d’aucune configuration supplémentaire.
+
+- Un fichier Claude Code (Markdown avec `name` et `description` dans son frontmatter) est en lecture seule lorsqu’il définit `permissionMode: plan`, ou ne liste que des outils de lecture comme `Read`, `Grep` et `Glob`.
+- Un fichier Codex (TOML avec `description` et `developer_instructions`) est en lecture seule avec `sandbox_mode = "read-only"`.
+- Lorsque le fournisseur ne propose pas le modèle de l’assistant, l’assistant utilise le modèle du chat à la place.
+
+Les `tools` et `disallowedTools` d’un fichier Claude Code décident lesquels des outils de l’agent l’assistant peut utiliser. Enconvo fait correspondre chaque nom à son propre outil :
+
+| Dans le fichier de l’assistant | L’assistant peut |
+|---|---|
+| `Read`, `Grep`, `Glob`, `LS` | Lire et chercher des fichiers |
+| `Edit`, `MultiEdit`, `Write` | Modifier et créer des fichiers |
+| `Bash` | Exécuter n’importe quelle commande shell |
+| `Bash(git diff:*)` | N’exécuter que des commandes qui commencent par `git diff` |
+| `WebSearch`, `WebFetch` | Chercher sur le web et lire des pages web |
+| `mcp__github__get_issue`, `mcp__github` | Utiliser un outil, ou chaque outil, d’un serveur MCP connecté |
+
+Sans ligne `tools`, l’assistant a chaque outil sauf ceux que `disallowedTools` nomme. Un appel hors de la liste n’est pas exécuté, et on dit à l’assistant quels outils il a. Chaque assistant peut encore charger des compétences et vous poser des questions. Dans un fichier `.enconvo/agents`, vous pouvez aussi lister des outils Enconvo par leur chemin d’API, comme `browser-use/*`.
+
+Les compétences, serveurs MCP, limite de tours, arrière-plan et réglages de worktree d’un fichier Claude Code prennent aussi effet.
+
+## Façons d’atteindre un agent
+
+- Discutez avec lui dans la [fenêtre de chat](/fr/ai/chat), la [SmartBar](/fr/features/smartbar), la [barre latérale d’app](/fr/features/app-sidebar) ou la [Dynamic Island](/fr/features/dynamic-island).
+- Configurez la **Commande vocale** pour envoyer des demandes parlées aux agents que vous choisissez. Voir [Dictée](/fr/features/dictation).
+- Parlez-lui via la [Conversation en direct](/fr/features/live-voice), ou donnez-lui un personnage de bureau avec un [Avatar](/fr/features/avatar).
+- Connectez des apps de messagerie avec les [canaux de messagerie](/fr/integrations/messaging).
+- Exécutez-le plus tard avec les [Automatisations](/fr/workflows/scheduled-jobs).
+- Exécutez-le depuis l’extérieur d’Enconvo avec un lien, une commande de terminal ou un appel d’API. Voir [Lien, CLI et API](#lien-cli-et-api).
+
+### Lien, CLI et API
+
+Ouvrez un agent dans **Réglages → Liste des agents**. Sous **Utilisé par**, la ligne **Lien, CLI et API** a un bouton **Afficher**. Cliquez dessus pour obtenir le lien profond, la commande de terminal et l’appel d’API qui exécutent cet agent avec votre texte et vos fichiers, chacun prêt à copier. Les commandes IA ont la même ligne.
+
+La vidéo ci-dessous couvre les ajouts plus petits de la 2.5.13 : Claude Fable 5.2 dans le menu des modèles, Antigravity, Grok Build et Muse Code comme agents de code, cette ligne, les Artefacts dans la synchronisation du bureau, et les réglages Contraste et Largeur du chat dans **Général**.
+
+<YouTubePlayer videoId="87x1INCsdIE" title="Quoi d’autre de nouveau dans Enconvo 2.5.13" />
+
+## Valeurs par défaut et continuité
+
+Vérifiez les [modèles par défaut](/fr/ai/model-selection-guide) avant de changer un agent que plusieurs chats ou canaux utilisent. Configurez la [Mémoire](/fr/ai/memory) pour les faits que l’agent doit réutiliser, et gardez les documents dans une base de connaissances au lieu de tout mettre dans les instructions.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Une demande échoue | Lisez d’abord l’erreur de l’outil, ou cherchez une entrée manquante. |
+| Vous ne savez pas si le modèle ou un outil est en cause | Essayez la même demande avec les outils facultatifs désactivés, puis rajoutez les outils un par un. |
+| Une action va changer des fichiers ou un service externe | Vérifiez la destination et l’effet avant de l’approuver. |
+| L’agent dit qu’il lui manque un outil ou une compétence | Sous **Outils et compétences**, vérifiez s’il est réglé sur **Seulement ce que je choisis**, ou si un outil intégré est désactivé. |
+| Les réponses ont plus de graphiques et de cartes que vous ne voulez, ou prennent trop de temps | Réglez **Interface intelligente** sur **Sélectif** sous **Style**, ou pour un chat depuis **Utiliser un style** du menu **+**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Fenêtre de chat" icon="comments" href="/fr/ai/chat">Tenez des conversations avec vos agents.</Card>
+  <Card title="Compétences" icon="star" href="/fr/configuration/skills">Apprenez à un agent une procédure réutilisable.</Card>
+  <Card title="Serveurs MCP" icon="plug" href="/fr/features/mcp">Connectez des services externes comme outils.</Card>
+  <Card title="Hooks" icon="anchor" href="/fr/configuration/hooks">Exécutez vos propres commandes lorsqu’un agent agit.</Card>
+</CardGroup>

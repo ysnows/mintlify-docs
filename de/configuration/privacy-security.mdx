@@ -1,0 +1,100 @@
+---
+title: "Datenschutz und Sicherheit"
+description: "Sieh, wohin deine Anfragen gehen, was auf deinem Mac bleibt, und wie du Kontext, Anmeldedaten, Werkzeuge, Analysen und Diagnosen steuerst."
+---
+
+Enconvo speichert deine Daten auf deinem Mac und nutzt Online-Dienste für die Funktionen und Anbieter, die du wählst. Wohin eine Anfrage geht, hängt von der Funktion, dem gewählten Anbieter, den eingeschalteten Werkzeugen und den verbundenen Integrationen ab. Diese Seite zeigt jeden Fluss und die Steuerungen dafür.
+
+## Wohin deine Inhalte gehen
+
+| Aktion | Was gesendet wird und wohin |
+| --- | --- |
+| Cloud-KI-Chat | Dein Prompt, der Gesprächskontext und die Anhänge, die du hinzufügst, an den Modellanbieter |
+| Inhaltsprüfung von Enconvo Cloud, ab dem 14. November 2026 | Der Text, den du gerade geschrieben hast, an das Moderationsmodell von OpenAI, bevor ein Cloud-Modell ihn erhält |
+| Spracherkennung in der Cloud | Aufgenommenes Audio an den Sprachdienst, den du gewählt hast |
+| Text-zu-Sprache in der Cloud | Text an den Sprachdienst, den du gewählt hast |
+| Embeddings oder Reranking in der Cloud | Der Dokument- und Anfrageinhalt, der für das Abrufen nötig ist |
+| Websuche oder Abruf | Die Suchanfrage oder URL an den Suchdienst oder die Website |
+| Lokale Modellinferenz | Bleibt auf deinem Mac: Das Modell läuft dort, sobald seine Dateien heruntergeladen sind |
+| Browser- oder Computerwerkzeuge | Was der gewährte Zugriff des Werkzeugs an Inhalt und Aktionen erlaubt |
+| IM-Kanal | Nachrichten zwischen dem verbundenen Nachrichtendienst und dem Agenten |
+| Sync | Deine Chats, Einstellungen, Wissensdatenbanken und Artefakte an dein Enconvo-Konto oder dein iCloud, sobald du Sync einschaltest. API-Schlüssel verlassen deinen Mac nur verschlüsselt, und nur wenn du sie einschaltest. |
+
+Ein lokales Chat-Modell allein macht nicht jedes Werkzeug offline. Eine Websuche, ein entferntes MCP-Werkzeug, ein Cloud-Transkriptionsanbieter oder ein Cloud-Embedding-Modell sendet Inhalt weiterhin über das Netzwerk.
+
+## Nutzungsregeln von Enconvo Cloud
+
+Ab dem 14. November 2026 prüft Enconvo Cloud jede Nachricht gegen unsere [Nutzungsbedingungen](https://www.enconvo.com/terms), bevor sie ein Cloud-Modell erreicht. Geprüft wird nur der Text, den du gerade geschrieben hast, nicht das frühere Gespräch, deine Dateien oder deine Bilder. Nichts ändert sich, wenn du eigene API-Schlüssel oder lokale Modelle nutzt.
+
+- **Was aufbewahrt wird:** Wenn eine Nachricht abgelehnt oder markiert wird, behält Enconvo Konto, Zeit, Modell und Werte bis zu 90 Tage, und nie die Worte.
+- **Eine abgelehnte Nachricht:** Sie erreicht das Modell nicht und kostet keine Punkte. Dein Chat zeigt warum.
+- **Wiederholte Ablehnungen:** Sie können Cloud-KI auf deinem Konto pausieren. Du kannst dich weiter anmelden, dein Abonnement verwalten oder kündigen und dein Konto löschen. Ein Abonnement läuft weiter, bis du es kündigst.
+- **Wenn wir uns geirrt haben:** Schreib an support@enconvo.com.
+
+Damit eine Sicherheitsmaßnahme eines Anbieters für ein Konto gilt und nicht für alle, sendet Enconvo Cloud OpenAI und Anthropic mit jeder Anfrage auch eine Einweg-Kennung aus deinem Konto. Das ist nicht deine E-Mail-Adresse. Die [Datenschutzerklärung](https://www.enconvo.com/privacy) hat die Details.
+
+## Steuern, was du sendest
+
+Sieh Anhänge und Kontext durch, bevor du eine Anfrage sendest. Appshots, Screenshots, markierter Text, Zwischenablage und Browserseiten können mehr enthalten als den Satz, nach dem du fragen wolltest.
+
+Wähle deine Kontextquellen unter [Kontextverständnis](/de/features/context-awareness). Gewähre [macOS-Berechtigungen](/de/configuration/permissions) nur für die Funktionen, die du nutzt, und entziehe sie in den Systemeinstellungen, wenn du sie nicht mehr brauchst.
+
+## Anmeldedaten
+
+API-Schlüssel und Kontoanmeldungen verwaltest du im Bereich **Authentifizierung** jedes Anbieters und in der [Anmeldedatenverwaltung](/de/configuration/credentials). Behandle deine lokale Enconvo-Konfiguration, Sicherungen, exportierte Einstellungen und Support-Protokolle als sensibel, und halte Schlüssel und Kontotoken aus Prompts, Screenshots und geteilten Dateien heraus.
+
+Ein Anbieterprofil kann seine Anmeldedaten über mehrere Funktionen teilen. Prüfe jede Funktion, die ein Profil nutzt, bevor du es löschst oder ersetzt.
+
+<Warning>
+Einen Schlüssel aus Enconvo zu entfernen widerruft ihn nicht. Wenn ein Schlüssel bekannt wird, widerrufe ihn auf der eigenen Website des Anbieters.
+</Warning>
+
+## Werkzeuge und Integrationen
+
+Ein Agent kann über die Werkzeuge handeln, die du einschaltest. Browsersteuerung, Computernutzung, Shell-Befehle, Dateibearbeitungen, Gmail und externe MCP-Server erreichen jeweils Verschiedenes. Prüfe die Werkzeuge des Agenten und die vorgeschlagene Aktion, wenn er mit wichtigen Daten arbeitet.
+
+Eine Erweiterung in einem eigenen Worker hält sie nicht davon ab, deine lokalen Dateien oder das Netzwerk zu erreichen. Installiere Werkzeuge aus Quellen, denen du vertraust, und prüfe ihre Konfiguration.
+
+Der Chip **Berechtigungen** in einem Chat entscheidet, wann der Agent fragt, bevor er handelt. Bei **Voller Zugriff** handelt er ohne zu fragen, auch bei Anrufen und Nachrichten an Freunde und Teammitglieder, und fragt nur vor Änderungen, die deinen Computer schaden könnten. Siehe [Warum Enconvo vor einem Befehl fragt](/de/configuration/sandbox).
+
+Damit die Shell-Befehle eines Agenten in seinem Arbeitsordner bleiben und von deinen Schlüsseln, gespeicherten Anmeldedaten und anderen Apps fernbleiben, schalte seine **Sandbox** ein. Siehe [Agent-Sandbox](/de/configuration/sandbox). Um die Computernutzung aus bestimmten Apps herauszuhalten, nutze **App-Zugriff** unter **Einstellungen → Computernutzung**; siehe [Computernutzung](/de/features/computer-use).
+
+Web Fetch kann von einer öffentlichen Seite nicht auf deinen Mac oder dein lokales Netzwerk umgeleitet werden.
+
+## Anmeldelinks
+
+Ein Anmeldelink von einer Webseite kann Enconvo nicht von selbst auf ein anderes Konto umschalten. Sofern Enconvo die Anmeldung nicht selbst gestartet hat, fragt es zuerst und zeigt das Konto, das der Link bestätigt, und das, das er ersetzen würde. Agenten, Coding-Agenten und geplante Aufgaben können keine Anmeldung starten und keinen Anmeldelink öffnen.
+
+## Lokale KI-Clients
+
+[Knowledge Base MCP](/de/advanced/knowledge-base-mcp) ist aus, bis du es einschaltest, und nimmt lokale Verbindungen an. Seine Sichtbarkeitsschalter wählen, welche Wissensdatenbanken es bereitstellt. Ein lokaler Client kann das Abgerufene an seinen eigenen KI-Anbieter senden, richte diesen Client also ebenfalls sorgfältig ein.
+
+## Analysen und Diagnosen
+
+Enconvo zeichnet Produktnutzungsereignisse unter einer Geräte-ID auf, nicht unter deinem Konto. Die Ereignisse sind so angelegt, dass E-Mail-Adressen, Gesprächstext und Medien draußen bleiben. Um das Teilen zu stoppen, schalte **Anonyme Produktanalysedaten teilen** im Erststart-Leitfaden oder unter **Datenschutz** in **Einstellungen → Allgemein** aus. Eine frühere Wahl bleibt, wie sie ist. Absturz- und Einfrierberichte werden nur gesendet, solange dieser Schalter an ist, und enthalten keinen deiner Inhalte.
+
+Enconvo behält keine Kopie deiner KI-Anfragen, deiner Nachrichten oder dessen, was du tippst, in seinen Protokollen auf deinem Mac.
+
+Diagnoseprotokolle sind von Analysen getrennt. Wenn Enconvo einfriert, abstürzt oder sich falsch verhält, sende sie mit **Diagnosedaten senden…** im Menüleistenmenü oder unter **Einstellungen → Diagnosen** an das Enconvo-Team:
+
+- Bevor etwas deinen Mac verlässt, entfernt Enconvo persönliche Details, etwa den Namen deines Benutzerordners, Dateinamen, E-Mail-Adressen, API-Schlüssel, Token, Links, IP-Adressen und den Text von Prompts und Antworten.
+- Ein Bericht trägt eine zufällige ID nur für die Diagnose, nicht dein Konto oder deine E-Mail. Nur das Enconvo-Team kann ihn lesen, und er wird nach einer festgelegten Zahl von Tagen gelöscht.
+- Protokolle können trotzdem die Apps, Befehle und Modelle nennen, die du genutzt hast.
+- Die Seite zeigt genau, was gesendet wurde, und lässt dich jeden Bericht zurückziehen oder löschen.
+
+Wenn du ein Protokoll oder einen Screenshot auf einem anderen Weg teilst, sieh ihn zuerst durch und entferne private Prompts, Pfade, Schlüssel, Kontodaten und Dokumentinhalte, die nicht nötig sind.
+
+## Lokale Daten behalten oder entfernen
+
+Jede Funktion verwaltet ihre eigenen Daten: Chatverlauf, Wissensdatenbanken, Aufnahmen und Anmeldedaten haben jeweils eigene Steuerungen. Lies Löschbestätigungen und sichere, was du brauchst. Einen Chat zu löschen löscht auch die Bilder und Dateien, die du daran gehängt hast, sofern kein anderer Chat sie noch zeigt.
+
+Die App zu entfernen entfernt nicht immer ihre Konfiguration und Daten. Lokale Daten zu entfernen löscht keine Kopien, die ein externer Dienst schon verarbeitet hat. Für Aufbewahrung und Kontorichtlinien eines Anbieters siehe diesen Anbieter: Diese Seite behandelt die Datenflüsse von Enconvo, nicht die ihren.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="macOS-Berechtigungen" icon="shield" href="/de/configuration/permissions">Was jede Berechtigung Enconvo tun lässt.</Card>
+  <Card title="Anmeldedaten" icon="key" href="/de/configuration/credentials">API-Schlüssel, Anmeldungen und geteilte Profile.</Card>
+  <Card title="Kontextverständnis" icon="eye" href="/de/features/context-awareness">Wählen, welcher Kontext mit einer Anfrage geht.</Card>
+  <Card title="Enconvo-Konto" icon="user" href="/de/configuration/account">Sync und was es auf deinen Computern behält.</Card>
+</CardGroup>

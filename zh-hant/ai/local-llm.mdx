@@ -1,0 +1,56 @@
+---
+title: "本機模型"
+description: "在你自己的硬體上執行模型，並將整個任務保留在你的 Mac 上執行。"
+---
+
+當你希望對話保持私密，或想在沒有服務供應商帳號的情況下使用時，可以在你的 Mac 或你擁有的另一台電腦上執行模型。Enconvo 內建本機引擎，也支援連接 Ollama 與 LM Studio。
+
+## 選擇執行環境
+
+| 執行環境 | 最適用於 | 設定方式 |
+| --- | --- | --- |
+| [Local LLM (MLX)](/zh-hant/providers/mlx) | 在搭載 Apple Silicon 與 macOS 15 或更新版本的 Mac 上於 Enconvo 內部執行模型 | 在「設定」中挑選並下載模型 |
+| [Ollama](/zh-hant/providers/ollama) | 你已經透過 Ollama 管理的模型，無論是在這台 Mac 或伺服器上 | 啟動 Ollama 並設定其位址 |
+| [LM Studio](/zh-hant/providers/lm-studio) | 你已經在 LM Studio 中使用的模型，無論是在這台 Mac 或伺服器上 | 啟動 LM Studio 的伺服器並設定其位址 |
+
+## 從小型模型開始
+
+1. 設定好執行環境並下載或載入一個模型。
+2. 傳送一則簡短的文字訊息。
+3. 確認運作正常後，再加入文件或工具。
+4. 在嘗試更大的模型之前，先留意記憶體用量與速度。**設定 → 本機模型** 會顯示這台 Mac 上的模型以及它們所使用的記憶體大小。
+
+模型大小、量化方式、上下文長度以及其他正在執行的任務都會影響記憶體用量。請以模型選擇器中顯示的大小為準，而非套用固定規則。
+
+## 將整個任務保留在本機端
+
+僅使用本機聊天模型，並不會讓所有處理都留在你的 Mac 上。語音辨識、文字轉語音、OCR、文件解析、嵌入向量（embeddings）、重排序（reranking）、搜尋以及 MCP 工具各自有自己的服務供應商。Enconvo 為其中多項功能提供了本機供應商；[服務供應商目錄](/zh-hant/providers/catalog)列出了所有項目。
+
+**設定 → 本機模型** 會顯示哪些功能在這台 Mac 上執行、哪些在雲端執行。網頁搜尋與其他線上服務仍需網際網路連線，且本機模型仍可呼叫會將內容傳離你 Mac 的工具。
+
+## 使用另一台電腦上的模型伺服器
+
+將該伺服器設為允許網路連線，並將 Enconvo 的 **BaseUrl** 設為該台電腦的位址。`localhost` 一律代表執行 Enconvo 的這台 Mac。如果 macOS 阻擋連線，請在 **系統設定 → 隱私權與安全性 → 區域網路** 中允許 Enconvo。
+
+## 使用其他模型伺服器
+
+針對 llama.cpp、vLLM、KoboldCpp 或 text-generation-webui 等伺服器，請在 **設定 → AI 模型** 底部點擊 **Add New Provider**，並選擇 **OpenAI Compatible**。將伺服器位址貼上作為 Base URL；無論是否包含 `/v1`，或是貼上完整的端點網址，Enconvo 都能接受。如果伺服器不檢查金鑰，將 API key 留空即可。
+
+## 在較小上下文中進行長對話
+
+本機伺服器執行模型時，實際使用的上下文長度常小於模型本身支援的上限。Enconvo 會讀取 Ollama、llama.cpp、LM Studio、KoboldCpp 與 text-generation-webui 實際執行時的上下文長度，並壓縮對話以符合限制。在較小的上下文中，它會分段摘要長對話。若想為模型保留更多空間，請在伺服器自身的設定中調高上下文長度。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 模型忘記了長對話的開頭內容 | 伺服器目前使用的上下文較小。請在伺服器設定中調高上下文長度，或開啟新對話。 |
+| 模型忽略工具或圖片 | 該模型不支援這些功能，因此 Enconvo 會在不使用它們的情況下回答。請挑選支援工具呼叫或圖片輸入的模型。 |
+| 連線失敗 | 請閱讀錯誤訊息：Enconvo 會顯示伺服器回傳的原始訊息並指出原因。確認伺服器正在執行中，且位址與連接埠皆正確。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/zh-hant/providers/mlx">Enconvo 的內建引擎。</Card>
+  <Card title="隱私權與安全性" icon="shield" href="/zh-hant/configuration/privacy-security">依功能查看你的資料會傳送到哪裡。</Card>
+</CardGroup>

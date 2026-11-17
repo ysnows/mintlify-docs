@@ -1,0 +1,99 @@
+---
+title: "Windows (ベータ)"
+description: "Windows に Enconvo ベータ版をインストールし、サインインして最新の状態に保ち、対応機能を確認します。"
+tag: "BETA"
+---
+
+<Note>
+Windows 版 Enconvo はベータ版であり、**ベータ版** 更新チャンネルで提供されています。日常利用を想定して作られていますが、ビルド間で仕様が変わる場合があります。不具合を見つけた場合は、[フィードバックサイト](https://feedback.enconvo.com) までお知らせください。
+</Note>
+
+**現在のベータ版: 2.5.13 Beta 3**（`2.5.13-beta-3`）。使用中のバージョンを確認するには、**設定 → 一般 → アップデート** を開きます。
+
+## 動作要件
+
+- **Windows 10 バージョン 2004（ビルド 19041）以降、または Windows 11。**
+- **64-bit Intel/AMD (x64)。** Arm 版 Windows 向けビルドはまだありません。
+- **Microsoft Edge WebView2 ランタイム。** Enconvo のウィンドウはこの上で動作します。Windows 11 には標準で含まれています。Windows 10 でウィンドウが真っ白のままになる場合は、[トラブルシューティング](#トラブルシューティング) をご覧ください。
+
+## ベータ版をダウンロードする
+
+ベータ版はインストーラー `Enconvo-<version>-win32-x64-setup.exe` として配布されます。ファイル名にはベータ版のバージョン番号が含まれます。
+
+現在のベータ版 2.5.13 Beta 3 は、[Enconvo-2.5.13-beta-3-win32-x64-setup.exe](https://file.enconvo.com/win32-x64/beta/Enconvo-2.5.13-beta-3-win32-x64-setup.exe) からダウンロードできます。
+
+常に最新のベータ版を取得するには、PowerShell で次のスクリプトを実行してください。ベータフィードを読み込み、ダウンロードフォルダにインストーラーを保存し、ファイルが破損していないか検証します。
+
+```powershell
+$feed = "https://file.enconvo.com/win32-x64/beta"
+$latest = Invoke-RestMethod "$feed/latest.json"
+$file = $latest.files.exe.url
+$out = "$env:USERPROFILE\Downloads\$file"
+$ProgressPreference = "SilentlyContinue"   # downloads much faster in Windows PowerShell
+Invoke-WebRequest "$feed/$file" -OutFile $out
+if ((Get-FileHash $out -Algorithm SHA256).Hash -eq $latest.files.exe.sha256) {
+  "Downloaded Enconvo $($latest.version) to $out"
+} else {
+  "The download is damaged. Delete it and run this again."
+}
+```
+
+## インストール
+
+<Steps>
+  <Step title="インストーラーを実行">
+    ダウンロードした `.exe` を開きます。Windows に **Windows によって PC が保護されました** と表示された場合は、**詳細情報** → **実行** の順にクリックします。まだ広く認識されていないアプリに対して SmartScreen がこの画面を表示します。
+  </Step>
+  <Step title="フォルダを選択">
+    Enconvo はお使いのアカウント専用にインストールされ、管理者権限は不要です。既定のフォルダは `%LOCALAPPDATA%\Programs\Enconvo` です。別のフォルダを選ぶ場合は、空のフォルダか、すでに Enconvo が入っているフォルダを指定してください。
+  </Step>
+  <Step title="Enconvo を開く">
+    最後の画面で **Enconvo を開く** にチェックを入れたままにするか、あとからスタートメニューの **Enconvo** を開きます。タスクバーの通知領域にアイコンが表示されます。
+  </Step>
+  <Step title="サインイン">
+    Enconvo アカウントでサインインし、[クイックスタート](/ja/quickstart) へ進みます。
+  </Step>
+</Steps>
+
+インストール時に Enconvo が起動している場合、インストーラーは先に終了するよう求めます。
+
+## Windows で利用できる機能
+
+| 機能 | Windows |
+| --- | --- |
+| チャットウィンドウ、設定 | 対応 |
+| エージェント、ツール、ファイル、ドキュメント、アーティファクト | 対応 |
+| ブラウザを使用、コンピューター操作 | 対応 |
+| ナレッジベース、メモリ、予約タスク、ワークフロー | 対応 |
+| Enconvo Cloud モデル、ウェブ検索、OCR、画像生成、音声 | 対応 |
+| グローバルショートカット、音声入力、音声メモ、録音、画面に描画、Appshots、通知 | 対応 |
+| クリップボード履歴、スニペット | 対応 |
+| [SmartBar](/ja/features/smartbar)、[PopBar](/ja/features/popbar)、[Dynamic Island](/ja/features/dynamic-island)、音声コマンド | 対応 |
+| [アバター](/ja/features/avatar)、[デスクトップペット](/ja/features/pet) | 対応 |
+| GGUF ファイルによるローカルチャットモデル | 対応 |
+| アプリのサイドバー、Live Talk、リアルタイム字幕 | 非対応 |
+| MLX モデル | 非対応（Mac が必要） |
+
+## アップデート
+
+ベータ版ビルドでは更新チャンネルはベータ版のままになります。変更するには、**設定 → 一般** を開いて **更新チャンネル** を設定してください。詳しくは [アップデート](/ja/configuration/updates) を参照してください。
+
+Enconvo は新しいバージョンを自動でチェックします。準備ができると、チャットウィンドウに **アップデート** ボタンが表示されます。**設定 → 一般 → アップデート** から今すぐ確認することもできます。
+
+アップデートは上書きインストールで行われ、Enconvo が一度終了し、インストーラーの進捗が表示されたあと、新しいバージョンで再起動します。
+
+## トラブルシューティング
+
+| 表示される症状 | 対処方法 |
+| --- | --- |
+| インストーラーを開くと **Windows によって PC が保護されました** と表示される | **詳細情報** → **実行** をクリックします |
+| **Enconvo needs 64-bit Windows** と表示される | 32-bit 版の Windows では Enconvo は動作しません |
+| 選んだフォルダをインストーラーが使えない | 空のフォルダ、またはすでに Enconvo が入っているフォルダを選んでください |
+| Enconvo のウィンドウが真っ白のまま、または開かない | [Microsoft Edge WebView2 ランタイム](https://developer.microsoft.com/microsoft-edge/webview2/) をインストールしてから、Enconvo をもう一度開いてください |
+| Enconvo の通知をクリックしても反応しない | **管理者として実行** ではなく、通常の権限で Enconvo を開いてください |
+
+## Enconvo を削除する
+
+**設定 → アプリ → インストールされているアプリ**（Windows 10 では **設定 → アプリ → アプリと機能**）を開き、**Enconvo** を見つけて **アンインストール** を選択します。
+
+設定とチャット履歴はユーザーフォルダ内の `.config\enconvo`（`%USERPROFILE%\.config\enconvo`）に残ります。これらも削除するには、そのフォルダを削除してください。

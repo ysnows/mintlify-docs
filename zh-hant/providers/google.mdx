@@ -1,0 +1,57 @@
+---
+title: "Google Gemini"
+description: "在 Enconvo 中使用 Gemini API 金鑰與 Gemini 模型對話。"
+---
+
+在對話、代理程式與 AI 指令中使用 Google 的 Gemini 模型。透過來自 Google AI Studio 的 Gemini API 金鑰連線；Google 會向你自己的帳號計費。此供應商在設定中列為 **Google Gemini AI**。
+
+<Note>
+Google Gemini 僅支援透過 API 金鑰連線。Google 已停止支援個人 Google 帳號的 Gemini 登入，因此 Enconvo 於 2.5.8 版本移除了 Google 帳號登入選項。若想透過 Google 帳號登入使用模型，請參閱 [Antigravity](/zh-hant/providers/antigravity)。
+</Note>
+
+## 連接設定
+
+<Steps>
+  <Step title="取得 API 金鑰">
+    前往 [Google AI Studio](https://aistudio.google.com/apikey) 建立一組金鑰。
+  </Step>
+  <Step title="加入 Enconvo">
+    開啟**設定 → AI 模型 → Google Gemini AI**。在**身分驗證**底下將金鑰貼入 **API 金鑰**，然後點擊**驗證**。
+  </Step>
+  <Step title="選擇模型">
+    在**模型名稱**中選擇一個模型並傳送一則簡短訊息。收到回覆即代表連線成功。
+  </Step>
+</Steps>
+
+若要保留第二組 Gemini 金鑰，請點擊**新增供應商**並建立另一個設定檔。
+
+## 模型與選項
+
+| 設定 | 功能說明 |
+| --- | --- |
+| **模型名稱** | 此供應商使用的模型。旁邊的**重新整理**可重新載入列表；**管理模型**（齒輪圖示）可新增或還原模型。 |
+| **Google Search Tool** | 依據 Google 搜尋結果提供回覆依據並附上可供查證的來源。預設為關閉。 |
+| **URL Context Tool** | 允許模型讀取你訊息中所附連結指向的網頁內容。預設為關閉。 |
+| **Show thoughts** | 隨回覆一併顯示模型的思考摘要。預設為關閉。 |
+
+具備思考能力的 Gemini 模型可讓你調整思考時間長度（即推理強度）。Gemini 4 Carbon 提供**低**、**中等**（預設）與**高**三種等級，且需要付費 API 方案。Gemini 4 Hydrogen 是適合日常寫程式與代理程式工作的快速模型，提供**低**、**中等**、**高**（預設）與 **X-High**（針對複雜的多步驟任務進行最長思考），且免費方案即可使用。
+
+同一組 Google Gemini 設定檔也同時支援 Gemini 文字轉語音、圖片生成、語音轉寫、影片生成與網頁搜尋，因此更改其金鑰會一併影響這些功能。
+
+## 疑難排解
+
+| 問題 | 解決方式 |
+| --- | --- |
+| **驗證**失敗 | 重新貼上完整的金鑰，並確認該金鑰在 Google AI Studio 中為啟用狀態。 |
+| 列表中缺少某個模型 | 點擊**模型名稱**旁的**重新整理**。若要自行加入模型，請使用**管理模型**。 |
+| 關於近期事件的回答已過時 | 開啟 **Google Search Tool**。 |
+| 發生速率或用量上限錯誤 | 在 Google AI Studio 中檢查你的配額，或暫時切換至其他供應商。 |
+
+## 相關文件
+
+<CardGroup cols={2}>
+  <Card title="Antigravity" icon="google" href="/zh-hant/providers/antigravity">透過 Google 登入使用模型，並了解相關帳號風險。</Card>
+  <Card title="憑證與設定檔" icon="key" href="/zh-hant/configuration/credentials">管理多組金鑰，並了解共用金鑰的影響範圍。</Card>
+  <Card title="選擇模型" icon="list-check" href="/zh-hant/ai/model-selection-guide">依任務挑選合適的模型，並查看預設值的設定位置。</Card>
+  <Card title="供應商目錄" icon="table" href="/zh-hant/providers/catalog">依支援的功能分類檢視所有供應商。</Card>
+</CardGroup>

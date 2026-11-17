@@ -1,0 +1,106 @@
+---
+title: "CLI y Local API"
+description: "Ejecuta los comandos de Enconvo desde Terminal y llama a su API HTTP local desde scripts, agentes y otras apps."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Esta página es para desarrolladores y usuarios avanzados que quieren controlar Enconvo desde Terminal, un script u otra app. El comando `enconvo` viene con la app de escritorio de Enconvo, sin instalación aparte, y la app sirve las rutas de cada plugin instalado a través de una API HTTP local.
+
+Este vídeo cubre la página de API, la Guía de la CLI y los Ganchos.
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="Cómo usar las API, la CLI y los Ganchos de Enconvo | Tutorial paso a paso" />
+
+Mantén Enconvo en ejecución para los comandos que usan su runtime local.
+
+## Buscar comandos
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+Añade `-h` al comando que estés investigando para ver sus subcomandos y opciones actuales.
+
+Abre **Ajustes → Guía de la CLI** para ver las extensiones instaladas que exponen comandos de CLI. Haz clic en un nombre para copiar su comando `enconvo <name> -h`. La lista de extensiones instaladas es la referencia de lo que admite tu app.
+
+Si tu shell no encuentra `enconvo`, abre la Guía de la CLI de la app y revisa la versión instalada y la configuración de la línea de comandos.
+
+## Llamar a la API local
+
+La app sirve cada ruta en `http://localhost:54535/api/<extension>/<route>`. Envía un `POST` con un cuerpo JSON:
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Abre **Ajustes → API** y haz clic en **Comprobar las API** para inspeccionar las rutas disponibles y los esquemas de petición, con un ejemplo de cada una. Usa el esquema de tu versión instalada al escribir una integración; los parámetros de las rutas pueden cambiar a medida que evolucionan las extensiones.
+
+## Ejecutar un Agente o un Comando de IA desde fuera de Enconvo
+
+Los ajustes de cada Agente y de cada Comando de IA tienen una fila **Enlace, CLI y API**. Muestra el enlace, el comando `enconvo` y la llamada a la API local que lo ejecutan con tu texto y tus archivos, listos para copiar.
+
+| Forma | Qué hace |
+| --- | --- |
+| Enlace | Abre un chat nuevo y ejecuta allí el Agente o el Comando de IA |
+| CLI | Lo ejecuta en segundo plano e imprime la respuesta |
+| Local API | Lo ejecuta en segundo plano y devuelve la respuesta |
+
+Un enlace tiene esta forma:
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` es el texto que se envía.
+- `window` es `chat_window` o `dynamic_island`. Omítelo para ejecutarlo en SmartBar.
+- `files` adjunta el archivo de una ruta absoluta o `~/`. Repítelo para varios archivos, por ejemplo para enviar imágenes desde otra app o un script.
+
+Desde Terminal:
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+Los comandos de escritura, como Traducir, Resumir y Convertir en lista, toman el texto como argumento y responden sin añadir un chat a tu historial. `enconvo agent main` responde en un chat nuevo cuando el agente está ocupado en el último.
+
+Las rutas equivalentes de la API local son `agent/call` (`agentId`, `message`, `context_files`) y `ai-command/run` (`command_key`, `input_text`, `files`).
+
+### Consultar los chats en curso
+
+- `agent/session/list` lista los chats que se están ejecutando ahora en todos los agentes y Proyectos, incluidos los chats de Claude Code y Codex, con el título, el agente y el Proyecto de cada uno. Pasa `filter: "waiting"` para los chats que esperan tu respuesta, o `"active"` para ambos.
+- `agent/session/status` comprueba un chat por su `sessionId`.
+- `agent/session/steer` añade un mensaje al turno que un chat está ejecutando ahora, sin detenerlo. Un chat que no se está ejecutando responde `not_running`; inicia un turno nuevo con `agent/call`. Una ejecución por debajo de Acceso total no puede orientar un turno de Enconvo.
+
+## Úsalo con cuidado
+
+Para un cliente de IA que solo necesita recuperar la base de conocimientos, usa la conexión dedicada [MCP de la base de conocimientos](/es/advanced/knowledge-base-mcp) en lugar de exponer la API local general.
+
+Trata el acceso a la API local y al shell como capacidades potentes: los comandos pueden leer o modificar datos locales según su implementación. Deja claro en los scripts el comando, la entrada y el destino.
+
+Las claves de API guardadas vuelven como `[hidden]` cuando un programa lee los ajustes a través de la API local, y solo las ventanas propias de Enconvo pueden cambiar adónde se envía una clave guardada. Consulta [Credenciales](/es/configuration/credentials).
+
+Un atajo que configures a través de la API local puede usar nombres cortos de modificadores (`cmd`, `ctrl`, `alt`, `opt`, `fn`) o los símbolos de los modificadores. Un atajo con una palabra que Enconvo no reconoce no se registra, y una tecla que escribe necesita Command, Control, Option o Function.
+
+## Construye sobre esto
+
+- [Desarrollar extensiones](/es/extensions/developing): añade tus propios comandos y rutas. Un archivo en `src/api/` de un plugin se convierte en una ruta aquí.
+- [Referencia de la API de extensiones](/extensions/extension-api-reference): los puntos de entrada del SDK.
+- [Ganchos](/es/configuration/hooks): ejecuta tus propios comandos en puntos concretos del trabajo de un Agente. Vienen de tu configuración JSON, y **Ajustes → Ganchos** lista los que están cargados.
+- [Tareas programadas](/es/workflows/scheduled-jobs): ejecuta trabajo a una hora elegida.
+- [Configurar Enconvo en un servidor Linux](/es/advanced/linux-server): configura los modelos, agentes y plugins de un servidor que añadió tu Mac, con el mismo comando `enconvo`.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Desarrollar extensiones" icon="code" href="/es/extensions/developing">
+    Crea un comando o una ruta de Local API
+  </Card>
+  <Card title="MCP de la base de conocimientos" icon="plug" href="/es/advanced/knowledge-base-mcp">
+    Dale tus bases de conocimientos a otro cliente de IA
+  </Card>
+</CardGroup>

@@ -1,0 +1,57 @@
+---
+title: "Google Gemini"
+description: "Gemini API キーを使用して Enconvo で Gemini モデルとチャットします。"
+---
+
+Google の Gemini モデルをチャット、エージェント、AI コマンドで利用します。Google AI Studio で取得した Gemini API キーで接続し、利用料金はご自身の Google アカウントに請求されます。設定画面では **Google Gemini AI** として表示されます。
+
+<Note>
+Google Gemini は API キーでのみ接続します。Google が個人用 Google アカウントによる Gemini サインインのサポートを終了したため、Enconvo は 2.5.8 で Google アカウント接続オプションを削除しました。Google サインイン経由でモデルを利用したい場合は [Antigravity](/ja/providers/antigravity) を参照してください。
+</Note>
+
+## 接続する
+
+<Steps>
+  <Step title="API キーを取得する">
+    [Google AI Studio](https://aistudio.google.com/apikey) で API キーを作成します。
+  </Step>
+  <Step title="Enconvo に追加する">
+    **設定 → AI モデル → Google Gemini AI** を開きます。**認証** の下の **API キー** にキーを貼り付け、**検証** をクリックします。
+  </Step>
+  <Step title="モデルを選ぶ">
+    **モデル名** でモデルを選択し、短いメッセージを送信します。応答が返れば接続成功です。
+  </Step>
+</Steps>
+
+2 つ目の Gemini キーを登録したい場合は、**新しいプロバイダーを追加** をクリックして別のプロファイルを作成してください。
+
+## モデルとオプション
+
+| 設定 | 動作 |
+| --- | --- |
+| **モデル名** | このプロバイダーで使用するモデルです。横の **更新** で一覧を再読み込みし、**モデルを管理**（歯車アイコン）でモデルの追加や復元を行えます。 |
+| **Google 検索ツール** | Google 検索の結果に基づいて回答を生成し、確認可能な出典を示します。デフォルトでオフです。 |
+| **URL コンテキストツール** | メッセージ内のリンク先ページをモデルが読み取れるようにします。デフォルトでオフです。 |
+| **思考を表示** | 回答と一緒にモデルの思考プロセスの要約を表示します。デフォルトでオフです。 |
+
+思考対応の Gemini モデルでは、推論の深さとして思考時間を設定できます。Gemini 4 Carbon は **低**、**中**（デフォルト）、**高** から選べ、有料 API ティアが必要です。日常のコーディングやエージェント作業向けの高速モデルである Gemini 4 Hydrogen は **低**、**中**、**高**（デフォルト）、そして複雑な複数ステップのタスクで最も長く考える **特高** から選べ、無料ティアでも利用できます。
+
+同じ Google Gemini プロファイルは Gemini の音声合成、画像生成、文字起こし、動画生成、Web 検索でも共有されるため、キーを変更するとそれらの機能にも影響します。
+
+## トラブルシューティング
+
+| 問題 | 対処方法 |
+| --- | --- |
+| **検証** に失敗する | キー全体を再貼り付けし、Google AI Studio で有効になっているか確認してください。 |
+| モデルが見つからない | **モデル名** の横にある **更新** をクリックしてください。自分でモデルを追加するには **モデルを管理** を使います。 |
+| 時事問題に関する回答が古い | **Google 検索ツール** をオンにしてください。 |
+| レート制限または利用枠エラーが出る | Google AI Studio でクォータを確認するか、いったん別のプロバイダーに切り替えてください。 |
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="Antigravity" icon="google" href="/ja/providers/antigravity">Google サインイン経由でモデルを使う方法と、アカウントに関する注意点。</Card>
+  <Card title="認証情報とプロファイル" icon="key" href="/ja/configuration/credentials">複数のキーを保管する方法と、共有キーの影響範囲。</Card>
+  <Card title="モデルを選ぶ" icon="list-check" href="/ja/ai/model-selection-guide">タスク別のモデル選びとデフォルト設定の場所。</Card>
+  <Card title="プロバイダーカタログ" icon="table" href="/ja/providers/catalog">機能別に整理された全プロバイダー一覧。</Card>
+</CardGroup>

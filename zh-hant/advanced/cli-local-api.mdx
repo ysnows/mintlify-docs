@@ -1,0 +1,106 @@
+---
+title: "CLI 與 Local API"
+description: "從終端機執行 Enconvo 指令，並從腳本、代理程式與其他 App 呼叫它的本機 HTTP API。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+本頁適合希望從終端機、腳本或其他應用程式操作 Enconvo 的開發者與進階使用者。`enconvo` 指令隨 Enconvo 桌面 App 一同附帶，無須另外安裝；同時，App 也會透過本機 HTTP API 提供所有已安裝外掛程式的路由。
+
+這支影片介紹 API 頁面、CLI 指南與掛鉤（Hooks）。
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="如何使用 Enconvo 的 API、CLI 與掛鉤 | 步驟教學" />
+
+執行使用本機執行階段的指令時，請保持 Enconvo 處於開啟狀態。
+
+## 尋找指令
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+在任何想查詢的指令後方加上 `-h`，即可查看它目前的子指令與選項。
+
+開啟 **設定 → CLI 指南**，可查看有哪些已安裝的擴充功能提供 CLI 指令。點選任一名稱即可複製它的 `enconvo <name> -h` 指令。目前安裝的擴充功能列表即為你這版 App 支援能力的準則。
+
+如果 Shell 找不到 `enconvo`，請開啟 App 內的 CLI 指南，檢查你安裝的 App 版本與命令列設定。
+
+## 呼叫 Local API
+
+App 會在 `http://localhost:54535/api/<extension>/<route>` 提供每一個路由。以 `POST` 傳送 JSON 內容即可呼叫：
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+開啟 **設定 → API** 並點選 **檢查 API**，即可瀏覽所有可用路由與請求結構描述，每個項目都附有請求範例。撰寫整合程式時，請以你目前安裝版本所顯示的結構描述為準；隨著擴充功能演進，路由參數也可能會隨之調整。
+
+## 從 Enconvo 外部執行代理程式或 AI 指令
+
+每個代理程式與 AI 指令的設定中都有一列 **連結、CLI 與 API**。它會列出對應的連結、`enconvo` 指令以及 Local API 呼叫方式，讓你一鍵複製即可帶著你的文字與檔案執行它。
+
+| 方式 | 作用 |
+| --- | --- |
+| 連結 | 開啟新對話並在其中執行該代理程式或 AI 指令 |
+| CLI | 在背景執行並將結果印出至終端機 |
+| Local API | 在背景執行並直接回傳結果 |
+
+連結的格式如下：
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` 是要傳送的文字。
+- `window` 可為 `chat_window` 或 `dynamic_island`；省略則會在 SmartBar 中執行。
+- `files` 會附加位於絕對路徑或 `~/` 路徑的檔案。重複加上此參數即可附加多個檔案，例如從其他 App 或腳本一次傳送多張圖片。
+
+從終端機執行：
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+Translate、Summarize 與 Convert to List 等寫作指令可直接將文字作為引數傳入並取得回答，且不會在你的紀錄中新增一筆對話。當預設代理程式在最新對話中正忙時，`enconvo agent main` 會在新的對話中回答。
+
+對應的 Local API 路由分別為 `agent/call`（參數為 `agentId`、`message`、`context_files`）與 `ai-command/run`（參數為 `command_key`、`input_text`、`files`）。
+
+### 查看進行中的對話
+
+- `agent/session/list` 會列出目前跨所有代理程式與專案正在執行的對話（包含 Claude Code 與 Codex 對話），並附上各自的標題、代理程式與所屬專案。傳入 `filter: "waiting"` 可篩選正在等你回覆的對話，傳入 `"active"` 則同時列出兩種狀態。
+- `agent/session/status` 可依 `sessionId` 查詢單一對話的狀態。
+- `agent/session/steer` 可在不中斷的情況下，將新訊息加入正在執行的一輪對話中。未在執行中的對話會回傳 `not_running`，此時請改用 `agent/call` 開啟新一輪。低於完全存取權限（Full access）的執行環境無法引導 Enconvo 的進行中輪次。
+
+## 安全使用須知
+
+如果 AI 用戶端只需要查詢知識庫內容，請使用專屬的[知識庫 MCP](/zh-hant/advanced/knowledge-base-mcp) 連線，不要將通用的 Local API 暴露出去。
+
+請把 Local API 與 Shell 存取視為高權限能力：指令會依據實作內容讀取或修改本機資料。請在腳本中明確指定要執行的指令、輸入與目標位置。
+
+透過 Local API 讀取設定時，已儲存的 API 金鑰會一律顯示為 `[hidden]`，且只有 Enconvo 自己的視窗能修改已儲存金鑰的傳送目的地。請參閱[憑證](/zh-hant/configuration/credentials)。
+
+透過 Local API 設定快速鍵時，可以使用簡寫修飾鍵名稱（`cmd`、`ctrl`、`alt`、`opt`、`fn`）或修飾鍵符號。包含 Enconvo 不認識的字詞的快速鍵不會被註冊，而可輸入字元的按鍵必須搭配 Command、Control、Option 或 Function。
+
+## 在此之上開發
+
+- [開發擴充功能](/zh-hant/extensions/developing)：新增你自己的指令與路由。外掛程式 `src/api/` 資料夾中的檔案會自動成為這裡的路由。
+- [Extension API Reference](/extensions/extension-api-reference)：SDK 的所有進入點。
+- [掛鉤（Hooks）](/zh-hant/configuration/hooks)：在代理程式作業的特定時間點執行自訂指令。它們來自你的 JSON 設定，並可在 **設定 → 掛鉤** 中查看已載入的項目。
+- [自動化排程](/zh-hant/workflows/scheduled-jobs)：在指定時間自動執行工作。
+- [在 Linux 伺服器上設定 Enconvo](/zh-hant/advanced/linux-server)：使用同樣的 `enconvo` 指令，設定你從 Mac 加入的遠端伺服器上的模型、代理程式與外掛程式。
+
+## 相關指南
+
+<CardGroup cols={2}>
+  <Card title="開發擴充功能" icon="code" href="/zh-hant/extensions/developing">
+    建置自己的指令或 Local API 路由
+  </Card>
+  <Card title="知識庫 MCP" icon="plug" href="/zh-hant/advanced/knowledge-base-mcp">
+    讓其他 AI 用戶端存取你的知識庫
+  </Card>
+</CardGroup>

@@ -1,0 +1,91 @@
+---
+title: "Mit deinem Telefon koppeln"
+description: "Kopple die Enconvo-App für iPhone oder Android mit einem Mac, einem Windows-PC, einem Linux-Desktop oder einem Linux-Server, der nur ein Terminal hat."
+---
+
+Die Enconvo-App auf deinem Telefon koppelt sich mit jedem deiner Computer, sodass ihre Projekte und Chats auf dem Telefon sind. Ein Chat, den du vom Telefon öffnest, läuft weiter auf diesem Computer, mit seinen Dateien, Apps und Agenten. Das Telefon erreicht den Computer über das Enconvo-Relay, und Nachrichten sind Ende-zu-Ende verschlüsselt. Wenn Telefon und Computer im selben Netzwerk sind, verbindet sich die App direkt, sodass sie zu Hause oder im Büro schneller verbindet und antwortet.
+
+Jeder Computer koppelt sich allein mit dem Telefon. Zwei Computer miteinander zu koppeln (etwa ein Linux-Laptop mit deinem Mac) fügt keinen von beiden dem Telefon hinzu: Kopple das Telefon mit jedem Computer, den du von dort nutzen willst.
+
+## Bevor du anfängst
+
+- **Hol dir die App.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play oder die APK. **Telefon-App holen** unter **Einstellungen → Verbindungen** auf deinem Computer hat für jede einen Download-Code; die Schaltfläche **Telefon-App holen** des Mobile-Companion-Plugins öffnet sie ebenfalls.
+- **Nutze ein Konto.** Melde die Telefon-App und den Computer beim selben Enconvo-Konto an. Nur Telefone auf deinem Konto können koppeln. Ein kostenloses Konto kann ebenfalls koppeln und die Chats und den Remote-Bildschirm des Computers vom Telefon aus nutzen.
+- **Lass den Computer an und Enconvo laufen.** Das Telefon erreicht einen Computer nur, solange Enconvo dort läuft.
+
+## Mac, Windows oder ein Linux-Desktop
+
+Die Schritte sind auf allen drei gleich.
+
+<Steps>
+  <Step title="Kopplungscode auf dem Computer zeigen">
+    Klicke unten in der Seitenleiste auf den Geräteumschalter, dann auf **Gerät hinzufügen → Telefon koppeln**. Oder öffne **Einstellungen → Verbindungen** und wähle **Kopplungscode anzeigen**. Ein QR-Code erscheint. Er funktioniert einmal und gilt fünf Minuten.
+  </Step>
+  <Step title="Mit dem Telefon scannen">
+    Öffne in der Enconvo-App **Remote**, tippe auf **Computer koppeln** und richte die Kamera auf den Code. Du kannst ihn auch mit der iPhone-Kamera, einer Android-Kamera oder Google Lens scannen: Der Code öffnet Enconvo, und du bestätigst den Computer dort. Wenn die App noch nicht installiert ist, hilft der Link des Codes beim Installieren und dann beim Koppeln.
+  </Step>
+  <Step title="Den Computer vom Telefon aus nutzen">
+    Das Telefon koppelt sich in einem Moment und zeigt den Computer. Bei mehr als einem gekoppelten Computer wechselst du unter **Remote** zwischen ihnen.
+  </Step>
+</Steps>
+
+Wenn der Code abläuft, wähle **Neuen Code anzeigen** und scanne erneut.
+
+## Ein Linux-Server mit nur einem Terminal
+
+Ein Server hat kein Fenster, um den Code zu zeigen, also gibt die Kommandozeile ihn aus. Das braucht Enconvo 2.5.15 Beta 1 oder neuer. Folge zuerst [Auf einem Server installieren](/de/getting-started/linux).
+
+<Steps>
+  <Step title="Den Server anmelden">
+    ```bash
+    enconvo login
+    ```
+    Bestätige den Code, den es ausgibt, unter `enconvo.com/device`.
+  </Step>
+  <Step title="Enconvo laufen lassen">
+    ```bash
+    enconvo service install
+    ```
+    Das Telefon erreicht den Server nur, solange Enconvo dort läuft.
+  </Step>
+  <Step title="Den Kopplungscode ausgeben">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Es zeichnet einen QR-Code im Terminal, mit einem Link darunter, und sagt, wann er abläuft. Der Code funktioniert einmal und gilt fünf Minuten.
+  </Step>
+  <Step title="Scannen oder den Link öffnen">
+    Scanne den Code mit der Kamera des Telefons oder öffne den Link auf dem Telefon. Bestätige in der Enconvo-App, und der Server erscheint auf dem Telefon.
+  </Step>
+</Steps>
+
+- **Über SSH**: Der Code wird in deinem eigenen Terminal gezeichnet, also funktioniert er auch über SSH. Wenn er umbricht, verbreitere das Fenster oder öffne stattdessen den Link.
+- **Anmeldung**: Im eigenen Terminal getippt, meldet der Code auch die Telefon-App an, also schick ihn nur an dein eigenes Telefon. Weitergeleitete oder gespeicherte Ausgabe oder ein Befehl, den ein Agent ausführt, gibt nur den Link aus, der die App nicht anmeldet: Melde die App zuerst beim selben Konto an.
+- **Abgelaufen**: Führe `enconvo companion pair --phone` erneut aus.
+
+## Gekoppelte Telefone verwalten
+
+**Einstellungen → Verbindungen** auf jedem Computer listet seine gekoppelten Telefone.
+
+| Um | Tu das |
+|---|---|
+| Ein weiteres Telefon zu koppeln | Zeige einen neuen Code und scanne ihn mit diesem Telefon. Ein Computer kann bis zu 10 gekoppelte Telefone haben. |
+| Ein Telefon umzubenennen | Klicke auf das Telefon und dann neben seinem Namen auf **Telefon umbenennen**. |
+| Ein Telefon zu entfernen | Wähle daneben **Entfernen**. Dieses Telefon kann diesen Computer nicht mehr erreichen. |
+| Neu zu beginnen | Wähle **Verbindung zurücksetzen**. Jedes Telefon wird entfernt und muss erneut koppeln. |
+
+## Fehlerbehebung
+
+| Problem | Lösung |
+|---|---|
+| Ein Computer ist nicht auf dem Telefon | Kopple das Telefon mit diesem Computer selbst. Ihn mit einem anderen Computer zu koppeln fügt ihn nicht hinzu. |
+| **Dieser Code ist abgelaufen** | Zeige einen neuen Code oder führe den Befehl erneut aus und scanne innerhalb von fünf Minuten. |
+| **Anmelden, um ein Telefon zu koppeln** | Melde den Computer bei Enconvo an. Auf einem Server führe `enconvo login` aus. |
+| Der Server sagt, er sei nicht angemeldet | Führe `enconvo login` aus, dann erneut `enconvo companion pair --phone`. |
+| Das Telefon zeigt den Server als offline | Prüfe, dass Enconvo dort läuft: `enconvo service install` und `sudo loginctl enable-linger "$USER"`, wenn es beim Abmelden stoppt. |
+
+## Nächste Schritte
+
+- [iPhone-App](/de/integrations/iphone-app): was du vom Telefon aus tun kannst, mit einem Video-Tutorial.
+- [Linux (Beta)](/de/getting-started/linux): Enconvo auf einem Desktop oder einem Server installieren.
+- [Deine anderen Computer](/de/integrations/other-computers): deine Computer miteinander koppeln.

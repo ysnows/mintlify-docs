@@ -1,0 +1,84 @@
+---
+title: "プロバイダー"
+description: "Enconvo が AI モデルへ接続する方法を選択します（Enconvo Cloud、自分の API キー、契約中のプラン、Mac 上のローカルモデル）。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+プロバイダーとは、チャットに答えるモデル、テキストを読み上げる音声、ウェブ検索を行うエンジンなど、Enconvo の各機能の裏側で動くサービスのことです。機能ごとに 1 つ選択でき、組み合わせて使うこともできます。
+
+次の 2 分間の動画では、**設定 → AI モデル**の使い方を解説しています（オートルート、Cloud プラン、ChatGPT・Claude・GitHub Copilot・Antigravity・Grok の各プランでのサインイン、API キー、Mac 上のローカルモデル、Ollama・LM Studio、独自プロバイダーの追加）。
+
+<YouTubePlayer videoId="_mRULjM5ZKw" title="How to Use AI Models in Enconvo | Step-by-Step Tutorial" />
+
+## 接続方法を選ぶ
+
+| 目的 | 使うもの | 参照ページ |
+| --- | --- | --- |
+| キーの設定なしですぐ始める | Enconvo アカウントを通じた Enconvo Cloud | [Enconvo Cloud](/ja/providers/enconvo) |
+| メッセージごとに Enconvo に最適なモデルを選ばせる | デフォルトモデルのオートルート | [オートルート](/ja/providers/auto-route) |
+| すでに契約しているプランを使う | ChatGPT、Claude、Grok、Mistral、GitHub Copilot、または Antigravity でサインイン | [プランでサインインする](#プランでサインインする) |
+| プロバイダーに直接従量課金する | 自分の API キー | [主なプロバイダー](#主なプロバイダー) |
+| 1 つのキーで各社のモデルを使う | OpenRouter や PipeLLM などのゲートウェイ | [OpenRouter](/ja/providers/openrouter)、[PipeLLM](/ja/providers/pipellm) |
+| Mac 内部だけでチャットを完結させる | ローカルモデル | [ローカルモデル](/ja/ai/local-llm) |
+| Ollama や LM Studio で起動中のモデルを使う | **Ollama** または **LM Studio** プロバイダー | [Ollama](/ja/providers/ollama)、[LM Studio](/ja/providers/lm-studio) |
+| iPhone アプリ単体のチャットでモデルを使う | スマートフォンチャット | [スマートフォンチャット](/ja/integrations/iphone-phone-chats) |
+
+## チャットモデルを選ぶ
+
+<Steps>
+  <Step title="AI モデルを開く">
+    **設定 → AI モデル**を開きます。中央の列にすべてのプロバイダーが並んでおり、上部に **オートルート** と **Enconvo Cloud プラン**、その下に各社サービス、ローカルモデル、その他のプロバイダーが続きます。
+  </Step>
+  <Step title="プロバイダーを選んで接続する">
+    プロバイダーをクリックします。両方に対応している場合は、自分のキーでリクエストごとに支払う **API キー** か、契約プランの枠を使うサブスクリプション（例：**ChatGPT サブスクリプション**）を選んでサインインします。
+  </Step>
+  <Step title="モデルを選ぶ">
+    **Model Name** からモデルを選び、プロバイダーが対応している場合は **推論の強さ** も選択します。
+  </Step>
+  <Step title="デフォルトに設定する">
+    **デフォルトに設定**をクリックします。個別にモデルを指定していないチャットや機能はこのモデルを使うようになります。
+  </Step>
+</Steps>
+
+一覧にないサービスを追加したい場合は、リスト下部の **新しいプロバイダーを追加** をクリックし、**OpenAI Compatible** または **Anthropic Compatible** を選択します。
+
+プロバイダーはいつでも切り替え可能で、チャットが特定の 1 社に縛られることはありません。
+
+**設定 → AI モデル**の上部には、チャットのタイトル生成や提案といった裏方処理用の小さなモデルを選ぶ **タスクモデル** と、チャット用モデルが使えないときに自動で切り替わるバックアップ用の **フォールバック** もあります。[モデルを選ぶ](/ja/ai/model-selection-guide)を参照してください。
+
+## プランでサインインする
+
+| プラン | プロバイダーページ |
+| --- | --- |
+| ChatGPT | [ChatGPT サブスクリプション](/ja/providers/openai_subscription) |
+| Claude | [Claude サブスクリプション](/ja/providers/anthropic_subscription) |
+| Grok | [xAI (Grok)](/ja/providers/xai) |
+| Mistral アカウント | [Mistral AI](/ja/providers/mistral) |
+| GitHub Copilot | [GitHub Copilot](/ja/providers/github-copilot) |
+| Antigravity（Google サインイン） | [Antigravity](/ja/providers/antigravity) |
+
+## 主なプロバイダー
+
+<CardGroup cols={3}>
+  <Card title="OpenAI" href="/ja/providers/openai">API キーまたは ChatGPT プランで GPT モデルを利用できます。</Card>
+  <Card title="Anthropic" href="/ja/providers/anthropic">API キーまたは Claude プランで Claude モデルを利用できます。</Card>
+  <Card title="Google Gemini" href="/ja/providers/google">API キーで Gemini モデルを利用できます。</Card>
+  <Card title="xAI (Grok)" href="/ja/providers/xai">API キーまたは Grok プランで Grok モデルを利用できます。</Card>
+  <Card title="DeepSeek" href="/ja/providers/deepseek">DeepSeek 独自のモデルです。</Card>
+  <Card title="OpenRouter" href="/ja/providers/openrouter">1 つのキーで各社の多様なモデルを利用できます。</Card>
+</CardGroup>
+
+同じく 1 つのキーで使えるゲートウェイである PipeLLM の[紹介ページ](/ja/providers/pipellm)もあります。その他のプロバイダーはサイドバーに並んでおり、[プロバイダーカタログ](/ja/providers/catalog)では機能別に一覧で確認できます。
+
+## 機能ごとにプロバイダーを設定する
+
+各機能にはそれぞれ専用の設定ページがあります（**AI モデル**、**テキスト読み上げ**、**ウェブ検索**、**画像生成**、**動画生成**、**Web Fetch**、**OCR**）。音声認識については、**音声入力モデル**、**録音モデル**、**文字起こしモデル**、**字幕モデル**ごとにページが分かれています。埋め込みとリランキングはナレッジベース内で設定します。
+
+チャットモデルを変更しても、音声・画像・検索のプロバイダーは変わりません。それぞれ必要な場所で設定してください。
+
+## プロファイル
+
+プロバイダープロファイルには 1 組のキーまたはサインイン情報が保存されます。仕事用アカウントなどを追加して 2 つ目を保持したい場合は、プロバイダーのページで **新しいプロバイダーを追加** をクリックします。OpenAI のように 1 つのプロファイルでチャット、埋め込み、テキスト読み上げ、画像、文字起こしなど複数機能をカバーするものもあり、その場合はキーを変更すると関連するすべての機能に反映されます。[認証情報とプロファイル](/ja/configuration/credentials)を参照してください。
+
+デフォルトモデルの設定場所や、各チャットが独自のモデルを保持する仕組みについては[モデルを選ぶ](/ja/ai/model-selection-guide)をご覧ください。

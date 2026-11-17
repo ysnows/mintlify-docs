@@ -1,0 +1,133 @@
+---
+title: "Gmail"
+description: "連接一次 Gmail，讓代理程式在任何聊天中搜尋、閱讀、整理與傳送你的郵件。"
+---
+
+Gmail 連接器將你的電子郵件帶入 Enconvo。只要請代理程式尋找重要郵件、摘要討論串、草擬回覆或清理收件匣，它就會代你操作 Gmail。你只需透過自己的 Enconvo 帳號連接 Google 帳號一次，不需要建立 Google Cloud 專案或申請 API 金鑰。
+
+你在這裡連接的 Gmail 帳號也會出現在[電子郵件](/zh-hant/integrations/email)中，讓你親自閱讀、整理並回覆郵件。
+
+## 開始之前
+
+請先在**設定 → 帳號**中登入你的 Enconvo 帳號。所有方案皆可免費使用連接器，但需要有 Enconvo 帳號。
+
+## 連接 Gmail
+
+<Steps>
+  <Step title="尋找 Gmail">
+    開啟**設定 → 外掛程式**，在 **Enconvo** 分頁搜尋 **Gmail**。點擊它以開啟設定頁面。
+  </Step>
+  <Step title="連接">
+    點擊**連接**。瀏覽器隨即會開啟 Google 登入頁面。
+  </Step>
+  <Step title="允許存取">
+    選擇你的 Google 帳號，並在允許前檢視它請求的權限。Google 的授權畫面會顯示 Enconvo 的整合合作夥伴 Composio。
+  </Step>
+  <Step title="檢查結果">
+    回到 Enconvo 後，你的電子郵件地址會顯示在**帳號**下方。點擊**立即體驗**，或先向代理程式提出唯讀問題，例如「摘要今天收件匣中的未讀郵件」。
+  </Step>
+</Steps>
+
+如果在連接 Gmail 前就向代理程式詢問郵件相關問題，聊天中會出現一張卡片引導你進行連接。
+
+## 代理程式能做什麼
+
+| 範圍 | 代理程式能做什麼 |
+| --- | --- |
+| 閱讀 | 搜尋郵件、開啟信件與討論串、下載附件、列出標籤與草稿 |
+| 整理 | 新增與移除標籤、封存、將郵件移至垃圾桶與還原 |
+| 撰寫 | 建立與寄出草稿、傳送新郵件、回覆與轉寄 |
+
+搜尋採用 Gmail 自身的搜尋語法，例如 `from:john@example.com`、`subject:invoice` 或 `after:2024/01/01`。
+
+當代理程式撰寫或傳送郵件時，它可以設定收件人、副本（CC）與密件副本（BCC），撰寫純文字或 HTML 內文，在既有討論串中回覆，並從你的 Mac 附上檔案：每次最多 10 個檔案，每個檔案上限為 95 MB。若檔案總大小超過單封郵件上限（合計 25 MB），系統會改以 file.enconvo.com 的下載連結傳送，任何取得該連結的人都能下載該檔案。
+
+<Warning>
+代理程式可以直接傳送郵件而不先詢問你。如果想在寄出前先檢查內容，請要求建立草稿。Enconvo 永遠不會永久刪除郵件；刪除動作會將郵件移至垃圾桶。
+</Warning>
+
+## 選項
+
+連接帳號後，Gmail 頁面上會顯示以下選項。
+
+| 選項 | 作用 |
+| --- | --- |
+| **適用於所有聊天** | 開啟：代理程式在每個對話中都能使用 Gmail。關閉：代理程式只會在你使用 `@` 提及它或設定檔包含它時使用。 |
+| **郵件提醒** | 重要郵件寄達時，在動態島與你的手機上提醒你。此功能預設關閉，直到你在**排程工作 → 重要郵件**中開啟它；其中的**手機**開關會將提醒推播至已配對的 iPhone 或 Android 手機。開啟前 Enconvo 會先詢問你，因為每封新郵件的寄件人、主旨與開頭內容會傳送至 Enconvo Cloud 以判斷重要程度，而郵件本身不會儲存在雲端。 |
+| **連接其他帳號** | 新增另一個 Gmail 地址，最多支援 5 個。 |
+
+連接多個帳號時，代理程式會從所有帳號讀取郵件，並在寄信或建立草稿時使用預設帳號，除非你另外指定其他帳號（例如「用我的公司信箱寄出」）。在帳號選單中選擇**設為預設**即可更改預設帳號。
+
+## 在聊天中使用 Gmail
+
+連接 Gmail 後，直接說出你的需求，代理程式會自行挑選合適的 Gmail 工具。
+
+**搜尋與摘要：**
+```
+"Find all emails from John in the last week and summarize them"
+```
+
+**草擬回覆：**
+```
+"Draft a reply to the latest email from marketing@company.com thanking them for the report"
+```
+
+**清理收件匣：**
+```
+"Archive all newsletters from the past month"
+```
+
+**管理標籤：**
+```
+"Create a label called 'Q1 Reports' and move all emails with 'quarterly report' in the subject there"
+```
+
+**清理舊郵件（會移至垃圾桶）：**
+```
+"Delete all promotional emails older than 6 months"
+```
+
+## 工作流程點子
+
+Gmail 也適用於[工作流程](/zh-hant/workflows/introduction)與[排程工作](/zh-hant/workflows/scheduled-jobs)：
+
+| 點子 | 作用 |
+| --- | --- |
+| **每日郵件摘要** | 搜尋未讀郵件、彙整重點並呈現晨間簡報 |
+| **自動分類** | 搜尋新郵件並依據內容套用標籤 |
+| **後續追蹤提醒** | 找出等待回覆的郵件並建立提醒事項 |
+| **報告彙整** | 搜尋符合條件的郵件並彙編成摘要報告 |
+
+## 隱私權
+
+- **經由 Enconvo Cloud 與 Composio**：你的郵件僅在執行你要求的操作時經由 Enconvo Cloud 與 Composio 處理，不會被儲存。
+- **密碼保留在 Google**：你在 Google 自己的頁面上登入，Enconvo 永遠不會接觸你的 Google 密碼。
+- **依需求讀取**：代理程式只在任務需要時才讀取 Gmail。唯一的例外是當你自行開啟**郵件提醒**時，系統會在每封新郵件寄達時進行檢查。
+- **隨時可撤銷權限**：在 Gmail 頁面上點擊**中斷連線**即可移除你所有裝置上的存取權限。你也可以在你的 [Google 帳號權限](https://myaccount.google.com/permissions)頁面中移除存取權。
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| **連接**按鈕呈現灰色無法點擊 | 請先在**設定 → 帳號**中登入你的 Enconvo 帳號。 |
+| Gmail 顯示**重新連線** | 授權已過期。點擊**重新連線**並再次使用 Google 登入。 |
+| 代理程式沒有使用 Gmail | 確認 Gmail 是否已連接。如果**適用於所有聊天**為關閉狀態，請在聊天中使用 `@` 提及 Gmail。 |
+| 搜尋找不到任何郵件 | 先試著用更簡單的查詢條件（例如 `from:john`），並確認郵件確實位於已連接的帳號中。Gmail 搜尋語法與 Gmail 網頁版相同。 |
+| 附件無法寄出 | 確認檔案路徑正確且檔案確實存在於你的 Mac 上。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="Apple 應用程式" icon="envelope" href="/zh-hant/integrations/apple-ecosystem">
+    使用郵件 App 以及你 Mac 上的其他應用程式。
+  </Card>
+  <Card title="代理程式" icon="robot" href="/zh-hant/ai/agents">
+    為你操作 Gmail 的代理程式。
+  </Card>
+  <Card title="電子郵件" icon="inbox" href="/zh-hant/integrations/email">
+    在聊天視窗中閱讀與回覆任何 IMAP 信箱。
+  </Card>
+  <Card title="排程工作" icon="clock" href="/zh-hant/workflows/scheduled-jobs">
+    排定按時執行的電子郵件任務。
+  </Card>
+</CardGroup>

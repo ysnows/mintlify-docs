@@ -1,0 +1,363 @@
+---
+title: "Erweiterte Workflows"
+description: "Verzweige, schleife, wiederhole, hole strukturierte Ergebnisse, wechsle das Modell pro Schritt und setze Workflows zusammen, mit vollständigen Beispielen zum Kopieren."
+---
+
+Nutze diese Funktionen, wenn eine gerade Liste von Schritten nicht reicht: einen Schritt nur ausführen, wenn eine Bedingung gilt, einen Schritt über eine Liste wiederholen, einen Lauf weiterlaufen lassen, wenn ein Schritt scheitert, strukturierte Ergebnisse holen und einen Workflow aus einem anderen aufrufen. Vollständige Beispiel-Workflows stehen am Ende. Wenn das Format `agent-workflow/v1` neu für dich ist, fang mit [Workflows erstellen](/de/workflows/creating-workflows) an.
+
+Shell-Pfade und die Verfügbarkeit von Tools oder Anbietern müssen zu deinem Mac passen, bevor du diese Beispiele ausführst.
+
+<Tip>
+Im visuellen Editor musst du das nicht von Hand schreiben: Der Abschnitt Verhalten im Schritt-Inspektor setzt `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs` und das Ausgabeschema aus Auswahlmöglichkeiten in normaler Sprache.
+</Tip>
+
+## Verzweigen
+
+### Einen Schritt nur ausführen, wenn eine Bedingung wahr ist (`if`)
+
+Hänge `if:` an, um einen Schritt nur auszuführen, wenn eine Bedingung wahr ist. Wenn die Bedingung falsch ist, werden der Schritt und alles danach übersprungen:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+Bedingungen sind Vorlagenausdrücke, die auf Wahrhaftigkeit geprüft werden, etwa `inputs.score >= 60`, `steps.check.output.exitCode == 0` oder eine einfache boolesche Eingabe.
+
+### Den anderen Zweig ausführen (`else_of`)
+
+`else_of:` führt einen Schritt nur aus, wenn der genannte Schritt durch seine Bedingung übersprungen wurde. Es ist die „sonst“-Seite eines `if`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### Zusammenführen und aufräumen (`run_when: always`)
+
+Ein Schritt mit `needs` wird normalerweise übersprungen, wenn eine Abhängigkeit übersprungen wurde, und der Lauf stoppt, wenn eine erforderliche Abhängigkeit scheitert. `run_when: always` hebt beides auf: Der Schritt läuft, sobald seine Abhängigkeiten fertig sind, ob sie gelungen, übersprungen oder gescheitert sind. Nutze es zum Zusammenführen und Aufräumen:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### Einen Schritt ausschalten (`enabled: false`)
+
+`enabled: false` behält einen Schritt im Workflow, überspringt ihn aber bei jedem Lauf. Anders als eine übersprungene Bedingung überspringt ein ausgeschalteter Schritt nicht, was danach kommt:
+
+- Seine Abhängigen laufen weiter, und alles, was seine Ausgabe liest, bekommt einen leeren Wert.
+- Sein `else_of`-Schritt wird ebenfalls übersprungen.
+
+Entferne den Schlüssel (oder setze ihn auf `true`), um den Schritt wieder einzuschalten. Im Editor nutze im Inspektor **Schritt ausschalten**.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## Schleifen
+
+### Für jedes Element einer Liste wiederholen (`foreach`)
+
+`foreach:` führt den Schritt einmal pro Element aus. Darin ist `{{ item }}` das aktuelle Element und `{{ index }}` seine Position. Nachfolgende Schritte erhalten das gesammelte Array der Ausgaben:
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` nimmt auch ein Inline-Array und funktioniert mit jeder Art von Schritt: ein `foreach` von `tool:`-Aufrufen, von Unter-Workflows und so weiter. Eine leere Liste ergibt ein leeres Ergebnis, und nachfolgende Schritte laufen weiter. Wenn ein Element scheitert, startet der Schritt keine neuen Elemente, außer er ist mit `required: false` markiert.
+
+### Wiederholen, bis eine Bedingung gilt (`loop`)
+
+`loop:` wiederholt einen Schritt. `until:` wird nach jeder Runde gegen `output` geprüft, das Ergebnis dieser Runde. `{{ round }}` ist die Rundennummer und `{{ last }}` die Ausgabe der vorigen Runde. Wenn `maxRounds` aufgebraucht ist, bevor `until` erfüllt ist, scheitert der Schritt.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+Lass `until` weg, um eine feste Anzahl zu schleifen:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## Zuverlässigkeit
+
+| Feld | Was es bewirkt |
+| --- | --- |
+| `retries` | Wiederholt einen gescheiterten Schritt. Nutze eine Anzahl (`retries: 2`) oder ein Objekt (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | Ein Scheitern dieses Schritts bricht den Lauf nicht ab; nachfolgende Schritte laufen weiter. |
+| `timeoutMs` | Stoppt einen Shell-Schritt, der zu lange läuft. |
+
+Ein Schritt, der 20 Minuten still bleibt, wird gestoppt und einmal mehr ausgeführt. Ein Lauf, den du stoppst, liest **Abgebrochen**, nicht gescheitert.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## Ausgabeverträge
+
+Hänge ein `output_schema` (ein JSON-Schema-Objekt) an einen `prompt`- oder `agent`-Schritt, um die Form der Antwort zu erzwingen. Du musst das JSON-Format nicht im Prompt-Text beschreiben: Die gewünschte Form wird dem Modell gegeben, und die Antwort wird geparst und geprüft, bevor nachfolgende Schritte sie nutzen. Setze `retries`, um einen gescheiterten Schritt zu wiederholen; eine Antwort, die die Prüfung weiter nicht besteht, lässt den Schritt scheitern.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## Modellwechsel pro Schritt
+
+`prompt`- und `agent`-Schritte nehmen optionales `provider:` und `model:`, um das Modell nur für diesen Schritt zu wechseln. Der Wechsel gilt für den Lauf; deine gespeicherte Modellkonfiguration bleibt unberührt. Nutze ein günstiges Modell für Massenschritte und ein stärkeres, wo es zählt.
+
+Setze `provider` auf den installierten Anbieter-Befehlsnamen und `model` auf eine Modell-ID, die dieser Anbieter in deinem aktuellen Build zeigt. Kopiere zum Beispiel beide Werte aus deiner funktionierenden Anbieterkonfiguration in den Prompt-Schritt. Modellverfügbarkeit und Berechtigungen sind kontospezifisch; die Beispiele auf dieser Seite nutzen dein konfiguriertes Standardmodell.
+
+<Note>
+`provider` ist ein Anbieterbefehl (etwa `enconvo_ai`, `open_ai` oder `ollama`) und `model` eine Modell-ID für diesen Anbieter. Beides gilt nur auf `prompt`- und `agent`-Schritten.
+</Note>
+
+## Unter-Workflows
+
+Setze Workflows mit `uses: workflow` zusammen, entweder über `workflowId:` (ein gespeicherter Workflow) oder mit einem Inline-Block `workflow:`. Die Ausgabe des Schritts ist das Ergebnis des Kindlaufs. Verweise auf die Schrittausgaben des Kindes mit `output.outputs['job.step']`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## Vorlagenreferenz
+
+| Referenz | Wo |
+|---|---|
+| `{{ inputs.x }}` | Überall: Workflow-Eingaben |
+| `{{ steps.<id>.output }}` | Überall: ein vorheriger Schritt im selben Job |
+| `{{ jobs.<job>.<step>.output }}` | Ein abgeschlossener Schritt in einem Abhängigkeitsjob |
+| `{{ item }}` / `{{ index }}` | In einem `foreach`-Schritt |
+| `{{ round }}` / `{{ last }}` | In einem `loop`-Schritt |
+| `{{ now }}` | Aktueller Zeitstempel |
+| `{{ env.HOME }}` | Umgebungsvariablen des Prozesses |
+
+Vorlagen unterstützen Nunjucks-Filter (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}` und andere), so formst du Daten zwischen Schritten um.
+
+## Vollständige Beispiele
+
+### Recherchieren, zusammenfassen und berichten
+
+Durchsuche das Web, fasse die Ergebnisse zusammen und baue einen Markdown-Bericht. Die Schritte laufen der Reihe nach in einem Job, also ist keine `needs`-Verdrahtung nötig:
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### Bedingtes Weiterleiten
+
+Nach einem Wert freigeben oder ablehnen und dann immer einen Abschlussbericht schreiben:
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### Schleifen, bis es passt
+
+Einen Entwurf wiederholt verfeinern, bis eine Selbstprüfung ihn freigibt, mit einer Obergrenze für die Runden:
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Workflows erstellen" icon="pen-to-square" href="/de/workflows/creating-workflows">
+    Der Editor, der Bearbeitungsassistent und jeder Schritttyp.
+  </Card>
+  <Card title="Workflows" icon="book-open" href="/de/workflows/introduction">
+    Jobs, Schritte und wie Workflows ausgeführt werden.
+  </Card>
+</CardGroup>

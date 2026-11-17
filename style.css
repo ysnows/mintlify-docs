@@ -1,13 +1,15 @@
 /* Language switcher: at the right end of the top bar, smaller than the default. */
 @media (min-width: 1024px) {
-  div:has(> #localization-select-trigger) {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+  /* Let the logo and the switcher join the top bar's own row, so the switcher can come last. */
+  div:has(> div > #localization-select-trigger) {
+    display: contents;
   }
-  div:has(> div > div > #localization-select-trigger) > div:nth-child(3) {
-    padding-right: 92px;
+  div:has(> div > #localization-select-trigger) > :first-child {
+    flex: 1 1 0%;
+  }
+  div:has(> #localization-select-trigger) {
+    order: 10;
+    margin-left: 12px;
   }
 }
 #localization-select-trigger {

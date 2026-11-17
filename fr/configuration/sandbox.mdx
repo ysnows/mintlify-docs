@@ -1,0 +1,85 @@
+---
+title: "Bac à sable de l’Agent"
+description: "Limitez les commandes d’un Agent à son dossier de travail, à l’écart de vos clés et des autres apps, et voyez pourquoi Enconvo demande avant qu’une commande s’exécute."
+---
+
+Le bac à sable limite ce que les commandes shell d’un Agent peuvent atteindre. Lorsqu’il est activé, une commande ne peut modifier que le dossier de travail du chat et le dossier temporaire, et macOS l’empêche de lire vos clés, de contrôler d’autres apps ou de se connecter à Enconvo. Activez-le pour un Agent qui exécute des commandes que vous ne voulez pas surveiller une par une.
+
+Le bac à sable fonctionne avec le mode d’autorisation de l’Agent. Le mode décide quand Enconvo demande avant une action ; le bac à sable limite ce qu’une commande peut faire une fois lancée.
+
+## Activer le bac à sable
+
+1. Ouvrez un chat avec l’Agent dans la Fenêtre de chat, SmartBar, Dynamic Island, la Barre latérale de l’app ou le chat principal d’un Projet.
+2. Cliquez sur la puce **Autorisations** à côté du mode d’exécution.
+3. Activez **Bac à sable**.
+
+Le commutateur appartient à l’Agent, donc il s’applique dans chaque fenêtre où vous utilisez cet Agent. Les Agents qu’il appelle exécutent aussi leurs commandes dans le bac à sable.
+
+Pour voir ce que le bac à sable laisse les commandes de l’Agent atteindre, cliquez sur **Comment fonctionne le bac à sable** sous le commutateur. Il dessine le bac à sable propre à l’Agent : son dossier de travail, son mode d’autorisation, et chaque endroit qu’une commande peut ou ne peut pas atteindre.
+
+## Ce qu’une commande isolée peut atteindre
+
+| Endroit | Dans le bac à sable |
+| --- | --- |
+| Le dossier de travail et le dossier temporaire | Peut lire et modifier |
+| Vos autres fichiers | Peut lire, ne peut pas modifier |
+| Internet | Peut se connecter |
+| Clés et mots de passe, comme les clés SSH, les trousseaux et les cookies | Ne peut pas lire |
+| Identifiants enregistrés et réglages d’Enconvo | Ne peut pas lire |
+| Autres apps | Ne peut pas les ouvrir ni les contrôler |
+| Enconvo | Ne peut pas s’y connecter |
+
+Chaque programme qu’une commande lance s’exécute aussi dans le bac à sable. Enconvo utilise le bac à sable propre à macOS, celui des apps de l’App Store.
+
+## Quand le bac à sable arrête une commande
+
+Lorsqu’une commande tente d’atteindre quelque chose que le bac à sable lui refuse, macOS refuse, et une ligne sous l’étape indique ce qui a été bloqué, comme une écriture dans un dossier ou la lecture d’un fichier de clé.
+
+1. Cliquez sur la ligne pour voir ce qui a été bloqué et pourquoi.
+2. Pour laisser la commande le faire, cliquez sur **Exécuter en dehors**. La commande s’exécute une fois avec votre accès complet, puis s’affiche dans le chat comme n’importe quelle autre commande. Rien n’est mémorisé.
+
+**Exécuter en dehors** n’est proposé que pendant que l’exécution est en cours et que quelqu’un la surveille. Les tâches planifiées et les autres exécutions que personne ne surveille n’exécutent jamais une commande hors du bac à sable.
+
+## Pourquoi Enconvo demande avant une commande
+
+Le mode d’autorisation de l’Agent décide de ce qui demande, avec ou sans bac à sable. Voir [Approuver les actions](/fr/ai/agents).
+
+| Mode | Avec le bac à sable activé |
+| --- | --- |
+| **Demander l’approbation** | Chaque commande demande encore avant de s’exécuter. Le bac à sable limite ce qu’une commande que vous autorisez peut faire. |
+| **Approuver pour moi** | Les commandes s’exécutent sans demander, sauf les plus risquées, comme supprimer des fichiers ou publier. |
+| **Accès complet** | Les commandes s’exécutent sans demander. Seules les modifications qui pourraient nuire à votre ordinateur demandent. |
+
+Enconvo lit chaque commande partie par partie, donc une étape nuisible cachée dans une commande entre guillemets, imbriquée, enchaînée ou dans un tube demande encore, et les commandes inoffensives, comme un echo ou le listage d’un dossier, ne demandent pas.
+
+Même en **Accès complet**, Enconvo demande avec **Autoriser une fois** et **Refuser** avant une modification qui pourrait nuire à votre ordinateur, comme supprimer un dossier critique, modifier les fichiers de démarrage de votre shell ou vos clés SSH, ou lire des mots de passe enregistrés, quelle que soit la façon dont la commande écrit le chemin.
+
+Avec **Approuver pour moi**, une commande que les règles ne peuvent pas juger est comparée à ce que vous avez demandé. Lorsque vous ne vous attendriez pas à ce qu’elle s’exécute seule, Enconvo vous demande et donne la raison.
+
+Chaque carte d’approbation nomme le réglage qui l’a fait demander, par exemple « Demandé parce que ce Projet est en Approuver pour moi. »
+
+## Autres actions qui demandent
+
+- [Utilisation de l’ordinateur](/fr/features/computer-use) demande avant un raccourci clavier qui supprime, envoie, paie, quitte une app ou se déconnecte, comme pour les clics.
+- Une commande qui appelle les routes propres à une page de plugin demande d’abord.
+- Approuver l’outil d’un plugin montre ce que l’outil est sur le point d’envoyer.
+- Un Agent demande avant d’appeler ou d’écrire à vos [amis](/fr/features/friends) et coéquipiers, sauf en **Accès complet**, où il ne demande pas.
+- Un Agent ne peut pas répondre à ses propres cartes d’approbation, élever ses propres autorisations, ni répondre à une carte qui vous est destinée, comme une installation de plugin ou le plafond de points.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Une commande échoue avec une erreur d’autorisation | Le bac à sable l’a peut-être bloquée. Cliquez sur la ligne sous l’étape, puis sur **Exécuter en dehors** si vous faites confiance à la commande. |
+| L’Agent ne peut pas ouvrir ou contrôler une app depuis une commande | Les commandes dans le bac à sable ne peuvent pas contrôler d’autres apps. Utilisez [Utilisation de l’ordinateur](/fr/features/computer-use), ou désactivez le bac à sable pour cet Agent. |
+| Vous vous attendiez à ce qu’Enconvo demande, et il ne l’a pas fait | Vérifiez le mode d’autorisation de l’Agent dans la puce **Autorisations**. **Accès complet** ne demande qu’avant les modifications qui pourraient nuire à votre ordinateur. |
+| Le commutateur **Bac à sable** est absent | Vérifiez que le chat est en mode Agent, et mettez Enconvo à jour. Voir [Mises à jour](/fr/configuration/updates). |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Modes d’autorisation et cartes d’approbation.</Card>
+  <Card title="Exécuteur de code" icon="terminal" href="/fr/ai/code-runner">Comment un Agent exécute des commandes shell.</Card>
+  <Card title="Confidentialité et sécurité" icon="shield-halved" href="/fr/configuration/privacy-security">Où vont vos données et comment les contrôler.</Card>
+  <Card title="Autorisations macOS" icon="shield" href="/fr/configuration/permissions">L’accès que macOS accorde à Enconvo lui-même.</Card>
+</CardGroup>

@@ -1,0 +1,103 @@
+---
+title: "IM-Kanäle"
+description: "Verbinde einen Telegram- oder Discord-Bot mit einem Enconvo-Agenten und wähle, wer mit ihm sprechen kann."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+IM-Kanäle lassen Personen aus Telegram oder Discord mit einem Enconvo-Agenten sprechen. Jeder Kanal ist ein Bot, der an einen Agenten gebunden ist: Eingehende Nachrichten gehen an diesen Agenten, und er schreibt die Antworten. Ein Agent kann mehrere Kanäle bedienen, aber jeder Kanal bedient höchstens einen Agenten. Richte sie unter **Einstellungen → IM-Kanäle** ein.
+
+Dieses Video richtet einen Telegram-Kanal ein, zwischen einem Blick auf Avatar und auf die Anmeldedatenverwaltung.
+
+<YouTubePlayer videoId="O5rNJwqlisg" title="Avatare, IM-Kanäle und Anmeldedaten in Enconvo nutzen | Schritt-für-Schritt-Anleitung" />
+
+## Bevor du anfängst
+
+- Erstelle einen Bot auf der Plattform und kopiere sein Bot-Token (siehe [Telegram](#telegram) und [Discord](#discord) unten).
+- Lass Enconvo laufen und den Mac online, während der Bot zuhört.
+
+<Note>
+Der kostenlose Plan führt einen IM-Bot auf einmal aus. Ein Enconvo-Cloud-Plan oder eine lebenslange Lizenz führt mehr aus. Siehe [Pläne und Preise](/de/pricing).
+</Note>
+
+## Einen Kanal hinzufügen
+
+<Steps>
+  <Step title="Den Kanal hinzufügen">
+    Öffne **Einstellungen → IM-Kanäle**, klicke auf **Neuen Kanal hinzufügen** und wähle **Telegram** oder **Discord**.
+  </Step>
+  <Step title="Ihn benennen">
+    Gib dem Kanal einen Namen, den du wiedererkennst.
+  </Step>
+  <Step title="Das Bot-Token einfügen">
+    Füge das Bot-Token der Plattform in **Bot-Token** ein.
+  </Step>
+  <Step title="Den Agenten wählen">
+    Wähle unter **bind agent** den Agenten, der eingehende Nachrichten bearbeitet.
+  </Step>
+  <Step title="Ihn einschalten">
+    Prüfe, wer den Bot nutzen darf (bei Telegram **Zugriffskontrolle**), und schalte dann **Kanal aktivieren** ein.
+  </Step>
+  <Step title="Ihn testen">
+    Klicke auf **Verbindung prüfen** und stelle sicher, dass der Kanal **Verbunden** zeigt. Sende dann eine Testnachricht von einem erlaubten Konto.
+  </Step>
+</Steps>
+
+Modell und Tools des gebundenen Agenten entscheiden, was der Bot beantworten kann.
+
+## Telegram
+
+Erstelle einen Bot mit Telegrams **BotFather** und kopiere sein Bot-Token. Bevor du den Kanal einschaltest, öffne seine **Zugriffskontrolle**:
+
+| Steuerung | Was sie tut |
+| --- | --- |
+| **Richtlinie** | **Kopplung erforderlich** (Standard): Ein neuer Nutzer teilt einen Kopplungscode und wartet auf deine Freigabe. **Offen (alle)**: Jeder, der den Bot findet, kann ihn nutzen. |
+| **Ausstehende Anfragen** | **Freigeben** oder **Ablehnen** für jeden Nutzer, der um Kopplung gebeten hat. Gib nur die Personen frei, die du meinst. |
+| **Erlaubte Nutzer** | Die Nutzer, die du freigegeben hast. **Entfernen** nimmt einen von der Liste. Die Person muss sich erneut koppeln, um den Bot zu nutzen. |
+
+Wenn der Bot in einem Direktchat funktioniert, aber nicht in einer Gruppe, prüfe die Bot-Privatsphäre und Gruppenberechtigungen von Telegram sowie die Zugriffsrichtlinie des Kanals. Ein Token allein gibt dem Bot keinen Zugriff auf jedes Gespräch.
+
+## Discord
+
+Erstelle eine Anwendung und einen Bot im Discord Developer Portal. Lade den Bot auf deinen Server ein und gib ihm die Berechtigungen und Intents, die er braucht, um die gewünschten Nachrichten zu empfangen und zu senden. Füge sein Bot-Token in den Discord-Kanal ein und binde einen Agenten.
+
+Wenn er sich verbindet, aber nicht antwortet, prüfe die Berechtigungen des Kanals auf Discord und ob der Bot diese Art von Nachricht empfängt. Beschränke den Bot auf den Server und die Kanäle, die du meinst.
+
+## Sitzungen und Antworten
+
+Jedes eingehende Gespräch bekommt eine eigene Chatsitzung mit dem gebundenen Agenten. Antworten folgen diesem Gespräch. Verbundene Nutzer teilen kein Transkript. Den gebundenen Agenten zu wechseln startet den Kanal neu, sodass spätere Nachrichten an den neuen Agenten gehen.
+
+Tippe einen Bot-Befehl im Chat, um das Gespräch zu steuern, statt eine Nachricht an den Agenten zu senden: `/new` startet eine neue Chatsitzung, und `/stop` stoppt die laufende Antwort, einschließlich Nachrichten, die kurz davor gesendet wurden. Bot-Befehle funktionieren in Telegram und Discord, und ein Befehl mit Anhang läuft trotzdem als Befehl.
+
+Für einen öffentlichen oder Team-Bot nutze einen eigenen Agenten mit passenden Anweisungen und Tools. Prüfe, welche Tools er nutzen kann, bevor du andere Personen ihn erreichen lässt.
+
+## Geplante Zustellung
+
+[Automatisierungen](/de/workflows/scheduled-jobs) können ihre Ergebnisse an einen IM-Chat senden, den du einrichtest. Wähle das Ziel selbst und nutze den Ausführungsverlauf der Aufgabe, um einen fehlgeschlagenen Lauf von einer fehlgeschlagenen Zustellung zu unterscheiden.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Getrennt | Prüfe das Bot-Token, das Netzwerk, dass **Kanal aktivieren** ein ist und dass Enconvo läuft. Ein Discord-Bot, dessen Verbindung still wird, verbindet sich von selbst neu. |
+| Verbunden, aber still | Prüfe den gebundenen Agenten, den Modellanbieter des Agenten, die Berechtigungen der Plattform und die Kopplungsrichtlinie. |
+| Der Bot antwortet falsch | Prüfe Anweisungen, Tools und Modell des gebundenen Agenten. |
+| Ein Telegram-Nutzer kann sich nicht verbinden | Suche seine Kopplungsanfrage unter **Ausstehende Anfragen** und prüfe **Erlaubte Nutzer**. |
+| Ein zweiter Bot startet nicht | Der kostenlose Plan führt einen IM-Bot auf einmal aus. Schalte den anderen Bot aus oder werte auf. |
+| Antworten stoppen, nachdem du Enconvo beendest | Der Bot hört über Enconvo auf deinem Mac zu, also muss die App weiterlaufen. |
+
+IM-Kanäle richten nur Telegram und Discord ein. Wenn du Slack oder Feishu über ein anderes Plugin oder einen MCP-Server erreichst, folge der eigenen Anleitung dieser Integration.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">
+    Richte den Agenten ein, der deinen Bot beantwortet.
+  </Card>
+  <Card title="Automatisierungen" icon="clock" href="/de/workflows/scheduled-jobs">
+    Sende geplante Ergebnisse an einen IM-Chat.
+  </Card>
+  <Card title="Pläne und Preise" icon="credit-card" href="/de/pricing">
+    Was jeder Plan enthält.
+  </Card>
+</CardGroup>

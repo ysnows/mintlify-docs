@@ -1,0 +1,232 @@
+---
+title: "OpenClaw"
+description: "Enconvo에서 OpenClaw 에이전트를 OpenAI 호환 모델로 사용"
+---
+
+OpenClaw는 채팅, 메시징 채널, 도구, 스킬, 자동화에 걸쳐 도우미를 실행하는 자체 호스팅 AI 에이전트 플랫폼입니다.
+
+OpenClaw는 OpenAI 호환 게이트웨이를 통해 에이전트를 노출할 수 있습니다. 게이트웨이를 켜면 Enconvo는 채팅, Enconvo 에이전트, 모델이 움직이는 기능을 포함해 OpenClaw 에이전트를 다른 AI 모델처럼 쓸 수 있습니다.
+
+OpenClaw 게이트웨이는 `/v1/models`, `/v1/chat/completions`, `/v1/responses` 같은 OpenAI 호환 엔드포인트를 노출합니다. Enconvo의 OpenClaw 제공업체는 Chat Completions API(`/v1/chat/completions`)를 씁니다.
+
+<Note>
+  Enconvo는 이 제공업체에 OpenClaw Responses API를 쓰지 않습니다. OpenAI 호환 Chat Completions 게이트웨이를 통해 OpenClaw를 구성하세요.
+</Note>
+
+OpenClaw가 처음인가요? [OpenClaw 시작 안내](https://docs.openclaw.ai/start/getting-started)부터 본 뒤, 여기로 돌아와 Enconvo에 연결하세요.
+
+전체 게이트웨이 엔드포인트 참조는 [OpenClaw 게이트웨이 문서](https://docs.openclaw.ai/gateway#openai-compatible-endpoints)를 보세요.
+
+## 시작하기 전에
+
+- 게이트웨이를 실행할 컴퓨터에 OpenClaw가 설치됨
+- 닿을 수 있는 호스트와 포트에서 OpenClaw 게이트웨이가 실행 중
+- Chat Completions 게이트웨이 엔드포인트가 켜짐
+- `~/.openclaw/openclaw.json`의 게이트웨이 토큰
+- OpenClaw AI 모델 제공업체가 켜진 Enconvo
+
+## 자동으로 설정
+
+**설정 → AI 모델 → OpenClaw**를 여세요. 설정 카드가 로컬 OpenClaw 게이트웨이를 시작, 중지, 구성할 수 있습니다.
+
+OpenClaw가 Enconvo와 같은 Mac에 설치되어 있으면 **자동 설정**을 쓰세요. Enconvo는 다음을 합니다.
+
+<Steps>
+  <Step title="OpenClaw 찾기">
+    이 Mac에 `openclaw` CLI가 있는지 확인합니다.
+  </Step>
+  <Step title="Chat Completions 켜기">
+    `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`를 실행합니다.
+  </Step>
+  <Step title="게이트웨이 토큰 준비">
+    `~/.openclaw/openclaw.json`에서 `gateway.auth.token`을 읽거나, 없으면 만듭니다.
+  </Step>
+  <Step title="게이트웨이 시작">
+    OpenClaw 게이트웨이 서비스를 시작하거나 다시 시작합니다.
+  </Step>
+  <Step title="API 확인">
+    `/health`와 `/v1/models`로 게이트웨이를 살핍니다.
+  </Step>
+  <Step title="자격 증명 저장">
+    기본 URL과 게이트웨이 토큰을 Enconvo의 OpenClaw 자격 증명에 저장합니다.
+  </Step>
+</Steps>
+
+설정 카드는 **실행 중**이나 **중지됨** 같은 런타임 배지를 보여 줍니다. 카드가 보이는 동안 Enconvo는 이 상태를 주기적으로 갱신하고, 카드가 더 이상 보이지 않으면 갱신을 멈춥니다.
+
+## OpenClaw 게이트웨이 켜기
+
+OpenClaw에게 게이트웨이 세부 정보를 준비해 달라고 할 수 있습니다.
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+돌아온 기본 URL과 토큰을 Enconvo의 OpenClaw 자격 증명 설정에 쓰세요.
+
+<Steps>
+  <Step title="Chat Completions 켜기">
+    OpenAI 호환 chat completions 엔드포인트를 한 번 켜세요.
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="바인드 모드 고르기">
+    로컬 전용 접근은 기본 루프백 바인드를 유지하세요. LAN의 다른 기기가 게이트웨이에 닿게 하려면 LAN에 바인드하세요.
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="게이트웨이 다시 시작">
+    구성 변경을 적용하세요.
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="게이트웨이 상태 확인">
+    게이트웨이가 실행 중인지 확인하세요.
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## OpenClaw를 직접 연결
+
+**설정 → AI 모델 → OpenClaw**를 연 뒤 자격 증명 제공업체를 구성하세요.
+
+![Enconvo의 OpenClaw 자격 증명 설정](/img/openclaw-settings.png)
+
+| 설정 | 값 |
+|---------|-------|
+| **OpenClaw 기본 URL** | `http://<gateway-host>:<port>/v1` |
+| **게이트웨이 토큰** | `~/.openclaw/openclaw.json`의 `gateway.auth.token` |
+
+Enconvo는 OpenClaw에 Chat Completions API를 자동으로 씁니다.
+
+`/v1`로 끝나는 기본 URL을 쓰세요. 전체 `/v1/chat/completions` 엔드포인트가 아닙니다. 예를 들어 엔드포인트가 `http://192.168.1.18:18789/v1/chat/completions`이면 `http://192.168.1.18:18789/v1`을 입력하세요.
+
+기본 OpenClaw 구성 파일에서 게이트웨이 토큰을 읽으려면:
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo는 이 값을 이렇게 보냅니다.
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+기본 URL과 토큰을 입력한 뒤 **검증**을 클릭하세요.
+
+## 요청과 첨부가 작동하는 방식
+
+Enconvo는 OpenAI 호환 Chat Completions로 OpenClaw 요청을 보냅니다.
+
+```http
+POST /v1/chat/completions
+```
+
+`openclaw:main` 또는 OpenClaw 에이전트 목록이 광고하는 다른 모델 이름을 쓰세요.
+
+<Warning>
+  Enconvo는 이미지 첨부를 OpenClaw로 보내지 않습니다. Enconvo의 OpenClaw 제공업체를 텍스트/채팅 제공업체로 다루세요. 이미지 워크플로에는 비전을 지원하는 모델 제공업체를 쓰거나, OpenClaw에 텍스트를 보내기 전에 OCR이나 이미지 분석을 실행하세요.
+</Warning>
+
+## OpenClaw를 AI 모델로 쓰기
+
+구성되면 OpenClaw가 모델 선택기에 나타납니다. **OpenClaw**를 고르고 `openclaw:main` 같은 에이전트 기반 모델을 선택하세요.
+
+![채팅 모델로 선택된 OpenClaw](/img/openclaw-chat-model.png)
+
+일반적인 Enconvo 인터페이스를 유지한 채 Enconvo 대화, 명령, 기능이 OpenClaw 에이전트를 거치게 할 때 이 모드를 쓰세요.
+
+<Steps>
+  <Step title="모델 선택기 열기">
+    채팅이나 모델이 움직이는 다른 Enconvo 기능에서 현재 모델 이름을 클릭하세요.
+  </Step>
+  <Step title="OpenClaw 고르기">
+    제공업체 목록에서 **OpenClaw**를 선택하세요.
+
+    ![모델 선택기의 OpenClaw](/img/openclaw-model-selector.png)
+  </Step>
+  <Step title="OpenClaw 에이전트 모델 선택">
+    모델 목록에서 `openclaw:main` 또는 다른 OpenClaw 에이전트를 고르세요.
+  </Step>
+  <Step title="기능을 평소처럼 실행">
+    질문하거나 Enconvo 기능을 실행하세요. 선택한 OpenClaw 에이전트가 뒤에서 모델 호출을 처리합니다.
+  </Step>
+</Steps>
+
+Enconvo는 `openclaw agents list`에서 OpenClaw 모델을 불러옵니다. OpenClaw CLI를 로컬에서 쓸 수 없으면 Enconvo는 `openclaw:main`으로 돌아갑니다.
+
+## OpenClaw용 에이전트 만들기
+
+OpenClaw 에이전트를 조율하는 Enconvo 에이전트를 만들 수도 있습니다. 특정 OpenClaw 에이전트 주위에 Enconvo 쪽 워크플로, 도구 모음, 프롬프트를 두고 싶을 때 유용합니다.
+
+<Steps>
+  <Step title="에이전트 만들기 열기">
+    SmartBar를 열고 **에이전트 만들기**를 검색하세요.
+
+    ![Enconvo의 에이전트 만들기 명령](/img/openclaw-create-agent-command.png)
+  </Step>
+  <Step title="에이전트 이름 짓기">
+    `OpenClaw Main`처럼 분명한 제목을 만드세요.
+
+    ![OpenClaw용 새 에이전트 만들기 양식](/img/openclaw-agent-form.png)
+  </Step>
+  <Step title="조율 지침 쓰기">
+    Enconvo 에이전트가 OpenClaw와 어떻게 일해야 하는지 설명하는 지침을 주세요.
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="OpenClaw 모델 고르기">
+    에이전트의 모델 설정에서 **OpenClaw**를 선택하고 `openclaw:main`을 고르세요.
+  </Step>
+  <Step title="저장하고 에이전트 사용">
+    새 Enconvo 에이전트와 대화를 시작하세요. 구성한 Enconvo 에이전트 인터페이스와 도구를 유지한 채 선택한 OpenClaw 에이전트 모델을 씁니다.
+  </Step>
+</Steps>
+
+## 문제 해결
+
+<AccordionGroup>
+  <Accordion title="모델 선택기에 OpenClaw가 나타나지 않음">
+    **설정 → AI 모델**에서 OpenClaw 제공업체가 켜져 있는지 확인하세요. 모델 목록이 비어 있으면 `openclaw agents list`가 로컬에서 되는지 확인하거나 기본값 `openclaw:main`을 쓰세요.
+  </Accordion>
+  <Accordion title="검증이 권한 없음으로 실패함">
+    게이트웨이 토큰을 다시 확인하세요. Enconvo는 `gateway.auth.token` 값을 기대하고 Bearer 토큰으로 보냅니다.
+  </Accordion>
+  <Accordion title="연결 실패">
+    `openclaw gateway status`로 게이트웨이가 실행 중인지 확인하세요. Enconvo가 다른 기기에 있으면 `gateway.bind`를 `lan`으로 설정하고 게이트웨이를 다시 시작한 뒤, 기본 URL에 호스트의 LAN IP를 쓰세요.
+  </Accordion>
+  <Accordion title="시작은 성공했는데 Enconvo가 잠시 주의가 필요하다고 함">
+    OpenClaw는 HTTP 게이트웨이가 준비되기 전에 LaunchAgent가 다시 시작됐다고 보고할 수 있습니다. 몇 초 기다린 뒤 설정 카드의 런타임 배지를 다시 확인하세요. `openclaw gateway status`와 `curl http://127.0.0.1:18789/health`로 직접 확인할 수도 있습니다.
+  </Accordion>
+  <Accordion title="게이트웨이는 실행 중인데 `/v1/models`가 실패함">
+    Enconvo가 `~/.openclaw/openclaw.json`의 `gateway.auth.token`과 같은 토큰을 쓰는지 확인하세요. 설정 상태는 `/health`로 실행 중인 게이트웨이를 감지할 수 있지만, 모델 검증에는 bearer 토큰이 필요합니다.
+  </Accordion>
+  <Accordion title="이미지 첨부가 무시됨">
+    Enconvo의 OpenClaw 제공업체는 현재 텍스트 전용입니다. Enconvo는 이미지 첨부를 OpenClaw로 보내지 않습니다. 직접 이미지 입력에는 비전을 지원하는 제공업체를 고르세요.
+  </Accordion>
+  <Accordion title="기본 URL이 틀림">
+    `http://<gateway-host>:<port>/v1`을 입력하세요. Enconvo 기본 URL 필드에 `/chat/completions`를 넣지 마세요.
+  </Accordion>
+</AccordionGroup>
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/ko/providers/hermes">같은 방식으로 다른 에이전트 게이트웨이를 연결합니다.</Card>
+  <Card title="에이전트" icon="robot" href="/ko/ai/agents">에이전트에 지침과 도구를 줍니다.</Card>
+</CardGroup>

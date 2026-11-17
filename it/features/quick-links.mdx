@@ -1,0 +1,67 @@
+---
+title: "Collegamenti rapidi"
+description: "Apri una ricerca web, un sito, un file, una cartella o un deeplink da SmartBar con un solo comando."
+---
+
+I collegamenti rapidi trasformano una ricerca web, un indirizzo web, un file o una cartella, o il deeplink di un’app, in un comando che esegui da SmartBar. I segnaposto completano il link con ciò che scrivi, gli appunti, il testo selezionato o la data. Enconvo include già le ricerche di Google, YouTube e X.
+
+I collegamenti rapidi aprono una destinazione. [Ricerca web](/it/ai/web-search) porta invece i risultati della ricerca in una risposta dell’IA, e [Uso del browser](/it/features/browser-control) lascia che un Agente lavori nelle pagine web.
+
+## Cerca sul web da SmartBar
+
+1. Apri SmartBar e trova **Google Search in Browser**, **YouTube Search in Browser** o **Twitter/X Search in Browser**.
+2. Scrivi il testo della ricerca come input del comando. Funziona anche il testo selezionato.
+3. Esegui il comando. La ricerca si apre nel browser predefinito.
+
+## Crea un collegamento rapido
+
+1. Esegui **Crea collegamento rapido** da SmartBar.
+2. Inserisci un **Nome**, per esempio Cerca su GitHub.
+3. Inserisci il **Link**: un indirizzo web, il percorso di un file o di una cartella, oppure un deeplink. Fai clic su **Inserisci segnaposto** per aggiungerne uno, per esempio `https://github.com/search?q={argument}`.
+4. Per aprirlo in un’app precisa, inserisci il nome di un’app come Safari, il percorso di un’app o un bundle id in **Apri con**. Lascialo vuoto per usare l’app predefinita.
+5. Fai clic su **Salva**. Cerca il nome del collegamento rapido in SmartBar per eseguirlo.
+
+Quando esegui un collegamento rapido, il testo che hai scritto o selezionato riempie il primo argomento. Se un argomento obbligatorio è ancora vuoto, Enconvo lo chiede prima di aprire il link.
+
+| Segnaposto | Si riempie con |
+| --- | --- |
+| `{argument name="Query"}` | Un valore che scrivi quando si apre il collegamento rapido |
+| `{clipboard}` | Il testo negli appunti |
+| `{selection}` | Il testo selezionato nell’app che stai usando |
+| `{date}`, `{time}`, `{datetime}` | La data attuale, l’ora, o entrambe |
+| `{date format="yyyy-MM-dd"}` | La data nel formato che indichi |
+| `{uuid}` | Un nuovo ID univoco |
+
+Prova un link nuovo prima con testo ordinario, spazi e punteggiatura inclusi.
+
+## Gestisci i collegamenti rapidi
+
+Esegui **Search Quicklinks** da SmartBar per vedere ogni collegamento rapido. Da lì puoi aprirne, modificarne, duplicarne o eliminarne uno, e fare clic su **Nuovo** per aggiungerne un altro.
+
+Il menu **Altro** ha **Importa collegamenti rapidi…**, che legge le esportazioni di collegamenti rapidi e impostazioni di Raycast, e **Esporta in Download**. Un’esportazione delle impostazioni di Raycast chiede la passphrase che hai scelto al momento dell’esportazione.
+
+## Impostazioni
+
+Apri **Impostazioni → Plugin → Collegamenti rapidi**. Ogni comando di ricerca ha anche il proprio **Link**, per esempio `https://www.google.com/search?q={query}`, che puoi cambiare.
+
+| Impostazione | Cosa cambia |
+| --- | --- |
+| **Apri in una nuova finestra** | Apre i collegamenti rapidi web in una nuova finestra del browser. Funziona con Chrome, Edge, Brave, Vivaldi, Opera, Chromium, Firefox e Zen; Safari, Arc e Orion aprono il link come di consueto. Disattivato per impostazione predefinita |
+| **Quando non c’è testo selezionato** | Cosa fa un link `{selection}` quando non è selezionato nulla: **Chiedilo** (predefinito) o **Usa gli appunti** |
+| **Conferma prima di eliminare** | Chiede prima di eliminare un collegamento rapido. Attivo per impostazione predefinita |
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Si apre la pagina sbagliata | Controlla il **Link** del collegamento rapido e i suoi segnaposto, poi provalo con testo semplice |
+| Il browser non si apre | Controlla il browser predefinito, **Apri con** del collegamento rapido e che il comando sia installato |
+| Un link `{selection}` chiede del testo | Non era selezionato nulla. Seleziona prima il testo, oppure imposta **Quando non c’è testo selezionato** su **Usa gli appunti** |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/it/features/smartbar">Trova ed esegui qualsiasi comando.</Card>
+  <Card title="Ricerca web" icon="globe" href="/it/ai/web-search">Porta i risultati della ricerca in una risposta dell’IA.</Card>
+  <Card title="Uso del browser" icon="window-maximize" href="/it/features/browser-control">Lascia che un Agente lavori nelle pagine web.</Card>
+</CardGroup>

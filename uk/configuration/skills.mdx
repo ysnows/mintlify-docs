@@ -1,0 +1,521 @@
+---
+title: "Навички"
+description: "Навчіть агентів Enconvo повторюваного завдання за допомогою навички: інструкції, довідки й необов’язкові скрипти в одній папці."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Навичка збирає інструкції, ресурси й необов’язкові скрипти, щоб Enconvo надійно дотримувався робочого процесу. Створіть її, коли щоразу пояснюєте одну й ту саму процедуру, наприклад як переглядати код чи оформлювати нотатки зустрічі. Навичками можна ділитися з командою чи спільнотою.
+
+<Note>
+Навички використовують **поступове розкриття**, щоб ощадливо керувати контекстом: Enconvo починає з метаданих кожної навички (назва, опис, шлях до файлу). Повні інструкції завантажуються, лише коли навичку активовано.
+</Note>
+
+Це відео спочатку розповідає про навички, далі про сервери MCP, плагіни та магазин розширень.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="Як користуватися навичками, MCP і плагінами в Enconvo | Покроковий посібник" />
+
+## Керуйте своїми навичками
+
+Відкрийте **Параметри → Навички**. Ці навички спільні для всіх агентів, і кожен агент може додати власні у своїх параметрах.
+
+- Картки вгорі рахують **Усі навички**, ті, що **Увімкнено, ніколи не використовувалося**, ті, що **У кількох папках**, і ті, що **Вимкнено**. Клацніть картку, щоб показати лише їх.
+- Кожен рядок показує **Де розташовано** (вбудована, або папка чи програма, звідки вона) і коли її **Востаннє використано**. Вимкніть навички, які агентам не потрібні, перемикачем у кінці рядка або виберіть кілька й вимкніть разом.
+- **Додати з GitHub** установлює навичку зі сховища, а **Імпортувати** додає її з папки на Mac. Див. розділ «Установіть навички» нижче.
+- **Ваші навички** перелічує створені вами навички за походженням: **Записано**, **Засвоєно**, **Скрипт**, **Написаний** або **Інстальовано**. Клацніть одну, щоб побачити її **Кроки**, **Підводні камені** та **Історію**. Див. розділ «Навички зі збереженими кроками» нижче.
+
+У вікні чату навички також можна відкрити просто у вікні з **Плагіни** на панелі піктограм.
+
+## Як виглядає навичка
+
+Навичка — це папка з файлом `SKILL.md`, а також необов’язковими скриптами й довідками.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### Формат SKILL.md
+
+`SKILL.md` має починатися з блоку frontmatter, у якому є `name` і `description`:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo обирає навичку за її `description`, тож дайте чітку сферу й межі. Скажіть, **коли** використовувати навичку і **коли ні**.
+</Tip>
+
+## Використайте навичку
+
+Навичку можна викликати за назвою або дати Enconvo обрати ту, що відповідає запиту.
+
+### Викличте навичку за назвою
+
+Введіть `/` і назву навички в SmartBar або в чаті:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+Це найнадійніший спосіб: ви отримуєте саме ту навичку, яку хочете. Щоб показати лише навички, введіть `$`.
+
+Навички встановлених плагінів теж є в меню `/` і `$`, з іменами `plugin:skill`, як у Claude Code.
+
+### Дайте Enconvo обрати
+
+Коли ви не називаєте навичку, Enconvo зіставляє запит із найвідповіднішою навичкою за її `description`:
+
+1. Ви вводите: «Зведіть ці нотатки зустрічі до пунктів дій»
+2. Enconvo переглядає описи всіх доступних навичок
+3. Навичка `meeting-notes` збігається («...format raw meeting transcripts into structured notes with action items...»)
+4. Навичку активовано, і її інструкції ведуть відповідь
+
+Зіставлення йде за змістом, а не лише за спільними словами, тож запит, сформульований інакше, ніж опис, або іншою мовою, усе одно знаходить навичку. Щоб агент завжди бачив навичку, закріпіть її в параметрах агента **Інструменти й навички**; див. [Агенти](/uk/ai/agents).
+
+### Пишіть описи, які добре зіставляються
+
+Добре зіставлення залежить від вдалого `description`:
+
+| Якість | Приклад |
+|---------|---------|
+| **Надто розмито** | «Допомагає з кодом» |
+| **Надто широко** | «Робить усе, що пов’язане з програмуванням» |
+| **Добре** | «Переглядає код на помилки, проблеми безпеки й найкращі практики. Використовуйте, коли користувач просить перегляд коду або хоче покращити якість коду. Не використовуйте для генерації коду чи написання нового коду.» |
+
+Добрий опис має три частини:
+
+- **Що вона робить**: «Переглядає код на помилки, проблеми безпеки й найкращі практики»
+- **Коли запускати**: «Використовуйте, коли користувач просить перегляд коду»
+- **Коли не запускати**: «Не використовуйте для генерації коду чи написання нового коду»
+
+## Де живуть навички
+
+Enconvo читає навички з кількох місць, кожне зі своєю сферою:
+
+| Сфера | Розташування | Для чого |
+|-------|----------|------------|
+| **Проєкт** | `$PROJECT/.agents/skills/` (також `.enconvo/skills/`, `.claude/skills/` і `.codex/skills/`) | Навички для одного проєкту чи робочого простору |
+| **Користувач** | `~/.agents/skills/` (також `~/.enconvo/skills/`, `~/.claude/skills/` і `~/.codex/skills/`) | Особисті навички для всіх ваших проєктів |
+| **Система** | У комплекті з Enconvo | Вбудовані навички, доступні всім |
+
+Кожен агент також може мати власні навички: додайте їх у розділі **Навички** в параметрах агента.
+
+Якщо дві навички в різних місцях мають однакову назву, обидві лишаються доступними; Enconvo їх не об’єднує. **Параметри → Навички** показує їх у розділі **У кількох папках**.
+
+### Навички проєкту
+
+Навички проєкту живуть у папці проєкту й доступні, лише коли цей проєкт активний:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+Використовуйте їх для навичок, які залежать від домовленостей, структури файлів чи інструментів проєкту.
+
+### Навички користувача
+
+Навички користувача в `~/.agents/skills/` доступні в кожному проєкті. Використовуйте їх для особистих навичок, які не належать одному проєкту:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## Створіть навичку
+
+### За допомогою творця навичок
+
+Найшвидший спосіб створити навичку — вбудований творець:
+
+```
+/skill-creator
+```
+
+Творець проводить вас через:
+
+1. Що робить навичка
+2. Коли вона має запускатися
+3. Чи має вона бути лише з інструкцій, чи включати скрипти
+
+Лише інструкції — це стандарт і рекомендований підхід. Додавайте скрипти, лише коли потрібна детермінована поведінка або зовнішні інструменти.
+
+### Вручну
+
+Створіть папку з файлом `SKILL.md`:
+
+<Steps>
+  <Step title="Створіть каталог навички">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="Напишіть SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Перевірте, що вона з’явилася">
+    Enconvo виявляє зміни навичок автоматично. Якщо нова навичка не з’явилася, перезапустіть Enconvo.
+  </Step>
+</Steps>
+
+### Напишіть інструкції
+
+Тіло `SKILL.md` під frontmatter містить інструкції, яких дотримується ШІ. Пишіть їх як чіткі наказові кроки:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### Поради для добрих навичок
+
+- **Тримайте кожну навичку зосередженою.** Одна навичка робить одну роботу. Навичка, яка робить забагато, важче запускається правильно і важче підтримується. Якщо ви пишете 10 чи більше кроків, що охоплюють кілька завдань, розділіть їх на окремі навички.
+- **Будьте конкретні щодо вхідних даних.** Скажіть точно, звідки вони: «Прочитайте виділений текст», «Розберіть вкладений файл», «Використайте URL із повідомлення користувача».
+- **Визначте формат виводу.** Додайте конкретний приклад того, як має виглядати результат, щоб відповіді лишалися послідовними.
+- **Обробляйте крайні випадки.** Додайте інструкції для типових випадків: «Якщо комітів не знайдено, повідомте, що діапазон порожній» або «Якщо вхідні дані не є дійсним JSON, попросіть користувача перевірити формат».
+- **Пишіть наказові кроки.** Будьте явними щодо вхідних даних, кроків і очікуваного виводу. Розмиті інструкції дають непослідовні результати.
+- **Віддавайте перевагу інструкціям перед скриптами.** Інструкції звичайною мовою легше писати, налагоджувати й змінювати. Скрипти використовуйте, лише коли потрібна детермінована поведінка або зовнішні інструменти.
+- **Задавайте чіткі межі.** В описі скажіть і що навичка має обробляти, і чого не має.
+- **Перевіряйте описи запуску.** Спробуйте різні запити, щоб підтвердити, що навичка запускається і не запускається, коли треба.
+- **Версіонуйте навички.** Тримайте навички, якими ділиться команда, у системі контролю версій (git), щоб відстежувати зміни, відкочувати й співпрацювати.
+
+## Додайте скрипти
+
+Для навичок, яким потрібна виконувана логіка, додайте папку `scripts/`:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Посилайтеся на скрипти у своєму `SKILL.md`:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### Коли використовувати скрипти
+
+| Коли використовувати скрипти | Коли достатньо лише інструкцій |
+|-----------------|---------------------------|
+| Потрібен детермінований вивід (точні формати, обчислення) | Завдання переважно про міркування й мову |
+| Ви взаємодієте із зовнішніми API чи базами даних | Завдання використовує лише вбудовані можливості ШІ |
+| Потрібно програмно обробити чи перетворити дані | Завдання про написання, підсумовування чи аналіз |
+| Потрібна автентифікація чи робота з обліковими даними | Самих інструкцій достатньо |
+
+## Додайте довідки
+
+Додайте документацію чи контекстні файли, до яких навичка може звертатися:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Посилайтеся на них в інструкціях:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+Довідки корисні для:
+
+- Документації API, якої навичка має дотримуватися
+- Стильових настанов чи правил бренду
+- Прикладів коду й шаблонів
+- Знань предметної області
+
+## Установіть навички
+
+Використайте `/skill-installer`, щоб установити навичку з магазину навичок Enconvo або з GitHub. Він також установлює з Skills.sh, ClawHub і прямих URL ZIP.
+
+### З магазину навичок Enconvo
+
+Знайдіть навичку за назвою й установіть її:
+
+```
+/skill-installer pdf
+```
+
+Це шукає в магазині навичок Enconvo й установлює відповідну навичку. Enconvo виявляє щойно встановлені навички автоматично.
+
+### З GitHub
+
+Установіть навичку прямо з URL сховища GitHub:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+URL може вказувати на підпапку, тож можна встановити одну навичку з більшого сховища, не клонуючи його цілком.
+
+### З папки на Mac
+
+1. Відкрийте **Параметри → Навички** і клацніть **Імпортувати**.
+2. Оберіть папку, що містить підпапки навичок, кожна з `SKILL.md`.
+
+Enconvo додає папку до місць, звідки читає навички, і вони спільні для всіх агентів. Щоб припинити використовувати папку, оберіть її в меню джерела, потім **Вилучити папку**. Сама папка лишається на диску.
+
+## Навички зі збереженими кроками
+
+Кожен збережений робочий процес — це також навичка зі своїм `SKILL.md`, і навичка може зберігати кроки завдання, яке вже виконувала. Коли ви запускаєте таку навичку, збережені кроки йдуть першими, без основної моделі, що швидше й дешевше. Крок, який більше не підходить, наприклад кнопка, що перемістилася, відновлюється з власних нотаток і знімків навички. Лише коли це не вдається, агент виконує завдання з `SKILL.md`.
+
+У **Ваші навички** навичка з позначкою **Спершу виконує збережені кроки** має кроки; з позначкою **Лише інструкції** — ні. **Історія** кожної навички показує, як пройшли запуски і що вона засвоїла, і можна відновити попередню версію.
+
+### Перетворіть запис на навичку
+
+Запис завдання, яке ви виконали, можна перетворити на навичку. Кожна записана дія стає перевіреним кроком, а її знімок зберігається для відновлення. Навичка лишається **чернеткою**, доки один її запуск не спрацює.
+
+### Запустіть скрипт як крок
+
+Навичка може зберігати скрипт [режиму коду](/uk/configuration/code-mode) у власній папці `scripts` і запускати його як один зі своїх кроків, тож завдання з багатьма викликами інструментів виконується одним кроком.
+
+## Дайте навичкам учитися, як ви працюєте
+
+Навички можуть учитися, як вам подобається виконувати завдання, так само як пам’ять засвоює факти. Відкрийте **Параметри → Пам’ять** і ввімкніть **Засвоювати способи**:
+
+- Коли ви виправляєте, як було виконано завдання, або крок довелося відновити, навичка засвоює це одразу. Чат показує нотатку **Засвоєно** з **Скасувати**.
+- Коли завдання виникає вдруге, воно стає новою навичкою.
+- Перегляд пам’яті й упорядкування пам’яті також дбають про навички.
+
+У розділі **Під час зміни кроків** оберіть **Застосовувати одразу** або **Спершу запитати**, щоб зміна кроків навички чекала, поки ви клацнете **Застосувати** на її нотатці. Підводні камені все одно додаються одразу. Платежі, надсилання й видалення завжди спершу запитують вас, а ключі й паролі ніколи не засвоюються.
+
+## Керуйте навичками
+
+### Перегляньте свої навички
+
+**Параметри → Навички** перелічує навички, спільні для всіх агентів. Оберіть подання вгорі:
+
+| Подання | Показує |
+| --- | --- |
+| **Усі навички** | Кожну навичку один раз, навіть коли в кількох папках є копія |
+| **Увімкнено, ніколи не використовувалося** | Навички, які агентам пропонують у кожному чаті, але вони їх не використали |
+| **У кількох папках** | Навички з копією в кількох папках, наприклад для Claude Code і Codex |
+| **Вимкнено** | Навички, які агенти не отримують |
+
+Шукайте, фільтруйте за джерелом (**Усі джерела**, **Вбудований**, **З плагінів** або одна папка) або сортуйте за **За назвою (від А до Я)** чи **Востаннє використано**.
+
+### Оновіть навички
+
+- **Навички з магазину**: запустіть `/skill-installer` знову, щоб перевірити новішу версію.
+- **Навички з GitHub**: запустіть установник знову з тим самим URL.
+- **Власні навички**: редагуйте файл `SKILL.md` безпосередньо. Enconvo виявляє зміну автоматично.
+
+### Вимкніть навичку
+
+Навичку можна вимкнути, не видаляючи її:
+
+1. Відкрийте **Параметри → Навички**.
+2. Знайдіть навичку.
+3. Вимкніть її перемикач.
+
+Агенти не можуть використовувати вимкнену навичку ні за назвою, ні через зіставлення, доки ви знову її не ввімкнете. Профіль програми, який закріпив навичку, усе ще може її використати.
+
+## Приклади навичок
+
+### Рецензент коду
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Нотатки зустрічі
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Повідомлення коміту Git
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### Генератор документації API
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## Пов’язане
+
+<CardGroup cols={2}>
+  <Card title="Агенти" icon="robot" href="/uk/ai/agents">Дайте агенту власні навички й інструменти.</Card>
+  <Card title="Інтеграція MCP" icon="plug" href="/uk/features/mcp">Поєднайте навички з інструментами MCP.</Card>
+  <Card title="Enconvo на GitHub" icon="github" href="https://github.com/enconvo">Перегляньте розширення й навички з відкритим кодом.</Card>
+  <Card title="Спільнота в Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">Діліться навичками й отримуйте допомогу спільноти.</Card>
+</CardGroup>

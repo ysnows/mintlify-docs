@@ -1,0 +1,112 @@
+---
+title: "Uso del navegador"
+description: "Deja que un Agente lea y trabaje en las pestañas reales de tu navegador, con los inicios de sesión que tu navegador ya tiene."
+---
+
+Uso del navegador deja que un Agente trabaje en pestañas del navegador que tienen conectada la extensión Enconvo Companion. Puede leer una página, pulsar controles, rellenar campos, comprobar el resultado y gestionar pestañas, todo con los inicios de sesión que tu navegador ya tiene. Úsalo cuando una tarea necesita un sitio web en el que has iniciado sesión.
+
+## Configurar
+
+<Steps>
+  <Step title="Instalar la extensión">
+    Instala [Enconvo Companion desde Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) en un navegador Chromium compatible, o pulsa **Instalar complemento del navegador** en **Ajustes → Uso del navegador**. Para otros navegadores, usa el paquete de extensión hecho para ese navegador.
+  </Step>
+  <Step title="Mantener ambos en ejecución">
+    Mantén abiertos Enconvo y el navegador.
+  </Step>
+  <Step title="Comprobar la conexión">
+    Pulsa el icono de la extensión. La ventana emergente muestra **Conectado** y el nombre del navegador.
+  </Step>
+  <Step title="Comprobar el acceso">
+    Asegúrate de que el Agente que vas a usar tenga las herramientas del navegador, y aprueba cualquier sitio web por el que pregunte la extensión.
+  </Step>
+  <Step title="Probar una tarea de solo lectura">
+    Empieza con algo que no cambie nada, como «Lee esta página y resume los puntos principales».
+  </Step>
+</Steps>
+
+Safari no usa la extensión de Chromium. En Safari, [Uso del ordenador](/es/features/computer-use) pulsa y escribe en la pantalla en su lugar, así que no todos los navegadores pueden hacer lo mismo. Consulta [Extensión del navegador](/es/features/browser-extension) para la ventana emergente, los navegadores conectados, el destino de las pestañas y las aprobaciones de sitios web.
+
+## Trabajar en una pestaña concreta
+
+Nombra el navegador y la página en tu petición:
+
+> En Edge, lee la pestaña de documentación actual y lista los tres pasos de configuración. Deja la página abierta.
+
+El Agente lee la página, elige un elemento, actúa y comprueba qué cambió. Los elementos de la página pueden cambiar tras una navegación o una actualización en vivo. Si el Agente pierde un elemento, pídele una mirada nueva a la página.
+
+Mientras el Agente trabaja en una pestaña que no puedes ver, una ventana de [imagen en imagen](/es/features/picture-in-picture) lo muestra en directo en la esquina de la pantalla. Púlsala para ir a la pestaña y tomar el control.
+
+## Cuando termina la tarea
+
+Las pestañas que abre un Agente se cierran cuando termina su turno. Estas permanecen abiertas:
+
+- una página que el Agente te entrega como resultado
+- una pestaña que te entregó
+- una pestaña que fijaste
+- la pestaña que estás mirando
+
+Tus propias pestañas nunca se cierran.
+
+## Qué puede hacer
+
+| Área | Ejemplos |
+| --- | --- |
+| Navegación | Abrir una URL, ir atrás o adelante, recargar, esperar una condición |
+| Lectura | Estado de la página, texto visible, atributos, capturas, contenido seleccionado |
+| Interacción | Pulsar, escribir, rellenar, seleccionar, pulsar teclas, desplazar, arrastrar |
+| Organización del navegador | Ver y gestionar pestañas, ventanas y sesiones conectadas |
+| Herramientas avanzadas | Evaluación de la página, cookies, almacenamiento, historial e inspección específica del navegador |
+
+### Capturar una página entera
+
+Pide al agente que capture una página web entera, como «Guarda una captura de esta página entera en mi Escritorio». Guarda un archivo PNG donde se lo pidas, a la resolución propia de la página y sin el cursor del agente.
+
+### Inicios de sesión y comprobaciones humanas
+
+Cuando una tarea llega a la página de inicio de sesión de un sitio, una tarjeta te pide el nombre de usuario y la contraseña una sola vez. Enconvo los rellena solo en ese sitio, y el agente nunca ve la contraseña; consulta [Credenciales](/es/configuration/credentials). Cuando una página muestra una comprobación humana, el agente puede entregarte la pestaña. Inicia sesión o resuelve la comprobación en esa pestaña, y luego pulsa **Devolver al agente** para devolvérsela.
+
+Lo que funciona depende del navegador, de la página, de la versión de la extensión y de las herramientas que activaste. Las páginas del navegador como `chrome://` y otro contenido restringido pueden quedar fuera de alcance.
+
+<Warning>
+Uso del navegador actúa sobre tus cuentas reales. Di si una tarea solo debe preparar un borrador o también enviarlo.
+</Warning>
+
+## Ajustes
+
+| Ajuste | Dónde | Qué cambia |
+| --- | --- | --- |
+| **Navegador predeterminado** | **Ajustes → Uso del navegador**, luego **Ajustes** en el menú **⋯** | El navegador que usan las tareas cuando no nombras uno. **Auto (System Default)** sigue el navegador predeterminado de tu Mac. |
+| **Extensiones del navegador** | **Ajustes → Uso del navegador** | Lista los navegadores que tienen la extensión, cada uno **Conectado** o **Desconectado**. |
+| **Ventana de imagen en imagen** | **Ajustes → Uso del navegador** | Cuándo se muestra una vista en directo de la pestaña del Agente en la esquina de la pantalla: **Siempre** (predeterminado), **Solo cuando me necesitan** o **Desactivado**. Consulta [Imagen en imagen](/es/features/picture-in-picture). |
+
+También puedes nombrar un navegador en la propia tarea.
+
+Para desarrolladores, la ruta de la API local `browser-use/status` informa del estado de la conexión, y **Ajustes → APIs** lista las rutas instaladas y sus esquemas.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| No conectado | Comprueba que la extensión esté activada y que Enconvo esté en ejecución, y mira la ventana emergente. La extensión se conecta a Enconvo en este Mac por el puerto 11225. |
+| Navegador o pestaña equivocados | Nombra el navegador y la página, y pide una mirada nueva a la página. |
+| Falla un clic o un relleno | Mira la página tal como está ahora. Un diálogo, una navegación o un marco incrustado pueden haber movido el objetivo. |
+| La captura está en blanco | Trae la pestaña al frente y espera a que cargue la página. |
+| El sitio web te pide iniciar sesión | Inicia sesión en el sitio como siempre. Haber iniciado sesión en el navegador no significa que la sesión de cada sitio siga válida. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Extensión del navegador" icon="puzzle-piece" href="/es/features/browser-extension">
+    La ventana emergente, los navegadores conectados y la seguridad de los sitios web.
+  </Card>
+  <Card title="Uso del ordenador" icon="computer-mouse" href="/es/features/computer-use">
+    Apps nativas del Mac, diálogos de archivos y controles del escritorio.
+  </Card>
+  <Card title="Agentes" icon="robot" href="/es/ai/agents">
+    Elige qué herramientas puede usar un Agente.
+  </Card>
+  <Card title="CLI y APIs locales" icon="terminal" href="/es/advanced/cli-local-api">
+    Llama a las rutas de Uso del navegador desde scripts.
+  </Card>
+</CardGroup>

@@ -1,0 +1,440 @@
+---
+title: "Ganchos"
+description: "Ejecuta un comando de shell o envía un webhook automáticamente cuando un Agente empieza, usa una herramienta o termina."
+---
+
+Los Ganchos ejecutan un comando de shell o envían una petición HTTP cuando ocurre algo en Enconvo, como que un agente empiece, termine, falle o use una herramienta. Los configuras en un archivo JSON, así que puedes añadir notificaciones, registros, automatización local o integraciones sin construir una extensión.
+
+<Note>
+La mayoría de los ganchos se disparan y siguen: se ejecutan en segundo plano y no bloquean Enconvo. `PreToolUse`, `Stop` y `SubagentStop` son la excepción durante las ejecuciones del agente. El agente espera por ellos, así que pueden bloquear una llamada a una herramienta o devolver al agente al trabajo. Consulta Ganchos que bloquean.
+</Note>
+
+## Inicio rápido
+
+<Steps>
+  <Step title="Crear la carpeta de ganchos">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="Crear ~/.enconvo/hooks.json">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Disparar un agente">
+    Inicia cualquier agente o comando de chat. Cuando cambia su estado, Enconvo ejecuta el
+    comando configurado y añade una línea a `/tmp/enconvo-hooks.log`.
+  </Step>
+</Steps>
+
+## Archivo de configuración
+
+Los ganchos viven en:
+
+```text
+~/.enconvo/hooks.json
+```
+
+Enconvo también lee el archivo antiguo en `~/.config/enconvo/hooks.json` cuando el nuevo no existe. Si existen ambos, gana `~/.enconvo/hooks.json`.
+
+El archivo se vuelve a leer cada vez que se dispara un evento, así que puedes editar los ganchos con Enconvo en marcha. No hace falta reiniciar.
+
+## Gestionar los ganchos en Ajustes
+
+Abre **Ajustes → Ganchos** para ver los ganchos de `~/.enconvo/hooks.json`, agrupados por evento. Activa o desactiva una entrada con su interruptor, o haz clic en **Abrir hooks.json** para editar el archivo. Desactivar o activar una entrada escribe `enabled: false` o `enabled: true` en esa entrada, sin cambiar su comando ni su webhook.
+
+## Ganchos de plugins
+
+Los plugins de Claude Code y Codex, como context-mode, pueden traer sus propios ganchos. Cuando los permites, se ejecutan como en Claude Code: al inicio de un chat, alrededor de cada mensaje, llamada a herramienta y compactación, y cuando una respuesta falla o el Agente termina.
+
+1. Instala el plugin desde **Plugins**, o dale a un Agente el repositorio de GitHub del plugin, la dirección Git, el zip o el paquete npm en el chat. Ofrece la tarjeta Instalar del plugin.
+2. Marca **Permitir que se ejecuten sus ganchos** antes de instalar. Un plugin instalado sin eso muestra que sus ganchos están desactivados; haz clic en **Permitir ganchos** más tarde para activarlos.
+
+Si una actualización del plugin cambia sus ganchos, dejan de ejecutarse hasta que los revises y los permitas de nuevo. Los ganchos que Enconvo no puede ejecutar aparecen en la tarjeta como no ejecutados en Enconvo.
+
+## Cómo funcionan los ganchos
+
+Cuando se dispara un evento, Enconvo:
+
+1. Carga `~/.enconvo/hooks.json`.
+2. Recurre a `~/.config/enconvo/hooks.json` solo si el archivo nuevo no está.
+3. Busca entradas dentro del objeto `hooks` de nivel superior cuya clave coincide con el nombre del evento.
+4. Aplica la expresión regular opcional `matcher`.
+5. Omite las entradas en las que `enabled` es `false`.
+6. Ejecuta todos los ganchos configurados a la vez.
+
+Los nombres de eventos de los ganchos siguen el ciclo de vida de Claude Code y Codex: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop` y `SubagentStop`. Los nombres antiguos de eventos de Enconvo y la forma JSON plana antigua siguen funcionando en instalaciones existentes, pero las escrituras nuevas usan el formato envuelto al estilo de Codex.
+
+## Referencia de configuración
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| Campo | Tipo | Obligatorio | Descripción |
+|-------|------|----------|-------------|
+| `hooks` | object | Sí | Mapa de eventos con el nombre del evento como clave. |
+| `event_name` | string | Sí | Evento que escuchar. Úsalo como clave dentro de `hooks`. |
+| `matcher` | string | No | Filtro de expresión regular. En eventos de herramientas coincide con `toolName`, `toolTitle` o `path`; en los demás, con el nombre del evento del gancho. |
+| `enabled` | boolean | No | Ponlo en `false` para conservar la entrada en la configuración y omitir la ejecución. El valor predeterminado es `true`. |
+| `hooks` | array | Sí | Ganchos de comando y HTTP que ejecutar. |
+
+### Gancho de comando
+
+Un gancho de comando ejecuta un comando de shell. Enconvo escribe la carga del evento en la stdin del comando como JSON.
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| Campo | Tipo | Predeterminado | Descripción |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | Tipo de gancho obligatorio. |
+| `command` | string | - | Comando de shell que ejecutar. |
+| `timeout` | number | `30000` | Tiempo de espera en milisegundos. |
+
+### Gancho HTTP
+
+Un gancho HTTP envía la carga del evento como cuerpo JSON de la petición.
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| Campo | Tipo | Predeterminado | Descripción |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | Tipo de gancho obligatorio. |
+| `url` | string | - | URL del endpoint HTTP. |
+| `method` | string | `"POST"` | Método HTTP. |
+| `headers` | object | `{}` | Cabeceras adicionales de la petición. |
+| `timeout` | number | `30000` | Tiempo de espera en milisegundos. |
+
+## Ganchos que bloquean
+
+Durante la ejecución de un agente o un bot, tres eventos se ejecutan como ganchos que bloquean. El agente espera a cada gancho coincidente (se ejecutan en paralelo) antes de continuar, y lee su resultado del mismo modo que Claude Code y Codex.
+
+| Evento | Cuándo | Qué puede hacer el gancho |
+|-------|------|----------------------|
+| `PreToolUse` | Justo antes de que se ejecute una llamada a una herramienta. `matcher` se comprueba contra el nombre, el título y la ruta de la herramienta. | Bloquear la llamada, o reescribir su entrada. |
+| `Stop` | Justo antes de que el agente termine su turno con una respuesta. | Devolver al agente al trabajo con una instrucción. |
+| `SubagentStop` | Justo antes de que un subagente termine. | Devolver al subagente al trabajo con una instrucción. |
+
+Un gancho decide de una de dos formas:
+
+- El **código de salida 2** bloquea. El texto que el comando escribe en stderr es el motivo.
+- El **código de salida 0 con JSON en stdout.** Cualquier otra salida, código de salida, error o tiempo agotado no decide nada, y la ejecución continúa como si el gancho no estuviera.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| Salida JSON | Efecto |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: la llamada no se ejecuta. El modelo ve `permissionDecisionReason` como resultado de la herramienta y puede elegir otro camino. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Se trata como `deny`. Enconvo aún no tiene un aviso de confirmación para los ganchos. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: la llamada se ejecuta. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`: la llamada se ejecuta con esta entrada en lugar de la del modelo. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: el agente sigue trabajando, con `reason` como siguiente instrucción. En `PreToolUse` bloquea la llamada. |
+| `{ "decision": "approve" }` | Igual que `allow`. |
+
+Los ganchos HTTP deciden con una respuesta 2xx cuyo cuerpo es el mismo JSON.
+
+Cuando coinciden varios ganchos, deny gana a ask, que gana a allow. Los motivos se unen y se usa el último `updatedInput`.
+
+Un gancho `Stop` puede devolver al agente al trabajo como máximo 5 veces en un turno. En la segunda comprobación y las siguientes, `stop_hook_active` es `true`, así que un gancho puede dejar que el agente pare cuando se ha seguido su instrucción. El bloqueo de `Stop` solo se aplica cuando el agente termina con normalidad; una ejecución fallida o detenida sigue disparando `Stop` en segundo plano.
+
+<Tip>
+El agente espera a los ganchos que bloquean, así que un gancho `PreToolUse` lento ralentiza cada llamada a una herramienta, y un gancho `Stop` lento retrasa el final del turno. Mantenlos rápidos, pon un `timeout` corto o ejecuta el trabajo lento en segundo plano (`command &`).
+</Tip>
+
+Los ganchos que bloquean reciben la carga del evento habitual más los campos de Claude Code en el nivel superior:
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` y `SubagentStop` reciben `stop_hook_active` y `last_assistant_message` en lugar de los campos de la herramienta. Los ganchos de comando se ejecutan en el directorio de trabajo del agente.
+
+### Bloquear un comando peligroso
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### Hacer que el agente ejecute las pruebas antes de terminar
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## Carga del evento
+
+Los ganchos de comando reciben este JSON en stdin. Los ganchos HTTP reciben el mismo JSON como cuerpo de la petición.
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| Campo | Descripción |
+|-------|-------------|
+| `event` | Nombre corto del evento. |
+| `fullEvent` | Nombre interno del evento con el prefijo `event-`. |
+| `sourceEvent` | Evento original de Enconvo que produjo este evento de gancho, cuando el evento se asigna por compatibilidad con Codex. |
+| `sourceFullEvent` | Nombre interno original del evento con el prefijo `event-`. |
+| `params` | Carga específica del evento. |
+| `timestamp` | Marca de tiempo Unix en milisegundos. |
+
+Los ganchos en segundo plano también reciben los campos de Claude Code: `hook_event_name`, `session_id` cuando el evento lo tiene y, en eventos de herramientas, `tool_name`, `tool_input` y `tool_use_id`.
+
+## Eventos disponibles
+
+| Evento | Parámetros | Cuándo |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | Se crea una sesión de chat nueva. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | Empieza la ejecución de un agente, un chat o un bot a partir de la entrada del usuario. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Empieza una llamada a una herramienta. Bloquea durante las ejecuciones del agente. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Una llamada a una herramienta llega a un estado de permiso o de denegación. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Una llamada a una herramienta tiene éxito, falla, se completa o se deniega. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | La ejecución de un agente, un chat o un bot llega a un estado terminal. Bloquea cuando un agente termina con normalidad. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | Un subagente está a punto de terminar. Bloquea. Los subagentes no disparan `Stop`. |
+
+Los nombres antiguos de Enconvo, como `run_status_changed` y `agent_tool_step_changed`, siguen funcionando, así que los archivos de ganchos existentes no hay que migrarlos de inmediato.
+
+## Recetas
+
+### Notificación de macOS cuando falla un agente
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Registrar los cambios de estado del agente
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Registrar las llamadas a herramientas del agente
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Enviar a Slack
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Script personalizado
+
+Crea un script que lea la carga del evento desde stdin:
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+Haz referencia a él desde `~/.enconvo/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Haz el script ejecutable:
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Un gancho no se ejecutó | Comprueba que `~/.enconvo/hooks.json` es JSON válido, que la clave de nivel superior coincide con el nombre del evento y que el comando funciona cuando lo ejecutas tú. Si aún tienes `~/.config/enconvo/hooks.json`, se ignora mientras existe el archivo nuevo. |
+| No sabes si los ganchos bloquean Enconvo | Solo `PreToolUse`, `Stop` y `SubagentStop` bloquean, durante las ejecuciones del agente. Todos los demás se disparan y siguen. Si un gancho falla o agota el tiempo, Enconvo registra el fallo y continúa como si el gancho no estuviera. |
+| Los ganchos de un plugin no se ejecutan | Abre el plugin y haz clic en **Permitir ganchos**. Tras una actualización que los cambió, revísalos y permítelos de nuevo. |
+| Un comando no encuentra un script o un binario | Usa rutas absolutas. La expansión de `~` del shell funciona cuando el comando se ejecuta a través de un shell, pero las rutas absolutas son más fáciles de depurar. |
+
+### Probar un script a mano
+
+Pasa una carga de ejemplo al script:
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/es/ai/agents">
+    Conoce los agentes de Enconvo y los bots personalizados
+  </Card>
+  <Card title="Referencia de la API de extensiones" icon="code" href="/extensions/extension-api-reference">
+    Crea extensiones que emiten o escuchan eventos
+  </Card>
+</CardGroup>

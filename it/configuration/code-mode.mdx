@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Lascia che un Agente scriva un breve script che fa molte chiamate agli strumenti in una volta e legge solo il risultato."
+---
+
+Code Mode permette a un Agente di fare in un passo ciò che altrimenti ne richiederebbe molti: scrive un breve script che fa molte chiamate agli strumenti, in parallelo o in ordine, e legge solo il risultato. Usalo quando un compito ripete la stessa chiamata su molti elementi, per esempio controllare un elenco di pagine o raccogliere risultati da più servizi, così il lavoro è più veloce e la chat non si riempie di ogni risultato intermedio.
+
+Non chiami Code Mode tu. Quando è attivo, l’Agente lo usa ogni volta che il compito ci sta, e la chat mostra una scheda con le chiamate fatte dallo script.
+
+## Configurare Code Mode
+
+1. Apri **Impostazioni → Code Mode**. Puoi anche aprire **Code Mode** dalla scheda **Integrati** della pagina Plugin.
+2. In **Accesso degli script**, attiva ciò che uno script può chiamare. Ogni chiamata ti chiede comunque come dice la [modalità di autorizzazione](/it/ai/agents) della chat.
+3. Scegli quali modelli possono scrivere script, cosa mostra la chat e cosa succede quando uno script dura a lungo.
+
+## Impostazioni
+
+**Accesso degli script** elenca ciò che uno script può chiamare:
+
+| Accesso | Cosa consente | Predefinito |
+| --- | --- | --- |
+| **Plugin** | Ricerca, base di conoscenza, documenti e altre route dei plugin | Attivo |
+| **Connettori e MCP** | I tuoi account collegati e gli strumenti MCP | Attivo |
+| **File** | Lettura e scrittura di file | Attivo |
+| **Comandi shell** | Eseguire comandi in un terminale | Attivo |
+| **Browser** | [Uso del browser](/it/features/browser-control), nel tuo browser | Attivo |
+| **App** | [Uso del computer](/it/features/computer-use), entro il suo elenco di accesso alle app | Attivo |
+| **Altri agenti** | Avviare o scrivere a sottoagenti | Disattivo |
+| **Chiamate al modello** | Un modello piccolo per riassumere o valutare gli elementi | Attivo |
+
+Le altre opzioni:
+
+| Opzione | Scelte |
+| --- | --- |
+| **Usa con** | **Modelli che scrivono bene il codice** (gli altri fanno le chiamate una alla volta), oppure **Ogni modello**. |
+| **Mostra nella chat** | **Le chiamate**, oppure **Le chiamate e il codice**. |
+| **Quando uno script dura a lungo** | **Continua, fino a 2 ore** in background, oppure **Fermati dopo 10 minuti**. |
+
+## Code Mode fuori da una chat
+
+Quando uno script gira fuori da una chat, per esempio in un’automazione, chiama solo strumenti che leggono: ricerche e letture integrate, pagine web pubbliche, file ordinari e strumenti MCP che non dichiarano di modificare qualcosa. Enconvo controlla di nuovo ogni chiamata subito prima di eseguirla.
+
+## Usare uno script in una Competenza
+
+Una Competenza può tenere uno script di Code Mode nella propria cartella `scripts` ed eseguirlo come uno dei suoi passi. Vedi [Competenze](/it/configuration/skills).
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| L’Agente fa le chiamate una alla volta | Controlla **Usa con**. Con **Modelli che scrivono bene il codice**, gli altri modelli non usano Code Mode. |
+| Uno script non raggiunge uno strumento | Attiva quel tipo di accesso in **Accesso degli script**. Fuori da una chat, gli script solo leggono. |
+| Uno script lungo si è fermato | Con **Fermati dopo 10 minuti**, gli script più lunghi finiscono. Scegli **Continua, fino a 2 ore**. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Scegli strumenti e autorizzazioni di un Agente.</Card>
+  <Card title="Competenze" icon="star" href="/it/configuration/skills">Salva un compito ripetibile, con i suoi script.</Card>
+  <Card title="Code Runner" icon="terminal" href="/it/ai/code-runner">Esegui codice e comandi shell.</Card>
+  <Card title="Server MCP" icon="plug" href="/it/features/mcp">Collega servizi esterni come strumenti.</Card>
+</CardGroup>

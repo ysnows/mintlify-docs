@@ -1,0 +1,85 @@
+---
+title: "Agent-Sandbox"
+description: "Halte die Befehle eines Agenten in seinem Arbeitsordner, fern von deinen Schlüsseln und anderen Apps, und sieh, warum Enconvo vor einem Befehl fragt."
+---
+
+Die Sandbox begrenzt, was die Shell-Befehle eines Agenten erreichen können. Ist sie an, kann ein Befehl nur den Arbeitsordner des Chats und temp ändern, und macOS hindert ihn daran, deine Schlüssel zu lesen, andere Apps zu steuern oder sich mit Enconvo zu verbinden. Schalte sie für einen Agenten ein, dessen Befehle du nicht einzeln beobachten willst.
+
+Die Sandbox arbeitet neben dem Berechtigungsmodus des Agenten. Der Modus entscheidet, wann Enconvo vor einer Aktion fragt; die Sandbox begrenzt, was ein Befehl tun kann, sobald er läuft.
+
+## Die Sandbox einschalten
+
+1. Öffne einen Chat mit dem Agenten im Chatfenster, in der SmartBar, in der Dynamic Island, in der App-Seitenleiste oder im Lead-Chat eines Projekts.
+2. Klicke auf den Chip **Berechtigungen** neben dem Ausführungsmodus.
+3. Schalte **Sandbox** ein.
+
+Der Schalter gehört zum Agenten, gilt also in jedem Fenster, in dem du diesen Agenten nutzt. Die Agenten, die er aufruft, führen ihre Befehle ebenfalls in der Sandbox aus.
+
+Um zu sehen, was die Sandbox die Befehle des Agenten erreichen lässt, klicke unter dem Schalter auf **So funktioniert die Sandbox**. Sie zeichnet die eigene Sandbox des Agenten: seinen Arbeitsordner, seinen Berechtigungsmodus und jeden Ort, den ein Befehl erreichen kann oder nicht.
+
+## Was ein Befehl in der Sandbox erreichen kann
+
+| Ort | In der Sandbox |
+| --- | --- |
+| Der Arbeitsordner und temp | Kann lesen und ändern |
+| Deine anderen Dateien | Kann lesen, nicht ändern |
+| Das Internet | Kann sich verbinden |
+| Schlüssel und Passwörter, etwa SSH-Schlüssel, Schlüsselbunde und Cookies | Kann nicht lesen |
+| Gespeicherte Anmeldedaten und die Einstellungen von Enconvo | Kann nicht lesen |
+| Andere Apps | Kann sie nicht öffnen oder steuern |
+| Enconvo | Kann sich nicht damit verbinden |
+
+Jedes Programm, das ein Befehl startet, läuft ebenfalls in der Sandbox. Enconvo nutzt die eigene Sandbox von macOS, dieselbe, die App-Store-Apps nutzen.
+
+## Wenn die Sandbox einen Befehl stoppt
+
+Wenn ein Befehl etwas erreichen will, das die Sandbox ihm vorenthält, lehnt macOS ab, und eine Zeile unter dem Schritt sagt, was gestoppt wurde, etwa ein Schreiben in einen Ordner oder das Lesen einer Schlüsseldatei.
+
+1. Klicke auf die Zeile, um zu sehen, was gestoppt wurde und warum.
+2. Damit der Befehl es doch tun darf, klicke auf **Außerhalb ausführen**. Der Befehl läuft einmal mit deinem vollen Zugriff und erscheint danach im Chat wie jeder andere Befehl. Nichts wird gemerkt.
+
+**Außerhalb ausführen** wird nur angeboten, solange der Lauf läuft und jemand zuschaut. Geplante Aufgaben und andere Läufe, die niemand beobachtet, führen nie einen Befehl außerhalb der Sandbox aus.
+
+## Warum Enconvo vor einem Befehl fragt
+
+Der Berechtigungsmodus des Agenten entscheidet, was fragt, mit oder ohne Sandbox. Siehe [Aktionen genehmigen](/de/ai/agents).
+
+| Modus | Mit eingeschalteter Sandbox |
+| --- | --- |
+| **Um Genehmigung bitten** | Jeder Befehl fragt weiter, bevor er läuft. Die Sandbox begrenzt, was ein erlaubter Befehl tun kann. |
+| **Für mich genehmigen** | Befehle laufen ohne zu fragen, außer riskante, etwa Dateien löschen oder veröffentlichen. |
+| **Voller Zugriff** | Befehle laufen ohne zu fragen. Nur Änderungen, die deinen Computer schaden könnten, fragen. |
+
+Enconvo liest jeden Befehl Teil für Teil, sodass ein schädlicher Schritt, der in einem zitierten, verschachtelten, verketteten oder über eine Pipe laufenden Befehl versteckt ist, trotzdem fragt, und harmlose, etwa ein echo oder das Auflisten eines Ordners, nicht.
+
+Auch bei **Voller Zugriff** fragt Enconvo mit **Einmal erlauben** und **Ablehnen**, bevor eine Änderung deinen Computer schaden könnte, etwa das Löschen eines kritischen Ordners, das Bearbeiten deiner Shell-Startdateien oder SSH-Schlüssel oder das Lesen gespeicherter Passwörter, egal wie der Befehl den Pfad schreibt.
+
+Mit **Für mich genehmigen** wird ein Befehl, den die Regeln nicht beurteilen können, gegen das geprüft, was du verlangt hast. Wenn du nicht erwarten würdest, dass er von selbst läuft, fragt Enconvo dich und nennt den Grund.
+
+Jede Genehmigungskarte nennt die Einstellung, die sie fragen ließ, etwa „Gefragt, weil dieses Projekt auf Für mich genehmigen steht.“
+
+## Andere Aktionen, die fragen
+
+- [Computernutzung](/de/features/computer-use) fragt vor einem Tastaturkurzbefehl, der löscht, sendet, bezahlt, eine App beendet oder abmeldet, so wie bei Klicks.
+- Ein Befehl, der die eigenen Routen einer Plugin-Seite aufruft, fragt zuerst.
+- Die Genehmigung eines Plugin-Werkzeugs zeigt, was das Werkzeug senden will.
+- Ein Agent fragt, bevor er deine [Freunde](/de/features/friends) und Teammitglieder anruft oder ihnen schreibt, außer bei **Voller Zugriff**, wo er nicht fragt.
+- Ein Agent kann seine eigenen Genehmigungskarten nicht beantworten, seine eigenen Berechtigungen nicht erhöhen und keine Karte beantworten, die für dich gedacht ist, etwa eine Plugin-Installation oder die Punktobergrenze.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Ein Befehl schlägt mit einem Berechtigungsfehler fehl | Die Sandbox hat ihn vielleicht gestoppt. Klicke auf die Zeile unter dem Schritt, dann auf **Außerhalb ausführen**, wenn du dem Befehl vertraust. |
+| Der Agent kann eine App nicht aus einem Befehl öffnen oder steuern | Befehle in der Sandbox können andere Apps nicht steuern. Nutze [Computernutzung](/de/features/computer-use) oder schalte die Sandbox für diesen Agenten aus. |
+| Du hast erwartet, dass Enconvo fragt, und es hat nicht gefragt | Prüfe den Berechtigungsmodus des Agenten im Chip **Berechtigungen**. **Voller Zugriff** fragt nur vor Änderungen, die deinen Computer schaden könnten. |
+| Der Schalter **Sandbox** fehlt | Prüfe, ob der Chat im Agentenmodus ist, und aktualisiere Enconvo. Siehe [Updates](/de/configuration/updates). |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Berechtigungsmodi und Genehmigungskarten.</Card>
+  <Card title="Code Runner" icon="terminal" href="/de/ai/code-runner">Wie ein Agent Shell-Befehle ausführt.</Card>
+  <Card title="Datenschutz und Sicherheit" icon="shield-halved" href="/de/configuration/privacy-security">Wohin deine Daten gehen und wie du sie steuerst.</Card>
+  <Card title="macOS-Berechtigungen" icon="shield" href="/de/configuration/permissions">Der Zugriff, den macOS Enconvo selbst gewährt.</Card>
+</CardGroup>

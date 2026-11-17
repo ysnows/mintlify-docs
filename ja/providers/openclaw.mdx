@@ -1,0 +1,232 @@
+---
+title: "OpenClaw"
+description: "Enconvo で OpenClaw エージェントを OpenAI 互換モデルとして使用する"
+---
+
+OpenClaw は、チャット、メッセージングチャネル、ツール、スキル、自動化機能を通じてアシスタントを実行するためのセルフホスト型 AI エージェントプラットフォームです。
+
+OpenClaw は OpenAI 互換ゲートウェイを通じてエージェントを公開できます。ゲートウェイを有効にすると、Enconvo はチャット、Enconvo エージェント、モデルを活用した機能などの中で、OpenClaw エージェントを他の AI モデルと同じように使用できます。
+
+OpenClaw のゲートウェイは `/v1/models`、`/v1/chat/completions`、`/v1/responses` などの OpenAI 互換エンドポイントを公開します。Enconvo の OpenClaw プロバイダーは Chat Completions API（`/v1/chat/completions`）を使用します。
+
+<Note>
+  Enconvo はこのプロバイダーで OpenClaw Responses API を使用しません。OpenAI 互換の Chat Completions ゲートウェイを通じて OpenClaw を設定してください。
+</Note>
+
+OpenClaw を初めてお使いの場合は、まず [OpenClaw クイックスタートガイド](https://docs.openclaw.ai/start/getting-started) を参照し、そのあとここに戻って Enconvo に接続してください。
+
+ゲートウェイエンドポイントの完全なリファレンスについては、[OpenClaw ゲートウェイドキュメント](https://docs.openclaw.ai/gateway#openai-compatible-endpoints) を参照してください。
+
+## 始める前に
+
+- ゲートウェイを実行するマシンに OpenClaw がインストールされていること
+- 到達可能なホストとポートで OpenClaw ゲートウェイが実行されていること
+- Chat Completions ゲートウェイエンドポイントが有効になっていること
+- `~/.openclaw/openclaw.json` のゲートウェイトークン
+- OpenClaw AI モデルプロバイダーが有効になった Enconvo
+
+## 自動セットアップ
+
+**設定 → AI モデル → OpenClaw** を開きます。セットアップカードでは、ローカルの OpenClaw ゲートウェイの起動、停止、設定を行えます。
+
+Enconvo と同じ Mac に OpenClaw がインストールされている場合は、**自動セットアップ** を使用します。Enconvo は以下を実行します：
+
+<Steps>
+  <Step title="OpenClaw を検出">
+    この Mac に `openclaw` CLI が存在するか確認します。
+  </Step>
+  <Step title="Chat Completions を有効化">
+    `openclaw config set gateway.http.endpoints.chatCompletions.enabled true` を実行します。
+  </Step>
+  <Step title="ゲートウェイトークンを準備">
+    `~/.openclaw/openclaw.json` から `gateway.auth.token` を読み取るか、存在しない場合は作成します。
+  </Step>
+  <Step title="ゲートウェイを起動">
+    OpenClaw ゲートウェイサービスを起動または再起動します。
+  </Step>
+  <Step title="API を検証">
+    `/health` と `/v1/models` でゲートウェイをプローブします。
+  </Step>
+  <Step title="認証情報を保存">
+    ベース URL とゲートウェイトークンを Enconvo の OpenClaw 認証情報に保存します。
+  </Step>
+</Steps>
+
+セットアップカードには **実行中** や **停止しました** などのランタイムバッジが表示されます。カードが表示されている間、Enconvo はこのステータスを定期的に更新し、カードが非表示になると更新を停止します。
+
+## OpenClaw ゲートウェイを有効にする
+
+ゲートウェイの詳細を準備するよう OpenClaw に頼むこともできます：
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+返されたベース URL とトークンを Enconvo の OpenClaw 認証情報設定で使用します。
+
+<Steps>
+  <Step title="Chat Completions を有効化">
+    OpenAI 互換の Chat Completions エンドポイントを一度有効にします：
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="バインドモードを選択">
+    ローカルのみからアクセスする場合は、デフォルトの loopback バインドのままにします。LAN 上の別デバイスからゲートウェイに到達する場合は、LAN にバインドします：
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="ゲートウェイを再起動">
+    設定変更を反映します：
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="ゲートウェイのステータスを確認">
+    ゲートウェイが実行中であることを確認します：
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## OpenClaw を手動で接続する
+
+**設定 → AI モデル → OpenClaw** を開き、認証プロバイダーを設定します。
+
+![OpenClaw credential settings in Enconvo](/img/openclaw-settings.png)
+
+| 設定 | 値 |
+|---------|-------|
+| **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
+| **Gateway Token** | `~/.openclaw/openclaw.json` の `gateway.auth.token` |
+
+Enconvo は OpenClaw に対して Chat Completions API を自動的に使用します。
+
+完全な `/v1/chat/completions` エンドポイントではなく、`/v1` で終わるベース URL を指定してください。たとえば、エンドポイントが `http://192.168.1.18:18789/v1/chat/completions` の場合は、`http://192.168.1.18:18789/v1` と入力します。
+
+デフォルトの OpenClaw 設定ファイルからゲートウェイトークンを読み取るには：
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo はこの値を次のように送信します：
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+ベース URL とトークンを入力したら、**検証** をクリックします。
+
+## リクエストと添付ファイルの仕組み
+
+Enconvo は OpenAI 互換の Chat Completions を通じて OpenClaw リクエストを送信します：
+
+```http
+POST /v1/chat/completions
+```
+
+`openclaw:main` または OpenClaw エージェント一覧で公開されている別のモデル名を使用します。
+
+<Warning>
+  Enconvo は画像添付ファイルを OpenClaw に送信しません。Enconvo では OpenClaw プロバイダーをテキスト/チャット専用プロバイダーとして扱ってください。画像を扱うワークフローでは、ビジョン対応のモデルプロバイダーを使用するか、OpenClaw にテキストを送信する前に OCR や画像解析を実行してください。
+</Warning>
+
+## OpenClaw を AI モデルとして使用する
+
+設定が完了すると、モデルセレクターに OpenClaw が表示されます。**OpenClaw** を選択し、`openclaw:main` などのエージェント対応モデルを選びます。
+
+![OpenClaw selected as the chat model](/img/openclaw-chat-model.png)
+
+通常の Enconvo インターフェースを保ったまま、Enconvo の会話、コマンド、または機能を OpenClaw エージェント経由で実行したい場合は、このモードを使用します。
+
+<Steps>
+  <Step title="モデルピッカーを開く">
+    チャットまたはモデルを使用する別の Enconvo 機能で、現在のモデル名をクリックします。
+  </Step>
+  <Step title="OpenClaw を選択">
+    プロバイダー一覧から **OpenClaw** を選択します。
+
+    ![OpenClaw in the model selector](/img/openclaw-model-selector.png)
+  </Step>
+  <Step title="OpenClaw エージェントモデルを選択">
+    モデル一覧から `openclaw:main` または別の OpenClaw エージェントを選択します。
+  </Step>
+  <Step title="通常どおり機能を実行">
+    質問を入力するか、Enconvo の機能を実行します。選択した OpenClaw エージェントがバックグラウンドでモデル呼び出しを処理します。
+  </Step>
+</Steps>
+
+Enconvo は `openclaw agents list` から OpenClaw モデルを読み込みます。ローカルで OpenClaw CLI が利用できない場合、Enconvo は `openclaw:main` にフォールバックします。
+
+## OpenClaw 用のエージェントを作成する
+
+特定の OpenClaw エージェントを連携・統括する Enconvo エージェントを作成することもできます。これは、特定の OpenClaw エージェントを中心に Enconvo 向けのワークフロー、ツールセット、またはプロンプトを用意したい場合に便利です。
+
+<Steps>
+  <Step title="エージェントを作成を開く">
+    SmartBar を開き、**エージェントを作成** を検索します。
+
+    ![Create Agent command in Enconvo](/img/openclaw-create-agent-command.png)
+  </Step>
+  <Step title="エージェントに名前を付ける">
+    `OpenClaw Main` のような分かりやすい名前を付けます。
+
+    ![Create New Agent form for OpenClaw](/img/openclaw-agent-form.png)
+  </Step>
+  <Step title="連携用の指示を書く">
+    Enconvo エージェントに対し、OpenClaw とどのように連携すべきかを説明する指示を設定します。
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="OpenClaw モデルを選択">
+    エージェントのモデル設定で **OpenClaw** を選び、`openclaw:main` を選択します。
+  </Step>
+  <Step title="保存してエージェントを使用する">
+    新しい Enconvo エージェントとの会話を開始します。設定した Enconvo エージェントのインターフェースとツールを保持したまま、選択した OpenClaw エージェントモデルが使用されます。
+  </Step>
+</Steps>
+
+## トラブルシューティング
+
+<AccordionGroup>
+  <Accordion title="OpenClaw がモデルピッカーに表示されない">
+    **設定 → AI モデル** で OpenClaw プロバイダーが有効になっているか確認してください。モデル一覧が空の場合は、ローカルで `openclaw agents list` が動作するか確認するか、デフォルトの `openclaw:main` を使用してください。
+  </Accordion>
+  <Accordion title="認証エラー（unauthorized）で検証に失敗する">
+    ゲートウェイトークンを再確認してください。Enconvo は `gateway.auth.token` の値を期待しており、Bearer トークンとして送信します。
+  </Accordion>
+  <Accordion title="接続に失敗する">
+    `openclaw gateway status` でゲートウェイが実行中であることを確認してください。Enconvo が別デバイスで動作している場合は、`gateway.bind` を `lan` に設定してゲートウェイを再起動し、ベース URL にホストの LAN IP を指定してください。
+  </Accordion>
+  <Accordion title="起動は成功したが、Enconvo で一時的に注意が必要と表示される">
+    HTTP ゲートウェイの準備が整う前に LaunchAgent が再起動したことが OpenClaw から報告される場合があります。数秒待ってから、セットアップカードのランタイムバッジをもう一度確認してください。また、`openclaw gateway status` や `curl http://127.0.0.1:18789/health` で直接確認することもできます。
+  </Accordion>
+  <Accordion title="ゲートウェイは実行中だが `/v1/models` が失敗する">
+    Enconvo が `~/.openclaw/openclaw.json` の `gateway.auth.token` と同じトークンを使用しているか確認してください。セットアップステータスでは `/health` を通じて実行中のゲートウェイを検出できますが、モデルの検証には Bearer トークンが必要です。
+  </Accordion>
+  <Accordion title="画像添付ファイルが無視される">
+    現在、Enconvo の OpenClaw プロバイダーはテキストのみに対応しています。Enconvo は OpenClaw に画像添付ファイルを送信しないため、直接画像を入力する場合はビジョン対応プロバイダーを選択してください。
+  </Accordion>
+  <Accordion title="ベース URL が間違っている">
+    `http://<gateway-host>:<port>/v1` を入力してください。Enconvo のベース URL フィールドには `/chat/completions` を含めないでください。
+  </Accordion>
+</AccordionGroup>
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/ja/providers/hermes">同じ方法で別のエージェントゲートウェイに接続します。</Card>
+  <Card title="エージェント" icon="robot" href="/ja/ai/agents">エージェントに指示やツールを与えます。</Card>
+</CardGroup>

@@ -1,0 +1,91 @@
+---
+title: "Emparelhar com o telefone"
+description: "Emparelhe o app Enconvo para iPhone ou Android com um Mac, um PC Windows, um desktop Linux ou um servidor Linux só com terminal."
+---
+
+O app Enconvo no telefone emparelha com cada um dos seus computadores, para os projetos e chats deles ficarem no telefone. Um chat que você abre no telefone continua a correr nesse computador, com os arquivos, apps e agentes dele. O telefone chega ao computador pelo relay do Enconvo, e as mensagens são cifradas de ponta a ponta. Quando o telefone e o computador estão na mesma rede, o app liga-se diretamente, então liga e responde mais depressa em casa ou no escritório.
+
+Cada computador emparelha com o telefone por si. Emparelhar dois computadores entre si (por exemplo um laptop Linux com o seu Mac) não adiciona nenhum dos dois ao telefone: emparelhe o telefone com cada computador que quer usar a partir dele.
+
+## Antes de começar
+
+- **Obtenha o app.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play, ou o APK. **Descarregar a app para telemóvel** em **Definições → Ligações** no computador tem um código de download para cada um; o botão **Descarregar a app para telemóvel** do plugin Mobile Companion também abre isso.
+- **Use uma conta.** Entre no app do telefone e no computador com a mesma conta Enconvo. Só telefones da sua conta podem emparelhar. Uma conta gratuita também pode emparelhar e usar os chats do computador e o Remote Screen a partir do telefone.
+- **Mantenha o computador ligado e o Enconvo em execução.** O telefone chega a um computador só enquanto o Enconvo corre lá.
+
+## Mac, Windows ou um desktop Linux
+
+Os passos são os mesmos nos três.
+
+<Steps>
+  <Step title="Mostrar o código de emparelhamento no computador">
+    Clique no seletor de dispositivos no fundo da barra lateral e depois em **Adicionar um dispositivo → Emparelhar um telemóvel**. Ou abra **Definições → Ligações** e selecione **Mostrar o código de emparelhamento**. Aparece um código QR. Funciona uma vez e dura cinco minutos.
+  </Step>
+  <Step title="Digitalizá-lo com o telefone">
+    No app Enconvo, abra **Remoto**, toque em **Pair a computer** e aponte a câmara para o código. Também pode digitalizá-lo com a Câmara do iPhone, uma câmara Android ou o Google Lens: o código abre o Enconvo, e você confirma o computador lá. Se o app ainda não estiver instalado, o link do código ajuda a instalá-lo e depois a emparelhar.
+  </Step>
+  <Step title="Usar o computador a partir do telefone">
+    O telefone emparelha num instante e mostra o computador. Com mais de um computador emparelhado, mude entre eles em **Remoto**.
+  </Step>
+</Steps>
+
+Se o código expirar, selecione **Mostrar um novo código** e digitalize de novo.
+
+## Um servidor Linux só com terminal
+
+Um servidor não tem janela para mostrar o código, então a linha de comando imprime-o. Isto precisa do Enconvo 2.5.15 Beta 1 ou posterior. Siga primeiro [Instalar num servidor](/pt-br/getting-started/linux).
+
+<Steps>
+  <Step title="Entrar no servidor">
+    ```bash
+    enconvo login
+    ```
+    Aprove o código que imprime em `enconvo.com/device`.
+  </Step>
+  <Step title="Manter o Enconvo em execução">
+    ```bash
+    enconvo service install
+    ```
+    O telefone chega ao servidor só enquanto o Enconvo corre lá.
+  </Step>
+  <Step title="Imprimir o código de emparelhamento">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Desenha um código QR no terminal, com um link por baixo, e diz quando expira. O código funciona uma vez e dura cinco minutos.
+  </Step>
+  <Step title="Digitalizar ou abrir o link">
+    Digitalize o código com a câmara do telefone, ou abra o link no telefone. Confirme no app Enconvo, e o servidor aparece no telefone.
+  </Step>
+</Steps>
+
+- **Por SSH**: o código é desenhado no seu próprio terminal, então também funciona por SSH. Se quebrar as linhas, alargue a janela ou abra o link.
+- **Entrada**: digitado no seu próprio terminal, o código também entra no app do telefone, então envie-o só para o seu telefone. Saída canalizada ou guardada, ou um comando que um agente executa, imprime só o link, que não entra no app: entre no app com a mesma conta primeiro.
+- **Expirado**: execute `enconvo companion pair --phone` de novo.
+
+## Gerir telefones emparelhados
+
+**Definições → Ligações** em cada computador lista os telefones emparelhados.
+
+| Para | Faça isto |
+|---|---|
+| Emparelhar outro telefone | Mostre um código novo e digitalize-o com esse telefone. Um computador pode ter até 10 telefones emparelhados. |
+| Renomear um telefone | Clique no telefone e depois em **Renomear telefone** ao lado do nome. |
+| Remover um telefone | Selecione **Remover** ao lado dele. Esse telefone deixa de chegar a este computador. |
+| Começar de novo | Selecione **Repor ligação**. Todos os telefones são removidos e têm de emparelhar de novo. |
+
+## Resolução de problemas
+
+| Problema | Correção |
+|---|---|
+| Um computador não está no telefone | Emparelhe o telefone com esse computador. Emparelhá-lo com outro computador não o adiciona. |
+| **Este código expirou** | Mostre um código novo, ou execute o comando de novo, e digitalize em cinco minutos. |
+| **Inicie sessão para emparelhar um telemóvel** | Entre no computador no Enconvo. Num servidor, execute `enconvo login`. |
+| O servidor diz que não está autenticado | Execute `enconvo login` e depois `enconvo companion pair --phone` de novo. |
+| O telefone mostra o servidor como offline | Confira se o Enconvo corre lá: `enconvo service install`, e `sudo loginctl enable-linger "$USER"` se parar quando você sai. |
+
+## Próximos passos
+
+- [App para iPhone](/pt-br/integrations/iphone-app): o que você pode fazer a partir do telefone, com um tutorial em vídeo.
+- [Linux (Beta)](/pt-br/getting-started/linux): instale o Enconvo num desktop ou num servidor.
+- [Os seus outros computadores](/pt-br/integrations/other-computers): emparelhe os seus computadores entre si.

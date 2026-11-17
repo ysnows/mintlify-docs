@@ -1,0 +1,230 @@
+---
+title: "Projets et le Tableau"
+description: "Gardez les chats, les idées et l’équipe d’un Projet au même endroit, confiez des tâches aux Agents et aux agents de code, et suivez chaque tâche sur le Tableau."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Un Projet rassemble les chats, les idées et l’équipe d’un dossier. Vous écrivez ce que vous voulez comme idée, le responsable du Projet la planifie avec l’équipe, et chaque tâche avance sur le Tableau jusqu’à ce qu’elle soit faite. Utilisez un Projet pour un travail suivi, comme un site ou une app, lorsque vous voulez voir d’un coup d’œil ce qui tourne et ce qui vous attend.
+
+La vidéo ci-dessous ouvre un Projet, ajoute une idée qui confie une partie du travail à Claude Code, la suit sur le Tableau, puis archive et restaure le Projet.
+
+<YouTubePlayer videoId="sDHMeGn6iX0" title="Projets et le Tableau dans Enconvo" />
+
+## Avant de commencer
+
+Il vous faut un Projet. Cliquez sur **+** à côté de **Projets** dans la barre latérale de la Fenêtre de chat et choisissez un dossier : voir [Créer un Projet](/fr/ai/agent-orchestrator). Pour confier des tâches à un agent de code comme Claude Code ou Codex, installez-le et connectez-vous d’abord : voir [Agents de code](/fr/ai/coding-agents).
+
+## Ouvrir un Projet
+
+Cliquez sur le Projet dans la barre latérale. Sa page a trois onglets :
+
+| Onglet | Ce qu’il montre |
+| --- | --- |
+| **Discussion** | Le chat du Projet avec son responsable, et un panneau de ce qui vous attend. |
+| **Tableau** | Les idées du Projet, de **Non commencé** à **Planification** et **En cours**, jusqu’à **Terminé**. |
+| **Équipe et réglages** | Qui est dans l’équipe, et quand l’équipe vous consulte. |
+
+Les visages de l’équipe, le responsable en premier, s’affichent en haut à gauche. Les tâches d’un chat de Projet apparaissent aussi sous sa ligne dans la barre latérale.
+
+## Ajouter une idée
+
+Une idée est quelque chose que vous voulez que le Projet fasse.
+
+1. Ouvrez l’onglet **Tableau** et cliquez sur **Nouvelle idée**.
+2. Écrivez ce que vous voulez, comme vous le diriez. Vous pouvez joindre des captures ou des fichiers, ou cliquer sur le micro et parler.
+3. Réglez une **Priorité** si vous voulez. Enconvo devine le **Type** d’après vos mots : **Fonctionnalité**, **Bogue**, **Amélioration**, **Docs** ou **Recherche**. Changez-le si la devinette est fausse.
+4. Cliquez sur **Ajouter une idée**.
+
+L’idée apparaît comme une carte sous **Non commencé**, avec un titre court écrit d’après vos mots et un drapeau rouge, ambre ou bleu pour sa priorité. Le responsable commence à la planifier tout de suite et la passe à **Planification**. Les fichiers que vous avez joints lui parviennent lorsque l’idée démarre. Pour ne voir qu’un type d’idée, utilisez **Filtrer par type**.
+
+Les idées peuvent aussi arriver seules. Donnez à une [Automatisation](/fr/workflows/scheduled-jobs) l’action **Ajouter aux idées**, et chaque issue GitHub, message Discord ou Telegram, e-mail ou webhook qu’elle entend devient une idée sur le tableau du Projet. Le responsable reproduit un bogue et planifie le correctif, ou étudie une demande et la clôt avec une raison ou la planifie, et vous demande avant que quoi que ce soit change.
+
+Lorsque le plan est prêt, il montre chaque tâche, qui la fait, et sur quel modèle. Vérifiez-le, puis cliquez sur **Démarrer**. L’idée passe à **En cours**. Le responsable planifie à partir des lignes **Objectif** et **Fait lorsque** de l’idée, et l’idée ne passe à **Terminé** que lorsque le responsable juge cet objectif atteint.
+
+## Suivre une idée
+
+Cliquez sur une idée pour ouvrir sa page. Votre chat avec le responsable est d’un côté, et le plan, les tâches, les mots, les fichiers et l’objectif de l’idée de l’autre. **Où ça en est** montre **Planifier le travail**, **Faire le travail** et **Relire et tester**, avec l’avancement de chacun et qui le fait.
+
+Pour retravailler une idée terminée, cliquez sur **Rouvrir**.
+
+Une idée avec des tâches a deux vues en haut : **Tâches** ne montre que ses tâches comme un tableau, et **Discuter avec** suivi du nom du responsable, comme **Discuter avec Mavis**, ouvre le chat où elle a été planifiée.
+
+## Confier une tâche à un agent de code
+
+Nommez l’Agent, et le modèle si vous en voulez un, dans l’idée ou dans le chat du Projet. Vous pouvez aussi nommer seulement un modèle, comme Opus 5.5, et le responsable fait cette tâche dessus. Cela fonctionne aussi dans un Projet sans membres. Par exemple :
+
+```text
+Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
+```
+
+Le responsable planifie la partie nommée comme une tâche pour cet Agent sur ce modèle, même lorsque l’Agent n’est pas un membre du Projet, et peut faire le reste lui-même. Le plan et le Tableau montrent le modèle à côté de celui qui fait la tâche. Si le nom peut désigner plusieurs modèles, ou aucun, le responsable demande.
+
+Lorsque l’agent de code a fini, sa tâche attend votre relecture sous **À relire** sur le tableau **Tâches** de l’idée. Dans un Projet dont le dossier n’est pas un dépôt git, elle passe directement à **Terminé**. Chaque tâche de code travaille dans sa propre copie du code, et la carte de résultat du plan a **Fusionner** pour quand vous êtes prêt. Les membres ne peuvent ni pousser ni fusionner eux-mêmes.
+
+Chaque tâche que vous donnez au responsable, dans l’onglet Discussion ou dans Idées, apparaît sur le Tableau, groupée par idée ou par chat. Choisissez un chat dans le filtre de chat du Tableau, ou **Grouper par** **Discussion**, pour suivre une conversation.
+
+Le travail que vous faites dans les chats du Projet apparaît aussi sur le Tableau : lorsqu’un chat change des fichiers ou lance une commande, une carte le suit jusqu’à **Terminé** avec un court résumé et les fichiers changés. Cliquez sur la carte pour ouvrir le chat. Le responsable voit ces cartes et tient ses propres tâches à l’écart des mêmes fichiers.
+
+## Fusionner le travail terminé
+
+Cliquez sur **Fusionner** sur une tâche, ou sur la carte de résultat du plan, pour la fusionner dans la **Branche de base** du Projet. Des changements non validés sur d’autres lignes du même fichier n’empêchent pas une fusion. Si git est occupé, Fusionner attend un moment, et nomme le fichier de verrou lorsqu’il en reste un.
+
+Pour fusionner sans cliquer, activez **Fusionner le travail qui passe** dans **Réglages du projet → Tableau**. Il faut une **Branche de base**, réglée dans **Arbres de travail**. Chaque tâche fusionne alors seule une fois que sa vérification et une relecture par l’Agent d’un autre fournisseur passent. Sous **Passe lorsque**, choisissez **Aucun point bloquant**, **L’examinateur approuve** ou **Vérification seulement**. Une tâche en conflit revient à son membre. Lorsque l’examinateur ne peut pas tourner, chaque fusion se met en pause plutôt que d’être sautée.
+
+### Projets hors de git
+
+Dans un Projet dont le dossier n’est pas un dépôt git, chaque chat du responsable enregistre ses plans de travail dans son propre dossier de chat, pour que deux chats du responsable puissent exécuter des plans en même temps. La carte du plan montre **Enregistre dans** et le dossier, et **Aussi modifié** liste les fichiers qu’une tâche a touchés en dehors.
+
+## Demander au responsable autrement
+
+Dans le chat du responsable d’un Projet :
+
+- **Comparer les réponses** pose la même question à deux à six agents, et le responsable compare ce qu’ils disent.
+- **Utiliser un style** choisit comment le responsable écrit ses réponses.
+
+Pour que Codex, Claude Code ou un autre de vos Agents relise ou teste le travail en cours, demandez-le. Dans un Projet, le responsable démarre cet Agent comme Sous-agent et ramène le résultat dans le même chat. Le responsable peut aussi démarrer des Sous-agents pour son propre travail, à côté des tâches qu’il donne aux membres du Projet.
+
+Pour faire passer une tâche par un des workflows du Projet, tapez `@` et choisissez le workflow, ou cliquez sur **Utiliser dans le chat** à côté dans l’onglet **Équipe et réglages**. Voir [Utiliser vos propres workflows](#utiliser-vos-propres-workflows).
+
+## Voir ce qui vous attend
+
+Ouvrez l’onglet **Discussion**. Le panneau au-dessus de la zone de message a trois colonnes :
+
+| Colonne | Ce qu’elle liste |
+| --- | --- |
+| **Vous attend** | Les tâches qui attendent votre réponse, votre approbation ou votre relecture. |
+| **En cours** | Les tâches qui tournent. |
+| **Nouveaux résultats** | Les tâches terminées que vous n’avez pas encore ouvertes. |
+
+Cliquez sur une ligne pour ouvrir son idée.
+
+## Utiliser le Tableau pour tout
+
+**Tableau**, dans le menu **···** du rail d’icônes de la barre latérale de la Fenêtre de chat, montre les tâches de chaque chat, Projet et équipe au même endroit. Pour le garder sur le rail, choisissez **Personnaliser la barre latérale…** dans ce menu. Voir [Fenêtre de chat](/fr/ai/chat).
+
+Pour ne voir que certains Projets, cliquez sur le filtre en haut à gauche (**Tous les tableaux**) et choisissez ceux que vous voulez. Les autres contrôles du Tableau sont dans [Suivre le Tableau](/fr/ai/agent-orchestrator).
+
+## Configurer l’équipe
+
+Ouvrez l’onglet **Équipe et réglages**. Le haut montre le responsable et chaque membre, avec **Ajouter un membre** pour faire venir un autre Agent. Cliquez sur les visages de l’équipe en haut à gauche pour voir toute l’équipe d’un coup : le responsable avec **Modifier**, et chaque membre avec un rôle que vous pouvez éditer sur place.
+
+Le responsable peut être l’un de vos Agents ou un agent de code : Claude Code, Codex, Grok Build ou Antigravity. Un responsable agent de code planifie le travail des membres dans un plan de travail et lit leurs résultats, comme n’importe quel autre responsable.
+
+Les membres peuvent être des Agents sur vos [autres ordinateurs appairés](/fr/integrations/other-computers). Le responsable leur confie les tâches qui ont besoin de cet ordinateur, et la réponse revient comme résultat de la tâche. Si cet ordinateur n’a pas d’accès appareil sur votre compte, la tâche le dit et pointe vers **Gérer les appareils**.
+
+### Comment l’équipe travaille
+
+Chaque objectif que vous donnez au responsable, depuis Discussion ou Idées, passe par **Standard** : **Planifier le travail**, **Faire le travail**, puis **Relire et tester**. Choisissez qui fait chaque étape. Confiez la planification à un membre, et ce membre écrit le plan lorsque vous le demandez ; le responsable propose ensuite ses tâches comme un plan de travail qui attend votre **Démarrer**. Vous pouvez aussi activer ou désactiver la vérification et régler **Tours de correction**, le nombre de fois qu’une tâche revient pour être corrigée.
+
+### Utiliser vos propres workflows
+
+**Workflows personnalisés**, dans l’onglet **Équipe et réglages**, est désactivé jusqu’à ce que vous l’activiez. Tant qu’il est désactivé, chaque objectif passe par **Standard**. Activez-le pour faire passer des objectifs ou des tâches seules par des [Workflows](/fr/workflows/introduction) :
+
+- **Ou exécuter chaque objectif avec un workflow** liste les workflows d’équipe. Pointez-en un et cliquez sur **Utiliser pour chaque objectif**, ou cliquez sur **Nouveau workflow d’équipe** pour en faire un.
+- **Workflows de tâche** liste les workflows que le responsable peut donner à une seule tâche, comme corriger un bogue. Cliquez sur **Utiliser dans le chat** pour en nommer un dans le chat du responsable, ou sur **Nouveau workflow** pour en faire un.
+
+Les workflows intégrés :
+
+| Workflow | Ce qu’il fait |
+| --- | --- |
+| **Livrer** | Transforme une idée en spec, design et plan que vous approuvez, construit chaque tâche avec tests, vérifications, relecture et validation, puis relit toute la branche. |
+| **Planificateur** | Transforme une idée en spec, design et tâches que vous approuvez, et remet les tâches au responsable comme plan de travail. |
+| **Sprint** | Construit une tâche planifiée avec tests, vérifications, relecture et validation. |
+| **Compound** | Applique les leçons que vous avez gardées aux docs et aux règles du dépôt. |
+| **Vérifier la configuration** | Trouve comment vérifier et lancer le Projet, écrit un runbook de vérification que vous approuvez, et le prouve en l’exécutant. |
+
+Chaque ligne montre l’icône du workflow, les visages des membres qui le font, et combien d’exécutions il a eues et combien ont échoué. Lorsqu’un workflow manque d’un membre, cliquez sur **Choisir un Agent…** dans sa ligne. Cliquez sur une ligne pour ouvrir le workflow et changer ses étapes ou qui les fait.
+
+Les changements que vous enregistrez dans un workflow d’un Projet restent un **Brouillon** : les nouveaux plans continuent d’utiliser la version publiée jusqu’à ce que vous cliquiez sur **Publier**. **Revenir à la version précédente** ramène la version d’avant. Le workflow d’une tâche montre les tokens et le coût de chaque étape, avec un total aux prix de l’API.
+
+### Régler la commande de vérification
+
+La commande de vérification s’exécute dans la copie du code d’une tâche terminée avant qu’elle parte en relecture. Une vérification qui échoue revient au membre de la tâche pour correction.
+
+1. Dans l’onglet **Équipe et réglages**, cliquez sur **Réglages du projet**, puis **Tableau**.
+2. À côté de **Commande de vérification**, cliquez sur **La trouver**. Enconvo lit la commande dans les fichiers du Projet et ne la remplit que si elle passe.
+3. S’il n’en trouve aucune, cliquez sur **Demander à Mavis de la configurer** (le bouton nomme votre responsable). Le responsable trouve ou ajoute la commande dans son chat.
+
+Un Projet sans commande de vérification montre son étape de vérification comme **Non vérifié**.
+
+### Ranger les arbres de travail
+
+Chaque chat et tâche d’un Projet git travaille dans son propre arbre de travail. Pour libérer de l’espace disque, Enconvo archive les arbres de travail terminés et retire leurs dossiers. Dans **Réglages du projet → Arbres de travail** :
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Archiver les arbres de travail fusionnés** | Archive un arbre de travail une fois son travail dans la branche de base et qu’il ne reste rien de non validé ou non poussé. |
+| **Archiver les arbres de travail sans chats** | Archive un arbre de travail une fois qu’aucun de ses chats ne reste dans la liste des chats. |
+| **Archiver les arbres de travail inactifs** | Archive un arbre de travail, avec ses chats, après qu’ils n’ont vu aucune activité pendant les jours que vous choisissez sous **Archiver après aucune activité pendant** : 3, 7, 14 ou 30. |
+
+Un arbre de travail avec des changements non validés reste toujours. **Restaurer** ramène un arbre de travail archivé.
+
+## Choisir quand l’équipe vous consulte
+
+Ouvrez l’onglet **Équipe et réglages**.
+
+Sous **Quand vous consulter** :
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Quand un plan est prêt** | **Intelligents**, le défaut, démarre le plan tout de suite lorsqu’il fait ce que vous avez déjà demandé, et attend votre **Démarrer** lorsqu’il va plus loin ou est risqué. **Toujours me demander** attend **Démarrer** à chaque fois. **Toujours démarrer** démarre chaque plan dès qu’il est prêt. |
+| **Commencer à planifier dès qu’une tâche est ajoutée** | Activé : le responsable planifie chaque nouvelle idée tout de suite. Désactivé : les nouvelles idées attendent dans **Non commencé** jusqu’à ce que vous les démarriez. |
+
+Les actions qui suppriment, envoient, publient, paient ou poussent demandent toujours, quoi que vous choisissiez. Le dossier, les arbres de travail, les autorisations, le budget et la limite sont dans **Réglages du projet**.
+
+## Laisser le responsable agir en votre absence
+
+Dans un Projet en **Accès complet**, le responsable peut faire avancer le travail lorsqu’une tâche rend compte et que personne n’est dans le chat. Activez **Le responsable agit en votre absence** dans **Réglages du projet → Tableau**.
+
+Le responsable corrige, réessaie et fusionne alors seul, dans la limite de 6 tours par heure et de 100 000 points par jour. Il n’envoie, ne pousse, ne publie, ne paie ni ne supprime jamais rien en dehors de la copie du code propre à une tâche.
+
+Lorsque vous revenez, une carte **Pendant votre absence** en haut du chat du responsable liste ce qu’il a fait et les étapes qu’il vous a laissées. Après deux tours échoués d’affilée, ou à une limite, le responsable se met en pause et **Vous attend** demande s’il faut **Reprendre** ou **Laisser en pause**.
+
+## Archiver un Projet
+
+Lorsqu’un Projet est terminé, archivez-le pour le retirer de la barre latérale sans rien supprimer.
+
+1. Pointez le Projet dans la barre latérale et cliquez sur **⋯**.
+2. Choisissez **Archiver le projet**.
+
+Le Projet et ses chats quittent la barre latérale, et ses tâches planifiées se mettent en pause. Un chat d’un Projet archivé ne peut pas recevoir de messages tant que vous ne le restaurez pas.
+
+Pour le ramener :
+
+1. Ouvrez **Réglages → Archivé**.
+2. Cliquez sur **Projets**.
+3. Cliquez sur **Restaurer** à côté du Projet.
+
+Le Projet revient dans la barre latérale avec ses chats, et ses tâches planifiées se réactivent.
+
+## Projets sur votre téléphone
+
+L’app iPhone ouvre aussi vos Projets : Idées, le Tableau, les réglages du Projet, **Nouveau projet**, et la carte de plan de travail, où vous répondez, fusionnez, démarrez ou réessayez une tâche. Le menu `@` y liste les membres et les workflows du Projet. Voir [App iPhone](/fr/integrations/iphone-app).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Une nouvelle idée reste dans **Non commencé** | Activez **Commencer à planifier dès qu’une tâche est ajoutée** dans **Équipe et réglages**, ou ouvrez l’idée et démarrez-la vous-même. |
+| Un plan attend alors que vous avez choisi **Intelligents** | Le plan va plus loin que ce que vous avez demandé, ou comprend une étape risquée. Vérifiez-le et cliquez sur **Démarrer**. |
+| La tâche d’un agent de code ne démarre pas | Installez l’agent de code et connectez-vous. |
+| Une tâche attend comme **En attente** avec un avertissement de connexion | L’agent de code est déconnecté, ou sa connexion se termine bientôt. Cliquez sur **Se reconnecter**. Les tâches en attente reprennent une fois connecté. |
+| Une carte du Tableau montre un problème en ambre | C’est un problème de configuration. Suivez le correctif de la carte ; le responsable ne réessaie pas. Une erreur Enconvo dit qu’il est sûr de réessayer. |
+| Une tâche échoue dans un Projet gardé dans iCloud | Avec Optimiser le stockage Mac activé, les fichiers peuvent ne pas être sur votre Mac. Dans le Finder, choisissez **Conserver le téléchargement** pour le dossier du Projet. |
+| Une tâche dit que le dossier du Projet a disparu | Le dossier a été déplacé ou supprimé. Remettez-le, ou faites un nouveau Projet pour son nouvel emplacement. |
+| Une tâche s’arrête à la **Limite** du Projet | Cliquez sur **Modifier la limite** sur la tâche pour autoriser ce dont elle a besoin. Vous seul changez une Limite. |
+| Une tâche note une fusion ou un rebase laissé à moitié fait | Son agent s’est arrêté en cours de route. Terminez ou annulez la fusion ou le rebase avant de fusionner la tâche. |
+| Chaque plan attend **Démarrer** | Les plans attendent tant que vous êtes déconnecté d’Enconvo. Connectez-vous dans **Réglages → Compte**. |
+| Un Projet manque dans la barre latérale | Il est peut-être archivé. Regardez dans **Réglages → Archivé** sous **Projets**. |
+| Une tâche de Workflow a échoué | Ouvrez la tâche. Elle dit ce que sa commande a écrit en dernier et l’étape de quel membre a échoué. |
+| Un objectif n’utilise pas le workflow d’équipe que vous avez choisi | Activez **Workflows personnalisés** dans l’onglet **Équipe et réglages**. Tant qu’il est désactivé, chaque objectif passe par **Standard**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Orchestrateur d’agents" icon="sitemap" href="/fr/ai/agent-orchestrator">Plans de travail, contrôles du Tableau, et création d’un Projet.</Card>
+  <Card title="Agents de code" icon="code" href="/fr/ai/coding-agents">Installez et connectez Claude Code, Codex et les autres.</Card>
+  <Card title="Fenêtre de chat" icon="message" href="/fr/ai/chat">Chats, Projets et barre latérale.</Card>
+  <Card title="Espaces de travail" icon="layer-group" href="/fr/configuration/account">Gardez les chats et la Mémoire d’un client à part des vôtres.</Card>
+</CardGroup>

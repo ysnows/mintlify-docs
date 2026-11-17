@@ -1,0 +1,99 @@
+---
+title: "Websuche"
+description: "Lass deinen Agenten im Web nach aktuellen Informationen suchen und seine Quellen nennen."
+---
+
+Die Websuche gibt deinen Agenten aktuelle Ergebnisse aus dem Web. Jeder Agent kann suchen; du wählst den Suchdienst, getrennt vom Modell, das die Antwort schreibt.
+
+## Einen Suchanbieter wählen
+
+1. Öffne **Einstellungen → Websuche**.
+2. Wähle einen Anbieter. Die Enconvo-Cloud-Optionen brauchen keinen API-Schlüssel; bei den meisten anderen fügst du deinen Schlüssel für diesen Dienst hinzu.
+3. Klicke auf **Als Standard festlegen**.
+
+| Anbieter | Hinweise |
+| --- | --- |
+| **Auto** | Sucht mit der eigenen Websuche des Chat-Modells und weicht auf einen anderen Anbieter aus, wenn das Modell keine hat. Siehe [Mit der eigenen Suche des Modells suchen](#mit-der-eigenen-suche-des-modells-suchen). |
+| **Enconvo Cloud** | Kostenlos für jedes angemeldete Konto, kein API-Schlüssel nötig |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search über Enconvo Cloud, kostenlos für jedes angemeldete Konto |
+| **Gemini** | Grounding mit Google Search über ein Gemini-Modell |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Suche mit deinem eigenen Schlüssel für diesen Dienst |
+| **Parallel** | Der KI-Suchindex von Parallel, der die relevantesten Passagen jeder Seite zurückgibt, mit deinem Parallel-API-Schlüssel |
+| **PipeLLM** | Google-Ergebnisse über deinen [PipeLLM](/de/providers/pipellm)-Schlüssel |
+| **DeepSeek** | DeepSeek Search mit deinem DeepSeek-API-Schlüssel |
+| **xAI X Search** | Durchsucht Beiträge, Profile und Threads auf X, mit einem xAI-API-Schlüssel oder einer xAI-Anmeldung |
+| **xAI X Search (Enconvo Cloud)** | Suche auf X über den Enconvo-Cloud-Tarif |
+
+Die Anbieterliste markiert die kostenlosen Optionen. Die vollständige Liste steht im [Anbieterkatalog](/de/providers/catalog). Manche Modelle haben außerdem eingebaute Grounding- oder Suchoptionen in den Einstellungen ihres eigenen Anbieters.
+
+## Mit der eigenen Suche des Modells suchen
+
+Mit **Auto** läuft jede Suche über die Websuche des Modells, das der Chat nutzt, wenn dieses Modell eine hat: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai und OpenRouter. Sie nutzt den Schlüssel oder die Anmeldung, die du für dieses Modell verbunden hast, und der Anbieter des Modells stellt sie in Rechnung.
+
+Wenn das Modell keine eigene Suche hat oder seine Suche fehlschlägt, nutzt Auto die **Ersatzsuche**. Das ist **Enconvo Cloud**, sofern du keinen anderen Anbieter wählst.
+
+| Einstellung | Was sie tut |
+| --- | --- |
+| **Suchweg** | Zeigt, welche Suche für das Chat-Modell läuft und was bei einem Fehler passiert. |
+| **Eigene Suche des Modells bevorzugen** | Standardmäßig an. Schalte es aus, um immer die Ersatzsuche zu nutzen. |
+| **Ersatzsuche** | Der Anbieter, wenn das Modell keine Suche hat oder sie fehlschlägt. |
+
+Im Chat sagt jeder Websuche-Schritt, welche Suche geantwortet hat und warum Auto ausgeweichen ist, falls es das getan hat.
+
+## Parallel nutzen
+
+1. Hole einen API-Schlüssel bei [Parallel](https://platform.parallel.ai).
+2. Füge ihn unter **Einstellungen → Anmeldedatenverwaltung → Parallel** hinzu.
+3. Wähle unter **Einstellungen → Websuche** **Parallel** und einen **Suchmodus**:
+
+| Suchmodus | Dafür |
+| --- | --- |
+| **Turbo** | Die schnellsten Antworten. Liest nur englische und japanische Anfragen. |
+| **Fast** | Die meisten Suchen. Der Standard. |
+| **Basic** | Längere Passagen von jeder Seite. |
+| **Advanced** | Die tiefste Suche. Dauert etwa 3 Sekunden und kostet mehr. |
+
+Parallel rechnet jede Suche über dein Parallel-Konto ab.
+
+## Mit einem Agenten suchen
+
+1. Stelle eine konkrete Frage. Nenne einen Zeitraum oder einen Ort, wenn es darauf ankommt.
+2. Der Agent sucht und antwortet mit Links zu seinen Quellen.
+3. Öffne die genannten Quellen und prüfe, ob sie die Antwort stützen.
+
+Probiere:
+
+> Finde die offiziellen Versionshinweise zur neuesten stabilen Version dieser Bibliothek und fasse inkompatible Änderungen mit Links zusammen.
+
+## Die passende Web-Fähigkeit wählen
+
+| Bedarf | Nutzen |
+| --- | --- |
+| Relevante Quellen finden | Websuche |
+| Eine bekannte URL lesen | [Web Fetch](/de/ai/web-fetch) |
+| Ergebnisse im Browser öffnen | [Quick Links](/de/features/quick-links) |
+| Mit einer angemeldeten Website arbeiten | [Browsernutzung](/de/features/browser-control) |
+| Beiträge, Profile oder Threads auf X durchsuchen | Anbieter **xAI X Search** |
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Die Antwort hat keine Quellen | Prüfe, ob der Agent gesucht hat, statt nur aus dem Modell zu antworten. Bitte ihn, im Web zu suchen. |
+| Der Anbieter meldet einen Fehler | Prüfe die Anmeldedaten des Anbieters und dein Kontingent bei diesem Dienst. |
+| Auto hat die Ersatzsuche genutzt | Das Chat-Modell hat keine eigene Websuche, oder seine Suche ist fehlgeschlagen. Der Suchschritt im Chat sagt, welche. |
+| Das Ergebnis liegt hinter einer Anmeldung oder auf einer interaktiven Seite | Nutze einen unterstützten Browserablauf wie [Browsernutzung](/de/features/browser-control). Das Abrufen einer öffentlichen URL gibt keinen Zugriff auf deine angemeldete Sitzung. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Web Fetch" icon="link" href="/de/ai/web-fetch">
+    Eine Seite lesen, deren URL du schon hast.
+  </Card>
+  <Card title="Browsernutzung" icon="globe" href="/de/features/browser-control">
+    Mit angemeldeten und interaktiven Websites arbeiten.
+  </Card>
+  <Card title="Anbieterkatalog" icon="list" href="/de/providers/catalog">
+    Jeder Websuche-Anbieter, den Enconvo unterstützt.
+  </Card>
+</CardGroup>

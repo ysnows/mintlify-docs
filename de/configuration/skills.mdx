@@ -1,0 +1,508 @@
+---
+title: "Skills"
+description: "Bringe den Agents von Enconvo mit einem Skill eine wiederkehrende Aufgabe bei: Anweisungen, Referenzen und optionale Skripte in einem Ordner."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Ein Skill bündelt Anweisungen, Ressourcen und optionale Skripte, damit Enconvo einen Workflow zuverlässig ausführen kann. Erstelle einen, wenn du immer wieder denselben Ablauf erklärst, etwa wie Code geprüft oder Besprechungsnotizen formatiert werden sollen. Du kannst Skills mit deinem Team oder der Community teilen.
+
+<Note>
+Skills nutzen **Progressive Disclosure**, um den Kontext effizient zu verwalten: Enconvo beginnt mit den Metadaten jedes Skills (Name, Beschreibung, Dateipfad). Die vollständigen Anweisungen werden erst geladen, wenn ein Skill aktiviert wird.
+</Note>
+
+Dieses Video behandelt Skills, danach MCP-Server, Plugins und den Extension Store.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="Skills, MCP und Plugins in Enconvo nutzen | Schritt-für-Schritt-Anleitung" />
+
+## Skills verwalten
+
+Öffne **Einstellungen → Skills**. Alle Agents teilen sich diese Skills, und jeder Agent kann in seinen Einstellungen eigene hinzufügen.
+
+- Die Karten oben zählen **Alle Skills**, die **Aktivierten, nie verwendeten**, die **In mehreren Ordnern** und die **Deaktivierten**. Klicke auf eine Karte, um nur diese anzuzeigen.
+- Jede Zeile zeigt, **Wo er liegt** (integriert oder der Ordner bzw. die App, aus der er stammt), und wann er **Zuletzt verwendet** wurde. Deaktiviere Skills, die deine Agents nicht brauchen, mit dem Schalter am Ende der Zeile, oder wähle mehrere aus und deaktiviere sie gemeinsam.
+- **Von GitHub hinzufügen** installiert einen Skill aus einem Repository, und **Importieren** fügt einen aus einem Ordner auf deinem Mac hinzu. Siehe [Skills installieren](#skills-installieren).
+- **Deine Skills** listet die von dir erstellten Skills nach ihrer Herkunft auf: **Aufgezeichnet**, **Gelernt**, **Skript**, **Geschrieben** oder **Installiert**. Klicke auf einen, um seine **Schritte**, **Stolperfallen** und den **Verlauf** zu sehen. Siehe [Skills mit gespeicherten Schritten](#skills-mit-gespeicherten-schritten).
+
+Im Chatfenster kannst du Skills auch direkt im Fenster über **Plugins** in der Symbolleiste öffnen.
+
+## Aufbau eines Skills
+
+Ein Skill ist ein Ordner mit einer `SKILL.md`-Datei sowie optionalen Skripten und Referenzen.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+### SKILL.md-Format
+
+`SKILL.md` muss mit einem Frontmatter-Block beginnen, der einen `name` und eine `description` enthält:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+<Tip>
+Enconvo wählt einen Skill anhand seiner `description` aus. Lege daher einen klaren Umfang und klare Grenzen fest. Gib an, **wann** der Skill verwendet werden soll und **wann nicht**.
+</Tip>
+
+## Einen Skill verwenden
+
+Du kannst einen Skill über seinen Namen aufrufen oder Enconvo einen passenden Skill für deine Anfrage auswählen lassen.
+
+### Einen Skill über seinen Namen aufrufen
+
+Gib in der SmartBar oder im Chat `/` gefolgt vom Namen des Skills ein:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+Das ist der zuverlässigste Weg: Du bekommst genau den Skill, den du willst. Um nur Skills aufzulisten, tippe `$`.
+
+Die Skills installierter Plugins findest du ebenfalls in den Menüs `/` und `$`, benannt als `plugin:skill` wie in Claude Code.
+
+### Enconvo wählen lassen
+
+Wenn du keinen Skill nennst, ordnet Enconvo deine Anfrage anhand der `description` dem passendsten Skill zu:
+
+1. Du tippst: „Fasse diese Besprechungsnotizen zu Aufgaben zusammen“
+2. Enconvo durchsucht alle verfügbaren Skill-Beschreibungen
+3. Der Skill `meeting-notes` passt („...format raw meeting transcripts into structured notes with action items...“)
+4. Der Skill wird aktiviert und seine Anweisungen steuern die Antwort
+
+Die Zuordnung erfolgt nach Bedeutung, nicht nur nach gemeinsamen Schlüsselwörtern. So wird der Skill auch gefunden, wenn die Anfrage anders formuliert ist als die Beschreibung oder in einer anderen Sprache verfasst ist. Damit ein Agent einen Skill immer sieht, hefte ihn in den **Tools & Skills**-Einstellungen des Agents an; siehe [Agents](/de/ai/agents).
+
+### Beschreibungen schreiben, die gut passen
+
+Eine gute Zuordnung hängt von einer gut geschriebenen `description` ab:
+
+| Qualität | Beispiel |
+|---------|---------|
+| **Zu vage** | "Helps with code" |
+| **Zu allgemein** | "Does anything related to programming" |
+| **Gut** | "Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code." |
+
+Eine gute Beschreibung besteht aus drei Teilen:
+
+- **Was sie tut**: "Review code for bugs, security issues, and best practices"
+- **Wann sie auslöst**: "Use when the user asks for a code review"
+- **Wann sie nicht auslöst**: "Do not use for code generation or writing new code"
+
+## Wo Skills gespeichert sind
+
+Enconvo liest Skills aus mehreren Orten, jeweils mit eigenem Geltungsbereich:
+
+| Geltungsbereich | Speicherort | Verwendung |
+|-------|----------|------------|
+| **Projekt** | `$PROJECT/.agents/skills/` (auch `.enconvo/skills/`, `.claude/skills/` und `.codex/skills/`) | Skills für ein Projekt oder einen Workspace |
+| **Benutzer** | `~/.agents/skills/` (auch `~/.enconvo/skills/`, `~/.claude/skills/` und `~/.codex/skills/`) | Persönliche Skills für alle deine Projekte |
+| **System** | In Enconvo enthalten | Integrierte Skills, die allen zur Verfügung stehen |
+
+Jeder Agent kann auch eigene Skills haben: Füge sie in den Einstellungen des Agents unter **Skills** hinzu.
+
+Wenn zwei Skills an verschiedenen Orten denselben Namen haben, bleiben beide verfügbar; Enconvo führt sie nicht zusammen. **Settings → Skills** listet diese Skills unter **In more than one folder** auf.
+
+### Projekt-Skills
+
+Projekt-Skills liegen in deinem Projektordner und sind nur verfügbar, wenn dieses Projekt aktiv ist:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+Verwende sie für Skills, die von den Konventionen, der Dateistruktur oder den Tools eines Projekts abhängen.
+
+### Benutzer-Skills
+
+Benutzer-Skills in `~/.agents/skills/` sind in jedem Projekt verfügbar. Verwende sie für persönliche Skills, die nicht zu einem bestimmten Projekt gehören:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+## Einen Skill erstellen
+
+### Mit dem Skill-Creator
+
+Am schnellsten erstellst du einen Skill mit dem integrierten Creator:
+
+```
+/skill-creator
+```
+Der Assistent führt dich durch:
+
+1. Was der Skill macht
+2. Wann er ausgelöst werden soll
+3. Ob er nur aus Anweisungen bestehen oder Skripte enthalten soll
+
+Nur Anweisungen ist der Standard und die empfohlene Vorgehensweise. Füge Skripte nur hinzu, wenn du deterministisches Verhalten oder externe Tools brauchst.
+
+### Manuell
+
+Erstelle einen Ordner mit einer `SKILL.md`-Datei:
+
+<Steps>
+  <Step title="Skill-Verzeichnis erstellen">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+</Step>
+  <Step title="SKILL.md schreiben">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+</Step>
+  <Step title="Prüfen, ob er erscheint">
+    Enconvo erkennt Änderungen an Skills automatisch. Falls der neue Skill nicht erscheint, starte Enconvo neu.
+  </Step>
+</Steps>
+
+### Anweisungen schreiben
+
+Der Inhalt von `SKILL.md` unterhalb des Frontmatters enthält die Anweisungen, denen die KI folgt. Formuliere sie als klare Schritte im Imperativ:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (15.01.2024)
+
+### Funktionen
+- Dark Mode für alle Seiten hinzugefügt
+- Neue Option zum PDF-Export in Berichten
+
+### Fehlerbehebungen
+- Login-Timeout bei langsamen Verbindungen behoben
+- Problem mit doppelten Benachrichtigungen behoben
+
+### Inkompatible Änderungen
+⚠️ API-Endpunkt `/v1/users` erfordert jetzt eine Authentifizierung
+```
+````
+### Tipps für gute Skills
+
+- **Halte jeden Skill fokussiert.** Ein Skill erledigt eine Aufgabe. Ein Skill, der zu viele Dinge tut, lässt sich schwerer zuverlässig auslösen und schwerer pflegen. Wenn du zehn oder mehr Schritte schreibst, die mehrere Aufgaben abdecken, teile ihn in separate Skills auf.
+- **Sei bei Eingaben präzise.** Gib genau an, woher die Eingabe stammt: „Lies den markierten Text“, „Parse die angehängte Datei“, „Verwende die URL aus der Nachricht des Nutzers“.
+- **Lege das Ausgabeformat fest.** Füge ein konkretes Beispiel hinzu, wie die Ausgabe aussehen soll, damit die Ergebnisse einheitlich bleiben.
+- **Berücksichtige Sonderfälle.** Ergänze Anweisungen für häufige Sonderfälle: „Wenn keine Commits gefunden werden, melde, dass der Bereich leer ist“ oder „Wenn die Eingabe kein gültiges JSON ist, bitte den Nutzer, das Format zu prüfen“.
+- **Formuliere Schritte im Imperativ.** Benenne Eingaben, Schritte und erwartete Ausgaben ausdrücklich. Vage Anweisungen führen zu uneinheitlichen Ergebnissen.
+- **Bevorzuge Anweisungen gegenüber Skripten.** Anweisungen in natürlicher Sprache lassen sich leichter schreiben, debuggen und ändern. Verwende Skripte nur, wenn du deterministisches Verhalten oder externe Tools brauchst.
+- **Setze klare Grenzen.** Gib in der Beschreibung an, was der Skill abdecken soll und was nicht.
+- **Teste deine Auslöserbeschreibungen.** Probiere verschiedene Prompts aus, um sicherzustellen, dass der Skill auslöst, wenn er soll, und nicht auslöst, wenn er nicht soll.
+- **Versioniere deine Skills.** Bewahre im Team geteilte Skills in einer Versionsverwaltung (git) auf, damit du Änderungen nachverfolgen, zurücksetzen und gemeinsam daran arbeiten kannst.
+
+## Skripte hinzufügen
+
+Für Skills, die ausführbare Logik benötigen, füge einen `scripts/`-Ordner hinzu:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+Verweisen Sie in Ihrer `SKILL.md` auf die Skripte:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```
+bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+### Wann Skripte sinnvoll sind
+
+| Skripte verwenden, wenn | Nur Anweisungen verwenden, wenn |
+|-----------------|---------------------------|
+| Sie deterministische Ausgaben benötigen (exakte Formate, Berechnungen) | Die Aufgabe hauptsächlich auf Schlussfolgern und Sprache beruht |
+| Sie mit externen APIs oder Datenbanken interagieren | Die Aufgabe nur die integrierten Fähigkeiten der KI nutzt |
+| Sie Daten programmatisch verarbeiten oder transformieren müssen | Es um Schreiben, Zusammenfassen oder Analysieren geht |
+| Sie Authentifizierung oder Zugangsdaten verarbeiten müssen | Die Anweisungen allein ausreichen |
+
+## Referenzen hinzufügen
+
+Fügen Sie Dokumentation oder Kontextdateien hinzu, die der Skill heranziehen kann:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+Verweisen Sie in den Anweisungen darauf:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+Referenzen eignen sich für:
+
+- API-Dokumentation, an die sich der Skill halten muss
+- Styleguides oder Markenrichtlinien
+- Codebeispiele und Vorlagen
+- Domänenspezifisches Wissen
+
+## Skills installieren
+
+Mit `/skill-installer` installierst du einen Skill aus dem Enconvo-Skills-Store oder von GitHub. Auch die Installation von Skills.sh, ClawHub und direkten ZIP-URLs wird unterstützt.
+
+### Aus dem Enconvo-Skills-Store
+
+Suche einen Skill nach Namen und installiere ihn:
+
+```
+/skill-installer pdf
+```
+Dadurch wird der Enconvo-Skills-Store durchsucht und der passende Skill installiert. Enconvo erkennt neu installierte Skills automatisch.
+
+### Von GitHub
+
+Installieren Sie einen Skill direkt über die URL eines GitHub-Repositorys:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+Die URL kann auf einen Unterordner verweisen, sodass du einen einzelnen Skill aus einem größeren Repository installieren kannst, ohne das gesamte Repository zu klonen.
+
+### Aus einem Ordner auf deinem Mac
+
+1. Öffne **Einstellungen → Skills** und klicke auf **Importieren**.
+2. Wähle einen Ordner mit Skill-Unterordnern, die jeweils eine `SKILL.md` enthalten.
+
+Enconvo fügt den Ordner zu den Orten hinzu, aus denen Skills gelesen werden, und seine Skills stehen allen Agents zur Verfügung. Um den Ordner nicht mehr zu verwenden, wähle ihn im Quellenmenü aus und klicke dann auf **Ordner entfernen**. Der Ordner selbst bleibt auf der Festplatte erhalten.
+
+## Skills mit gespeicherten Schritten
+
+Jeder gespeicherte Workflow ist auch ein Skill mit eigener `SKILL.md`, und ein Skill kann die Schritte einer bereits erledigten Aufgabe speichern. Wenn du einen solchen Skill ausführst, laufen zuerst seine gespeicherten Schritte, ohne das Hauptmodell. Das ist schneller und günstiger. Ein Schritt, der nicht mehr passt, etwa weil ein Button verschoben wurde, wird anhand der eigenen Notizen und Screenshots des Skills repariert. Erst wenn das fehlschlägt, erledigt ein Agent die Aufgabe anhand der `SKILL.md`.
+
+Unter **Deine Skills** hat ein Skill mit der Markierung **Führt zuerst gespeicherte Schritte aus** gespeicherte Schritte, einer mit **Nur Anweisungen** nicht. Der **Verlauf** jedes Skills zeigt, wie seine Ausführungen verliefen und was er gelernt hat. Du kannst dort auch eine frühere Version wiederherstellen.
+
+### Aufzeichnung in einen Skill umwandeln
+
+Du kannst die Aufzeichnung einer erledigten Aufgabe in einen Skill umwandeln. Jede aufgezeichnete Aktion wird zu einem geprüften Schritt, und ihr Screenshot wird für Reparaturen aufbewahrt. Der Skill bleibt ein **Entwurf**, bis eine Ausführung erfolgreich ist.
+
+### Skript als Schritt ausführen
+
+Ein Skill kann ein [Code Mode](/de/configuration/code-mode)-Skript in seinem eigenen `scripts`-Ordner speichern und als einen seiner Schritte ausführen. So läuft eine Aufgabe mit vielen Tool-Aufrufen als ein einziger Schritt.
+
+## Skills lernen lassen, wie du arbeitest
+
+Skills können lernen, wie du Aufgaben erledigt haben möchtest, so wie Erinnerungen Fakten lernen. Öffne **Einstellungen → Gedächtnis** und aktiviere **Anleitungen lernen**:
+
+- Wenn du korrigierst, wie eine Aufgabe erledigt wurde, oder ein Schritt repariert werden musste, lernt der Skill das sofort. Im Chat erscheint ein Hinweis **Gelernt** mit **Rückgängig**.
+- Wenn eine Aufgabe ein zweites Mal vorkommt, wird daraus ein neuer Skill.
+- Gedächtnisprüfung und Gedächtnisbereinigung kümmern sich auch um Skills.
+
+Wähle unter **Bei Änderungen an Schritten** entweder **Sofort übernehmen** oder **Vorher fragen**. Bei Letzterem wartet eine Änderung an den Schritten eines Skills, bis du in ihrem Hinweis auf **Übernehmen** klickst. Stolperfallen werden in beiden Fällen sofort übernommen. Bei Zahlungen, Senden und Löschen wirst du immer zuerst gefragt, und Schlüssel sowie Passwörter werden nie gelernt.
+
+## Skills verwalten
+
+### Deine Skills anzeigen
+
+**Einstellungen → Skills** listet die Skills auf, die allen Agents zur Verfügung stehen. Wähle oben eine Ansicht:
+
+| Ansicht | Zeigt |
+| --- | --- |
+| **Alle Skills** | Jeden Skill einmal, auch wenn mehrere Ordner eine Kopie enthalten |
+| **Aktiv, nie verwendet** | Skills, die Agents in jedem Chat angeboten, aber nie verwendet wurden |
+| **In mehreren Ordnern** | Skills mit Kopien in mehreren Ordnern, etwa für Claude Code und Codex |
+| **Aus** | Skills, die Agents nicht erhalten |
+
+Du kannst suchen, nach Quelle filtern (**Alle Quellen**, **Integriert**, **Aus Plugins** oder ein bestimmter Ordner) oder nach **Name A bis Z** oder **Zuletzt verwendet** sortieren.
+
+### Skills aktualisieren
+
+- **Store-Skills**: Führe `/skill-installer` erneut aus, um nach einer neueren Version zu suchen.
+- **GitHub-Skills**: Führe den Installer erneut mit derselben URL aus.
+- **Eigene Skills**: Bearbeite die `SKILL.md`-Datei direkt. Enconvo erkennt die Änderung automatisch.
+
+### Skill deaktivieren
+
+Du kannst einen Skill deaktivieren, ohne ihn zu löschen:
+
+1. Öffne **Einstellungen → Skills**.
+2. Suche den Skill.
+3. Schalte ihn aus.
+
+Agents können einen deaktivierten Skill weder per Name noch per Abgleich verwenden, bis du ihn wieder aktivierst. Ein App-Profil, das den Skill fest zuweist, kann ihn weiterhin nutzen.
+
+## Beispiel-Skills
+
+### Code-Reviewer
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+### Besprechungsnotizen
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+### Git-Commit-Nachricht
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+type(scope): kurze Beschreibung
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+`
+
+### API-Dokumentationsgenerator
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```
+json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Statte einen Agenten mit eigenen Skills und Tools aus.</Card>
+  <Card title="MCP-Integration" icon="plug" href="/de/features/mcp">Kombiniere Skills mit MCP-Tools.</Card>
+  <Card title="Enconvo auf GitHub" icon="github" href="https://github.com/enconvo">Entdecke Open-Source-Erweiterungen und Skills.</Card>
+  <Card title="Community-Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">Teile Skills und erhalte Hilfe aus der Community.</Card>
+</CardGroup>

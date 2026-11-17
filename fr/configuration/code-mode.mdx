@@ -1,0 +1,62 @@
+---
+title: "Mode code"
+description: "Laissez un Agent écrire un court script qui fait de nombreux appels d’outils d’un coup et ne relit que le résultat."
+---
+
+Le Mode code laisse un Agent faire en une étape ce qui en prendrait beaucoup : il écrit un court script qui fait de nombreux appels d’outils, en parallèle ou dans l’ordre, et ne relit que le résultat. Utilisez-le quand une tâche répète le même appel sur de nombreux éléments, comme vérifier une liste de pages ou rassembler des résultats de plusieurs services, pour que le travail soit plus rapide et que la discussion ne se remplisse pas de chaque résultat intermédiaire.
+
+Vous n’appelez pas le Mode code vous-même. Quand il est activé, l’Agent l’utilise dès qu’une tâche s’y prête, et la discussion affiche une carte avec les appels que le script a faits.
+
+## Configurer le Mode code
+
+1. Ouvrez **Réglages → Mode code**. Vous pouvez aussi ouvrir **Mode code** depuis l’onglet **Intégré** de la page Plugins.
+2. Sous **Accès des scripts**, activez ce qu’un script peut appeler. Chaque appel vous demande encore comme le [mode d’autorisation](/fr/ai/agents) de la discussion le dit.
+3. Choisissez quels modèles peuvent écrire des scripts, ce que la discussion affiche, et ce qui se passe quand un script dure longtemps.
+
+## Réglages
+
+**Accès des scripts** liste ce qu’un script peut appeler :
+
+| Accès | Ce qu’il autorise | Défaut |
+| --- | --- | --- |
+| **Plugins** | Recherche, base de connaissances, documents et autres routes de plugins | Activé |
+| **Connectors et MCP** | Vos comptes liés et les outils MCP | Activé |
+| **Fichiers** | Lire et écrire des fichiers | Activé |
+| **Commandes shell** | Exécuter des commandes dans un terminal | Activé |
+| **Navigateur** | [Utilisation du navigateur](/fr/features/browser-control), dans votre propre navigateur | Activé |
+| **Apps** | [Utilisation de l’ordinateur](/fr/features/computer-use), dans sa liste d’accès aux apps | Activé |
+| **Autres agents** | Démarrer ou écrire à des sous-agents | Désactivé |
+| **Appels de modèle** | Un petit modèle pour résumer ou juger des éléments | Activé |
+
+Les autres options :
+
+| Option | Choix |
+| --- | --- |
+| **Utiliser avec** | **Modèles qui écrivent bien du code** (les autres font leurs appels un par un), ou **Tous les modèles**. |
+| **Afficher dans le chat** | **Les appels**, ou **Les appels et le code**. |
+| **Quand un script dure longtemps** | **Continuer, jusqu’à 2 heures** en arrière-plan, ou **Arrêter après 10 minutes**. |
+
+## Le Mode code hors d’une discussion
+
+Quand un script tourne hors d’une discussion, comme dans une automatisation, il n’appelle que des outils qui lisent : recherches et lectures intégrées, pages web publiques, fichiers ordinaires, et outils MCP qui ne disent pas qu’ils changent quelque chose. Enconvo revérifie chaque appel juste avant de l’exécuter.
+
+## Utiliser un script dans une Compétence
+
+Une Compétence peut garder un script de Mode code dans son propre dossier `scripts` et l’exécuter comme l’une de ses étapes. Voir [Compétences](/fr/configuration/skills).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| L’Agent fait ses appels un par un | Vérifiez **Utiliser avec**. Avec **Modèles qui écrivent bien du code**, les autres modèles n’utilisent pas le Mode code. |
+| Un script ne peut pas atteindre un outil | Activez ce type d’accès sous **Accès des scripts**. Hors d’une discussion, les scripts ne font que lire. |
+| Un long script s’est arrêté | Avec **Arrêter après 10 minutes**, les scripts plus longs s’arrêtent. Choisissez **Continuer, jusqu’à 2 heures**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Choisissez les outils et les autorisations d’un Agent.</Card>
+  <Card title="Compétences" icon="star" href="/fr/configuration/skills">Enregistrez une tâche répétable, avec ses propres scripts.</Card>
+  <Card title="Exécuteur de code" icon="terminal" href="/fr/ai/code-runner">Exécutez du code et des commandes shell.</Card>
+  <Card title="Serveurs MCP" icon="plug" href="/fr/features/mcp">Connectez des services externes comme outils.</Card>
+</CardGroup>

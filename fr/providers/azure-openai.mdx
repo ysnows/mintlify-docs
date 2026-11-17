@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Discutez avec vos déploiements Azure OpenAI dans Enconvo."
+---
+
+Utilisez les modèles OpenAI que votre organisation déploie sur Azure. Enconvo parle directement à votre ressource Azure, donc l’accès, les quotas et la facturation suivent votre abonnement Azure.
+
+## Avant de commencer
+
+Vous avez besoin d’une ressource Azure OpenAI avec au moins un déploiement de modèle. Depuis le portail Azure, copiez la **clé** de la ressource, son **point de terminaison**, et le **nom du déploiement** que vous avez donné au modèle. Voir [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview) si vous n’en avez pas encore configuré.
+
+## Connecter
+
+<Steps>
+  <Step title="Ajouter l’identifiant">
+    Ouvrez **Réglages → Modèle d’IA → Azure OpenAI**. Sous **Authentification**, remplissez **Clé API**, **Point de terminaison** et **Version de l’API**, puis cliquez sur **Valider**. Le point de terminaison ressemble à `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Définir le déploiement">
+    Saisissez le nom de votre déploiement dans **Nom du déploiement de l’API Azure OpenAI**. Utilisez le nom de votre ressource Azure, qui peut différer du nom du modèle.
+  </Step>
+  <Step title="Le tester">
+    Envoyez un court message. Une réponse signifie que la connexion fonctionne.
+  </Step>
+</Steps>
+
+## Modèles et options
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Nom du déploiement de l’API Azure OpenAI** | Le déploiement que ce fournisseur appelle. |
+| **Streaming** | Affiche la réponse au fur et à mesure qu’elle s’écrit. Activé par défaut ; désactivez-le si votre déploiement ne prend pas en charge le streaming. |
+| **Version de l’API** | Dans l’identifiant. La valeur par défaut est `2025-01-01-preview`. |
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| **Valider** échoue | Vérifiez que la clé et le **Point de terminaison** viennent de la même ressource Azure. |
+| Le déploiement est introuvable | Copiez le nom du déploiement exactement depuis le portail Azure. |
+| La réponse n’apparaît jamais | Désactivez **Streaming** et réessayez. |
+| Erreurs de débit ou de quota | Augmentez le quota du déploiement dans Azure, ou passez à un autre fournisseur pour le moment. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/fr/providers/openai">Utilisez l’API d’OpenAI à la place.</Card>
+  <Card title="Identifiants et profils" icon="key" href="/fr/configuration/credentials">Conservez plusieurs clés, et voyez ce qu’une clé partagée affecte.</Card>
+  <Card title="Choisir un modèle" icon="list-check" href="/fr/ai/model-selection-guide">Choisissez un modèle selon la tâche, et voyez où les valeurs par défaut sont définies.</Card>
+  <Card title="Catalogue des fournisseurs" icon="table" href="/fr/providers/catalog">Tous les fournisseurs, groupés par la fonction qu’ils alimentent.</Card>
+</CardGroup>

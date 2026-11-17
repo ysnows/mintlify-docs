@@ -1,0 +1,277 @@
+---
+title: "Linux（測試版）"
+description: "在 Linux 桌面或伺服器上安裝 Enconvo 測試版、登入並透過瀏覽器使用。"
+tag: "BETA"
+---
+
+<Note>
+Linux 版 Enconvo 目前處於測試階段，透過 **Beta** 更新頻道發行。它專為日常使用打造，但不同建置版本之間仍可能會有變動。如果遇到問題，請在[意見回饋網站](https://feedback.enconvo.com)告訴我們。
+</Note>
+
+**目前測試版：2.5.13 Beta 3**（`2.5.13-beta-3`）。若要查看你安裝的版本，請開啟 **設定 → 一般 → 更新**。在伺服器上，執行 `enconvo update --check` 即可印出版本號碼。
+
+## 選擇執行方式
+
+| 你的環境 | 你會獲得 | 從這裡開始 |
+| --- | --- | --- |
+| Linux 桌面（GNOME、KDE 等） | 包含聊天視窗與設定視窗的 Enconvo App | [在桌面上安裝](#在桌面上安裝) |
+| 沒有桌面的伺服器或雲端電腦 | 在背景執行的 Enconvo，可從你自己電腦的瀏覽器中使用 | [在伺服器上安裝](#在伺服器上安裝) |
+
+## 系統需求
+
+- **64 位元 Intel/AMD（x86-64）。** 尚無 ARM 建置版本。
+- **Ubuntu 22.04、Debian 12、RHEL 9、Amazon Linux 2023 或更新版本。** Rocky Linux 與 AlmaLinux 9 視同 RHEL 9。較舊的系統無法執行 Enconvo：它們的 C 函式庫版本過舊。
+- **記憶體：** 建議至少保留 2 GB 可用空間，若代理程式會操作瀏覽器則建議 4 GB。
+- **一般使用者帳號。** 請以你自己的身分執行 Enconvo，不要使用 root，因為代理程式會以該使用者的權限執行指令。在伺服器上，請專為 Enconvo 建立一個使用者。
+
+## 下載測試版
+
+測試版提供三種套件格式：適用於 Debian 與 Ubuntu 的 `.deb`、適用於 Fedora、RHEL、Rocky、AlmaLinux 與 openSUSE 的 `.rpm`，以及適用於其他環境的可攜式 `.tar.gz`。每個檔案名稱都包含測試版版本號。2.5.13 Beta 3 的檔名分別為：
+
+- `enconvo_2.5.13~beta~3_amd64.deb`
+- `enconvo-2.5.13~beta~3-1.x86_64.rpm`
+- `Enconvo-2.5.13-beta-3-linux-x64.tar.gz`
+
+以下指令會尋找最新的測試版並下載。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo_[^"]*\.deb')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="Fedora, RHEL, Rocky, AlmaLinux, openSUSE">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'enconvo-[^"]*\.rpm')
+    curl -fLO "$FEED/$FILE"
+    ```
+  </Tab>
+  <Tab title="可攜式 .tar.gz">
+    ```bash
+    FEED=https://file.enconvo.com/linux-x64/beta
+    FILE=$(curl -fsSL $FEED/latest.json | grep -o 'Enconvo-[^"]*\.tar\.gz')
+    curl -fLO "$FEED/$FILE"
+    tar xzf "$FILE"
+    ```
+
+    這會解壓縮出一個名為 `Enconvo` 的資料夾。請從該資料夾中執行它，並將本頁中提到的 `enconvo` 替換為 `./Enconvo/enconvo`。
+  </Tab>
+</Tabs>
+
+## 在桌面上安裝
+
+套件管理員也會一併安裝 App 視窗所需的 GTK 與 WebKitGTK。
+
+<Tabs>
+  <Tab title="Debian, Ubuntu">
+    ```bash
+    sudo apt install ./enconvo_*.deb
+    ```
+  </Tab>
+  <Tab title="Fedora, openSUSE">
+    ```bash
+    sudo dnf install ./enconvo-*.rpm      # Fedora
+    sudo zypper install ./enconvo-*.rpm   # openSUSE
+    ```
+  </Tab>
+  <Tab title="可攜式 .tar.gz">
+    請從你的發行版安裝 GTK 3 與 WebKitGTK 4.1，然後從該資料夾啟動 Enconvo：
+
+    ```bash
+    ./Enconvo/enconvo
+    ```
+  </Tab>
+</Tabs>
+
+RHEL 9、Rocky Linux 9 與 AlmaLinux 9 未內建 App 視窗所需的 WebKitGTK 4.1，因此在這些系統上請[像在伺服器上那樣執行 Enconvo](#在伺服器上安裝)。
+
+從應用程式選單開啟 **Enconvo**，登入後即可繼續閱讀[快速入門](/zh-hant/quickstart)。若桌面環境支援系統匣，Enconvo 的圖示會顯示於系統匣中。
+
+## 在伺服器上安裝
+
+伺服器不需要桌面函式庫，因此安裝時可以略過。
+
+<Steps>
+  <Step title="安裝套件">
+    <Tabs>
+      <Tab title="Debian, Ubuntu">
+        ```bash
+        sudo apt install --no-install-recommends ./enconvo_*.deb
+        ```
+      </Tab>
+      <Tab title="Fedora, RHEL, Rocky, AlmaLinux">
+        ```bash
+        sudo dnf install --setopt=install_weak_deps=False ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="openSUSE">
+        ```bash
+        sudo zypper install --no-recommends ./enconvo-*.rpm
+        ```
+      </Tab>
+      <Tab title="可攜式 .tar.gz">
+        無需安裝：直接使用你解壓縮出來的 `Enconvo` 資料夾即可。
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="將 Enconvo 作為服務啟動">
+    ```bash
+    enconvo service install --web
+    ```
+
+    Enconvo 現在會在背景執行，並僅在此機器上的 `127.0.0.1:54580` 以網頁形式提供聊天視窗與設定介面。伺服器重新開機時它會自動啟動。如果指令顯示它僅在你登入期間執行，請執行它所印出的 `sudo loginctl enable-linger` 指令。
+  </Step>
+  <Step title="登入">
+    ```bash
+    enconvo login
+    ```
+
+    Enconvo 會印出一組短代碼。在你的手機或電腦上開啟 `enconvo.com/device`，確認頁面顯示的是你的帳號，並在 10 分鐘內核准該代碼。
+  </Step>
+  <Step title="從你的電腦開啟 Enconvo">
+    在你自己的電腦上執行以下指令，並保持其運作：
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 you@your-server
+    ```
+
+    在瀏覽器中開啟 [http://localhost:54580](http://localhost:54580)。你會獲得與桌面 App 相同的聊天視窗與設定介面。
+  </Step>
+</Steps>
+
+若要從手機上的 Enconvo App 使用這台伺服器，請執行 `enconvo companion pair --phone` 並掃描它印出的條碼。參閱[與手機配對](/zh-hant/integrations/pair-your-phone)。
+
+### 不透過 SSH 通道連線
+
+通道是最安全的存取方式，因為伺服器上沒有對網路開放的連接埠。該網頁擁有你帳號的完整權限並可存取伺服器上的檔案，因此任何能開啟它的人都可使用這兩者。
+
+若要從其他電腦直接開啟，例如在私人網路或 VPN 上：
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+enconvo service url
+```
+
+`enconvo service url` 會印出帶有連線 Token 的網址。請妥善保管該網址，並勿將此連接埠暴露於網際網路。
+
+若要使用公開網址，請在 Enconvo 前方架設具備 HTTPS 的反向代理伺服器，並告知 Enconvo 它對外服務的網址：
+
+```bash
+enconvo service install --web --web-url https://enconvo.example.com
+```
+
+搭配 HTTPS 時，該網頁也可以作為 App 安裝到你的手機或電腦上。
+
+## 在伺服器上使用瀏覽器
+
+代理程式可以在沒有螢幕的伺服器上瀏覽網頁：當代理程式首次需要瀏覽器時，Enconvo 會啟動自己的無頭瀏覽器（稱為 Enconvo Browser）。請先安裝 Chromium。
+
+<Tabs>
+  <Tab title="Debian">
+    ```bash
+    sudo apt install chromium
+    ```
+  </Tab>
+  <Tab title="Ubuntu">
+    ```bash
+    sudo snap install chromium
+    ```
+  </Tab>
+  <Tab title="Fedora">
+    ```bash
+    sudo dnf install chromium
+    ```
+  </Tab>
+  <Tab title="RHEL, Rocky, AlmaLinux">
+    Chromium 來自 [EPEL](https://docs.fedoraproject.org/en-US/epel/)：
+
+    ```bash
+    sudo dnf install epel-release
+    sudo dnf install chromium
+    ```
+  </Tab>
+</Tabs>
+
+接著可以向代理程式提問，例如：「開啟 news.ycombinator.com 並告訴我頭條新聞是什麼。」
+
+Enconvo Browser 會保留自己的登入狀態。當網站需要你進行登入或驗證時，代理程式會在你的瀏覽器中提供該頁面的即時檢視，讓你可以親自點擊和輸入。閒置 30 分鐘後它會自動關閉，下次開啟時會帶回先前的分頁。
+
+只有伺服器能存取的頁面（例如代理程式在 `localhost` 啟動的開發伺服器），也會在聊天旁以即時檢視開啟，因此透過 SSH 通道也能正常使用。
+
+## 各平台支援的功能
+
+| 功能 | Linux 桌面 | 伺服器 |
+| --- | --- | --- |
+| 聊天視窗、設定 | 是 | 是，透過瀏覽器 |
+| 代理程式、工具、檔案、文件、作品 | 是 | 是 |
+| 使用瀏覽器 | 是 | 是，需安裝 Chromium |
+| 知識庫、記憶、自動化、工作流程 | 是 | 是 |
+| Enconvo Cloud 模型、網頁搜尋、OCR、圖像生成、語音 | 是 | 是 |
+| 電腦操作 | 是 | 否：沒有可控制的螢幕 |
+| 全域快速鍵、聽寫、語音筆記、錄音、螢幕塗鴉、Appshots、通知 | 是 | 否：這些功能需要桌面環境 |
+
+在 Wayland 上，全域快速鍵需要桌面環境向 App 提供相應支援。
+
+以下功能尚未提供於 Linux：SmartBar、PopBar、動態島、語音指令、虛擬形象、桌面寵物、App 側邊欄、Live Talk 與即時字幕。其中 SmartBar、PopBar、動態島、語音指令、虛擬形象與桌面寵物已在 [Windows 測試版](/zh-hant/getting-started/windows) 中提供。
+
+本機聊天模型可在搭載 glibc 2.38 或更新版本的系統上透過 GGUF 檔案執行。MLX 模型需要 Mac。
+
+## 你在 Linux 上的帳號
+
+如果你的帳號同時也使用 [iPhone App](/zh-hant/integrations/iphone-app)，你預設的聊天、語音與圖像選擇會隨帳號同步至這台電腦。使用你自己 API 金鑰的服務供應商不會跟著同步，因為金鑰不會被複製。若想在這台電腦上使用相同的服務供應商，請在 **設定** 中新增金鑰。
+
+如果伺服器的時鐘與你的瀏覽器處於不同時區，Enconvo 會詢問是否採用你的時區來顯示時間與執行[自動化](/zh-hant/workflows/scheduled-jobs)。
+
+## 更新
+
+測試版建置預設留在 Beta 頻道。若要變更頻道，請開啟 **設定 → 一般** 並設定 **更新頻道**。參閱[更新](/zh-hant/configuration/updates)。
+
+在桌面上，當聊天視窗出現 **更新** 時點擊即可。可攜式建置會自行替換。對於 `.deb` 或 `.rpm`，Enconvo 會將新套件下載到你的下載資料夾，你可以按照[在桌面上安裝](#在桌面上安裝)中的步驟進行安裝。
+
+在伺服器上：
+
+```bash
+enconvo update --check   # 檢查是否有更新版本
+enconvo update           # 下載並檢查更新
+```
+
+如果你安裝的是 `.deb` 或 `.rpm`，`enconvo update` 會下載新套件並印出以 root 身分安裝的指令。執行該指令後，再重新啟動服務：
+
+```bash
+systemctl --user restart enconvo
+```
+
+如果你執行的是可攜式 `.tar.gz`，`enconvo update` 會為你替換資料夾並重新啟動服務。若新版本無法啟動，它會還原回舊版本。
+
+## 疑難排解
+
+| 看到的狀況 | 解決方法 |
+| --- | --- |
+| `enconvo` 提示桌面 App 需要 GTK 3 與 WebKitGTK 4.1 | 在桌面上，安裝它列出的套件。在伺服器上或 RHEL 9 上，請使用 `enconvo service install --web` |
+| 提示 `GLIBC_2.34 not found`，或顯示支援系統清單的訊息 | 系統過舊：請使用[系統需求](#系統需求)中列出的系統 |
+| `dnf` 提示 `nothing provides libwebkit2gtk-4.1.so.0` | 你安裝了較舊的套件。請使用[伺服器安裝指令](#在伺服器上安裝)安裝目前的測試版 |
+| 登出伺服器時 Enconvo 停止執行，或重新開機後未自動啟動 | 執行 `sudo loginctl enable-linger "$USER"` |
+| `localhost:54580` 無法開啟 | 確認 `ssh -L` 指令仍在執行中，且 `systemctl --user status enconvo` 顯示為 active |
+| 網站要求輸入 Token | 在伺服器上執行 `enconvo service url`，然後開啟它印出的網址 |
+| 代理程式表示無法啟動 Enconvo Browser | [安裝 Chromium](#在伺服器上使用瀏覽器)。Google Chrome 137 及更新版本無法載入 Enconvo Browser 所需的擴充功能 |
+| 代碼已過期 | 重新執行 `enconvo login` 取得新代碼 |
+
+在伺服器上查看 Enconvo 記錄檔：
+
+```bash
+journalctl --user -u enconvo -n 100
+```
+
+## 移除 Enconvo
+
+```bash
+enconvo service uninstall
+sudo apt remove enconvo     # Debian, Ubuntu
+sudo dnf remove enconvo     # Fedora, RHEL, Rocky, AlmaLinux
+sudo zypper remove enconvo  # openSUSE
+```
+
+你的設定與聊天紀錄會保留在 `~/.config/enconvo`。若要一併移除，請刪除該資料夾。

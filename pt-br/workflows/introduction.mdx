@@ -1,0 +1,86 @@
+---
+title: "Fluxos de trabalho"
+description: "Encadeie prompts, Agentes, comandos de shell e ferramentas num processo repetível que pode executar, inspecionar e agendar."
+---
+
+Um fluxo de trabalho é um processo repetível guardado como passos: ler informação, transformá-la, perguntar a um modelo, passar trabalho a um Agente ou chamar uma ferramenta instalada. Use um quando faz o mesmo trabalho de vários passos vezes sem conta e quer ver o que cada passo produziu. Abra **Definições → Fluxos de trabalho → Gerir** para percorrer os fluxos e o histórico de execuções.
+
+<Tip>
+Novo nos fluxos de trabalho? Veja o tutorial em vídeo de 2½ minutos [Construa o seu primeiro fluxo de trabalho](/pt-br/workflows/build-your-first-workflow) para criar, editar e executar um do início ao fim.
+</Tip>
+
+## Escolha a ferramenta certa
+
+| Quer | Use |
+| --- | --- |
+| Reutilizar um prompt no texto selecionado | [Comandos de IA](/pt-br/features/ai-commands) |
+| Deixar um assistente decidir quais ferramentas usar | [Agentes](/pt-br/ai/agents) |
+| Definir uma sequência repetível com saídas inspecionáveis | Um fluxo de trabalho |
+| Executar uma instrução de Agente, um fluxo de trabalho ou um script a uma hora definida | [Automações](/pt-br/workflows/scheduled-jobs) |
+
+## Como um fluxo de trabalho se organiza
+
+Um fluxo de trabalho tem três partes:
+
+- `inputs`: os valores de que uma execução precisa, como um tema ou um texto.
+- `jobs`: grupos de passos com nome. Os jobs começam em paralelo, salvo se `needs` fizer um job esperar por outro.
+- `steps`: a lista ordenada dentro de cada job. Os passos de um job correm um a seguir ao outro.
+
+Os fluxos atuais usam `version: agent-workflow/v1` com um mapa `jobs`, e cada job tem uma lista `steps`:
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+O formato antigo de `tasks` no topo já não é aceite. Passe cada sequência para `jobs.<name>.steps`, dê IDs explícitos aos passos e use `steps.<id>.output` dentro de um job ou `jobs.<job>.<step>.output` entre jobs.
+</Note>
+
+## O que um passo pode fazer
+
+Cada passo faz exatamente uma destas coisas:
+
+| Passo | Campos | Resultado |
+| --- | --- | --- |
+| Shell | `command` ou `run` | Saída do comando, incluindo `stdout`, `stderr` e `exitCode` |
+| Prompt | `prompt` | Uma resposta do modelo; use um esquema de saída para dados estruturados |
+| Agente | `agent` e `message` | A resposta do Agente selecionado |
+| Ferramenta | `tool` e `with` | O resultado de um endpoint da API local instalado |
+| Transformar | `uses: transform` e `value` | Um valor com modelo |
+| Subfluxo | `uses: workflow` com `workflowId` ou `workflow` | O resultado da execução de um fluxo filho |
+| Aprovação | `uses: approval` e `message` | A sua resposta: aprovado, ou recusado com comentário opcional |
+| Juiz | `uses: judge` e `question` | Um sim ou não do Jev, o modelo rápido de decisão do Enconvo Cloud, com a probabilidade |
+| Classificar | `uses: classify`, `question` e `options` | A opção que o Jev escolheu, com a confiança |
+
+Um passo também pode correr só quando uma condição se verifica, repetir sobre uma lista, tentar de novo ou devolver dados estruturados. Veja [Fluxos de trabalho avançados](/pt-br/workflows/advanced-workflows).
+
+## Executar um fluxo de trabalho
+
+- Abra-o em **Fluxos de trabalho**, defina **Entradas** e escolha **Executar**.
+- Procure um fluxo guardado na SmartBar. O texto do lançador fica disponível como `inputs.input_text`.
+- Mencione um fluxo disponível com `@` no chat para um Agente o usar.
+- Execute-o num horário com uma [automação](/pt-br/workflows/scheduled-jobs).
+
+## Onde os fluxos de trabalho são guardados
+
+Cada fluxo de trabalho é um arquivo em `~/.enconvo/workflows/<id>.yaml`. O nome do arquivo é o ID do fluxo. Mantenha esse ID estável para preservar a ligação com o histórico de execuções.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Construa o seu primeiro fluxo de trabalho" icon="play" href="/pt-br/workflows/build-your-first-workflow">Um tutorial em vídeo, do modelo à execução concluída.</Card>
+  <Card title="Criar fluxos de trabalho" icon="pen-to-square" href="/pt-br/workflows/creating-workflows">O editor visual, YAML, o assistente e cada tipo de passo.</Card>
+  <Card title="Fluxos de trabalho avançados" icon="code-branch" href="/pt-br/workflows/advanced-workflows">Condições, ciclos, novas tentativas, esquemas de saída e subfluxos.</Card>
+  <Card title="Automações" icon="clock" href="/pt-br/workflows/scheduled-jobs">Execute um fluxo de trabalho ou um Agente num horário.</Card>
+</CardGroup>

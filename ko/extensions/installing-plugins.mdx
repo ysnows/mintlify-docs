@@ -1,0 +1,213 @@
+---
+title: "플러그인 설치"
+description: "스토어, 압축 파일, GitHub, git, npm, 폴더 또는 플러그인 마켓플레이스에서 Enconvo, Codex, Claude Code 및 포터블 플러그인을 설치하고 최신 상태로 유지하세요."
+---
+
+대부분의 사용자는 Enconvo의 **플러그인** 페이지에 있는 플러그인 스토어에서 플러그인을 설치합니다. Enconvo는 개발자가 GitHub이나 플러그인 마켓플레이스에 게시한 Codex 및 Claude Code 플러그인을 포함해 다른 경로의 플러그인도 설치할 수 있습니다. Enconvo가 읽을 수 있는 패키지 형식은 [플러그인 형식](/extensions/plugin-formats)을 참고하세요.
+
+앱에서 설치하려면 [플러그인 페이지에서](#플러그인-페이지에서)와 [채팅에서](#채팅에서)를 먼저 읽어 보세요. 나머지 내용은 터미널에서 설치하기, 플러그인 마켓플레이스 추가하기, 업데이트 및 제거, 직접 만든 플러그인 공유하기 등 개발자와 고급 사용자를 위한 안내입니다.
+
+<Warning>
+Enconvo 스토어에 있는 플러그인만 Enconvo의 검토를 거칩니다. 그 외 출처의 플러그인은 MCP 서버를 통해 Mac에서 프로그램을 실행할 수 있으므로 신뢰할 수 있는 출처의 플러그인만 설치하세요.
+</Warning>
+
+## 플러그인 페이지에서
+
+**플러그인** 페이지에서 **추가**를 클릭하세요.
+
+| 옵션 | 기능 |
+|---|---|
+| **플러그인 만들기** | Enconvo 에이전트와 함께 플러그인을 만드는 채팅을 시작합니다. |
+| **플러그인 압축 파일 업로드…** | `.enconvo` 패키지, `.dxt` 데스크톱 확장 프로그램, 또는 Claude Code나 Codex 플러그인의 `.zip` 파일을 설치합니다. |
+| **GitHub에서 추가…** | GitHub, git, npm 또는 폴더에서 플러그인이나 플러그인 마켓플레이스의 플러그인을 설치합니다(아래 참고). |
+| **MCP 서버 추가…** | 플러그인 없이 서버 하나만 연결할 수 있도록 MCP 설정을 엽니다. |
+| **PopBar 확장 프로그램 추가…** | 링크, 파일 또는 `#popclip` 스니펫으로 PopBar 확장 프로그램을 설치합니다([PopBar 확장 프로그램](/ko/features/popbar) 참고). |
+| **새 스킬…** | 직접 스킬을 작성할 수 있도록 스킬 설정을 엽니다. |
+| **개발자 가이드** | [확장 프로그램 개발](/ko/extensions/developing)을 엽니다. |
+
+추가한 항목은 **Enconvo** 탭 상단의 **설치됨** 아래에 연결한 커넥터와 설치하거나 직접 만든 플러그인 이름순으로 표시됩니다. 전체 목록을 보려면 **설치됨**을 클릭하세요. Enconvo에 기본 포함된 플러그인은 여기에 표시되지 않습니다. PopBar 확장 프로그램은 Enconvo가 검토한 카탈로그와 함께 별도의 **PopBar** 탭에 있습니다([PopBar 확장 프로그램](/ko/features/popbar) 참고).
+
+### GitHub에서 추가
+
+플러그인 위치를 붙여넣고 **미리 보기**를 누르세요.
+
+- `owner/repo` 또는 폴더 링크(`/tree/<branch>/<folder>`)를 포함한 GitHub 링크
+- 저장소 안의 플러그인을 가리키는 `owner/repo/folder` (버전을 고정하려면 `@branch` 또는 `@tag` 추가)
+- 모든 https git 주소
+- `npm:<package>` (버전을 고정하려면 `@version` 추가)
+- 플러그인 `.zip` 파일의 https 링크
+- Mac의 폴더
+
+비공개 GitHub 또는 git 저장소도 사용할 수 있습니다. Enconvo는 Mac에 이미 로그인된 GitHub 계정이나 SSH 키를 사용하므로 비밀번호를 입력할 필요가 없습니다.
+
+Enconvo는 설치 전에 플러그인 정보를 미리 보여 줍니다. 형식(Codex, Claude Code, 포터블, 데스크톱 확장 프로그램 또는 Enconvo), 버전, 개발자, 스킬, MCP 서버 및 훅, 그리고 포함된 ChatGPT 앱(Enconvo에서는 로드하지 않음)을 확인할 수 있습니다. 각 MCP 서버에 대해서는 Mac에서 시작되는지 인터넷을 통해 연결되는지도 표시됩니다. 플러그인의 훅은 Mac에서 명령을 실행하므로 **훅 실행 허용**을 체크하지 않으면 꺼진 상태로 유지됩니다. **설치**를 클릭하면 Enconvo가 플러그인 페이지를 엽니다. **출처** 행에는 플러그인이 어디서 왔는지(GitHub 및 git의 경우 커밋 포함)와 저장소 또는 npm 페이지 링크가 표시되며, 하단 안내문에는 플러그인이 명시한 개발자 이름이 나옵니다. Enconvo 자체 플러그인과 스토어의 플러그인만 Enconvo가 만들었다고 표시됩니다. 이 방식으로 설치한 플러그인은 **개인** 아래에 표시됩니다. 같은 위치에서 다시 설치하면 플러그인이 업데이트됩니다. 다른 출처에서 설치한 같은 이름의 플러그인이 이미 있다면 먼저 제거하세요.
+
+주소가 플러그인 마켓플레이스인 경우 대화 상자에 각 플러그인과 **설치** 버튼이 나열됩니다. 그중 하나를 설치하면 마켓플레이스가 추가되어 다음에 대화 상자를 열 때 **내 마켓플레이스** 아래에 표시됩니다.
+
+Enconvo 플러그인의 소스 코드는 작동하기 전에 빌드해야 하므로 대화 상자에서 대신 터미널에서 실행할 `enconvo plugin install` 명령을 안내합니다.
+
+## 채팅에서
+
+현재 플러그인으로 처리할 수 없는 작업을 Enconvo 에이전트에게 요청하면, 에이전트는 Mac에 있는 플러그인 마켓플레이스에서 플러그인을 찾을 수 있습니다. 여기에는 Enconvo에 추가한 마켓플레이스뿐 아니라 Codex에 기본 포함된 OpenAI Curated 마켓플레이스를 포함해 Codex나 Claude Code에는 있지만 Enconvo에는 아직 없는 마켓플레이스도 포함됩니다([Codex 또는 Claude Code에서 추가한 마켓플레이스](#codex-또는-claude-code에서-추가한-마켓플레이스) 참고). 에이전트는 Mac에 이미 있는 카탈로그 사본만 읽으며 검색 중에는 아무것도 다운로드하지 않습니다. 이미 설치한 플러그인이나 다른 출처에서 설치한 같은 이름의 플러그인은 제외합니다.
+
+플러그인을 찾으면 에이전트가 채팅에 카드를 표시하며, **설치**를 클릭하기 전까지는 아무것도 설치되지 않습니다.
+
+- Enconvo에 이미 추가한 마켓플레이스의 경우, 카드에는 플러그인이 Mac에서 시작하거나 연결하는 MCP 서버, 스킬, 그리고 필요한 다른 플러그인이 표시됩니다.
+- Codex 또는 Claude Code에만 있는 마켓플레이스의 경우, 카드에 설치 시 해당 마켓플레이스가 Enconvo에 추가된다고 표시됩니다. 그전에는 Enconvo가 플러그인 내용을 읽을 수 없으므로 카드에 세부 목록을 띄울 수 없습니다.
+
+어느 경우든 **플러그인**에서 직접 켜기 전까지 플러그인의 훅은 꺼진 상태로 유지됩니다. 필요한 의존 플러그인을 설치할 수 없는 등의 이유로 플러그인을 설치할 수 없으면 에이전트는 카드를 띄우지 않고 그 이유를 알려 줍니다.
+
+### ChatGPT 플러그인
+
+[ChatGPT 플러그인 디렉터리](https://chatgpt.com/plugins)의 플러그인은 Enconvo에 설치할 수 없습니다. 대부분이 ChatGPT 내부에서만 실행되는 ChatGPT 앱이며, 나머지도 OpenAI가 ChatGPT와 Codex에만 제공하기 때문입니다. Mac에서 Codex에 로그인해 두었다면 에이전트는 Codex가 보관 중인 디렉터리 사본을 참고할 수 있습니다. 해당 플러그인 이름을 말하거나 chatgpt.com 링크를 붙여넣으면 에이전트가 설치할 수 없는 이유를 설명하고 커넥터, MCP 서버, 스킬 또는 마켓플레이스에 있는 같은 이름의 플러그인 등 동일한 기능을 하는 대안을 제안합니다. 파일이 포함된 디렉터리 플러그인 중 상당수는 Codex와 함께 제공되는 마켓플레이스인 OpenAI Curated(OpenAI의 공개 `openai/plugins` 저장소)에도 같은 이름의 플러그인이 있습니다. 에이전트가 해당 플러그인을 제안해 설치하면 OpenAI Curated가 Enconvo에 추가됩니다. Enconvo는 해당 플러그인에 포함된 ChatGPT 앱은 로드하지 않고 스킬과 MCP 서버만 불러옵니다.
+
+**GitHub에서 추가**에서도 chatgpt.com 링크는 사용할 수 없으며 대화 상자에서 같은 내용을 안내합니다.
+
+## 명령줄에서
+
+`plugin install`은 GitHub, git, npm, 웹상의 zip, 폴더 또는 마켓플레이스에서 플러그인을 설치합니다. Enconvo 2.5.6 이상이 실행 중이어야 합니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+| 출처 | 예시 |
+|---|---|
+| GitHub 저장소(선택적으로 내부 폴더 및 브랜치, 태그 또는 커밋 지정 가능) | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| GitHub 주소 | `https://github.com/acme/plugins/tree/main/notes` |
+| https를 통한 기타 git 저장소(git 필요); ssh 주소는 GitHub에서만 작동 | `https://git.example.com/notes.git`, `git@github.com:acme/notes.git` |
+| npm 패키지 | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| 웹상의 플러그인 zip(공개 https만 지원) | `https://downloads.acme.com/notes-1.2.0.zip` |
+| Mac의 폴더 | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| 추가된 마켓플레이스의 플러그인 | `notes@acme-plugins` |
+
+<Note>
+`plugin install`과 `plugin marketplace`에는 0.1.174보다 최신인 `@enconvo/api` 릴리스가 필요합니다. `@enconvo/api`에 의존하는 프로젝트 내부에서는 `npx enconvo …`만으로 충분합니다. `marketplace import`를 사용하려면 Enconvo 2.5.7 이상도 필요합니다.
+</Note>
+
+설치하지 않고 무엇이 어디서 설치되는지 확인하려면 `--preview`를 추가하세요.
+
+출력이 플러그인이 아니라 플러그인 마켓플레이스인 경우 `plugin install`은 그 안의 플러그인 목록을 보여 줍니다. 200개가 넘는 마켓플레이스는 처음 200개만 표시하고 나머지 개수를 알려 주며, `plugin marketplace add`는 전체 목록을 표시합니다. 특정 플러그인을 고르려면 `--plugin`을 사용하세요. 이 경우 마켓플레이스도 함께 추가됩니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+### 설치 시 동작
+
+- **설정**: API 키처럼 필수 설정이 있는 플러그인은 설치된 후 설정을 입력하도록 요청합니다. `plugin install`은 필요한 항목 이름을 출력하며, 플러그인 페이지에서 값을 입력할 수 있습니다.
+- **소스에서 가져온 Enconvo 플러그인**: GitHub 저장소나 폴더에 아직 빌드되지 않은 Enconvo 플러그인이 들어 있으면 `plugin install`이 먼저 빌드를 실행합니다. 폴더의 경우 `npm install` 후 제자리에서 빌드됩니다.
+- **온보딩**: 플러그인에 온보딩 스킬이 지정되어 있으면 처음 설치한 뒤 실행할지 묻습니다.
+- **로그인**: Notion이나 Figma처럼 플러그인의 MCP 서버에 로그인이 필요한 경우 설치가 끝나자마자 플러그인 페이지에 **로그인**이 표시됩니다. Enconvo가 브라우저에서 서버의 로그인 페이지를 열며, 연결이 완료되면 다음 서버를 안내합니다. `plugin install`에서는 대신 필요한 서버 이름을 출력합니다. 건너뛴 로그인은 **설정 → MCP 서버**에 남아 있습니다.
+- **훅**: 플러그인의 [훅](/extensions/plugin-formats#hooks)은 명령을 실행하므로 꺼진 상태로 설치됩니다. `--preview`로 목록을 확인할 수 있으며, 플러그인 페이지의 **훅 허용** 스위치로 켤 수 있습니다. 허용한 훅은 업데이트 시 변경되지 않는 한 계속 켜진 상태로 유지됩니다.
+- **의존성**: 마켓플레이스의 Claude Code 플러그인이 다른 플러그인을 필요로 하면 Enconvo가 함께 설치합니다([플러그인 마켓플레이스](#플러그인-마켓플레이스) 참고). `--preview`는 의존성 목록과 함께 이미 설치된 항목, 새로 설치될 항목, 설치할 수 없는 항목을 보여 줍니다. 마켓플레이스 항목이 선언한 의존성이 허용되지 않은 마켓플레이스 소속이면 설치가 중단되며, 플러그인 자체의 `plugin.json`이 선언한 의존성은 건너뛰고 설치를 계속합니다. 의존 플러그인의 훅도 꺼진 상태로 유지되며, 주 플러그인을 제거해도 정리(prune)하기 전까지는 남습니다([제거](#제거) 참고).
+- **사용하기**: Codex에서와 마찬가지로 채팅에서 `@`를 입력해 플러그인을 선택하거나, 플러그인 페이지의 **다음과 같이 물어보세요** 아래 프롬프트 중 하나를 클릭하세요. 어느 쪽이든 채팅에 해당 플러그인이 첨부됩니다. 카테고리를 지정하지 않은 Codex 또는 Claude Code 플러그인을 포함해 설치된 모든 플러그인이 `@` 메뉴에 표시됩니다.
+- **같은 이름**: 같은 출처에서 다시 설치하면 플러그인이 업데이트됩니다. 스토어 등 다른 곳에서 설치한 같은 이름의 플러그인이 이미 있다면 Enconvo는 기존 플러그인을 건드리지 않고 먼저 제거하도록 안내합니다.
+
+Enconvo가 실행 중이 아니더라도 `plugin install`은 GitHub의 Enconvo 플러그인을 빌드하여 설치할 수 있습니다. 그 밖의 작업은 Enconvo를 연 뒤 다시 시도하세요.
+
+## 플러그인 마켓플레이스
+
+마켓플레이스는 저장소나 폴더에 담긴 플러그인 카탈로그입니다. Enconvo는 Codex의 `.agents/plugins/marketplace.json`과 Claude Code의 `.claude-plugin/marketplace.json` 두 형식을 모두 읽습니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, git 주소 또는 폴더
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins --ref v2   # 브랜치, 태그 또는 커밋 지정
+npx -p @enconvo/api enconvo plugin marketplace list               # 추가된 마켓플레이스와 플러그인 목록
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # 그중 하나 설치
+npx -p @enconvo/api enconvo plugin marketplace refresh            # 새 플러그인을 확인하기 위해 다시 가져오기
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+`refresh`는 `upgrade`(Codex 명칭)와 `update`(Claude Code 명칭) 명령에도 동일하게 반응하며, `--ref v2`는 `acme/plugins@v2`와 같습니다.
+
+플러그인 페이지에서는 **추가 → GitHub에서 추가…**를 열어 마켓플레이스 주소를 붙여넣거나 **내 마켓플레이스**에서 이미 추가한 항목을 선택하세요.
+
+Enconvo는 GitHub이나 git에서 가져온 마켓플레이스의 사본을 보관하며, 폴더 마켓플레이스는 원래 위치에서 직접 읽습니다. 마켓플레이스를 제거해도 그곳에서 설치한 플러그인은 유지됩니다.
+
+### Codex 또는 Claude Code에서 추가한 마켓플레이스
+
+이 Mac의 Codex나 Claude Code에 마켓플레이스를 추가해 두었거나 Codex가 OpenAI Curated 마켓플레이스를 가져왔다면, `marketplace list`에 Enconvo가 아직 갖지 않은 목록이 표시되며 `import`로 주소를 다시 입력할 필요 없이 추가할 수 있습니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace import                            # 모두 가져오기
+npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # 지정한 항목만 가져오기
+```
+
+Enconvo는 Codex의 `~/.codex/config.toml`, OpenAI Curated 사본, 개인용 `~/.agents/plugins/marketplace.json`, 그리고 Claude Code의 알려진 마켓플레이스 목록에서 이를 찾습니다. 해당 파일들을 읽기만 할 뿐 어느 앱의 설정도 변경하지 않습니다. OpenAI Curated는 GitHub의 `openai/plugins`에서 추가됩니다. Codex 자체 도구용 플러그인이 담긴 다른 기본 마켓플레이스와, `marketplace.json` 파일의 웹 주소로 추가되어 Enconvo가 지원하지 않는 Claude Code 마켓플레이스는 제외됩니다. 두 앱 모두에 같은 이름의 마켓플레이스가 있으면 Codex의 것을 우선 제안합니다.
+
+OpenAI Curated 같은 Codex 마켓플레이스에는 각 플러그인의 이름과 출처만 나열됩니다. 마켓플레이스 자체 폴더 안에 있는 플러그인의 경우 Enconvo는 Codex와 마찬가지로 플러그인 매니페스트에서 제목, 설명, 카테고리, 개발자를 읽어 표시하며, 에이전트도 이름뿐 아니라 기능 설명으로 플러그인을 찾을 수 있습니다. 마켓플레이스 항목 자체에 적힌 정보가 우선 적용됩니다.
+
+Gmail, Google Drive, Outlook, Teams 등 OpenAI Curated의 일부 플러그인은 ChatGPT로 Codex에 로그인한 경우에만 작동하므로 Codex도 API 키 로그인 사용자에게는 이를 제공하지 않습니다. Enconvo 역시 ChatGPT 로그인을 사용하지 않으므로 이러한 플러그인은 ChatGPT 로그인이 필요하다고 표시하고 설치하지 않으며 에이전트도 제안하지 않습니다. 해당 서비스는 대신 제공업체의 자체 MCP 서버나 커넥터를 추가하세요.
+
+### 마켓플레이스 플러그인의 출처
+
+마켓플레이스의 플러그인은 마켓플레이스 내부 폴더, 다른 GitHub 저장소, git 주소, git 저장소 내부 폴더, npm 또는 웹상의 zip(Claude Code의 `archive` 출처)에서 가져올 수 있습니다. Codex 마켓플레이스에서 `NOT_AVAILABLE`로 표시된 플러그인은 설치할 수 없습니다.
+
+`./plugins/notes`처럼 적힌 폴더 출처는 마켓플레이스 최상위 폴더 기준으로 읽습니다. `notes`처럼 이름만 적힌 경우 Claude Code와 동일하게 `metadata.pluginRoot`가 지정하는 폴더에서 읽으므로 해당 필드가 필요합니다.
+
+GitHub, npm 또는 웹에서의 다운로드는 최대 3분까지 걸릴 수 있으며, 더 오래 걸리면 Enconvo가 다운로드를 중지하고 연결 상태를 확인하도록 안내합니다.
+
+링크를 직접 붙여넣었든 마켓플레이스에 등록되어 있든 zip 파일은 공개 https 주소에서만 다운로드되며 리디렉션은 최대 5회까지 허용합니다. 마켓플레이스에 `sha256` 값이 지정된 경우 일치하지 않는 다운로드는 거부됩니다. 플러그인은 zip의 최상위 또는 단일 하위 폴더 안에 들어 있을 수 있습니다.
+
+### Claude Code 마켓플레이스 항목
+
+Claude Code 마켓플레이스 항목은 Claude Code가 해석하는 방식과 동일하게 플러그인 자체의 `plugin.json`과 함께 작동합니다.
+
+- 항목에 `commands`, `agents`, `skills`, `outputStyles`, `themes`를 지정하면 플러그인 자체 목록에 추가되며, `hooks`는 같은 이벤트에 대한 플러그인의 훅을 대체합니다.
+- `plugin.json`이 있는 플러그인을 가리키면서 `"strict": false`를 지정하고 위 항목들을 함께 나열하면 매니페스트 충돌로 거부됩니다. 한쪽에만 정의하세요.
+- 플러그인에 `plugin.json`이 없으면 마켓플레이스 항목 자체가 매니페스트 역할을 합니다.
+- 항목의 이름, 설명, 작성자 및 기타 목록 세부 정보가 표시되며, 버전은 플러그인 자체 버전을 따릅니다.
+- 마켓플레이스의 `renames` 규칙을 따릅니다. 이전 이름으로 설치된 플러그인도 새 이름 기준으로 계속 업데이트되며, 이전 이름으로 설치를 시도해도 찾을 수 있습니다. 이름이 `null`로 변경된 경우 마켓플레이스에서 제거된 것이므로 Enconvo가 이를 알립니다. 플러그인 자체 매니페스트의 이름까지 바뀐 경우에는 Enconvo가 매니페스트 기준으로 플러그인 이름을 관리하므로 기존 플러그인을 제거하고 새 플러그인을 설치하도록 안내합니다.
+- 항목 또는 `plugin.json`에 선언된 `dependencies`는 플러그인과 함께 설치됩니다. 각 항목은 이름(`"formatter"`), 이름과 마켓플레이스(`"formatter@acme-tools"`), 둘 중 하나 뒤에 `^` 범위가 붙은 형태(`"formatter@acme-tools@^2.1"`), 또는 semver 범위를 포함한 `{ "name", "marketplace", "version" }` 객체 형태입니다. 의존성은 다른 마켓플레이스를 지정하지 않는 한 플러그인 자신이 속한 마켓플레이스에서 가져오며, 다른 마켓플레이스를 지정하려면 설치하려는 마켓플레이스의 `allowCrossMarketplaceDependenciesOn` 목록에 해당 마켓플레이스가 포함되어 있어야 합니다. `version` 범위가 지정된 의존성은 플러그인 자체 저장소 또는 마켓플레이스 내부 플러그인의 경우 마켓플레이스 저장소(git 저장소 안의 마켓플레이스 폴더 포함)에서 해당 범위와 다른 설치된 플러그인이 요구하는 범위를 모두 만족하는 가장 높은 릴리스 태그(`<plugin>--v<version>`)로 설치됩니다. 일치하는 태그가 없으면 마켓플레이스 내부 플러그인은 마켓플레이스에 있는 그대로 설치되고, 별도 저장소의 플러그인은 설치가 거부됩니다. 단일 버전으로 동시에 만족시킬 수 없는 범위 충돌이 발생하면 설치가 거부되며, 이후 업데이트도 범위 내에서만 진행됩니다. 이미 설치된 의존성은 그대로 유지되고, `version` 범위를 벗어난 경우에는 경고가 표시됩니다.
+
+### 공유 전에 마켓플레이스 검사하기
+
+마켓플레이스를 공유하기 전에 마켓플레이스와 그 안의 모든 플러그인을 검사하세요. 규칙은 `claude plugin validate`가 적용하는 기준에 Codex의 `.agents/plugins/marketplace.json` 규칙을 더한 것입니다([검증 코드](/extensions/validation-codes#marketplaces) 참고). 항목의 필드 타입 오류, 플러그인으로 이어지지 않는 `renames`, 거부되는 `relevance` 신호, `claude-plugins-hub`처럼 Anthropic 공식 이름처럼 보이는 마켓플레이스 이름 등 오류가 있으면 목록에는 뜰 수 있어도 Claude Code에서 마켓플레이스를 추가하거나 플러그인을 설치하지 못합니다. 잘못된 필드 철자처럼 Claude Code가 무시하는 문제나 Claude Desktop이 거부하는 이름에는 경고가 발생합니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin validate path/to/marketplace
+```
+
+## 업데이트
+
+Enconvo의 플러그인 업데이트 확인 기능은 GitHub, git, npm, 폴더 및 마켓플레이스에서 설치한 플러그인도 함께 확인해 스토어 플러그인과 나란히 업데이트 목록에 표시합니다. 저장소를 다운로드하지 않고도 최신 커밋을 조회하고, npm에 최신 버전을 질의하며, 설치된 폴더의 변경 여부를 감지하고, 마켓플레이스가 `sha256`으로 고정한 zip의 해시 변경도 확인합니다. 업데이트를 실행하면 동일한 출처에서 플러그인을 다시 설치합니다.
+
+플러그인 하나만 확인하려면 해당 플러그인 페이지를 열고 **⋯** 메뉴에서 **업데이트 확인**을 선택하세요. 새 버전이 있으면 표시되는 메시지에서 **업데이트**를 클릭하면 됩니다.
+
+또는 Claude Code의 `claude plugin update`처럼 터미널에서 업데이트할 수도 있습니다.
+
+```bash
+npx -p @enconvo/api enconvo plugin update notes                # 원래 출처 또는 스토어에서 업데이트
+npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # 해당 마켓플레이스에서 온 경우에만 업데이트
+```
+
+먼저 새 버전이 있는지 확인합니다. 더 새로운 버전이 없으면 이미 최신 버전이라고 알리고 아무것도 변경하지 않으며, 새 버전이 있으면 업데이트 목록에서와 같은 방식으로 플러그인을 업데이트합니다.
+
+## 제거
+
+플러그인 페이지나 메뉴에서 확인 절차를 거쳐 플러그인을 제거하거나 터미널에서 제거할 수 있습니다.
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # remove, rm도 동일
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # 더 이상 필요하지 않은 의존성도 함께 제거
+npx -p @enconvo/api enconvo plugin prune --dry-run            # 아무것도 지우지 않고 정리 대상만 나열
+npx -p @enconvo/api enconvo plugin prune                      # 대상 제거(autoremove도 동일)
+```
+
+정리(prune)는 Claude Code의 `claude plugin prune`과 마찬가지로 다른 플러그인 때문에 설치되었던 의존성 중 현재 설치된 어떤 플러그인도 더 이상 필요로 하지 않는 항목만 제거합니다. 사용자가 직접 설치한 플러그인은 절대 정리되지 않으며, 의존성 플러그인을 직접 다시 설치하면 사용자 소유로 바뀝니다. 터미널에서는 제거할 목록을 먼저 보여 주고 확인을 묻습니다. 질문 없이 진행하려면 `-y`를 추가하세요(질문할 수 없는 환경에서 `--prune`을 쓸 때 필요). 플러그인 페이지의 제거 기능은 아직 자동 정리를 지원하지 않습니다.
+
+## 직접 만든 플러그인 게시
+
+Enconvo 스토어에 플러그인을 등록하려면 [플러그인 스토어 가이드라인](/ko/extensions/publishing-guidelines)을 참고하세요. 누구나 설치할 수 있는 링크를 보내려면 플러그인 페이지에서 **공유…**를 클릭하세요([플러그인 공유](/ko/extensions/overview) 참고). Enconvo 없이 공유하려면 GitHub나 마켓플레이스에 푸시하세요. 다른 사용자는 **GitHub에서 추가…**나 위 명령으로 설치할 수 있습니다.
+
+### 릴리스 태그 지정
+
+`plugin tag`는 `claude plugin tag`와 동일하게 릴리스할 커밋에 `<plugin>--v<version>` 형식의 git 태그를 붙입니다. Claude Code와 Enconvo는 다른 플러그인의 의존성이 버전 범위를 요구할 때 이러한 태그 중에서 버전을 선택하며, 누구나 `acme/plugins/notes@notes--v1.2.0`처럼 지정해 Enconvo로 해당 릴리스를 설치할 수 있습니다.
+
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # 확인 및 git 명령 출력
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # HEAD에 태그를 붙이고 origin에 푸시
+```
+
+버전은 플러그인의 매니페스트에서 가져오며 매니페스트에 없으면 마켓플레이스 항목에서 읽어 오고, semver 형식(`1.2.0`)이어야 합니다. 태그를 붙이기 전에 `plugin tag`는 `plugin validate`와 동일하게 플러그인을 검사하며, 마켓플레이스 항목의 버전이 다르거나 플러그인 폴더에 커밋되지 않은 파일이 있거나 태그가 이미 존재하면 중단됩니다. 새 릴리스를 만들 때는 버전을 올리세요. 대신 기존 태그를 이동하려면 `--force`를 사용합니다. Codex, Claude Code, 포터블, Enconvo 플러그인을 모두 동일하게 다루므로 패키지 내 모든 매니페스트의 버전이 같아야 합니다. `-m`은 태그 메시지(`%s`는 버전으로 치환)를 지정하고, `--remote`는 `--push`가 푸시할 원격 저장소를 지정합니다. `plugin install`과 마찬가지로 0.1.174보다 최신인 `@enconvo/api` 릴리스가 필요합니다.

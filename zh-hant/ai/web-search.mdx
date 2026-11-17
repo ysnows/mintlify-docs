@@ -1,0 +1,99 @@
+---
+title: "網頁搜尋"
+description: "讓代理程式搜尋網路上的最新資訊並附上來源引用。"
+---
+
+網頁搜尋讓你的代理程式能從網路取得最新結果。每個代理程式都能進行搜尋；你可以獨立於負責撰寫答案的模型之外，自行選擇它使用的搜尋服務。
+
+## 選擇搜尋服務供應商
+
+1. 開啟 **設定 → 網頁搜尋**。
+2. 挑選一個服務供應商。Enconvo Cloud 選項不需要 API 金鑰；大多數其他選項則需填入該服務的金鑰。
+3. 點選 **設為預設**。
+
+| 服務供應商 | 說明 |
+| --- | --- |
+| **自動（Auto）** | 使用對話模型內建的網頁搜尋功能；若該模型沒有搜尋功能，則切換至另一個服務供應商。請參閱[使用模型自帶的搜尋](#使用模型自帶的搜尋)。 |
+| **Enconvo Cloud** | 所有已登入帳號皆可免費使用，無需 API 金鑰 |
+| **DeepSeek (Enconvo Cloud)** | 透過 Enconvo Cloud 使用 DeepSeek 搜尋，所有已登入帳號皆可免費使用 |
+| **Gemini** | 透過 Gemini 模型使用 Google 搜尋的接地（Grounding）功能 |
+| **Tavily**、**Bing**、**Brave**、**Google Custom**、**Exa** | 使用你自己在該服務申請的金鑰進行搜尋 |
+| **Parallel** | 使用你的 Parallel API 金鑰查詢 Parallel 的 AI 搜尋索引，回傳每個網頁最相關的段落 |
+| **PipeLLM** | 透過你的 [PipeLLM](/zh-hant/providers/pipellm) 金鑰取得 Google 搜尋結果 |
+| **DeepSeek** | 使用你的 DeepSeek API 金鑰進行 DeepSeek 搜尋 |
+| **xAI X Search** | 使用 xAI API 金鑰或 xAI 登入，搜尋 X 上的貼文、個人檔案與討論串 |
+| **xAI X Search (Enconvo Cloud)** | 透過 Enconvo Cloud 方案進行 X 搜尋 |
+
+服務供應商清單會標示出免費選項。完整清單請參閱[服務供應商目錄](/zh-hant/providers/catalog)。部分模型在其專屬的供應商設定中也提供內建的接地或搜尋選項。
+
+## 使用模型自帶的搜尋
+
+選擇 **自動（Auto）** 時，每次搜尋都會使用該對話所選模型自身的網頁搜尋能力（前提是該模型支援）：包含 OpenAI、Claude、Gemini、Grok、DeepSeek、Qwen、Kimi、Z.ai 與 OpenRouter。它會使用你為該模型連接的金鑰或登入帳號，並由該模型的廠商計費。
+
+當模型沒有內建搜尋或搜尋失敗時，Auto 會使用 **回退搜尋**；除非你另行指定其他服務供應商，否則預設為 **Enconvo Cloud**。
+
+| 設定 | 作用 |
+| --- | --- |
+| **搜尋路線** | 顯示對話模型會執行哪個搜尋服務，以及失敗時的處理方式。 |
+| **優先用模型自帶的搜尋** | 預設開啟。關閉後一律使用回退搜尋。 |
+| **回退搜尋** | 當模型沒有搜尋功能或搜尋失敗時改用的服務供應商。 |
+
+在對話中，每個網頁搜尋步驟都會標明是哪一個搜尋服務給出了結果，以及若觸發了 Auto 回退，原因為何。
+
+## 使用 Parallel
+
+1. 前往 [Parallel](https://platform.parallel.ai) 取得 API 金鑰。
+2. 在 **設定 → 憑證管理 → Parallel** 中加入金鑰。
+3. 在 **設定 → 網頁搜尋** 中選擇 **Parallel**，並挑選 **搜尋模式**：
+
+| 搜尋模式 | 適用情境 |
+| --- | --- |
+| **Turbo** | 最快的回答速度。僅支援英文與日文查詢。 |
+| **Fast** | 適合大多數搜尋。預設模式。 |
+| **Basic** | 從每個網頁擷取更長的段落。 |
+| **Advanced** | 最深入的搜尋。約需 3 秒，費用較高。 |
+
+Parallel 的每次搜尋會向你的 Parallel 帳戶計費。
+
+## 使用代理程式進行搜尋
+
+1. 提出具體的問題。若有時間範圍或地點條件，請一併說明。
+2. 代理程式會搜尋網路並附上來源連結來回答。
+3. 點開引用的來源，確認內容確實支持該回答。
+
+試著這樣問：
+
+> Find the official release notes for this library's latest stable version and summarize breaking changes with links.
+
+## 選擇合適的網頁功能
+
+| 需求 | 使用功能 |
+| --- | --- |
+| 探索相關資料來源 | 網頁搜尋 |
+| 讀取已知網址的內容 | [讀取網頁](/zh-hant/ai/web-fetch) |
+| 在瀏覽器中開啟結果 | [快捷連結](/zh-hant/features/quick-links) |
+| 與已登入的網站互動 | [使用瀏覽器](/zh-hant/features/browser-control) |
+| 搜尋 X 貼文、個人檔案或討論串 | **xAI X Search** 服務供應商 |
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 回答沒有附上來源 | 確認代理程式有進行搜尋，而不是僅憑模型自身知識回答。請直接要求它搜尋網路。 |
+| 服務供應商回報錯誤 | 檢查該供應商的憑證，以及你在該服務帳戶的可用額度。 |
+| Auto 使用了回退搜尋 | 該對話模型本身沒有網頁搜尋功能，或是它的搜尋失敗了。對話中的搜尋步驟會說明實際原因。 |
+| 結果位於登入頁面後方或互動式網頁上 | 請改用支援瀏覽器操作的功能，例如[使用瀏覽器](/zh-hant/features/browser-control)。直接擷取公開網址無法存取你已登入的工作階段。 |
+
+## 相關指南
+
+<CardGroup cols={2}>
+  <Card title="讀取網頁" icon="link" href="/zh-hant/ai/web-fetch">
+    讀取你已有網址的網頁內容。
+  </Card>
+  <Card title="使用瀏覽器" icon="globe" href="/zh-hant/features/browser-control">
+    操作需要登入與互動的網站。
+  </Card>
+  <Card title="服務供應商目錄" icon="list" href="/zh-hant/providers/catalog">
+    Enconvo 支援的所有網頁搜尋服務供應商。
+  </Card>
+</CardGroup>

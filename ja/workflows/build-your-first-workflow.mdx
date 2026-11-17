@@ -1,0 +1,131 @@
+---
+title: "初めてのワークフローを作成する"
+description: "ナレーション付き動画に沿ってテンプレートからワークフローを作成し、手動とアシスタントでステップを追加して実行・出力確認する手順を学びます。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+ワークフローは、プロンプト、エージェント、ツールを連結して繰り返し実行できる一連の処理にまとめます。このチュートリアルでは、**ステップの種類ツアー** テンプレートからワークフローを作成し、手動で 1 つステップを追加し、ワークフローアシスタントでもう 1 つステップを追加して、実行結果を確認するまでを一通り行います。
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+動画の長さは 2 分 24 秒です。以下の手順は動画と同じ順序で進んでおり、各ステップに対応するタイムスタンプを記載しています。
+
+## 作成するワークフロー
+
+**ステップの種類ツアー** テンプレートはそのままでも実行できます。このチュートリアルでは、そこにステップを追加して小さなコンテンツ作成パイプラインに仕上げます。
+
+| ステップ | 種類 | 内容 |
+| --- | --- | --- |
+| 今日の日付を取得 | Shell | 今日の日付を出力します |
+| 保存済みワークフロー一覧 | Tool | 既存のワークフロー一覧を取得します（日付の取得と並列実行） |
+| モデルにアイデアを提案してもらう | Prompt | `topic` 入力をもとに新しい自動化アイデアを 1 つ提案します |
+| エージェントに計画へ展開させる | Agent | アイデアを 3 ステップの計画にまとめます |
+| ツイートを書く | Prompt | 手動で追加：計画を短いツイート 1 件にまとめます |
+| ツイートを日本語に翻訳する | Prompt | アシスタントで追加：ツイートを日本語に翻訳します |
+
+## 手順に沿って進める
+
+<Steps>
+  <Step title="ワークフローを作成する（0:07）">
+    **設定 → ワークフロー → 管理** を開き、**新規ワークフロー** を選択します。**テンプレートから始める** で **ステップの種類ツアー** を選びます。ワークフローが作成され、**Visual** モードでエディタが開きます。なお動画は **新規ワークフロー** ダイアログ導入前に収録されているため、動画内ではスターター名が *Starter Workflow* となっています。
+  </Step>
+  <Step title="グラフを読み解く（0:18）">
+    グラフは上から下へ読みます。**Inputs** ノードには実行に必要な入力が定義されており、ここでは `topic` の 1 つだけです。最初の 2 つのステップは別々のジョブに属しているため横に並んでおり、並列に実行されます。それぞれの結果はその下にあるステップへ順番に渡されます。
+  </Step>
+  <Step title="ステップを編集する（0:28）">
+    ステップを選択するとインスペクタが開き、ID、タイトル、プロンプトを変更できます。二重中括弧を使うと他の値をステップに差し込めます。`{{ inputs.topic }}` は実行時の入力値を読み込み、`{{ steps.idea.output }}` は前のステップの結果を読み込みます。こうしてステップ同士がデータをやり取りします。
+  </Step>
+  <Step title="ステップを追加する（0:37）">
+    最後のステップの下にある **+** を選択し、Prompt、Agent、Shell、Tool などからステップの種類を選びます。新しい Prompt ステップに ID `tweet`、タイトル「Write a tweet」、プロンプトとして次を設定します。
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    ステップ ID を変更した後は、次の入力欄へ移る前に Return キーを押してください。
+    </Tip>
+  </Step>
+  <Step title="またはワークフローアシスタントに頼む（0:57）">
+    手動で編集する代わりにツールバーの **アシスタント** を選択し、キャンバスの横に開いたパネルで変更内容を指示することもできます。
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    アシスタントがグラフを編集し、変更したステップの一覧を表示します。結果が気に入らない場合は、返信にある **元に戻す** を選択します。動画では `{{ steps.tweet.output }}` を読み込む `translate_ja` ステップが追加されます。保存する前に新しいステップを確認してください。アシスタントによる編集は **保存** を選択するまで保存されません。
+  </Step>
+  <Step title="YAML を確認する（1:16）">
+    ツールバーの **YAML** を選択すると、同じワークフローをソースコードとして表示できます。各ワークフローは `~/.enconvo/workflows/<id>.yaml` に 1 つのプレーンファイルとして保存されるため、確認、差分比較、共有が簡単です。**Visual** を選択するとグラフ表示に戻ります。ファイル全体は下の[完成したワークフロー](#完成したワークフロー)に記載しています。
+  </Step>
+  <Step title="実行して出力を確認する（1:28）">
+    **Inputs** を選択して実行時の値を設定し（動画では `{"topic": "matcha"}`）、**実行** を選択します。実行中のステップは青く光り、完了したステップは緑色になります。Agent ステップは他のステップより時間がかかります。
+
+    実行が終わったら、任意のステップを選択して **Output** タブを開くと、生成された内容をそのまま確認できます。最後のステップでは、コピー＆ペーストなしで前のツイートを受け取って翻訳しています。
+  </Step>
+  <Step title="過去の実行履歴を確認する（2:05）">
+    すべての実行履歴はツールバーの **Runs** に保存されるため、後からいつでも結果を確認できます。
+  </Step>
+</Steps>
+
+<Note>
+ワークフローを実行すると実際のモデルやツールが呼び出されます。プロバイダーのクレジットを消費する場合があり、Shell や Tool ステップはあなたの Mac アカウントの権限で動作します。実行前にワークフローの各ステップを確認してください。
+</Note>
+
+## 完成したワークフロー
+
+動画内で作成したワークフローの YAML は次のとおりです。**YAML** ビューでは書式が多少異なる場合があります。
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+`ideate` ジョブは `needs` によって `date` と `catalog` の完了を待つため、`jobs.<job>.<step>.output` でそれぞれの結果を参照できます。同じジョブ内の後続ステップは `steps.<id>.output` で前のステップの結果を読み込みます。
+
+## 関連情報
+
+<CardGroup cols={2}>
+  <Card title="ワークフロー" icon="diagram-project" href="/ja/workflows/introduction">ジョブ、ステップ、各ステップの種類について。</Card>
+  <Card title="ワークフローの作成" icon="pen-to-square" href="/ja/workflows/creating-workflows">ビジュアルエディタ、YAML、編集アシスタントの詳細。</Card>
+  <Card title="高度なワークフロー" icon="code-branch" href="/ja/workflows/advanced-workflows">条件分岐、ループ、リトライ、出力スキーマ、サブワークフロー。</Card>
+  <Card title="オートメーション" icon="clock" href="/ja/workflows/scheduled-jobs">指定した時刻にワークフローやエージェントへの指示を自動実行します。</Card>
+</CardGroup>

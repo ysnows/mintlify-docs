@@ -1,0 +1,70 @@
+---
+title: "Autorisations macOS"
+description: "Voyez quelles autorisations macOS Enconvo utilise, accordez celles dont une fonction a besoin, et réparez une capture ou une saisie qui ne fonctionne plus."
+---
+
+Certaines fonctions d’Enconvo ont besoin d’un accès que macOS vous demande d’approuver, comme voir votre écran ou saisir du texte dans d’autres apps. **Réglages → Autorisations** liste chaque autorisation, ce qu’elle permet, et si elle est accordée. Le chat texte n’en a besoin d’aucune, donc Enconvo ne demande rien au lancement : il demande la première fois que vous utilisez une fonction qui en a besoin, et indique quelle fonction a demandé.
+
+## Quand Enconvo demande
+
+Lorsque vous utilisez une fonction qui a besoin d’une autorisation non accordée, Enconvo ouvre sa fenêtre d’autorisation, nomme la fonction et propose **Ouvrir les Réglages Système**. Vous pouvez aussi choisir **Pas maintenant**.
+
+Pour qu’une fonction ne demande plus, cochez **Ne plus demander pour** cette fonction dans la fenêtre. Elle ne demandera plus tant que vous ne changez pas cela sur la page Autorisations. Pour l’enregistrement de l’écran, lorsque l’accès n’attend plus qu’un redémarrage, la fenêtre propose **Redémarrer**.
+
+## Accorder une autorisation
+
+1. Ouvrez **Réglages → Autorisations**.
+2. Trouvez l’autorisation et cliquez sur **Accorder**.
+3. macOS affiche sa demande, ou ouvre le volet correspondant dans **Réglages Système → Confidentialité et sécurité**. Pour Accessibilité et Surveillance de l’entrée, activez vous-même le commutateur d’Enconvo dans ce volet.
+4. Si macOS vous le demande, quittez Enconvo et rouvrez-le.
+5. De retour dans Enconvo, la ligne affiche **Accordé**. Essayez à nouveau la fonction.
+
+La page se vérifie d’elle-même lorsque vous y revenez. Cliquez sur **Actualiser** pour vérifier tout de suite.
+
+## Voir quelles fonctions utilisent une autorisation
+
+Sous chaque autorisation, **Utilisé par** liste les fonctions qui en ont besoin et si chacune demandera :
+
+| État | Signification |
+| --- | --- |
+| **Demande à l’usage** | La fonction demande l’autorisation la prochaine fois que vous l’utilisez. |
+| **Refusé · demande au raccourci** | Vous avez refusé ; la fonction ne redemande que lorsque vous appuyez sur son raccourci. |
+| **Ne demandera pas** | Vous avez choisi **Ne plus demander**. Cliquez pour revenir à **Demande à l’usage**. |
+| **Désactivé** ou **Plugin désactivé** | La fonction, ou le plugin auquel elle appartient, est désactivée. |
+
+## À quoi sert chaque autorisation
+
+| Autorisation | Utilisée pour |
+| --- | --- |
+| Accessibilité | Lire les interfaces d’apps, cliquer, saisir et contrôler les fenêtres : Utilisation de l’ordinateur, PopBar, texte sélectionné et insertion de texte |
+| Enregistrement de l’écran | Captures d’écran qui permettent aux agents de voir le contenu des apps : Utilisation de l’ordinateur, Appshots, contexte d’écran et captures OCR. macOS peut l’appeler Enregistrement de l’écran et de l’audio système ; elle couvre aussi la capture de l’audio système. |
+| Surveillance de l’entrée | Saisie clavier globale pour PopBar, les raccourcis et les déclencheurs à double modificateur pendant que d’autres apps sont au premier plan |
+| Microphone | Dictée, Commande vocale, Note vocale, enregistrement de réunion, sous-titrage en direct et Live Talk |
+| Notifications | Une notification macOS lorsqu’une session d’Agent se termine ou a besoin de vous |
+| Caméra | Photos de la caméra en direct depuis le bouton caméra de SmartBar |
+| Localisation | Météo locale dans Dynamic Island, et contexte de localisation pour les agents |
+| Automatisation | Contrôler d’autres apps avec les événements Apple : lire les onglets du navigateur, les sélections du Finder, Mail, Messages et Événements système |
+| Réseau local | Se connecter à des serveurs de modèles sur un autre ordinateur de votre réseau. Elle n’est pas sur la page Autorisations ; trouvez-la dans **Réglages Système → Confidentialité et sécurité → Réseau local**. |
+
+Calendrier, Rappels, Notes, Mail et les autres apps Apple se connectent plutôt sur la page **Plugins**. Voir [Apps Apple](/fr/integrations/apple-ecosystem).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Une autorisation est activée, mais la capture échoue encore | Quittez Enconvo et rouvrez-le, puis réessayez. Vérifiez que vous avez activé l’app Enconvo que vous utilisez, pas une copie plus ancienne. |
+| Une fonction ne demande jamais l’autorisation dont elle a besoin | Vérifiez sa ligne sous **Utilisé par**. Si elle indique **Ne demandera pas**, cliquez dessus, ou accordez l’autorisation avec **Accorder**. |
+| L’enregistrement de l’écran s’affiche comme accordé, mais la capture échoue encore | Cliquez sur **Redémarrer** dans la fenêtre d’autorisation, ou quittez Enconvo et rouvrez-le. |
+| La dictée affiche du texte mais ne l’insère pas | Vérifiez l’accessibilité, et que le champ cible accepte la saisie ou le collage. |
+| Un raccourci ne fonctionne que dans Enconvo | Vérifiez Surveillance de l’entrée et Accessibilité. Voir [Raccourcis clavier](/fr/configuration/keyboard-shortcuts) pour les raccourcis qui entrent en conflit avec d’autres apps. |
+| Un serveur de modèles sur un autre ordinateur ne se connecte pas | Vérifiez Réseau local, et que le serveur écoute sur son adresse réseau. |
+| Aucune bannière lorsqu’un Agent se termine | Vérifiez les notifications ici, Concentration de macOS, et **Envoyer une notification système** dans [Notifications](/fr/configuration/notifications). |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Dépannage" icon="circle-question" href="/fr/getting-started/troubleshooting">Corrections des problèmes courants.</Card>
+  <Card title="Confidentialité et sécurité" icon="shield-halved" href="/fr/configuration/privacy-security">Ce que chaque type d’accès permet à Enconvo de voir et de faire.</Card>
+  <Card title="Utilisation de l’ordinateur" icon="hand-pointer" href="/fr/features/computer-use">La fonction qui utilise le plus l’accessibilité et l’enregistrement de l’écran.</Card>
+  <Card title="Dictée" icon="microphone" href="/fr/features/dictation">Parlez dans n’importe quelle app ; nécessite le microphone et l’accessibilité.</Card>
+</CardGroup>

@@ -1,0 +1,95 @@
+---
+title: "Browsererweiterung"
+description: "Installiere die Erweiterung Enconvo Companion, damit Enconvo in deinem echten Browser arbeiten kann, mit deinen Anmeldungen, Cookies und Erweiterungen."
+---
+
+Die Browsererweiterung von Enconvo, Enconvo Companion, lässt Enconvo deinen echten Browser steuern, wenn eine Aufgabe den angemeldeten Zustand deines Browsers braucht. Nutze sie für Seiten wie LinkedIn, Gmail, Salesforce, Dashboards oder interne Werkzeuge, bei denen Cookies und Browsererweiterungen zählen. In den Einstellungen heißt sie **Browser Companion**.
+
+Für öffentliche Seiten, lokale Vorschauen oder Workflows, die dein persönliches Browserprofil nicht berühren sollen, nutze stattdessen isolierte Browserautomatisierung.
+
+## Die Erweiterung einrichten
+
+<Steps>
+  <Step title="Erweiterung installieren">
+    Öffne **Einstellungen → Browsernutzung** und klicke unter **Browsererweiterungen** auf **Browser Companion installieren**. Die Seite der Erweiterung im Chrome Web Store öffnet sich. Du kannst sie auch aus dem Erweiterungsstore deines Browsers installieren. Sie funktioniert in Chrome, Edge, Brave, Arc, Vivaldi, Opera und Firefox. Das [Video-Tutorial zur Computernutzung](https://youtu.be/0CbQA7d8zqU?t=33) zeigt die Installation in Chrome.
+  </Step>
+  <Step title="Browser offen lassen">
+    Die Erweiterung verbindet sich von selbst mit Enconvo, über `ws://localhost:11225`.
+  </Step>
+  <Step title="Popup prüfen">
+    Klicke auf das Symbol der Erweiterung. Das Popup zeigt **Connected Chrome**, **Connected Edge**, **Connected Firefox** oder den Namen des Browsers, in dem du bist.
+  </Step>
+  <Step title="Eine Browseraufgabe starten">
+    Bitte Enconvo, im Browser zu lesen, zu klicken, zu tippen, einen Screenshot zu machen oder Tabs zu verwalten.
+  </Step>
+</Steps>
+
+## Das Popup
+
+| Eintrag | Was er zeigt |
+| --- | --- |
+| Verbindungsstatus | Ob die Erweiterung dieses Browsers mit Enconvo verbunden ist |
+| Aktueller Browser | Der Browser, als den diese Erweiterung verbunden ist, etwa Chrome, Edge, Brave oder Firefox |
+| Verbundene Browser | Die anderen Browser, deren Erweiterung gerade mit Enconvo verbunden ist |
+| Version | Die installierte Erweiterungsversion |
+| **Mehr erfahren** | Öffnet diese Seite |
+
+Wenn das Popup getrennt anzeigt, starte Enconvo neu und lade den Browser neu. Wenn es sich weiter nicht verbindet, schalte die Erweiterung aus und wieder ein.
+
+## Mehr als einen Browser nutzen
+
+Enconvo kann sich mit mehreren Browsern zugleich verbinden. Wenn eine Aufgabe keinen Browser nennt, wählt Enconvo in dieser Reihenfolge:
+
+1. Den **Standardbrowser**, den du in den Einstellungen der Browsernutzung gewählt hast (**Einstellungen → Browsernutzung**, dann **Einstellungen** im Menü **⋯**).
+2. Den Standardbrowser deines Mac.
+3. Den verbundenen Browser, den du zuletzt genutzt hast.
+
+Automatisierungs-APIs können den Browser auch nennen:
+
+```json
+{
+  "browser": "edge"
+}
+```
+
+Übliche Werte sind `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera` und `firefox`.
+
+## Auf dem richtigen Tab bleiben
+
+Wenn eine Browseraufgabe startet, merkt sich Enconvo den Browser und den Tab, in dem es arbeitet. Spätere Schritte bleiben auf diesem Tab, wann immer sie können, auch wenn die Seite ein Popup öffnet, neu lädt oder den Fokus verliert.
+
+Für die besten Ergebnisse:
+
+- Lass den Tab offen, bis die Aufgabe fertig ist.
+- Nenne den Browser, wenn mehrere verbunden sind.
+- Sage „den aktuellen Tab nutzen“, wenn Enconvo auf der Seite vor dir handeln soll.
+- Bitte um einen frischen Blick auf die Seite, nachdem sie navigiert oder du ein Formular abgeschickt hast.
+
+## Website-Zugriff und Sicherheit
+
+Webseiten können Anweisungen enthalten, die du nicht geschrieben hast. Auf sensiblen Seiten prüfe die Seite und die Aktion, bevor du Enconvo weitermachen lässt.
+
+Die Erweiterung nutzt Browserberechtigungen, um Seiten zu lesen, zu klicken, zu tippen, Screenshots zu machen, Tabs zu sehen und Cookies zu lesen, wenn eine Aufgabe das braucht. Behandle angemeldete Seiten, den Browserverlauf und interne Werkzeuge als sensible Daten.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Das Popup zeigt getrennt | Stelle sicher, dass Enconvo läuft, starte den Browser neu und schalte die Erweiterung aus und wieder ein. Prüfe, dass nichts `localhost:11225` blockiert. |
+| Der falsche Browser wird gesteuert | Lege **Standardbrowser** in den Einstellungen der Browsernutzung fest oder übergib in der Browseraktion einen Wert wie `edge`, `chrome` oder `firefox`. |
+| Verbunden, aber eine Seite lässt sich nicht steuern | Browserseiten wie `chrome://` lassen sich nicht steuern. Seiten mit strenger Content-Security-Policy, geschlossenem Shadow DOM und Browser-Berechtigungsabfragen können ebenfalls im Weg stehen. |
+| Ein Datei-Upload funktioniert nicht | Schalte auf der Detailseite der Erweiterung in deinem Browser den Zugriff auf Datei-URLs ein. Aufgaben, die lokale Dateien hochladen oder dateigestützte Seiten öffnen, brauchen ihn. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Browsernutzung" icon="window-restore" href="/de/features/browser-control">
+    Was Agenten in deinem Browser tun können.
+  </Card>
+  <Card title="Computernutzung" icon="computer-mouse" href="/de/features/computer-use">
+    Mac-Apps und die eigene Symbolleiste des Browsers steuern.
+  </Card>
+  <Card title="Bild-in-Bild" icon="clone" href="/de/features/picture-in-picture">
+    Den Tab des Agenten live ansehen und übernehmen, wenn er dich braucht.
+  </Card>
+</CardGroup>

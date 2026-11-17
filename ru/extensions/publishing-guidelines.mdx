@@ -1,0 +1,213 @@
+---
+title: "Правила магазина плагинов"
+description: "Подготовьте плагин к магазину Enconvo: что проверяют рецензенты, какие материалы для проверки отправить и как отправить в портал OpenAI из той же папки."
+---
+
+Эта страница для разработчиков, которые собираются отправить плагин в магазин плагинов Enconvo. В ней перечислено, что проверяют рецензенты, какие материалы для проверки отправлять с каждой версией, контрольный список перед `plugin publish` и что происходит после отправки.
+
+Enconvo проверяет каждую версию, отправленную в магазин плагинов, прежде чем ее сможет установить кто-то еще. Эти правила относятся к каждому виду плагинов, которые принимает магазин: Enconvo, Codex, Claude Code и переносимые плагины, включая плагины только из навыков. Они следуют [правилам плагинов OpenAI](https://developers.openai.com/apps-sdk/app-submission-guidelines), так что плагин, который им соответствует, также близок к готовности для портала плагинов OpenAI.
+
+## Сначала проверьте плагин
+
+Прежде чем отправлять, выполните:
+
+```sh
+npx -p @enconvo/api enconvo plugin validate            # the store's rules
+npx -p @enconvo/api enconvo plugin validate --openai   # also OpenAI's portal rules
+npx -p @enconvo/api enconvo plugin scan                # starts the MCP server and checks its tools
+```
+
+`validate` ловит то, что можно проверить автоматически, а `scan` проверяет инструменты плагина с сервером MCP; [коды проверки](/extensions/validation-codes) объясняют каждую проблему, о которой они сообщают. Остальное рецензенты проверяют вручную, как описано ниже.
+
+## Назначение и качество
+
+- Плагин делает что-то полезное, чего Enconvo еще не умеет, и делает это полностью. Заглушки, только демо или пробные версии отклоняются.
+- Он ведет себя предсказуемо. Когда что-то не удается, например ошибка сети, недостающее разрешение или плохой ввод, он говорит, что случилось, а не молча падает.
+- Он использует только код, имена, значки и содержимое, которыми вы владеете или на которые у вас есть лицензия. Он не выдает себя за другой продукт и не намекает, что Enconvo или кто-то еще его одобряет.
+
+## Имя, описание и карточка
+
+- **Имя и заголовок**: ясные и конкретные. Избегайте общего одного слова и не добавляйте «MCP», «MCP Server» или «Plugin» к названию компании.
+- **Описание**: точно говорит, что делает плагин. Без сравнений с другими продуктами, неподтвержденных заявлений, цен, скидок и предложений пробного периода.
+- **Значок и снимки экрана**: значок — PNG, JPEG, WebP или GIF до 5 МБ. До 8 снимков экрана кладутся в папку `metadata/` и показываются в порядке имен файлов. Они показывают плагин таким, как он реально работает.
+- **Поддержка**: дайте людям способ связаться с вами: `interface.websiteURL` и `interface.supportURL` или `homepage` либо `repository` для сайта. Плагин Claude Code может вместо этого использовать `supportUrl` и `documentationUrl`. Страница магазина показывает эти ссылки, прежде чем кто-то установит плагин.
+- **Версия**: повышайте ее при каждом обновлении. Пока обновление на проверке, магазин продолжает предлагать предыдущую версию. `plugin publish` спрашивает у магазина, какую версию он выпустил, прежде чем что-либо собирать или загружать, и останавливается со следующей версией, если ваша не выше.
+
+## Инструменты MCP
+
+Когда плагин приносит сервер MCP, рецензенты читают его инструменты так, как их прочитает модель ИИ.
+
+- **Names** are plain verbs that say what the tool does, such as `get_order_status`, and are unique within the server. No jargon or unexplained abbreviations.
+- **Descriptions** explain what the tool does, what it changes and what it can't do, and match its input schema and real behavior. They don't tell the model to prefer this plugin, to call other plugins, or to call the tool for everything.
+- **One operation per tool**, each with its own input schema.
+- **Annotations** are set explicitly on every tool:
+
+| Аннотация | `true`, когда инструмент | `false`, когда он |
+|---|---|---|
+| `readOnlyHint` | only reads, computes or previews | changes anything: writes, saves a file, sends, posts, uploads, queues work or starts a job |
+| `destructiveHint` | deletes, overwrites, cancels or sends something that can't be taken back, even if the user could undo it | only adds |
+| `openWorldHint` | reaches public or open-ended content, such as a web search, or sends to any address | stays inside a bounded account, workspace or catalog, even one hosted elsewhere |
+
+Enconvo опирается на эти аннотации. Инструмент с `readOnlyHint: true` работает без вопроса пользователю и рядом с другими чтениями. Инструмент с `destructiveHint: true` сначала спрашивает пользователя, если тот не дал агенту полный доступ. Инструмент, который что-то меняет, но заявляет, что только читает, отклоняется.
+
+`enconvo plugin scan` starts the plugin's MCP server, lists its tools with their annotations, and names each tool that leaves one out ([`annotations_required`](/extensions/validation-codes#mcp-server-scan)).
+
+A tool that shows its own interface names its view, a `ui://` resource, in `_meta.ui.resourceUri`, and the view declares the domains it reaches in `_meta.ui.csp` (`connectDomains`, `resourceDomains`, `frameDomains`). These are the MCP Apps keys every host reads. Enconvo also reads ChatGPT's `_meta["openai/outputTemplate"]` and `_meta["openai/widgetCSP"]`, and gives a view written for ChatGPT (`text/html+skybridge`, or a tool named only by `openai/outputTemplate`) the `window.openai` API it calls, so a plugin built for ChatGPT shows its interface in Enconvo unchanged. Set the MCP Apps keys as well, so other hosts show it too. `scan` reads each view as Enconvo does and says when one is set only the OpenAI way.
+
+## Данные и конфиденциальность
+
+- **Ask only for what the task needs.** Tool inputs are specific to the task. Don't ask for the whole conversation, earlier messages or broad profile data "just in case".
+- **Return only what answers the request.** Leave internal ids, trace data and debugging output out of tool results.
+- **Never collect** payment card data, health records, government ids such as social security numbers, or passwords, API keys and one-time codes through tool inputs. Credentials go in the plugin's preferences, where Enconvo keeps them.
+- **Privacy policy.** A plugin that sends data to a server needs a published privacy policy saying what it collects, why, who receives it, how long it is kept and how people can delete it. Put its address in `interface.privacyPolicyURL`, and the terms of service, if you have them, in `interface.termsOfServiceURL`. The store page links both.
+- **No tracking** of people, their queries or their usage beyond what the plugin needs to work and what its privacy policy discloses.
+- **Keep secrets out of the package.** Anyone can download it. `.env` files are left out automatically, but check that no other keys or private files end up in it.
+
+## Вход и тестовые учетные записи
+
+Если плагину нужна учетная запись, вход явный и просит только нужные разрешения. Рецензентам нужно попробовать его, не создавая учетную запись и не получая код двухфакторной аутентификации, так что дайте им демо-учетную запись с примерами данных:
+
+```sh
+npx -p @enconvo/api enconvo plugin publish --review-notes "Sign in as review@example.com with the password …"
+```
+
+Заметки рецензентам идут только рецензентам Enconvo. Они не входят в пакет и не в карточку магазина.
+
+## Коммерция
+
+A plugin may work with an account people already pay for, and may say when a feature needs a different plan. If it sells something or takes payments, say so in the review materials (`commerce` and `commerce_description`, below): what is sold and where people pay. People pay on your own site; the plugin doesn't hide charges or charge Enconvo users more than everyone else.
+
+OpenAI's portal is stricter. It takes plugins that sell physical goods only, and no subscriptions, credits or other digital products. Check its [commerce rules](https://developers.openai.com/apps-sdk/app-submission-guidelines) before you submit there.
+
+## Безопасность
+
+- The plugin is suitable for a general audience, including teenagers, and doesn't target children under 13.
+- It does what the user asked and nothing else: no unrelated content, redirects or ads.
+- Its descriptions, prompts and skills never ask for secrets, move money or data without the user's say, try to override Enconvo's safeguards, or hide what the plugin does, including through encoded instructions.
+- It doesn't scrape websites or wrap other services against their terms, or get around their rate limits and access controls.
+- It doesn't sell or enable anything in OpenAI's list of [prohibited goods and services](https://developers.openai.com/apps-sdk/app-submission-guidelines), such as weapons, drugs, gambling, adult content, malware or financial fraud.
+
+## Материалы для проверки
+
+Review materials tell reviewers what to try: prompts the plugin should handle, prompts it should leave alone, and a short demo video. They are stored with each version and shown only to reviewers.
+
+In a Codex, Claude Code or portable plugin, they go where OpenAI's portal reads them, under `extensions["com.openai"]` of one `plugin.json`. OpenAI imports them from `.codex-plugin/plugin.json` when the plugin has one, as `enconvo plugin create` makes it; from the root `plugin.json` when that one has `extensions["com.openai"]` of its own or there is no Codex manifest; and from `.claude-plugin/plugin.json` in a plugin made only for Claude Code. Don't add `extensions["com.openai"]` to the root `plugin.json` just for them: Codex then ignores the listing in `.codex-plugin/plugin.json`. `enconvo plugin validate --openai` names the manifest they belong in.
+
+```json
+{
+  "name": "notes",
+  "version": "1.2.0",
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Finds a note by topic",
+              "prompt": "Find my notes about the Q3 launch",
+              "tools_triggered": "search_notes, read_note",
+              "expected_behavior": "Lists the matching notes and quotes the most relevant one"
+            }
+          ],
+          "negative": [
+            { "description": "Unrelated question", "prompt": "What's the weather in Paris?" }
+          ]
+        },
+        "demo_recording_url": "https://example.com/notes-demo.mp4",
+        "commerce": false
+      },
+      "publication": {
+        "release_notes": "Search now matches note titles."
+      }
+    }
+  }
+}
+```
+
+In an Enconvo plugin, the same `review` object goes at the top level of `package.json`.
+
+| Field | What it holds |
+|---|---|
+| `test_cases.positive` | Prompts the plugin should handle, each with a `description`, the `prompt`, `expected_behavior`, and the `tools_triggered`. Optional: `file_attachment_urls` and `expected_output_url`. |
+| `test_cases.negative` | Prompts the plugin should leave to something else, each with a `description` and the `prompt`. |
+| `demo_recording_url` | A video of the main prompts and tools. |
+| `commerce`, `commerce_description` | Whether the plugin sells something, and what and where. |
+| `publication.release_notes` | What changed. `plugin publish` uses them as the store's changelog unless you pass `-m`. |
+
+Each list holds up to 20 cases. Text fields hold up to 4,000 characters, and every address is an `https://` address reviewers can open. `validate` and `publish` refuse materials that break these limits.
+
+Sign-in details never go in the package, because anyone can download it. `validate` and `publish` refuse a `review` that has `test_credentials` or `reviewer_instructions`; pass them with `--review-notes` instead, or in the Review details form of OpenAI's dashboard.
+
+In `plugin.json`, `publication` can also hold what OpenAI's portal imports for the listing, and `validate --openai` checks them as the portal does. Enconvo shows `translations` in its interface language for an installed plugin and before installing one from a source; the Enconvo store's pages don't use them yet:
+
+| Field | What it holds |
+|---|---|
+| `countries` | Where the plugin is available, as uppercase country codes such as `["US", "GB"]`. `[]` makes it available everywhere. |
+| `translations` | Listing text by locale, such as `{"fr-FR": {"subtitle": "…", "description": "…"}}`. A subtitle is one line of up to 30 characters, a description up to 4,000. |
+
+A field set to `null` keeps the value already saved in OpenAI's dashboard. Plugin-level test cases are for a plugin with exactly one MCP server.
+
+OpenAI's final submission of a plugin with an MCP server or app takes exactly 5 positive and 3 negative cases, a demo recording and release notes; a plugin with only skills needs just the release notes. `validate --openai` lists what is missing as warnings, because the portal's upload accepts a plugin without them and asks for them only at final submission.
+
+## Контрольный список перед отправкой
+
+Прежде чем выполнить `plugin publish`:
+
+- `plugin validate` reports no errors, and you have read its warnings.
+- `version` is higher than the last version you published, and every manifest in the package gives the same name and version.
+- For an update, `plugin validate --previous` with the zip of the release before it reports nothing you didn't mean: an update replaces the whole plugin, so a skill or MCP server it leaves out is removed (`plugin_components_removed`).
+- The title, description and icon say what the plugin does, and the screenshots show it working.
+- A homepage or support address is set, and a privacy policy is linked if the plugin sends data anywhere.
+- Every MCP tool has a clear name and description and sets `readOnlyHint`, `destructiveHint` and `openWorldHint`, and `plugin scan` lists them without problems.
+- Skills say in their `description` when to use them.
+- Required settings, such as an API key, are declared as settings, not asked for in chat.
+- No keys, tokens or private files are in the folder.
+- Review materials list prompts to try and prompts to leave alone, and a demo account is ready for `--review-notes` if sign-in is needed.
+- You installed the package from its folder (`plugin install .`) and tried the test cases in Enconvo.
+
+## Что происходит после отправки
+
+1. `plugin publish` checks the plugin and that its version is higher than the one the store released, then uploads it and submits the version for review. Until a new plugin is approved, only you can see it.
+2. A reviewer reads the listing, the package's files (with what changed since the released version), the review materials and your notes, and tries the test cases.
+3. An approved version appears in the store, and installed copies are offered the update. If a version is turned down, you get an email with the reason. Fix it, raise the version and publish again.
+
+Enconvo also looks into reports about published plugins. A plugin found to break these guidelines, including one approved before, can be removed from the store, and its developer is emailed the reason.
+
+## Отправка также в OpenAI
+
+The same folder can go to OpenAI's plugin portal:
+
+```sh
+npx -p @enconvo/api enconvo plugin validate --openai
+npx -p @enconvo/api enconvo plugin scan --openai
+npx -p @enconvo/api enconvo plugin pack --openai
+```
+
+`pack --openai` writes the zip the portal takes. Credentials for OpenAI's reviewers go in the portal's submission form, never in the package. Keep your own keys out of it too: `pack` and `publish` leave out `.env` files, and `validate` warns about a file that looks like a private key or a login (`archive_member_secret`).
+
+### Имя плагина
+
+The portal takes only letters, digits, `-` and `_` in the plugin's `name`, and OpenAI suggests lowercase letters, digits and single hyphens. Codex, Claude Code and Enconvo also install a dotted name such as `acme.tools`, but `validate --openai` and `pack --openai` refuse it (`plugin_name_format`), so name a plugin you mean to submit `acme-tools`.
+
+### Сервер MCP и домен
+
+After the upload, the portal connects to the plugin's MCP server and scans its tools; when the server changes, rescan it there. It reaches the server only at a public `https://` URL, so a server that runs on the user's computer has to be deployed first; `scan --openai` warns about one (`mcp_server_not_remote`). At final submission the portal asks for all three annotations on every tool. It no longer asks you to justify them; if its automated review flags one, you can appeal with an explanation. A plugin whose views embed pages still needs a justification for each embedded page: what it does, why the plugin embeds it, and who controls its domain. Pages from the MCP server's own registrable domain are allowed, and separate tenants on a shared host count as different domains. `scan --openai` lists the domains your views embed (`frame_domain_explanation_required`).
+
+Before you can submit the plugin, the portal verifies that you control the MCP server's domain: it gives you a token to serve as plain text at `/.well-known/openai-apps-challenge` on the server's host or a parent domain. `scan --openai` says what those URLs answer, and `scan --challenge-token <token>` checks that one serves exactly the token before you select **Verify Domain**; see [Domain verification](/extensions/validation-codes#domain-verification).
+
+OpenAI's portal connects only one MCP server per plugin to scan and review it, so `validate --openai` warns about a plugin with more. The same server declared for Codex in `mcp.json` and for Claude Code in `.mcp.json` counts once.
+
+### Обновить опубликованный плагин
+
+To update a plugin you published there, upload a complete ZIP with a higher version and everything you mean to keep. If you didn't keep the zip of the published version, the portal gives it to you with **Download release ZIP** in that version's **…** menu; check the new version against it with `validate --openai --previous <zip>`. The portal can't add an MCP server to a published plugin that had none, or change a published server's URL (ask OpenAI's support for that), and `--previous` reports both; see [Updates](/extensions/validation-codes#updates).
+
+### Финальная отправка
+
+OpenAI's final submission asks more of the listing than its upload does, and `validate --openai` warns about each gap:
+
+- `interface.longDescription`, and an `interface.category`; without one, the directory lists the plugin under Other.
+- For a plugin with an MCP server, `websiteURL`, `supportURL`, `privacyPolicyURL` and `termsOfServiceURL`, each an `https://` address of up to 1,024 characters.
+- A listing of your own. A Claude Code plugin with only `.claude-plugin/plugin.json` gets one the portal fills in with defaults (`claude_format_normalized`), so add a `.codex-plugin/plugin.json` with an `interface` to write it yourself.
+- Screenshots only when the MCP server has its own interface: one PNG or JPEG for each starter prompt, exactly 706 pixels wide and 400 to 860 pixels tall. The portal decides from its scan, so `scan --openai` refuses screenshots when no tool shows an interface (`screenshots_not_allowed`). OpenAI's directory no longer shows screenshots and introduces a plugin by its starter prompts, so write those with care.
+
+The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. See [OpenAI's final submission](/extensions/validation-codes#openais-final-submission) for the codes.

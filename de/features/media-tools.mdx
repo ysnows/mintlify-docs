@@ -1,0 +1,65 @@
+---
+title: "Medienwerkzeuge"
+description: "Komprimiere Bilder, Video und Audio, speichere den Ton aus einem Video oder lade ein Video über einen Link herunter."
+---
+
+Medienwerkzeuge sind lokale Befehle für alltägliche Medienaufgaben: Bilder, Video- oder Audiodateien kleiner machen, den Ton eines Videos speichern oder ein Video von einer Webseite herunterladen. Du findest sie in der SmartBar oder unter **Einstellungen → Plugins**.
+
+| Befehl | Was er tut | Speichert nach |
+| --- | --- | --- |
+| **Image Compress** | Komprimiert ein oder mehrere Bilder oder jedes Bild in einem Ordner und seinen Unterordnern, mit einstellbarer Qualität | Ersetzt die Originalbilder |
+| **Video Compress** | Macht eine Videodatei kleiner | `~/Downloads` |
+| **Audio Compress** | Macht eine Audiodatei in der von dir gewählten Qualität kleiner und behält das Cover (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Speichert die Audiospur eines Videos oder jedes Videos in einem Ordner als M4A (MP3, wenn die Spur nicht kopiert werden kann) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Lädt Video oder Audio über einen Link herunter, etwa YouTube, TikTok, Instagram, Reddit, X oder Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** ersetzt deine Originalbilder standardmäßig. Um sie zu behalten, schalte zuerst **Overwrite Original Image File** in seinen Einstellungen aus. Die komprimierten Kopien gehen dann in einen Ordner `enconvo-compressed-images` neben den Bildern.
+</Warning>
+
+## Eine Datei komprimieren oder ihren Ton extrahieren
+
+1. Wähle die Dateien im Finder aus oder hänge sie an. Für Image Compress kannst du auch einen Ordner wählen: Seine Bilder und die in seinen Unterordnern werden komprimiert, und die Kopien behalten dieselbe Ordnerstruktur.
+2. Öffne die SmartBar und führe den Befehl aus.
+3. Öffne die Ausgabe und prüfe sie.
+
+Behalte das Original, während du Komprimierungseinstellungen ausprobierst. Die Einstellungen jedes Befehls liegen unter **Einstellungen → Plugins**: **Image Utils** für Image Compress und **Media Utils** für die anderen.
+
+| Einstellung | Was sie ändert |
+| --- | --- |
+| **Quality** | Von 0 bis 100. Höher behält mehr Qualität und macht eine größere Datei. Standard ist 80 |
+| **Destination Folder Path** | Wohin die komprimierte Datei geht: ein absoluter Pfad oder ein Pfad relativ zur Datei |
+| **Overwrite Original … File** | Ersetzt die Originaldatei. Für Bilder standardmäßig ein, für Video und Audio aus |
+
+## Ein Video herunterladen
+
+1. Öffne die Seite des Videos in deinem Browser oder kopiere den Link.
+2. Führe **Online Video Downloader** aus der SmartBar aus. Er nimmt den Link aus dem aktiven Tab des Browsers oder aus einem Link, den du tippst.
+3. Verfolge den Fortschritt in der Dynamic Island, wo du abbrechen kannst. Wenn er fertig ist, klicke auf **Im Finder zeigen**.
+
+Der Download wird in deinem Chatverlauf gespeichert, und eine Datei, die du schon heruntergeladen hast, wird wiederverwendet, statt erneut geholt zu werden. Ob eine Website funktioniert, hängt von der Website ab und davon, was sie dich zugreifen lässt. Lade nur Inhalte herunter, die du speichern darfst.
+
+| Einstellung | Was sie ändert |
+| --- | --- |
+| **Output Directory** | Wohin Downloads gehen. Standard ist `~/Downloads` |
+| **Audio Only** | Lädt nur das Audio herunter |
+| **Favorite Resolution** | Die aufzulösende Auflösung, von **Best** (Standard) bis 144p |
+| **Force Convert to Compatible MP4** | Wandelt das Video in ein MP4 um, das überall abspielt. Standardmäßig ein. Das braucht extra Zeit und CPU |
+| **Use Browser Cookies** | Meldet sich mit den Cookies deines Browsers an, für Videos, die nur du sehen kannst. Wähle den Browser unter **Browser** |
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| **No images to compress** | Wähle die Bilder im Finder aus oder hänge sie an, dann führe den Befehl erneut aus |
+| Eine Umwandlung schlägt fehl | Prüfe das Format der Datei, dass der Ausgabeordner beschreibbar ist und dass du freien Speicherplatz hast |
+| Ein privates Video lässt sich nicht herunterladen | Schalte **Use Browser Cookies** ein und wähle den Browser, bei dem du angemeldet bist |
+| Downloads von einer Website hören auf zu funktionieren | Lies den Fehler und aktualisiere das Plugin, bevor du es erneut versuchst. Websites ändern ihre Formate und Zugangsregeln |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Bilderzeugung" icon="image" href="/de/ai/image-generation">Erstelle oder bearbeite ein Bild im Chat.</Card>
+  <Card title="Videoerzeugung" icon="film" href="/de/ai/video-generation">Verwandle eine Eingabe oder ein Bild in einen Clip.</Card>
+  <Card title="Transkription" icon="file-audio" href="/de/features/transcription">Verwandle Audio und Video in Text.</Card>
+</CardGroup>

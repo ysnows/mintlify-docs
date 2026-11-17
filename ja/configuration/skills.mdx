@@ -1,0 +1,521 @@
+---
+title: "スキル"
+description: "手順書、リファレンス、任意のスクリプトを 1 つのフォルダにまとめたスキルで、Enconvo のエージェントに繰り返し行う作業を教えます。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+スキルは、手順、リソース、任意のスクリプトをひとまとめにし、Enconvo が確実にワークフローを実行できるようにする仕組みです。コードのレビュー方法や会議メモの整形方法など、同じ手順を何度も説明している場合に作成します。作成したスキルはチームやコミュニティと共有できます。
+
+<Note>
+スキルはコンテキストを効率的に扱うため、**段階的開示（progressive disclosure）**を採用しています。Enconvo はまず各スキルのメタデータ（名前、説明、ファイルパス）だけを読み込み、スキルが有効になったときにのみ詳細な手順を読み込みます。
+</Note>
+
+この動画では、スキルに続いて MCP サーバー、プラグイン、拡張機能ストアを順に取り上げています。
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="How to Use Skills, MCP and Plugins in Enconvo | Step-by-Step Tutorial" />
+
+## スキルを管理する
+
+**設定 → スキル**を開きます。すべてのエージェントがこれらのスキルを共有し、さらに各エージェントの設定から独自のスキルを追加することもできます。
+
+- 上部のカードでは、**すべてのスキル**、**オン・未使用**、**複数のフォルダにある**、**オフ**の件数が集計されます。カードをクリックすると該当するスキルだけを表示できます。
+- 各行には**場所**（組み込み、または保存元のフォルダやアプリ）と**最終使用**が表示されます。行末のスイッチでエージェントに不要なスキルをオフにしたり、複数選択してまとめてオフにしたりできます。
+- **GitHub から追加**ではリポジトリからスキルをインストールでき、**インポート**では Mac 上のフォルダから追加できます。[スキルをインストールする](#スキルをインストールする)を参照してください。
+- **あなたのスキル**には作成したスキルが取得元別（**Recorded**、**Learned**、**Script**、**Written**、**Installed**）に表示されます。クリックすると**ステップ**、**注意点**、**履歴**を確認できます。[ステップを保存したスキル](#ステップを保存したスキル)を参照してください。
+
+チャットウィンドウでは、アイコンレールの**プラグイン**からウィンドウ内でスキルを直接開くこともできます。
+
+## スキルの構成
+
+スキルは、`SKILL.md` ファイルと任意のスクリプト・リファレンスを含むフォルダです。
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### SKILL.md の形式
+
+`SKILL.md` の先頭には、`name` と `description` を含むフロントマターブロックを記述する必要があります。
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo は `description` を見てスキルを選ぶため、適用範囲と境界を明確にしてください。**いつ使うか**と**いつ使わないか**を明記するのが効果的です。
+</Tip>
+
+## スキルを使う
+
+名前を指定してスキルを呼び出すことも、リクエストに合うスキルを Enconvo に選ばせることもできます。
+
+### 名前を指定して呼び出す
+
+SmartBar またはチャットで `/` に続けてスキル名を入力します。
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+使いたいスキルを確実に実行したい場合は、この方法が最も確実です。スキルだけを一覧表示するには `$` を入力します。
+
+インストールしたプラグインのスキルも `/` および `$` メニューに表示され、Claude Code と同様に `plugin:skill` の形式で名前が付きます。
+
+### Enconvo に選ばせる
+
+スキル名を指定しない場合、Enconvo は `description` に基づいてリクエストに最も関連するスキルを自動で一致させます。
+
+1. 「この会議メモをアクションアイテムに要約して」と入力します。
+2. Enconvo が利用可能なすべてのスキルの `description` をスキャンします。
+3. `meeting-notes` スキルが一致します（"...format raw meeting transcripts into structured notes with action items..."）。
+4. スキルが有効になり、その手順に沿って回答が生成されます。
+
+一致判定は単なるキーワードの一致ではなく意味に基づいて行われるため、説明文とは異なる言い回しや別の言語で依頼してもスキルが見つかります。特定のエージェントで常にスキルを認識させたい場合は、そのエージェントの**ツールとスキル**設定でピン留めしてください。[エージェント](/ja/ai/agents)を参照してください。
+
+### 精度よく一致する description の書き方
+
+適切なスキルが選ばれるかどうかは、`description` の書き方で決まります。
+
+| 質 | 例 |
+|---------|---------|
+| **曖昧すぎる** | "Helps with code" |
+| **広すぎる** | "Does anything related to programming" |
+| **良い例** | "Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code." |
+
+良い `description` には次の 3 つの要素を含めます。
+
+- **何をするか**："Review code for bugs, security issues, and best practices"
+- **いつ使うか**："Use when the user asks for a code review"
+- **いつ使わないか**："Do not use for code generation or writing new code"
+
+## スキルの保存場所
+
+Enconvo は複数の場所からスキルを読み込み、それぞれスコープが異なります。
+
+| スコープ | 場所 | 用途 |
+|-------|----------|------------|
+| **プロジェクト** | `$PROJECT/.agents/skills/`（`.enconvo/skills/`、`.claude/skills/`、`.codex/skills/` も可） | 特定のプロジェクトやワークスペース向けのスキル |
+| **ユーザー** | `~/.agents/skills/`（`~/.enconvo/skills/`、`~/.claude/skills/`、`~/.codex/skills/` も可） | すべてのプロジェクトで使える個人用スキル |
+| **システム** | Enconvo に同梱 | 全員が利用できる組み込みスキル |
+
+各エージェントに独自のスキルを持たせることもできます。エージェント設定の**スキル**から追加してください。
+
+異なる場所に同じ名前のスキルが 2 つある場合、Enconvo は統合せず両方を利用可能なままにします。こうしたスキルは**設定 → スキル**の**複数のフォルダにある**に表示されます。
+
+### プロジェクトスキル
+
+プロジェクトスキルはプロジェクトフォルダ内に保存され、そのプロジェクトがアクティブなときだけ利用できます。
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+プロジェクト固有の規約、ファイル構成、ツールに依存するスキルに適しています。
+
+### ユーザースキル
+
+`~/.agents/skills/` にあるユーザースキルは、どのプロジェクトでも利用できます。プロジェクトを問わない個人用のスキルを置く場所として使います。
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## スキルを作成する
+
+### スキルクリエーターを使う
+
+最も手早くスキルを作るには、組み込みのクリエーターを実行します。
+
+```
+/skill-creator
+```
+
+クリエーターが対話形式で次の内容を確認します。
+
+1. スキルで何を行うか
+2. いつ発動させるか
+3. 手順書のみにするか、スクリプトを含めるか
+
+標準かつ推奨されるのは「手順書のみ」です。スクリプトは、決まった処理を確実に実行したい場合や外部ツールと連携する場合にのみ追加してください。
+
+### 手動で作成する
+
+フォルダと `SKILL.md` ファイルを作成します。
+
+<Steps>
+  <Step title="スキルディレクトリを作成する">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="SKILL.md を作成する">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="表示を確認する">
+    Enconvo はスキルの変更を自動で検出します。新しいスキルが表示されない場合は、Enconvo を再起動してください。
+  </Step>
+</Steps>
+
+### 手順の書き方
+
+`SKILL.md` のフロントマターより下の本文には、AI が従う手順を書きます。明確な命令形のステップとして記述してください。
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### 良いスキルを作るコツ
+
+- **1 つのスキルは 1 つの役割に絞る。** 1 つのスキルに多くのことを詰め込みすぎると、正しく発動させにくく保守も大変になります。複数のタスクにまたがる 10 以上のステップを書く場合は、別のスキルに分割してください。
+- **入力元を具体的に示す。** 「選択したテキストを読む」「添付ファイルを解析する」「ユーザーのメッセージにある URL を使う」など、入力の入手先を明記します。
+- **出力形式を定義する。** 結果のブレを防ぐため、理想的な出力の具体例を記載します。
+- **エッジケースに対処する。** 「コミットが見つからない場合は範囲が空であることを報告する」「入力が有効な JSON でない場合は形式を確認するようユーザーに求める」といった指示を加えておきます。
+- **命令形のステップで書く。** 入力・手順・期待される出力を明確にします。曖昧な指示は結果のばらつきにつながります。
+- **スクリプトより手順書を優先する。** 自然言語の手順は記述・デバッグ・変更が容易です。スクリプトは、決まった出力を保証したい場合や外部ツールが必要な場合だけ使ってください。
+- **境界を明確にする。** `description` に「対応すること」と「対応しないこと」の両方を書きます。
+- **トリガーの説明をテストする。** いろいろなプロンプトを試し、意図したときに発動し、意図しないときに発動しないことを確認します。
+- **バージョン管理する。** チームで共有するスキルは git などのバージョン管理下に置き、変更履歴の追跡、ロールバック、共同編集ができるようにします。
+
+## スクリプトを追加する
+
+実行可能なロジックが必要なスキルでは、`scripts/` フォルダを追加します。
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+`SKILL.md` の中からスクリプトを参照します。
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### スクリプトを使うべき場面
+
+| スクリプトを使う場合 | 手順書のみにする場合 |
+|-----------------|---------------------------|
+| 決定論的な出力が必要（厳密なフォーマットや計算など） | 主に推論や言語処理に関するタスク |
+| 外部 API やデータベースとやり取りする | AI の組み込み機能だけで完結するタスク |
+| データをプログラムで処理・変換する必要がある | 文章作成、要約、分析のタスク |
+| 認証や資格情報の処理が必要 | 手順書だけで十分に目的を果たせる |
+
+## リファレンスを追加する
+
+スキルが参照できるドキュメントやコンテキストファイルを含めることもできます。
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+手順の中でファイルを参照させます。
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+リファレンスは次のような用途に便利です。
+
+- スキルが従うべき API ドキュメント
+- スタイルガイドやブランドガイドライン
+- コード例やテンプレート
+- ドメイン固有の知識
+
+## スキルをインストールする
+
+`/skill-installer` を使うと、Enconvo スキルストアや GitHub からスキルをインストールできます。Skills.sh、ClawHub、直接の ZIP URL からのインストールにも対応しています。
+
+### Enconvo スキルストアから
+
+スキル名で検索してインストールします。
+
+```
+/skill-installer pdf
+```
+
+Enconvo スキルストアを検索し、一致するスキルをインストールします。新しくインストールされたスキルは Enconvo が自動で検出します。
+
+### GitHub から
+
+GitHub リポジトリの URL から直接スキルをインストールできます。
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+URL はサブフォルダを指すこともできるため、大きなリポジトリ全体をクローンせずに 1 つのスキルだけをインストールできます。
+
+### Mac 上のフォルダから
+
+1. **設定 → スキル**を開き、**インポート**をクリックします。
+2. 各スキル（それぞれ `SKILL.md` を含むサブフォルダ）が入ったフォルダを選択します。
+
+Enconvo はそのフォルダをスキルの読み込み元に追加し、中のスキルをすべてのエージェントで共有します。フォルダの使用をやめるには、ソースメニューでそのフォルダを選び、**フォルダを削除**をクリックします。ディスク上のフォルダ自体は削除されません。
+
+## ステップを保存したスキル
+
+保存されたワークフローはすべて専用の `SKILL.md` を持つスキルでもあり、スキルには以前実行したタスクのステップを保存しておくことができます。このようなスキルを実行すると、メインのモデルを使わずに保存済みのステップが先に実行されるため、より高速で低コストになります。ボタンの位置が変わるなどしてそのまま実行できなくなったステップは、スキル自身のメモやスクリーンショットをもとに修復されます。修復に失敗した場合にのみ、エージェントが `SKILL.md` に従ってタスクをやり直します。
+
+**あなたのスキル**では、ステップを持つスキルに**まず保存したステップを実行**、持たないスキルに**説明のみ**と表示されます。各スキルの**履歴**では実行結果や学習内容を確認でき、以前のバージョンに戻すこともできます。
+
+### 操作の録画をスキルにする
+
+自分が操作して記録した録画をスキルに変換できます。記録された各操作は確認済みのステップになり、修復用のスクリーンショットも保存されます。スキルは 1 回実行が成功するまで**Draft**状態のままになります。
+
+### ステップとしてスクリプトを実行する
+
+スキルは独自の `scripts` フォルダに[コードモード](/ja/configuration/code-mode)のスクリプトを保持し、それを 1 つのステップとして実行できます。これにより、多数のツール呼び出しを行うタスクを 1 ステップで実行できます。
+
+## スキルにやり方を学習させる
+
+メモリが事実を覚えるのと同じように、スキルにも好みのやり方を学習させることができます。**設定 → メモリ**を開き、**やり方を学習**をオンにします。
+
+- タスクのやり方を修正したときや、ステップの修復が必要になったとき、スキルはすぐにその内容を学習します。チャットには**元に戻す**ボタン付きの**Learned**通知が表示されます。
+- 同じタスクが 2 回目に登場すると、新しいスキルとして作成されます。
+- メモリのレビューやメモリの整理もスキルの手入れを行います。
+
+**ステップを変更するとき**で**すぐに使う**を選ぶか、**先に確認**を選ぶと、スキルのステップを変更する前に通知の**適用**をクリックするまで適用を待つようになります。注意点（Gotchas）はどちらの設定でも即座に記録されます。決済、送信、削除は常に事前に確認を求められ、API キーやパスワードは一切学習されません。
+
+## スキルを管理する
+
+### スキル一覧を確認する
+
+**設定 → スキル**では、すべてのエージェントで共有されているスキルが一覧表示されます。上部のビューで表示内容を切り替えられます。
+
+| ビュー | 表示内容 |
+| --- | --- |
+| **すべてのスキル** | 複数のフォルダにコピーがある場合でも、すべてのスキルを 1 回ずつ表示 |
+| **オン・未使用** | 毎回のチャットでエージェントに提示されているが、まだ使われていないスキル |
+| **複数のフォルダにある** | Claude Code 用と Codex 用など、複数のフォルダにコピーが存在するスキル |
+| **オフ** | エージェントに渡されないスキル |
+
+検索やソースによる絞り込み（**すべてのソース**、**組み込み**、**プラグインから**、または特定のフォルダ）、**名前（A〜Z）**・**最終使用**での並び替えが可能です。
+
+### スキルを更新する
+
+- **ストアのスキル**：もう一度 `/skill-installer` を実行して新しいバージョンを確認します。
+- **GitHub のスキル**：同じ URL でインストーラーを再実行します。
+- **自分のスキル**：`SKILL.md` ファイルを直接編集します。変更は Enconvo が自動で検出します。
+
+### スキルをオフにする
+
+スキルを削除せずにオフにできます。
+
+1. **設定 → スキル**を開きます。
+2. 対象のスキルを見つけます。
+3. スイッチをオフにします。
+
+オフにしたスキルは、再度オンにするまで名前指定でも自動一致でもエージェントから使えなくなります。ただし、そのスキルをピン留めしているアプリプロファイルでは引き続き使用できます。
+
+## スキルの例
+
+### コードレビュアー
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### 会議メモ
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Git コミットメッセージ
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### API ドキュメント生成
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## 関連情報
+
+<CardGroup cols={2}>
+  <Card title="エージェント" icon="robot" href="/ja/ai/agents">エージェントに独自のスキルとツールを持たせます。</Card>
+  <Card title="MCP 連携" icon="plug" href="/ja/features/mcp">スキルと MCP ツールを組み合わせます。</Card>
+  <Card title="Enconvo GitHub" icon="github" href="https://github.com/enconvo">オープンソースの拡張機能やスキルを閲覧します。</Card>
+  <Card title="コミュニティ Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">スキルを共有したりコミュニティで質問したりできます。</Card>
+</CardGroup>

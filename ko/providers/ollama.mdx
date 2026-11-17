@@ -1,0 +1,55 @@
+---
+title: "Ollama"
+description: "Mac이나 다른 컴퓨터에서 Ollama가 제공하는 모델과 대화합니다."
+---
+
+Ollama로 이 Mac이나 네트워크의 다른 컴퓨터, 본인 하드웨어에서 모델을 실행합니다. Enconvo는 채팅을 Ollama 서버로 보내므로 제공업체 계정이 필요 없습니다.
+
+## 이 Mac에서 연결
+
+<Steps>
+  <Step title="Ollama 시작">
+    [Ollama](https://ollama.ai/)를 설치하고 시작한 다음 Ollama 자체 도구로 모델을 받습니다.
+  </Step>
+  <Step title="Enconvo가 가리키게 하기">
+    **설정 → AI 모델 → Ollama**를 엽니다. **인증** 아래에서 Ollama 포트를 바꾸지 않았다면 **BaseUrl**을 `http://127.0.0.1:11434`로 둡니다.
+  </Step>
+  <Step title="모델 고르기">
+    **모델 이름**에서 모델을 고르고 짧은 메시지를 보냅니다. 답변이 오면 연결이 된 것입니다.
+  </Step>
+</Steps>
+
+## 다른 컴퓨터에 연결
+
+1. 다른 컴퓨터에서 Ollama가 자신만이 아니라 네트워크의 연결을 받도록 설정합니다.
+2. Enconvo에서 **BaseUrl**을 그 컴퓨터의 네트워크 주소로 설정하고 포트와 경로는 유지합니다. `127.0.0.1`과 `localhost`는 항상 Enconvo가 실행 중인 Mac을 뜻합니다.
+3. macOS가 연결을 막으면 **시스템 설정 → 개인정보 보호 및 보안 → 로컬 네트워크**에서 Enconvo를 켭니다.
+
+신뢰하는 네트워크에만 서버를 여세요.
+
+## 모델과 옵션
+
+| 설정 | 하는 일 |
+| --- | --- |
+| **모델 이름** | 이 제공업체가 쓰는 모델입니다. 옆의 **새로고침**이 서버에서 목록을 다시 불러옵니다. |
+| **응답 제한 시간** | 서버가 답변을 시작하거나 이어 갈 때까지 기다리는 시간입니다. 기본은 **제한 없음**입니다. 본인 하드웨어에서는 긴 프롬프트가 첫 단어 전에 여러 분이 걸릴 수 있습니다. |
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| 연결이 거부됨 | Ollama가 실행 중인지, **BaseUrl**의 주소와 포트가 맞는지 확인합니다. 다른 컴퓨터라면 네트워크 연결을 받는지 확인합니다. |
+| 네트워크에 닿을 수 없음 | 네트워크와 시스템 설정의 **로컬 네트워크** 권한을 확인합니다. |
+| 모델 목록이 비어 있음 | Ollama에서 모델을 불러오거나 받은 다음 **새로고침**을 클릭합니다. |
+| 답변이 중간에 포기함 | **응답 제한 시간**을 더 길게 하거나 **제한 없음**으로 설정합니다. |
+| 도구나 이미지가 실패함 | 도구 호출이나 이미지 입력을 지원하는 모델을 고릅니다. |
+| 메모리 부족 | 더 작은 모델을 고르거나 입력을 줄입니다. |
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="로컬 모델" icon="microchip" href="/ko/ai/local-llm">채팅 모델만이 아니라 작업 전체를 Mac에 둡니다.</Card>
+  <Card title="로컬 LLM(MLX)" icon="laptop" href="/ko/providers/mlx">서버 없이 Enconvo 안에서 모델을 실행합니다.</Card>
+  <Card title="LM Studio" icon="server" href="/ko/providers/lm-studio">LM Studio가 제공하는 모델을 씁니다.</Card>
+  <Card title="권한" icon="shield" href="/ko/configuration/permissions">로컬 네트워크와 다른 macOS 권한입니다.</Card>
+</CardGroup>

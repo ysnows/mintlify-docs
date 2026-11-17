@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatea con tus implementaciones de Azure OpenAI en Enconvo."
+---
+
+Usa los modelos de OpenAI que tu organización implementa en Azure. Enconvo habla directamente con tu recurso de Azure, así que el acceso, las cuotas y la facturación siguen tu suscripción de Azure.
+
+## Antes de empezar
+
+Necesitas un recurso de Azure OpenAI con al menos una implementación de modelo. Desde el portal de Azure, copia la **clave** del recurso, su **punto de conexión** y el **nombre de implementación** que le diste al modelo. Consulta [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview) si aún no has configurado uno.
+
+## Conectar
+
+<Steps>
+  <Step title="Añade la credencial">
+    Abre **Ajustes → Modelo de IA → Azure OpenAI**. En **Autenticación**, rellena **Clave de API**, **Punto de conexión** y **Versión de API**, y haz clic en **Validar**. El punto de conexión tiene este aspecto: `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Fija la implementación">
+    Escribe el nombre de tu implementación en **Nombre de implementación de la API de Azure OpenAI**. Usa el nombre de tu recurso de Azure, que puede ser distinto del nombre del modelo.
+  </Step>
+  <Step title="Pruébalo">
+    Envía un mensaje corto. Una respuesta significa que la conexión funciona.
+  </Step>
+</Steps>
+
+## Modelos y opciones
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Nombre de implementación de la API de Azure OpenAI** | La implementación a la que llama este proveedor. |
+| **Transmisión** | Muestra la respuesta a medida que se escribe. Activada de forma predeterminada; desactívala si tu implementación no admite transmisión. |
+| **Versión de API** | En la credencial. El valor predeterminado es `2025-01-01-preview`. |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| **Validar** falla | Comprueba que la clave y el **Punto de conexión** vengan del mismo recurso de Azure. |
+| No se encuentra la implementación | Copia el nombre de la implementación exactamente desde el portal de Azure. |
+| La respuesta no aparece nunca | Desactiva **Transmisión** e inténtalo de nuevo. |
+| Errores de frecuencia o de cuota | Sube la cuota de la implementación en Azure, o cambia a otro proveedor por ahora. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/es/providers/openai">Usa la API propia de OpenAI en su lugar.</Card>
+  <Card title="Credenciales y perfiles" icon="key" href="/es/configuration/credentials">Guarda varias claves y mira qué afecta una clave compartida.</Card>
+  <Card title="Elegir un modelo" icon="list-check" href="/es/ai/model-selection-guide">Elige un modelo según la tarea y mira dónde se fijan los valores predeterminados.</Card>
+  <Card title="Catálogo de proveedores" icon="table" href="/es/providers/catalog">Todos los proveedores, agrupados por la función que alimentan.</Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "Ollama"
+description: "Chatea con modelos que Ollama sirve en tu Mac o en otro ordenador."
+---
+
+Usa Ollama para ejecutar modelos en tu propio hardware, en este Mac o en otro ordenador de tu red. Enconvo envía los chats al servidor de Ollama, así que no hace falta una cuenta de proveedor.
+
+## Conectar en este Mac
+
+<Steps>
+  <Step title="Iniciar Ollama">
+    Instala [Ollama](https://ollama.ai/), inícialo y descarga un modelo con las herramientas de Ollama.
+  </Step>
+  <Step title="Apuntar Enconvo a él">
+    Abre **Ajustes → Modelo de IA → Ollama**. En **Autenticación**, deja **BaseUrl** en `http://127.0.0.1:11434` salvo que hayas cambiado el puerto de Ollama.
+  </Step>
+  <Step title="Elegir un modelo">
+    Elige un modelo en **Nombre del modelo** y envía un mensaje corto. Una respuesta significa que la conexión funciona.
+  </Step>
+</Steps>
+
+## Conectar a otro ordenador
+
+1. En el otro ordenador, configura Ollama para que acepte conexiones de tu red, no solo de sí mismo.
+2. En Enconvo, pon **BaseUrl** en la dirección de red de ese ordenador, manteniendo el puerto y la ruta. `127.0.0.1` y `localhost` siempre significan el Mac donde se ejecuta Enconvo.
+3. Si macOS bloquea la conexión, activa Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Red local**.
+
+Abre el servidor solo en redes de confianza.
+
+## Modelos y opciones
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Nombre del modelo** | El modelo que usa este proveedor. **Actualizar**, junto a él, vuelve a cargar la lista desde el servidor. |
+| **Response Timeout** | Cuánto esperar a que el servidor empiece o continúe una respuesta. El valor predeterminado es **No limit**; los prompts largos pueden tardar muchos minutos en tu propio hardware antes de la primera palabra. |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Conexión rechazada | Comprueba que Ollama esté en ejecución y que **BaseUrl** tenga la dirección y el puerto correctos. En otro ordenador, comprueba que acepte conexiones de red. |
+| Red inaccesible | Revisa la red y el permiso de **Red local** en Ajustes del Sistema. |
+| La lista de modelos está vacía | Carga o descarga un modelo en Ollama y pulsa **Actualizar**. |
+| Una respuesta se interrumpe a medias | Pon **Response Timeout** en un valor más largo o en **No limit**. |
+| Fallan las herramientas o las imágenes | Elige un modelo que admita llamadas a herramientas o entrada de imagen. |
+| Sin memoria | Elige un modelo más pequeño o acorta la entrada. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Modelos locales" icon="microchip" href="/es/ai/local-llm">Mantén toda una tarea en tu Mac, no solo el modelo de chat.</Card>
+  <Card title="LLM local (MLX)" icon="laptop" href="/es/providers/mlx">Ejecuta modelos dentro de Enconvo, sin servidor.</Card>
+  <Card title="LM Studio" icon="server" href="/es/providers/lm-studio">Usa modelos servidos por LM Studio.</Card>
+  <Card title="Permisos" icon="shield" href="/es/configuration/permissions">Red local y otros permisos de macOS.</Card>
+</CardGroup>

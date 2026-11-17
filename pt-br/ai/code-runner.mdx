@@ -1,0 +1,80 @@
+---
+title: "Code Runner"
+description: "Deixe um Agente executar comandos de shell, scripts, builds e servidores de desenvolvimento num terminal real no seu Mac."
+---
+
+O Code Runner dá a um Agente um terminal real no seu Mac. Use-o para builds, testes, scripts, ferramentas de pacotes e servidores de desenvolvimento. Os programas que você tem instalados e as permissões da sua conta decidem o que pode correr.
+
+<Warning>
+Os comandos correm de verdade, com o acesso da sua conta aos ficheiros e à rede, a menos que você ligue o **Sandbox** do Agente. Reveja qualquer comando que instale software, altere ficheiros ou afete um serviço online antes de ele correr.
+</Warning>
+
+## Antes de começar
+
+- Ligue o Code Runner para o Agente que você está a usar.
+- O chip **Permissões** no chat decide quando o Agente pergunta primeiro. **Pedir aprovação** pergunta antes de correr um comando, e **Aprovar por mim** pergunta só para ações que parecem inseguras. Veja [Aprovar ações](/pt-br/ai/agents).
+- Para limitar os comandos do Agente à pasta de trabalho e afastá-los das suas chaves e de outras aplicações, ligue **Sandbox** no mesmo chip. Veja [Sandbox do Agente](/pt-br/configuration/sandbox).
+
+## Correr um comando
+
+Dê ao Agente uma pasta e uma tarefa concreta:
+
+> No meu projeto de exemplo, corre o comando de teste que já existe e relata o resultado. Não alteres ficheiros.
+
+O Agente mostra a saída do comando e diz se terminou ou se ainda está a correr. Para ler, editar e pesquisar ficheiros, o Agente usa as [ferramentas de ficheiros](/pt-br/ai/file-tools).
+
+## Como os comandos correm
+
+Cada comando corre num pseudo-terminal, por isso um comando que pede entrada pode ser respondido sem iniciar um processo novo.
+
+| Modo | Use para |
+| --- | --- |
+| **oneshot** | Comandos que terminam sozinhos, como testes, builds ou um script |
+| **long_running** | Servidores, watchers e processos que esperam por um evento externo |
+| **interactive** | REPLs, aplicações de terminal e sessões interativas de linha de comando |
+
+Um resultado com `status: running` e um `session_id` significa que o processo continua. O Agente pode **ler** a saída, **escrever** entrada para ele ou **parar**. Para responder a um pedido, o Agente escreve nessa sessão; iniciar outro comando não responde a esse pedido.
+
+## Esperar que algo termine
+
+Quando uma tarefa tem de esperar, por exemplo que um build escreva a saída ou que um servidor arranque, o Agente usa a ferramenta **Wait For** em vez de um ciclo no shell. Espera por uma destas condições, sem nenhum comando a correr:
+
+- Um ficheiro aparecer
+- Uma linha num ficheiro de log
+- Um processo ou a sessão de um comando terminar
+- Uma porta abrir, ou um endereço responder
+
+A espera aparece nas tarefas em segundo plano do chat. O Agente é avisado quando se cumpre, falha ou expira, e pode fazer outro trabalho entretanto.
+
+## Pasta de trabalho e limites de tempo
+
+Os comandos correm em `workDir` quando o Agente o define, e na pasta de trabalho do chat caso contrário. Usam o seu shell, com o projeto e o ambiente virtual de Python configurados. Comandos separados não partilham variáveis temporárias do shell, a menos que corram na mesma sessão.
+
+A primeira espera é separada do limite rígido de tempo do comando. Um comando oneshot espera até 30 segundos pelo resultado; se ainda estiver a correr, o Agente recebe a saída até ali enquanto o trabalho continua. O comando é parado ao fim de 30 minutos por padrão. Para um servidor ou um watcher, use o modo long_running em vez de o tratar como um comando oneshot que falhou.
+
+## Definições
+
+Abra **Definições → Plugins → Code Runner**.
+
+| Definição | O que muda |
+| --- | --- |
+| **Enable RTK** | Comprime saídas longas de comando antes de o Agente as ler, para usar menos tokens. Ligado por padrão |
+
+Se um detalhe de que você precisa faltar na saída comprimida, peça um comando mais focado ou a parte relevante do log. Uma saída cortada não prova que o comando teve sucesso.
+
+## Solução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Comando não encontrado | Confirme que o programa está instalado e disponível no seu shell |
+| O comando espera por entrada | Faça o Agente responder ao pedido na mesma sessão. Um comando à espera de uma entrada que ninguém pode dar termina de imediato |
+| Permissão recusada | Verifique o caminho de destino e as permissões do macOS. Com o Sandbox ligado, clique na linha sob o passo para ver o que ele impediu |
+| O comando expirou | Leia a última saída e escolha o modo certo antes de o correr de novo |
+| Um servidor continua a correr | Faça o Agente parar a sessão quando você já não precisar dela |
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Ficheiros e pastas" icon="folder-open" href="/pt-br/ai/file-tools">Deixe um Agente encontrar, ler e editar ficheiros.</Card>
+  <Card title="Agentes" icon="robot" href="/pt-br/ai/agents">Defina as ferramentas de um Agente e quando ele pergunta primeiro.</Card>
+</CardGroup>

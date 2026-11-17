@@ -1,0 +1,67 @@
+---
+title: "Quicklinks"
+description: "SmartBar から 1 つのコマンドで Web 検索、ウェブサイト、ファイル、フォルダ、ディープリンクを開きます。"
+---
+
+Quicklinks は、Web 検索、Web アドレス、ファイルやフォルダ、アプリのディープリンクを、SmartBar からすぐ実行できるコマンドに変える機能です。プレースホルダーを使えば、入力した文字、クリップボード、選択中のテキスト、日付などをリンクに埋め込めます。Enconvo には Google、YouTube、X の検索コマンドが最初から用意されています。
+
+Quicklinks は指定した先を開くための機能です。検索結果を AI の回答に取り込みたい場合は [Web 検索](/ja/ai/web-search)を、エージェントに Web ページ上で作業させたい場合は[ブラウザを使用](/ja/features/browser-control)をお使いください。
+
+## SmartBar から Web を検索する
+
+1. SmartBar を開き、**Google Search in Browser**、**YouTube Search in Browser**、または **Twitter/X Search in Browser** を探します。
+2. コマンドの入力欄に検索したい語句を入力します。選択中のテキストもそのまま使えます。
+3. コマンドを実行すると、デフォルトのブラウザで検索結果が開きます。
+
+## クイックリンクを作成する
+
+1. SmartBar から **Create Quicklink** を実行します。
+2. 「Search GitHub」のような**名前**を入力します。
+3. **リンク**に Web アドレス、ファイル／フォルダパス、またはディープリンクを入力します。`https://github.com/search?q={argument}` のようにプレースホルダーを入れたい場合は**プレースホルダーを挿入**をクリックします。
+4. 特定のアプリで開きたい場合は、**次のアプリで開く**に Safari などのアプリ名、アプリパス、またはバンドル ID を入力します。空欄のままにするとデフォルトのアプリが使われます。
+5. **保存**をクリックします。SmartBar でそのクイックリンク名を検索すれば実行できます。
+
+クイックリンクを実行すると、入力したテキストまたは選択中のテキストが最初の引数に入ります。必須の引数がまだ空の場合は、リンクを開く前に入力を求められます。
+
+| プレースホルダー | 埋め込まれる内容 |
+| --- | --- |
+| `{argument name="Query"}` | クイックリンクを開いたときに入力する値 |
+| `{clipboard}` | クリップボードにあるテキスト |
+| `{selection}` | 使用中のアプリで選択しているテキスト |
+| `{date}`、`{time}`、`{datetime}` | 現在の日付、時刻、またはその両方 |
+| `{date format="yyyy-MM-dd"}` | 指定した書式の日付 |
+| `{uuid}` | 新しく生成される一意の ID |
+
+新しいリンクを作ったら、まずはスペースや句読点を含む通常のテキストで動作を試してみてください。
+
+## クイックリンクを管理する
+
+SmartBar から **Search Quicklinks** を実行すると、すべてのクイックリンクを確認できます。そこから開く・編集・複製・削除ができ、**新規**をクリックして新しいリンクを追加することもできます。
+
+**その他**メニューには、Raycast のクイックリンクや設定エクスポートを読み込める **Import Quicklinks…** と、**Export to Downloads** があります。Raycast の設定エクスポートを読み込む際は、書き出し時に設定したパスフレーズが必要になります。
+
+## 設定
+
+**設定 → プラグイン → Quicklinks** を開きます。各検索コマンドにも `https://www.google.com/search?q={query}` のような個別の**リンク**設定があり、変更できます。
+
+| 設定 | 変更される内容 |
+| --- | --- |
+| **Open in New Window** | Web クイックリンクを新しいブラウザウィンドウで開きます。Chrome、Edge、Brave、Vivaldi、Opera、Chromium、Firefox、Zen で動作し、Safari、Arc、Orion では通常どおり開きます。デフォルトはオフです |
+| **When There's No Selected Text** | 何も選択されていないときの `{selection}` リンクの動作：**入力を求める**（デフォルト）または**クリップボードを使用** |
+| **Confirm Before Deleting** | クイックリンクを削除する前に確認します。デフォルトはオンです |
+
+## トラブルシューティング
+
+| 問題 | 対処方法 |
+| --- | --- |
+| 意図しないページが開く | クイックリンクの**リンク**とプレースホルダーを確認し、単純なテキストで試してください |
+| ブラウザが開かない | デフォルトブラウザ、クイックリンクの**次のアプリで開く**設定、およびコマンドがインストールされているか確認してください |
+| `{selection}` リンクでテキストの入力を求められる | 何も選択されていません。先にテキストを選択するか、**When There's No Selected Text** を**クリップボードを使用**に設定してください |
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/ja/features/smartbar">あらゆるコマンドを検索して実行します。</Card>
+  <Card title="Web 検索" icon="globe" href="/ja/ai/web-search">検索結果を AI の回答に取り込みます。</Card>
+  <Card title="ブラウザを使用" icon="window-maximize" href="/ja/features/browser-control">エージェントに Web ページ上で作業させます。</Card>
+</CardGroup>

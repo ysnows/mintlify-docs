@@ -1,0 +1,94 @@
+---
+title: "Orquestador de Agentes"
+description: "Entrega un trabajo a varios Agentes: un responsable escribe un plan de Work, los miembros hacen las tareas y el Tablero muestra en qué punto está cada uno."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Algunos trabajos necesitan más de un Agente: uno que investigue los hechos, otro que los convierta en una publicación, un programador y un revisor para un cambio. Nombra a los Agentes en un chat y el Agente con el que hablas pasa a ser el responsable. Escribe un plan de Work, asigna a cada miembro su tarea y comprueba el resultado frente al objetivo. Para un trabajo continuado, un [Proyecto](/es/ai/projects) reúne los planes, los chats y los archivos de una carpeta.
+
+El vídeo de abajo muestra todo el flujo en menos de 2 minutos: traer Agentes con @, el plan de Work, el Tablero y los Proyectos.
+
+<YouTubePlayer videoId="i4gkxo4NJr4" title="How to Use the Agent Orchestrator in Enconvo | Step-by-Step Tutorial" />
+
+## Encargar un trabajo a varios Agentes
+
+1. En cualquier chat, escribe `@` y el inicio del nombre de un Agente, y pulsa Return para elegirlo de la lista. Añade tantos Agentes como necesite el trabajo.
+2. Describe qué debe hacer cada uno y envía. Por ejemplo: «@Researcher busca tres datos sobre el bosque de bambú de Kioto y luego @Writer conviértelos en una publicación breve».
+3. El responsable responde con un plan de Work: el **Goal**, qué debe cumplirse para darlo por terminado (**Done when**), qué deja fuera y una tarea por miembro. Cada tarea recibe el objetivo y esas líneas palabra por palabra. Una tarea que necesita el resultado de otra espera, y empieza con el trabajo aún no fusionado de esa tarea ya incorporado.
+4. Si el plan espera tu decisión, revísalo y pulsa **Start**, **Change plan** o **Drop**. Los miembros empiezan cuando tú inicias el plan.
+5. Cuando terminan las tareas, la tarjeta del plan muestra cada resultado y el responsable dice si el objetivo se ha cumplido.
+
+Una tarea puede ir a cualquiera de tus Agentes o agentes de programación como compañero, aunque no sea miembro de un Proyecto. Nómbralo en la petición y elige su esfuerzo de razonamiento si quieres que piense más o responda más rápido.
+
+Cuando empieza un plan con Codex, Enconvo pide primero acceso a la carpeta, para que la ejecución no se detenga por eso cuando ya te hayas ido.
+
+## Seguir un plan en marcha
+
+Mientras un plan se ejecuta, una línea sobre el chat muestra su objetivo, el progreso, el coste y el tiempo. Púlsala para abrir la vista de la ejecución: los pasos de cada tarea, lo que encontró, la prueba que aporta, el coste por miembro y por qué una tarea no salió adelante.
+
+Algunos resultados esperan tu decisión antes de que el plan continúe. Pulsa **Pass on** para aceptar un resultado retenido o un hallazgo de revisión, o **Send back** para que el miembro lo corrija.
+
+## Leer el resultado
+
+Cuando un plan termina, la tarjeta de resultado empieza por a qué llegó y cuál es tu siguiente paso. Debajo están los resultados completos de cada tarea. Las tareas de código tienen un botón **Merge**, y una línea nombra las tareas que aún hay que fusionar.
+
+El responsable comprueba cada línea de **Done when** y dice qué tareas demuestran que se cumple. Una comprobación independiente señala cualquier afirmación que las tareas no muestren con claridad. Si el objetivo aún no se cumple, el responsable puede seguir con más planes para el mismo objetivo, hasta cinco, bajo un mismo presupuesto.
+
+El responsable también puede proponer hasta tres lecciones para que las tengan en cuenta las ejecuciones posteriores. Conserva o descarta cada una: solo las que conservas llegan a la [Memoria](/es/ai/memory).
+
+## Seguir el Tablero
+
+Pulsa **Tablero** en la parte superior del chat para ver sus tareas como tarjetas. Cada tarea tiene un número, como T-1, y pasa de **To start** a **Running** y luego a **Done**. **Needs you** retiene todo lo que espera tu respuesta o tu aprobación.
+
+| Control | Qué hace |
+| --- | --- |
+| **All** / **Needs you** | Muestra todas las tareas, o solo las que esperan tu decisión. |
+| **Group by** | Agrupa las tarjetas, por ejemplo por idea o por **Chat**. |
+| **Display** | Cambia lo que muestra cada tarjeta. |
+| **Search tasks or T-12** | Busca una tarea por sus palabras o por su número. |
+
+**Tablero**, en el menú **···** del carril de iconos de la barra lateral, muestra las tareas de todos tus chats. Un chat con tareas también las lista bajo su fila en la barra lateral.
+
+Si las rondas de comprobación y corrección de una tarea siguen encontrando el mismo problema, las rondas se detienen en lugar de volver a intentarlo. Una comprobación que no puede ejecutarse lo dice, en lugar de devolver código que funciona.
+
+## Proyectos
+
+Un Proyecto agrupa chats relacionados en torno a una carpeta, y el `AGENTS.md` de esa carpeta se convierte en las instrucciones del Proyecto. Pulsa **+** junto a **Proyectos** en la barra lateral para abrir **Create project**:
+
+- Escribe un **Project name** para crear una carpeta nueva en Documentos, o pulsa **Use an existing folder** o **Clone a repository**.
+- En **Start from**, elige **Blank** o un equipo: **Research Desk**, **Content Studio**, **App Builders** o **Trip Planner**.
+
+### Clonar un repositorio
+
+1. En **Create project**, pulsa **Clone a repository**.
+2. Pega una URL de GitHub, `owner/name` o cualquier dirección Git. Si has iniciado sesión en GitHub, también puedes elegir uno de tus repositorios de la lista.
+3. Pulsa **Clone**. El repositorio se copia en una carpeta nueva y se abre como Proyecto.
+
+### Quién hace el trabajo
+
+En un Proyecto con miembros, el responsable planifica cada objetivo, los miembros lo construyen y una revisión o una prueba lo comprueba. Los miembros pueden incluir agentes de programación como Claude Code y Codex. Cada tarea de código trabaja en su propia copia del código, y la tarjeta de resultado del plan tiene un botón **Merge** para cuando estés listo.
+
+Claude Code, Codex, Grok Build o Antigravity pueden dirigir un Proyecto. Con miembros, un responsable que es un agente de programación planifica su trabajo en un plan de Work y lee sus resultados, como cualquier otro responsable. En un Proyecto sin miembros, hace el trabajo él mismo en el chat, sin plan de Work ni tareas del Tablero, hasta que añadas miembros.
+
+En el chat del responsable de un Proyecto puedes encargar parte de una petición a un modelo por su nombre, como Opus 5.5, o nombrar un Agente y un modelo juntos, como Claude Code en Opus 5.5. El responsable también puede iniciar Subagentes para su propio trabajo. Un Proyecto puede ejecutar sus objetivos y tareas con flujos de trabajo propios: consulta [Usa tus propios flujos de trabajo](/es/ai/projects).
+
+Los miembros no pueden iniciar planes, aprobar cosas, cambiar ajustes, instalar software ni usar tus sesiones. Los miembros que son agentes de programación no pueden hacer push, mover otras ramas ni eliminar worktrees: solo Enconvo fusiona y hace push. El acceso completo en el chat del responsable de un Proyecto y en sus tareas funciona igual que en cualquier otro chat. Para el Tablero, las Ideas y los ajustes de un Proyecto, consulta [Proyectos y el Tablero](/es/ai/projects).
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Pulsar Return envió el mensaje en lugar de elegir el Agente | Espera a que aparezca la lista de Agentes bajo el campo antes de pulsar Return. |
+| Una tarea se queda en **Needs you** | Abre la tarea, o el chat, y responde a la pregunta o a la aprobación que espera. |
+| Un agente de programación no puede empezar | Instálalo e inicia sesión primero. Consulta [Agentes de programación](/es/ai/coding-agents). |
+| Un plan de Codex se detiene para pedir acceso a la carpeta | Responde a la pregunta de acceso a la carpeta cuando empieza el plan, para que la ejecución pueda seguir sin ti. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/es/ai/agents">De qué está hecho cada Agente, y los subagentes.</Card>
+  <Card title="Ventana de chat" icon="message" href="/es/ai/chat">Dónde empiezas un trabajo y sigues su plan.</Card>
+  <Card title="Proyectos y el Tablero" icon="diagram-project" href="/es/ai/projects">Ideas, el equipo del Proyecto y cómo fusionar el trabajo terminado.</Card>
+  <Card title="Agentes de programación" icon="code" href="/es/ai/coding-agents">Claude Code, Codex y los demás agentes de programación que puede usar un plan.</Card>
+</CardGroup>

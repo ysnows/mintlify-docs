@@ -1,0 +1,106 @@
+---
+title: "CLI 및 Local API"
+description: "터미널에서 Enconvo 명령을 실행하고 스크립트, 에이전트, 다른 앱에서 로컬 HTTP API를 호출하세요."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+이 문서는 터미널, 스크립트 또는 다른 앱에서 Enconvo를 제어하려는 개발자와 고급 사용자를 위한 가이드입니다. `enconvo` 명령은 Enconvo 데스크톱 앱과 함께 기본 제공되므로 별도로 설치할 필요가 없으며, 앱은 설치된 모든 플러그인의 라우트를 로컬 HTTP API로 제공합니다.
+
+이 영상에서는 API 페이지, CLI 가이드, 훅을 다룹니다.
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="Enconvo API, CLI, 훅 사용 방법 | 단계별 튜토리얼" />
+
+로컬 런타임을 사용하는 명령을 실행하려면 Enconvo를 실행해 두세요.
+
+## 명령 찾기
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+확인하려는 명령 뒤에 `-h`를 붙이면 현재 지원하는 하위 명령과 옵션을 볼 수 있습니다.
+
+**설정 → CLI 가이드**를 열면 CLI 명령을 제공하는 설치된 확장 프로그램 목록을 확인할 수 있습니다. 이름을 클릭하면 해당 `enconvo <name> -h` 명령이 복사됩니다. 현재 앱이 지원하는 정확한 기능은 설치된 확장 프로그램 목록을 기준으로 합니다.
+
+셸에서 `enconvo`를 찾을 수 없다면 앱의 CLI 가이드를 열어 설치된 앱 버전과 명령줄 설정을 확인하세요.
+
+## Local API 호출하기
+
+앱은 각 라우트를 `http://localhost:54535/api/<extension>/<route>` 주소로 제공합니다. JSON 본문을 담아 `POST` 요청을 보내세요.
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**설정 → API**를 열고 **API 확인**을 클릭하면 사용 가능한 라우트와 요청 스키마를 각 예시와 함께 살펴볼 수 있습니다. 연동 코드를 작성할 때는 현재 설치된 빌드의 스키마를 기준으로 삼으세요. 확장 프로그램이 발전하면서 라우트 매개변수가 바뀔 수 있습니다.
+
+## Enconvo 밖에서 에이전트나 AI 명령 실행하기
+
+각 에이전트와 AI 명령의 설정에는 **링크, CLI 및 API** 행이 있습니다. 텍스트와 파일을 전달해 바로 실행할 수 있는 링크, `enconvo` 명령, Local API 호출 예시가 복사하기 쉽게 표시됩니다.
+
+| 방식 | 동작 |
+| --- | --- |
+| 링크 | 새 채팅을 열고 그 안에서 에이전트 또는 AI 명령을 실행합니다 |
+| CLI | 백그라운드에서 실행하고 결과를 출력합니다 |
+| Local API | 백그라운드에서 실행하고 결과를 반환합니다 |
+
+링크의 형식은 다음과 같습니다.
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text`: 전송할 텍스트입니다.
+- `window`: `chat_window` 또는 `dynamic_island`입니다. 생략하면 SmartBar에서 실행됩니다.
+- `files`: 절대 경로 또는 `~/` 경로의 파일을 첨부합니다. 다른 앱이나 스크립트에서 이미지 여러 장을 보내는 것처럼 여러 파일을 전달할 때는 반복해서 적으세요.
+
+터미널에서 실행하기:
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+번역, 요약, 목록으로 변환 같은 글쓰기 명령은 텍스트를 인수로 받아 채팅 기록에 남기지 않고 바로 답을 출력합니다. `enconvo agent main`은 에이전트가 최근 채팅에서 작업 중일 때 새 채팅을 열어 응답합니다.
+
+대응하는 Local API 라우트는 `agent/call`(`agentId`, `message`, `context_files`)과 `ai-command/run`(`command_key`, `input_text`, `files`)입니다.
+
+### 실행 중인 채팅 확인하기
+
+- `agent/session/list`: Claude Code 및 Codex 채팅을 포함해 모든 에이전트와 프로젝트에서 지금 실행 중인 채팅 목록을 각 채팅의 제목, 에이전트, 프로젝트와 함께 반환합니다. 사용자의 답변을 기다리는 채팅만 보려면 `filter: "waiting"`, 둘 다 보려면 `"active"`를 전달하세요.
+- `agent/session/status`: `sessionId`로 특정 채팅 하나의 상태를 확인합니다.
+- `agent/session/steer`: 지금 실행 중인 채팅 턴을 멈추지 않고 그 안에 메시지를 추가합니다. 실행 중이지 않은 채팅은 `not_running`을 반환하므로, 그럴 때는 `agent/call`로 새 턴을 시작하세요. 전체 접근 권한 미만으로 실행 중인 세션은 Enconvo 턴에 개입할 수 없습니다.
+
+## 안전하게 사용하기
+
+지식 베이스 검색만 필요한 AI 클라이언트라면 일반 Local API 전체를 여는 대신 전용 [지식 베이스 MCP](/ko/advanced/knowledge-base-mcp) 연결을 사용하세요.
+
+Local API와 셸 접근은 강력한 권한이므로 명령 구현에 따라 로컬 데이터를 읽거나 수정할 수 있습니다. 스크립트를 작성할 때는 명령, 입력, 대상을 명확히 지정하세요.
+
+프로그램이 Local API로 설정을 읽을 때 저장된 API 키는 `[hidden]`으로 반환되며, 저장된 키가 전송되는 대상을 바꿀 수 있는 것은 Enconvo 자체 창뿐입니다. [인증 정보](/ko/configuration/credentials)를 참고하세요.
+
+Local API로 단축키를 지정할 때는 짧은 보조 키 이름(`cmd`, `ctrl`, `alt`, `opt`, `fn`)이나 보조 키 기호를 사용할 수 있습니다. Enconvo가 알지 못하는 단어가 포함된 단축키는 등록되지 않으며, 글자를 입력하는 일반 키에는 Command, Control, Option 또는 Function이 함께 포함되어야 합니다.
+
+## 확장해 활용하기
+
+- [확장 프로그램 개발](/ko/extensions/developing): 나만의 명령과 라우트를 추가합니다. 플러그인의 `src/api/`에 둔 파일이 이곳의 라우트가 됩니다.
+- [확장 프로그램 API 레퍼런스](/extensions/extension-api-reference): SDK의 진입점 문서입니다.
+- [훅](/ko/configuration/hooks): 에이전트 작업의 정해진 시점에 내 명령을 실행합니다. JSON 설정에서 불러오며, **설정 → 훅**에서 로드된 목록을 확인할 수 있습니다.
+- [자동화](/ko/workflows/scheduled-jobs): 정한 시간에 작업을 실행합니다.
+- [Linux 서버에 Enconvo 설정하기](/ko/advanced/linux-server): Mac에서 추가한 서버의 모델, 에이전트, 플러그인을 동일한 `enconvo` 명령으로 설정합니다.
+
+## 관련 항목
+
+<CardGroup cols={2}>
+  <Card title="확장 프로그램 개발" icon="code" href="/ko/extensions/developing">
+    명령이나 Local API 라우트를 직접 만듭니다
+  </Card>
+  <Card title="지식 베이스 MCP" icon="plug" href="/ko/advanced/knowledge-base-mcp">
+    다른 AI 클라이언트에 내 지식 베이스를 연결합니다
+  </Card>
+</CardGroup>

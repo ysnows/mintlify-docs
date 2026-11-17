@@ -1,0 +1,67 @@
+---
+title: "Enlaces rápidos"
+description: "Abre una búsqueda web, un sitio, un archivo, una carpeta o un deeplink desde SmartBar con un comando."
+---
+
+Los enlaces rápidos convierten una búsqueda web, una dirección web, un archivo o una carpeta, o el deeplink de una app, en un comando que ejecutas desde SmartBar. Los marcadores rellenan el enlace con lo que escribes, el portapapeles, el texto seleccionado o la fecha. Enconvo incluye búsquedas de Google, YouTube y X listas para usar.
+
+Los enlaces rápidos abren un destino. [Búsqueda web](/es/ai/web-search), en cambio, incorpora resultados de búsqueda a una respuesta de IA, y [Uso del navegador](/es/features/browser-control) deja que un Agente trabaje en páginas web.
+
+## Busca en la web desde SmartBar
+
+1. Abre SmartBar y busca **Google Search in Browser**, **YouTube Search in Browser** o **Twitter/X Search in Browser**.
+2. Escribe el texto de búsqueda como entrada del comando. El texto seleccionado también vale.
+3. Ejecuta el comando. La búsqueda se abre en tu navegador predeterminado.
+
+## Crea un enlace rápido
+
+1. Ejecuta **Create Quicklink** desde SmartBar.
+2. Escribe un **Name**, por ejemplo Search GitHub.
+3. Escribe el **Link**: una dirección web, la ruta de un archivo o una carpeta, o un deeplink. Haz clic en **Insert Placeholder** para añadir uno, como `https://github.com/search?q={argument}`.
+4. Para abrirlo en una app concreta, escribe un nombre de app como Safari, una ruta de app o un bundle id en **Open With**. Déjalo vacío para usar la app predeterminada.
+5. Haz clic en **Save**. Busca el nombre del enlace rápido en SmartBar para ejecutarlo.
+
+Cuando ejecutas un enlace rápido, el texto que escribiste o seleccionaste rellena su primer argumento. Si un argumento obligatorio sigue vacío, Enconvo lo pide antes de abrir el enlace.
+
+| Marcador | Se rellena con |
+| --- | --- |
+| `{argument name="Query"}` | Un valor que escribes cuando se abre el enlace rápido |
+| `{clipboard}` | El texto del portapapeles |
+| `{selection}` | El texto seleccionado en la app que estás usando |
+| `{date}`, `{time}`, `{datetime}` | La fecha actual, la hora o ambas |
+| `{date format="yyyy-MM-dd"}` | La fecha en el formato que indiques |
+| `{uuid}` | Un identificador único nuevo |
+
+Prueba un enlace nuevo con texto normal primero, incluidos espacios y puntuación.
+
+## Gestiona tus enlaces rápidos
+
+Ejecuta **Search Quicklinks** desde SmartBar para ver todos los enlaces rápidos. Desde ahí puedes abrir, editar, duplicar o eliminar uno, y hacer clic en **New** para añadir otro.
+
+El menú **More** tiene **Import Quicklinks…**, que lee exportaciones de enlaces rápidos y de ajustes de Raycast, y **Export to Downloads**. Una exportación de ajustes de Raycast pide la frase de contraseña que elegiste al exportarla.
+
+## Ajustes
+
+Abre **Ajustes → Plugins → Quicklinks**. Cada comando de búsqueda también tiene su propio **Link**, como `https://www.google.com/search?q={query}`, que puedes cambiar.
+
+| Ajuste | Qué cambia |
+| --- | --- |
+| **Open in New Window** | Abre los enlaces rápidos web en una ventana nueva del navegador. Funciona con Chrome, Edge, Brave, Vivaldi, Opera, Chromium, Firefox y Zen; Safari, Arc y Orion abren el enlace como siempre. Desactivado de forma predeterminada |
+| **When There's No Selected Text** | Qué hace un enlace `{selection}` cuando no hay nada seleccionado: **Ask for it** (el valor predeterminado) o **Use the clipboard** |
+| **Confirm Before Deleting** | Pregunta antes de eliminar un enlace rápido. Activado de forma predeterminada |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Se abre la página equivocada | Revisa el **Link** del enlace rápido y sus marcadores, y pruébalo con texto plano |
+| El navegador no se abre | Revisa tu navegador predeterminado, el **Open With** del enlace rápido y que el comando esté instalado |
+| Un enlace `{selection}` pide texto | No había nada seleccionado. Selecciona el texto primero, o configura **When There's No Selected Text** en **Use the clipboard** |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/es/features/smartbar">Encuentra y ejecuta cualquier comando.</Card>
+  <Card title="Búsqueda web" icon="globe" href="/es/ai/web-search">Incorpora resultados de búsqueda a una respuesta de IA.</Card>
+  <Card title="Uso del navegador" icon="window-maximize" href="/es/features/browser-control">Deja que un Agente trabaje en páginas web.</Card>
+</CardGroup>

@@ -1,0 +1,65 @@
+---
+title: "MCP de la Base de conocimientos"
+description: "Deja que Claude, Cursor, Codex y otros clientes MCP de tu Mac busquen y lean las bases de conocimientos que compartes."
+---
+
+Enconvo puede servir tus bases de conocimientos a clientes de IA compatibles con MCP en el mismo Mac. Los clientes pueden buscar y leer solo las bases que compartes; el acceso es de solo lectura. Esto es independiente de **Ajustes → Servidores MCP**, que añade herramientas externas a los Agentes de Enconvo.
+
+## Conectar un cliente
+
+1. Abre la [Base de conocimientos](/es/ai/knowledge-base) y pulsa el engranaje (**Knowledge Base Settings**), luego **AI Clients (MCP)**.
+2. Activa **Enable Knowledge Base MCP**. Está desactivado por defecto y, mientras lo esté, los clientes conectados se rechazan.
+3. Elige qué pueden ver los clientes. **Share this knowledge base with AI clients** cubre la que tienes abierta, y **Shared knowledge bases** las lista todas. Dictation History y Memoria permanecen ocultas hasta que las actives.
+4. En **Connect a client**, elige tu cliente (Claude Code, Cursor, Codex o Claude Desktop) y copia su configuración.
+5. Pide al cliente que liste las bases de conocimientos, luego busca en una y lee un elemento coincidente.
+
+El extremo local es:
+
+```text
+http://localhost:54535/knowledge_base/mcp
+```
+
+Usa el transporte Streamable HTTP. Mantén Enconvo en ejecución mientras el cliente lo usa. Claude Desktop se conecta a través de un pequeño puente, `mcp-remote`, así que su configuración necesita Node.js; sigue las instrucciones específicas del cliente que muestra el diálogo.
+
+## Herramientas disponibles
+
+| Herramienta | Para qué sirve |
+| --- | --- |
+| `kb_list` | Listar las bases de conocimientos visibles |
+| `kb_search` | Buscar en una base de conocimientos visible |
+| `item_list` | Listar los elementos de una base de conocimientos visible |
+| `item_read` | Leer el texto indexado de un elemento por páginas |
+
+Las herramientas son de solo lectura. Este extremo no expone herramientas generales de Memoria ni de Grabaciones. Al leer un elemento puede devolver su ruta de origen o URL como metadatos.
+
+## Acceso y procesamiento
+
+El servidor solo acepta conexiones de loopback y no exige un token. Activarlo permite que los procesos locales lean las bases de conocimientos que compartes. Un cliente de IA conectado puede enviar lo que recibe a su propio proveedor de modelos, así que revisa también los ajustes de ese cliente.
+
+La búsqueda usa el modelo de embeddings configurado en **Search** dentro de **Ajustes → Memoria**. Cuando se ejecuta en Enconvo Cloud, el texto de la búsqueda se envía allí. «Extremo local» no significa que cada parte de la recuperación y la respuesta se ejecute sin conexión.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Conexión rechazada | Comprueba que Enconvo y su API local estén en ejecución. |
+| Prohibido / 403 | Comprueba que **Enable Knowledge Base MCP** esté activado, que el cliente se conecte desde este Mac y que su configuración coincida con el diálogo. |
+| Base de conocimientos no encontrada | Activa la base de conocimientos en **Shared knowledge bases**. Para los clientes, una base oculta y una inexistente se ven igual. |
+| Abrir la URL en el navegador muestra 405 | Un GET del navegador no es una petición MCP. Conéctate con un cliente MCP. |
+| Un documento largo vuelve incompleto | Pide al cliente que solicite más páginas con `item_read`. |
+
+Para cortar todo el acceso, desactiva **Enable Knowledge Base MCP**. Para limitar lo que los clientes pueden recuperar, desactiva bases concretas en **Shared knowledge bases**.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Base de conocimientos" icon="book" href="/es/ai/knowledge-base">
+    Crea las bases de conocimientos que los clientes buscarán.
+  </Card>
+  <Card title="Servidores MCP" icon="plug" href="/es/features/mcp">
+    Añade herramientas externas a los Agentes de Enconvo.
+  </Card>
+  <Card title="CLI y API local" icon="terminal" href="/es/advanced/cli-local-api">
+    Otras formas de llegar a Enconvo desde tu Mac.
+  </Card>
+</CardGroup>

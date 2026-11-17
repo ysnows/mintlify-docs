@@ -1,0 +1,67 @@
+---
+title: "快捷連結"
+description: "透過 SmartBar 中的單一指令開啟網頁搜尋、網站、檔案、資料夾或 Deeplink。"
+---
+
+快捷連結能將網頁搜尋、網址、檔案或資料夾，或是應用程式的 Deeplink 變成可從 SmartBar 執行的指令。預留位置會以你輸入的內容、剪貼簿內容、選取的文字或日期來填入連結。Enconvo 已內建 Google、YouTube 與 X 搜尋，立即可用。
+
+快捷連結用來直接開啟目的地。[網頁搜尋](/zh-hant/ai/web-search)則是將搜尋結果帶入 AI 回覆中，而[使用瀏覽器](/zh-hant/features/browser-control)則能讓代理程式在網頁中進行操作。
+
+## 從 SmartBar 搜尋網頁
+
+1. 開啟 SmartBar 並找到 **Google Search in Browser**、**YouTube Search in Browser** 或 **Twitter/X Search in Browser**。
+2. 輸入要搜尋的文字作為指令的輸入內容，使用目前已選取的文字也可以。
+3. 執行指令，搜尋結果就會在你的預設瀏覽器中開啟。
+
+## 建立快捷連結
+
+1. 從 SmartBar 執行**新增快捷連結**。
+2. 輸入**名稱**，例如 Search GitHub。
+3. 輸入**連結**：網址、檔案或資料夾路徑，或 Deeplink。點擊**插入預留位置**可加入預留位置，例如 `https://github.com/search?q={argument}`。
+4. 若想在特定應用程式中開啟，在**打開方式**欄位輸入應用程式名稱（如 Safari）、應用程式路徑或 Bundle ID。留空則使用預設應用程式。
+5. 點擊**儲存**。之後在 SmartBar 搜尋該快捷連結名稱即可執行。
+
+執行快捷連結時，你輸入或選取的文字會填入第一個參數。如果必填參數仍為空白，Enconvo 會在開啟連結前向你詢問。
+
+| 預留位置 | 填入的內容 |
+| --- | --- |
+| `{argument name="Query"}` | 打開快捷連結時你輸入的值 |
+| `{clipboard}` | 剪貼簿中的文字 |
+| `{selection}` | 你目前使用的應用程式中選取的文字 |
+| `{date}`、`{time}`、`{datetime}` | 目前日期、時間，或兩者皆包含 |
+| `{date format="yyyy-MM-dd"}` | 依你指定格式顯示的日期 |
+| `{uuid}` | 一組新的唯一 ID |
+
+建立新連結時，建議先用包含空白與標點符號的普通文字測試看看。
+
+## 管理你的快捷連結
+
+從 SmartBar 執行 **Search Quicklinks** 可檢視所有快捷連結。在那裡你可以開啟、編輯、複製或刪除現有項目，或點擊**新增**建立新的快捷連結。
+
+**更多**選單提供**匯入快捷連結…**（可讀取 Raycast 的快捷連結與設定匯出檔）以及**匯出到「下載項目」**。匯入 Raycast 設定匯出檔時，系統會要求輸入你當時匯出時設定的密碼。
+
+## 設定
+
+開啟**設定 → 外掛程式 → Quicklinks**。每個搜尋指令也各自設有可自行修改的**連結**，例如 `https://www.google.com/search?q={query}`。
+
+| 設定 | 作用 |
+| --- | --- |
+| **在新視窗中打開** | 在新的瀏覽器視窗中開啟網頁快捷連結。支援 Chrome、Edge、Brave、Vivaldi、Opera、Chromium、Firefox 與 Zen；Safari、Arc 與 Orion 則依一般方式開啟連結。預設關閉 |
+| **When There's No Selected Text**（沒有選取文字時） | 當沒有選取任何文字時 `{selection}` 連結的處理方式：**Ask for it**（詢問，預設）或 **Use the clipboard**（使用剪貼簿） |
+| **Confirm Before Deleting**（刪除前確認） | 刪除快捷連結前先詢問確認。預設開啟 |
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| 開啟了錯誤的頁面 | 檢查該快捷連結的**連結**與預留位置，並先用純文字測試看看 |
+| 瀏覽器沒有開啟 | 檢查你的預設瀏覽器、快捷連結的**打開方式**設定，以及該指令是否已安裝 |
+| `{selection}` 連結一直要求輸入文字 | 目前沒有選取任何文字。請先選取文字，或將 **When There's No Selected Text** 設為 **Use the clipboard** |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh-hant/features/smartbar">搜尋並執行任何指令。</Card>
+  <Card title="網頁搜尋" icon="globe" href="/zh-hant/ai/web-search">將搜尋結果帶入 AI 回答。</Card>
+  <Card title="使用瀏覽器" icon="window-maximize" href="/zh-hant/features/browser-control">讓代理程式在網頁中操作。</Card>
+</CardGroup>

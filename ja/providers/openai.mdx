@@ -1,0 +1,54 @@
+---
+title: "OpenAI"
+description: "OpenAI API キーまたは ChatGPT プランを使って、Enconvo で OpenAI モデルとチャットします。"
+---
+
+チャット、エージェント、AI コマンドで OpenAI の GPT モデルを利用できます。リクエストごとに OpenAI から課金される OpenAI API キーで接続するか、ChatGPT プランでサインインしてその利用枠を使います。
+
+## 接続する
+
+<Steps>
+  <Step title="API キーを取得する">
+    [OpenAI プラットフォーム](https://platform.openai.com/api-keys) でキーを作成します。
+  </Step>
+  <Step title="Enconvo に追加する">
+    **設定 → AI モデル → OpenAI** を開きます。**認証** で **API キー** を選び、キーを貼り付けて **検証** をクリックします。
+  </Step>
+  <Step title="モデルを選ぶ">
+    **モデル名** でモデルを選択し、短いメッセージを送信します。返信が返ってくれば接続は完了です。
+  </Step>
+</Steps>
+
+<Tip>
+ChatGPT プランをお持ちの場合は、代わりに **認証** で **ChatGPT Subscription** を選んで **接続** をクリックしてください。[ChatGPT Subscription](/ja/providers/openai_subscription) を参照してください。
+</Tip>
+
+仕事用など2つ目の OpenAI キーを登録したい場合は、**新しいプロバイダーを追加** をクリックして別のプロファイルを作成してください。
+
+## モデルとオプション
+
+| 設定 | 説明 |
+| --- | --- |
+| **モデル名** | このプロバイダーで使用するモデルです。横にある **更新** で一覧を再読み込みし、**モデルを管理**（歯車アイコン）でモデルを追加または復元します。 |
+| **API Type** | 認証情報内にあります。**Responses API**（デフォルト）または **Completions API** を選択します。互換サービスが Completions を必要とする場合を除き、Responses のままにしてください。 |
+| **API ベース URL** | 認証情報内にあります。デフォルトは `https://api.openai.com/v1` です。OpenAI 互換サービスを使う場合のみ変更してください。 |
+
+同じ OpenAI プロファイルは OpenAI のエンベディング、テキスト読み上げ、画像生成、文字起こしにも使用されるため、キーを変更するとそれらの機能にも影響します。特定のチャットだけで別のモデルを使いたい場合は、そのチャットのモデル選択メニューから選んでください。
+
+## トラブルシューティング
+
+| 問題 | 対処方法 |
+| --- | --- |
+| **検証** に失敗する | キー全体を貼り付け直し、OpenAI プラットフォームでそのキーが有効で、請求設定が完了しているか確認してください。 |
+| モデルが表示されない | **モデル名** の横にある **更新** をクリックしてください。自分でモデルを追加するには **モデルを管理** を使用します。 |
+| 互換サービスで失敗する | **API ベース URL** を確認したうえで、**API Type** として **Completions API** を試してください。 |
+| レート制限または利用制限のエラーが出る | OpenAI プラットフォームで使用量と上限を確認するか、いったん別のプロバイダーに切り替えてください。 |
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="ChatGPT Subscription" icon="user-check" href="/ja/providers/openai_subscription">API キーの代わりに ChatGPT プランを使用します。</Card>
+  <Card title="認証情報とプロファイル" icon="key" href="/ja/configuration/credentials">複数のキーを管理し、共有キーが影響する範囲を確認します。</Card>
+  <Card title="モデルの選び方" icon="list-check" href="/ja/ai/model-selection-guide">タスクに応じたモデルを選び、デフォルト設定の場所を確認します。</Card>
+  <Card title="プロバイダーカタログ" icon="table" href="/ja/providers/catalog">すべてのプロバイダーを対応機能別に確認します。</Card>
+</CardGroup>

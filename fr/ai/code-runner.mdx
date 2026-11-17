@@ -1,0 +1,80 @@
+---
+title: "Exécuteur de code"
+description: "Permettez à un Agent d’exécuter des commandes shell, des scripts, des compilations et des serveurs de développement dans un vrai terminal sur votre Mac."
+---
+
+L’exécuteur de code donne à un Agent un vrai terminal sur votre Mac. Utilisez-le pour les compilations, les tests, les scripts, les outils de paquets et les serveurs de développement. Les programmes que vous avez installés et les autorisations de votre compte décident de ce qui peut s’exécuter.
+
+<Warning>
+Les commandes s’exécutent pour de vrai, avec l’accès de votre compte à vos fichiers et au réseau, sauf si vous activez le **Bac à sable** de l’Agent. Relisez toute commande qui installe un logiciel, modifie des fichiers ou touche un service en ligne avant qu’elle s’exécute.
+</Warning>
+
+## Avant de commencer
+
+- Activez l’exécuteur de code pour l’Agent que vous utilisez.
+- La puce **Autorisations** dans le chat décide quand l’Agent demande d’abord. **Demander l’approbation** demande avant d’exécuter une commande, et **Approuver pour moi** ne demande que pour les actions qui semblent risquées. Voir [Approuver les actions](/fr/ai/agents).
+- Pour limiter les commandes de l’Agent au dossier de travail et les tenir à l’écart de vos clés et des autres apps, activez **Bac à sable** dans la même puce. Voir [Bac à sable de l’Agent](/fr/configuration/sandbox).
+
+## Exécuter une commande
+
+Donnez à l’Agent un dossier et une tâche précise :
+
+> Dans mon projet d’exemple, exécute la commande de test existante et rends compte du résultat. Ne modifie pas les fichiers.
+
+L’Agent affiche la sortie de la commande et vous dit si elle est terminée ou encore en cours. Pour lire, modifier et rechercher des fichiers, l’Agent utilise plutôt les [outils de fichiers](/fr/ai/file-tools).
+
+## Comment les commandes s’exécutent
+
+Chaque commande s’exécute dans un pseudo-terminal, donc une commande qui demande une saisie peut recevoir une réponse sans lancer un nouveau processus.
+
+| Mode | À utiliser pour |
+| --- | --- |
+| **oneshot** | Les commandes qui se terminent seules, comme les tests, les compilations ou un script |
+| **long_running** | Les serveurs, les observateurs et les processus qui attendent un événement extérieur |
+| **interactive** | Les REPL, les apps en terminal et les sessions de ligne de commande interactives |
+
+Un résultat avec `status: running` et un `session_id` signifie que le processus continue. L’Agent peut **lire** sa sortie, y **écrire** une saisie, ou l’**arrêter**. Pour répondre à une invite, l’Agent écrit dans cette session ; lancer une autre commande n’y répond pas.
+
+## Attendre qu’une chose se termine
+
+Quand une tâche doit attendre, par exemple qu’une compilation écrive sa sortie ou qu’un serveur démarre, l’Agent utilise l’outil **Attendre** au lieu d’une boucle shell. Il attend l’une de ces conditions, sans commande en cours :
+
+- Qu’un fichier apparaisse
+- Une ligne dans un fichier journal
+- La fin d’un processus ou de la session d’une commande
+- L’ouverture d’un port, ou la réponse d’une adresse
+
+L’attente apparaît dans les tâches en arrière-plan du chat. L’Agent est prévenu quand elle est satisfaite, échoue ou expire, et peut faire autre chose entre-temps.
+
+## Dossier de travail et limites de temps
+
+Les commandes s’exécutent dans `workDir` lorsque l’Agent le définit, et sinon dans le dossier de travail du chat. Elles utilisent votre shell, avec votre projet et l’environnement virtuel Python déjà préparés. Des commandes séparées ne partagent pas les variables temporaires du shell, sauf si elles s’exécutent dans la même session.
+
+La première attente est distincte de la limite de temps stricte de la commande. Une commande oneshot attend jusqu’à 30 secondes son résultat ; si elle tourne encore, l’Agent reçoit la sortie obtenue jusqu’ici pendant que le travail continue. La commande est arrêtée après 30 minutes par défaut. Pour un serveur ou un observateur, utilisez le mode long_running plutôt que de traiter cela comme une commande oneshot qui a échoué.
+
+## Réglages
+
+Ouvrez **Réglages → Plugins → Exécuteur de code**.
+
+| Réglage | Ce qu’il change |
+| --- | --- |
+| **Enable RTK** | Compresse les longues sorties de commande avant que l’Agent les lise, pour utiliser moins de jetons. Activé par défaut |
+
+Si un détail dont vous avez besoin manque dans une sortie compressée, demandez une commande plus ciblée ou la partie utile du journal. Une sortie tronquée ne prouve pas que la commande a réussi.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Commande introuvable | Vérifiez que le programme est installé et disponible dans votre shell |
+| La commande attend une saisie | Faites répondre l’Agent à l’invite dans la même session. Une commande qui attend une saisie que personne ne peut donner se termine tout de suite |
+| Autorisation refusée | Vérifiez le chemin cible et les autorisations macOS. Avec le bac à sable activé, cliquez sur la ligne sous l’étape pour voir ce qu’il a bloqué |
+| La commande a expiré | Lisez la dernière sortie, et choisissez le bon mode avant de la relancer |
+| Un serveur continue de tourner | Faites arrêter sa session par l’Agent quand vous n’en avez plus besoin |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Fichiers et dossiers" icon="folder-open" href="/fr/ai/file-tools">Permettez à un Agent de trouver, lire et modifier des fichiers.</Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Définissez les outils d’un Agent et quand il demande d’abord.</Card>
+</CardGroup>

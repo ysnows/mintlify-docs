@@ -1,0 +1,440 @@
+---
+title: "Hook"
+description: "Esegui un comando shell o invia un webhook automaticamente quando un Agente inizia, usa uno strumento o finisce."
+---
+
+Gli hook eseguono un comando shell o inviano una richiesta HTTP quando succede qualcosa in Enconvo, come un agente che inizia, completa, fallisce o usa uno strumento. Li imposti in un file JSON, così puoi aggiungere notifiche, log, automazione locale o integrazioni senza costruire un’estensione.
+
+<Note>
+La maggior parte degli hook è fire-and-forget: girano in background e non bloccano Enconvo. `PreToolUse`, `Stop` e `SubagentStop` sono l’eccezione durante le esecuzioni dell’agente. L’agente li aspetta, quindi possono bloccare una chiamata a uno strumento o rimandare l’agente al lavoro. Vedi [Hook bloccanti](/it/configuration/hooks).
+</Note>
+
+## Avvio rapido
+
+<Steps>
+  <Step title="Crea la cartella degli hook">
+```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="Crea ~/.enconvo/hooks.json">
+```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Attiva un agente">
+    Avvia qualsiasi agente o comando di chat. Quando il suo stato cambia, Enconvo esegue il
+    comando configurato e aggiunge una riga a `/tmp/enconvo-hooks.log`.
+  </Step>
+</Steps>
+
+## File di configurazione
+
+Gli hook stanno in:
+
+```text
+~/.enconvo/hooks.json
+```
+
+Enconvo legge anche il file legacy in `~/.config/enconvo/hooks.json` quando il nuovo file non esiste. Se esistono entrambi, vince `~/.enconvo/hooks.json`.
+
+Il file viene riletto ogni volta che scatta un evento, quindi puoi modificare gli hook mentre Enconvo è in esecuzione. Non serve riavviare.
+
+## Gestire gli hook in Impostazioni
+
+Apri **Impostazioni → Hook** per vedere gli hook in `~/.enconvo/hooks.json`, raggruppati per evento. Accendi o spegni una voce con il suo interruttore, oppure fai clic su **Apri hooks.json** per modificare il file. Spegnere o accendere una voce scrive `enabled: false` o `enabled: true` su quella voce, senza cambiare il suo comando o webhook.
+
+## Hook dai plugin
+
+I plugin Claude Code e Codex, come context-mode, possono portare hook propri. Una volta che li consenti, girano come in Claude Code: all’inizio di una chat, intorno a ogni messaggio, chiamata a uno strumento e compattazione, e quando una risposta fallisce o l’Agente finisce.
+
+1. Installa il plugin da **Plugin**, oppure dai a un Agente il repository GitHub del plugin, l’indirizzo Git, lo zip o il pacchetto npm in chat. Offre la scheda Installa del plugin.
+2. Seleziona **Consenti l’esecuzione dei suoi hook** prima di installare. Un plugin installato senza questo mostra che i suoi hook sono spenti; fai clic su **Consenti hook** più tardi per attivarli.
+
+Se un aggiornamento del plugin cambia i suoi hook, smettono di girare finché non li controlli e li consenti di nuovo. Gli hook che Enconvo non può eseguire sono elencati sulla scheda come non eseguiti in Enconvo.
+
+## Come funzionano gli hook
+
+Quando scatta un evento, Enconvo:
+
+1. Carica `~/.enconvo/hooks.json`.
+2. Torna a `~/.config/enconvo/hooks.json` solo se il nuovo file manca.
+3. Trova le voci dentro l’oggetto `hooks` di primo livello la cui chiave corrisponde al nome dell’evento.
+4. Applica la regex facoltativa `matcher`.
+5. Salta le voci in cui `enabled` è `false`.
+6. Esegue ogni hook configurato in contemporanea.
+
+I nomi degli eventi degli hook seguono il ciclo di vita di Claude Code e Codex: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop` e `SubagentStop`. I vecchi nomi degli eventi Enconvo e la vecchia forma JSON piatta funzionano ancora per le installazioni esistenti, ma le nuove scritture usano il formato avvolto in stile Codex.
+
+## Riferimento della configurazione
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| Campo | Tipo | Obbligatorio | Descrizione |
+|-------|------|----------|-------------|
+| `hooks` | object | Sì | Mappa degli eventi con chiave il nome dell’evento. |
+| `event_name` | string | Sì | Evento da ascoltare. Usalo come chiave dentro `hooks`. |
+| `matcher` | string | No | Filtro regex. Per gli eventi degli strumenti corrisponde a `toolName`, `toolTitle` o `path`; per gli altri eventi corrisponde al nome dell’evento dell’hook. |
+| `enabled` | boolean | No | Imposta `false` per tenere la voce nella configurazione ma saltarne l’esecuzione. Il predefinito è `true`. |
+| `hooks` | array | Sì | Hook di comando e HTTP da eseguire. |
+
+### Hook di comando
+
+Un hook di comando esegue un comando shell. Enconvo scrive il payload dell’evento sullo stdin del comando come JSON.
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| Campo | Tipo | Predefinito | Descrizione |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | Tipo di hook obbligatorio. |
+| `command` | string | - | Comando shell da eseguire. |
+| `timeout` | number | `30000` | Timeout in millisecondi. |
+
+### Hook HTTP
+
+Un hook HTTP invia il payload dell’evento come corpo della richiesta JSON.
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| Campo | Tipo | Predefinito | Descrizione |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | Tipo di hook obbligatorio. |
+| `url` | string | - | URL dell’endpoint HTTP. |
+| `method` | string | `"POST"` | Metodo HTTP. |
+| `headers` | object | `{}` | Intestazioni aggiuntive della richiesta. |
+| `timeout` | number | `30000` | Timeout in millisecondi. |
+
+## Hook bloccanti
+
+Durante l’esecuzione di un agente o di un bot, tre eventi girano come hook bloccanti. L’agente aspetta ogni hook corrispondente (girano in parallelo) prima di continuare, e legge il risultato come fanno Claude Code e Codex.
+
+| Evento | Quando | Cosa può fare l’hook |
+|-------|------|----------------------|
+| `PreToolUse` | Subito prima che parta una chiamata a uno strumento. Il `matcher` viene controllato sul nome dello strumento, il titolo e il percorso della route. | Bloccare la chiamata, o riscriverne l’input. |
+| `Stop` | Subito prima che l’agente chiuda il turno con una risposta. | Rimandare l’agente al lavoro con un’istruzione. |
+| `SubagentStop` | Subito prima che un subagente finisca. | Rimandare il subagente al lavoro con un’istruzione. |
+
+Un hook decide in uno di due modi:
+
+- **Codice di uscita 2** blocca. Il testo che il comando scrive su stderr è il motivo.
+- **Codice di uscita 0 con JSON su stdout.** Qualsiasi altro output, codice di uscita, errore o timeout non decide nulla, e l’esecuzione continua come se l’hook non ci fosse.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| Output JSON | Effetto |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: la chiamata non parte. Il modello vede `permissionDecisionReason` come risultato dello strumento e può scegliere un’altra via. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Trattato come `deny`. Enconvo non ha ancora una richiesta di conferma per gli hook. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: la chiamata parte. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`: la chiamata parte con questo input invece di quello del modello. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: l’agente continua a lavorare, con `reason` come istruzione successiva. Su `PreToolUse` blocca la chiamata. |
+| `{ "decision": "approve" }` | Come `allow`. |
+
+Gli hook HTTP decidono con una risposta 2xx il cui corpo è lo stesso JSON.
+
+Quando più hook corrispondono, un deny vince su ask, che vince su allow. I motivi vengono uniti, e si usa l’ultimo `updatedInput`.
+
+Un hook `Stop` può rimandare l’agente al lavoro al massimo 5 volte in un turno. Al secondo controllo e ai successivi, `stop_hook_active` è `true`, così un hook può lasciare fermare l’agente una volta seguita la sua istruzione. Il blocco di `Stop` vale solo quando l’agente finisce normalmente; un’esecuzione fallita o interrotta fa comunque scattare `Stop` in background.
+
+<Tip>
+L’agente aspetta gli hook bloccanti, quindi un hook `PreToolUse` lento rallenta ogni chiamata a uno strumento, e un hook `Stop` lento ritarda la fine del turno. Tienili veloci, imposta un `timeout` breve, oppure esegui il lavoro lento in background (`command &`).
+</Tip>
+
+Gli hook bloccanti ricevono il normale [payload dell’evento](/it/configuration/hooks) più i campi di Claude Code al livello superiore:
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` e `SubagentStop` ricevono `stop_hook_active` e `last_assistant_message` invece dei campi dello strumento. Gli hook di comando girano nella cartella di lavoro dell’agente.
+
+### Bloccare un comando pericoloso
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### Far eseguire i test all’agente prima di finire
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## Payload dell’evento
+
+Gli hook di comando ricevono questo JSON su stdin. Gli hook HTTP ricevono lo stesso JSON come corpo della richiesta.
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| Campo | Descrizione |
+|-------|-------------|
+| `event` | Nome breve dell’evento. |
+| `fullEvent` | Nome interno dell’evento con il prefisso `event-`. |
+| `sourceEvent` | Evento Enconvo originale che ha prodotto questo evento dell’hook, quando l’evento è mappato per la compatibilità con Codex. |
+| `sourceFullEvent` | Nome interno originale dell’evento con il prefisso `event-`. |
+| `params` | Payload specifico dell’evento. |
+| `timestamp` | Timestamp Unix in millisecondi. |
+
+Anche gli hook in background ricevono i campi di Claude Code: `hook_event_name`, `session_id` quando l’evento ne ha uno e, per gli eventi degli strumenti, `tool_name`, `tool_input` e `tool_use_id`.
+
+## Eventi disponibili
+
+| Evento | Parametri | Quando |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | Viene creata una nuova sessione di chat. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | Un’esecuzione di agente, chat o bot parte dall’input dell’utente. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Parte una chiamata a uno strumento. Bloccante durante le esecuzioni dell’agente. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Una chiamata a uno strumento raggiunge uno stato di permesso o di negazione. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Una chiamata a uno strumento riesce, fallisce, si completa o viene negata. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | Un’esecuzione di agente, chat o bot raggiunge uno stato terminale. Bloccante quando un agente finisce normalmente. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | Un subagente sta per finire. Bloccante. I subagenti non fanno scattare `Stop`. |
+
+I nomi legacy di Enconvo come `run_status_changed` e `agent_tool_step_changed` funzionano ancora, quindi i file di hook esistenti non vanno migrati subito.
+
+## Ricette
+
+### Notifica di macOS quando un agente fallisce
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Registrare i cambi di stato dell’agente
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Registrare le chiamate agli strumenti dell’agente
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Inviare a Slack
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Script personalizzato
+
+Crea uno script che legge il payload dell’evento da stdin:
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+Riferiscilo da `~/.enconvo/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Rendi eseguibile lo script:
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Un hook non è partito | Controlla che `~/.enconvo/hooks.json` sia JSON valido, che la chiave di primo livello corrisponda al nome dell’evento e che il comando funzioni quando lo esegui tu. Se hai ancora `~/.config/enconvo/hooks.json`, viene ignorato finché esiste il nuovo file. |
+| Non sei sicuro se gli hook bloccano Enconvo | Solo `PreToolUse`, `Stop` e `SubagentStop` bloccano, durante le esecuzioni dell’agente. Ogni altro hook è fire-and-forget. Se un hook fallisce o va in timeout, Enconvo registra il fallimento e continua come se l’hook non ci fosse. |
+| Gli hook di un plugin non partono | Apri il plugin e fai clic su **Consenti hook**. Dopo un aggiornamento che li ha cambiati, controllali e consentili di nuovo. |
+| Un comando non trova uno script o un binario | Usa percorsi assoluti. L’espansione di `~` della shell funziona quando il comando gira attraverso una shell, ma i percorsi assoluti sono più facili da correggere. |
+
+### Provare uno script a mano
+
+Invia un payload di esempio allo script:
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">
+    Scopri gli agenti Enconvo e i bot personalizzati
+  </Card>
+  <Card title="Riferimento dell’API delle estensioni" icon="code" href="/extensions/extension-api-reference">
+    Costruisci estensioni che emettono o ascoltano eventi
+  </Card>
+</CardGroup>

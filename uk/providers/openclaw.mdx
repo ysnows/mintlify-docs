@@ -1,0 +1,232 @@
+---
+title: "OpenClaw"
+description: "Використовуйте агентів OpenClaw як моделі, сумісні з OpenAI, в Enconvo"
+---
+
+OpenClaw — це самостійно розміщена платформа агентів ШІ для запуску асистентів у чаті, каналах обміну повідомленнями, інструментах, навичках і автоматизаціях.
+
+OpenClaw може відкривати своїх агентів через шлюз, сумісний з OpenAI. Після того як ви увімкнете шлюз, Enconvo може використовувати агента OpenClaw як будь-яку іншу модель ШІ, включно з чатом, агентами Enconvo і функціями на моделях.
+
+Шлюз OpenClaw відкриває кінцеві точки, сумісні з OpenAI, як-от `/v1/models`, `/v1/chat/completions` і `/v1/responses`. Провайдер OpenClaw в Enconvo використовує API Chat Completions (`/v1/chat/completions`).
+
+<Note>
+  Enconvo не використовує Responses API OpenClaw для цього провайдера. Налаштуйте OpenClaw через його шлюз Chat Completions, сумісний з OpenAI.
+</Note>
+
+Новачок в OpenClaw? Почніть з [посібника з початку роботи OpenClaw](https://docs.openclaw.ai/start/getting-started), потім поверніться сюди, щоб підключити його до Enconvo.
+
+Повне довідкове зіставлення кінцевих точок шлюзу див. у [документації шлюзу OpenClaw](https://docs.openclaw.ai/gateway#openai-compatible-endpoints).
+
+## Перш ніж почати
+
+- OpenClaw інстальовано на машині, яка запускатиме шлюз
+- Шлюз OpenClaw працює на досяжному хості і порті
+- Кінцеву точку шлюзу Chat Completions увімкнено
+- Токен шлюзу з `~/.openclaw/openclaw.json`
+- Enconvo з увімкненим провайдером моделі ШІ OpenClaw
+
+## Налаштувати автоматично
+
+Відкрийте **Параметри → Модель ШІ → OpenClaw**. Картка налаштування може запускати, зупиняти і налаштовувати локальний шлюз OpenClaw за вас.
+
+Використовуйте **Автоналаштування**, коли OpenClaw інстальовано на тому самому Mac, що й Enconvo. Enconvo:
+
+<Steps>
+  <Step title="Знайти OpenClaw">
+    Перевіряє, що CLI `openclaw` є на цьому Mac.
+  </Step>
+  <Step title="Увімкнути Chat Completions">
+    Запускає `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`.
+  </Step>
+  <Step title="Підготувати токен шлюзу">
+    Читає `gateway.auth.token` з `~/.openclaw/openclaw.json` або створює його, якщо його немає.
+  </Step>
+  <Step title="Запустити шлюз">
+    Запускає або перезапускає службу шлюзу OpenClaw.
+  </Step>
+  <Step title="Перевірити API">
+    Перевіряє шлюз через `/health` і `/v1/models`.
+  </Step>
+  <Step title="Зберегти облікові дані">
+    Зберігає базову URL і токен шлюзу в облікові дані OpenClaw в Enconvo.
+  </Step>
+</Steps>
+
+Картка налаштування показує значок середовища виконання, як-от **Працює** або **Зупинено**. Поки картка видима, Enconvo періодично оновлює цей стан і припиняє оновлення, коли картка більше не видима.
+
+## Увімкнути шлюз OpenClaw
+
+Можна попросити OpenClaw підготувати деталі шлюзу за вас:
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+Використайте повернуті базову URL і токен у параметрах облікових даних OpenClaw в Enconvo.
+
+<Steps>
+  <Step title="Увімкніть Chat Completions">
+    Увімкніть кінцеву точку chat completions, сумісну з OpenAI, один раз:
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="Оберіть режим прив’язки">
+    Для доступу лише локально лишіть типову прив’язку loopback. Щоб інший пристрій у вашій LAN досягав шлюзу, прив’яжіть до LAN:
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="Перезапустіть шлюз">
+    Застосуйте зміну конфігурації:
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="Перевірте стан шлюзу">
+    Підтвердьте, що шлюз працює:
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## Підключити OpenClaw вручну
+
+Відкрийте **Параметри → Модель ШІ → OpenClaw**, потім налаштуйте провайдера облікових даних.
+
+![Параметри облікових даних OpenClaw в Enconvo](/img/openclaw-settings.png)
+
+| Параметр | Значення |
+|---------|-------|
+| **Базова URL OpenClaw** | `http://<gateway-host>:<port>/v1` |
+| **Токен шлюзу** | `gateway.auth.token` з `~/.openclaw/openclaw.json` |
+
+Enconvo використовує API Chat Completions для OpenClaw автоматично.
+
+Використовуйте базову URL, що закінчується на `/v1`, а не повну кінцеву точку `/v1/chat/completions`. Наприклад, якщо ваша кінцева точка `http://192.168.1.18:18789/v1/chat/completions`, введіть `http://192.168.1.18:18789/v1`.
+
+Щоб прочитати токен шлюзу з типового файлу конфігурації OpenClaw:
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo надсилає це значення як:
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+Натисніть **Перевірити** після введення базової URL і токена.
+
+## Як працюють запити і вкладення
+
+Enconvo надсилає запити OpenClaw через Chat Completions, сумісні з OpenAI:
+
+```http
+POST /v1/chat/completions
+```
+
+Використовуйте `openclaw:main` або іншу назву моделі, яку рекламує список агентів OpenClaw.
+
+<Warning>
+  Вкладення зображень Enconvo не надсилає в OpenClaw. Трактуйте провайдера OpenClaw як текстового/чат-провайдера в Enconvo. Для робочих процесів із зображеннями використовуйте провайдера моделі зі зором або запустіть OCR/аналіз зображення, перш ніж надсилати текст в OpenClaw.
+</Warning>
+
+## Використовувати OpenClaw як модель ШІ
+
+Щойно налаштовано, OpenClaw з’являється у виборі моделі. Оберіть **OpenClaw** і оберіть модель на агенті, як-от `openclaw:main`.
+
+![OpenClaw обрано як модель чату](/img/openclaw-chat-model.png)
+
+Використовуйте цей режим, коли хочете, щоб розмова, команда або функція Enconvo йшла через агента OpenClaw, зберігаючи звичайний інтерфейс Enconvo.
+
+<Steps>
+  <Step title="Відкрийте вибір моделі">
+    У чаті або іншій функції Enconvo на моделі натисніть назву поточної моделі.
+  </Step>
+  <Step title="Оберіть OpenClaw">
+    Оберіть **OpenClaw** у списку провайдерів.
+
+    ![OpenClaw у виборі моделі](/img/openclaw-model-selector.png)
+  </Step>
+  <Step title="Оберіть модель агента OpenClaw">
+    Оберіть `openclaw:main` або іншого агента OpenClaw зі списку моделей.
+  </Step>
+  <Step title="Запустіть функцію як звичайно">
+    Поставте запитання або запустіть функцію Enconvo. Обраний агент OpenClaw обробляє виклик моделі за лаштунками.
+  </Step>
+</Steps>
+
+Enconvo завантажує моделі OpenClaw з `openclaw agents list`. Якщо CLI OpenClaw локально недоступний, Enconvo повертається до `openclaw:main`.
+
+## Створити агента для OpenClaw
+
+Можна також створити агента Enconvo, який координує агента OpenClaw. Це корисно, коли хочете робочий процес, набір інструментів або запит з боку Enconvo навколо конкретного агента OpenClaw.
+
+<Steps>
+  <Step title="Відкрийте Створити агента">
+    Відкрийте SmartBar і знайдіть **Створити агента**.
+
+    ![Команда Створити агента в Enconvo](/img/openclaw-create-agent-command.png)
+  </Step>
+  <Step title="Назвіть агента">
+    Створіть зрозумілу назву, як-от `OpenClaw Main`.
+
+    ![Форма Створити нового агента для OpenClaw](/img/openclaw-agent-form.png)
+  </Step>
+  <Step title="Напишіть інструкції координатора">
+    Дайте агенту Enconvo інструкції, які пояснюють, як він має працювати з OpenClaw.
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Оберіть модель OpenClaw">
+    У параметрах моделі агента оберіть **OpenClaw** і оберіть `openclaw:main`.
+  </Step>
+  <Step title="Збережіть і використовуйте агента">
+    Почніть розмову з новим агентом Enconvo. Він використовуватиме обрану модель агента OpenClaw, зберігаючи інтерфейс агента Enconvo і інструменти, які ви налаштували.
+  </Step>
+</Steps>
+
+## Усунення неполадок
+
+<AccordionGroup>
+  <Accordion title="OpenClaw не з’являється у виборі моделі">
+    Переконайтеся, що провайдера OpenClaw увімкнено в **Параметри → Модель ШІ**. Якщо список моделей порожній, перевірте, що `openclaw agents list` працює локально, або використайте типове `openclaw:main`.
+  </Accordion>
+  <Accordion title="Перевірка не вдається з unauthorized">
+    Перевірте токен шлюзу знову. Enconvo очікує значення з `gateway.auth.token` і надсилає його як токен Bearer.
+  </Accordion>
+  <Accordion title="Підключення не вдається">
+    Підтвердьте, що шлюз працює, через `openclaw gateway status`. Якщо Enconvo на іншому пристрої, задайте `gateway.bind` як `lan`, перезапустіть шлюз і використайте LAN IP хоста в базовій URL.
+  </Accordion>
+  <Accordion title="Запуск вдається, але Enconvo коротко каже, що потрібна увага">
+    OpenClaw може повідомити, що LaunchAgent перезапустився, перш ніж HTTP-шлюз готовий. Зачекайте кілька секунд і перевірте значок середовища виконання на картці знову. Можна також перевірити напряму через `openclaw gateway status` і `curl http://127.0.0.1:18789/health`.
+  </Accordion>
+  <Accordion title="Шлюз працює, але `/v1/models` не вдається">
+    Переконайтеся, що Enconvo використовує той самий токен, що й `gateway.auth.token` у `~/.openclaw/openclaw.json`. Стан налаштування все одно може виявити працюючий шлюз через `/health`, але перевірка моделі потребує токена bearer.
+  </Accordion>
+  <Accordion title="Вкладення зображень ігноруються">
+    Провайдер OpenClaw в Enconvo зараз лише текстовий. Enconvo не надсилатиме вкладення зображень в OpenClaw; оберіть провайдера зі зором для прямого введення зображень.
+  </Accordion>
+  <Accordion title="Не та базова URL">
+    Введіть `http://<gateway-host>:<port>/v1`. Не включайте `/chat/completions` у поле базової URL Enconvo.
+  </Accordion>
+</AccordionGroup>
+
+## Пов’язане
+
+<CardGroup cols={2}>
+  <Card title="Агент Hermes" icon="server" href="/uk/providers/hermes">Підключіть інший шлюз агентів так само.</Card>
+  <Card title="Агенти" icon="robot" href="/uk/ai/agents">Дайте агенту інструкції і інструменти.</Card>
+</CardGroup>

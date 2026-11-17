@@ -1,0 +1,95 @@
+---
+title: "Extension de navigateur"
+description: "Installez l’extension Enconvo Companion pour qu’Enconvo puisse travailler dans votre vrai navigateur, avec vos connexions, cookies et extensions."
+---
+
+L’extension de navigateur Enconvo, Enconvo Companion, permet à Enconvo de contrôler votre vrai navigateur lorsqu’une tâche a besoin de votre état de navigateur connecté. Utilisez-la pour des sites comme LinkedIn, Gmail, Salesforce, des tableaux de bord ou des outils internes, où vos cookies et extensions de navigateur comptent. Les Réglages l’appellent **Compagnon du navigateur**.
+
+Pour les pages publiques, les aperçus locaux ou les flux qui ne doivent pas toucher votre profil de navigateur personnel, utilisez plutôt l’automatisation de navigateur isolée.
+
+## Configurer l’extension
+
+<Steps>
+  <Step title="Installer l’extension">
+    Ouvrez **Réglages → Utilisation du navigateur** et cliquez sur **Installer le compagnon de navigateur** dans **Extensions de navigateur**. La page Chrome Web Store de l’extension s’ouvre. Vous pouvez aussi l’installer depuis la boutique d’extensions de votre navigateur. Elle fonctionne dans Chrome, Edge, Brave, Arc, Vivaldi, Opera et Firefox. Le [tutoriel vidéo Utilisation de l’ordinateur](https://youtu.be/0CbQA7d8zqU?t=33) montre l’installation dans Chrome.
+  </Step>
+  <Step title="Garder le navigateur ouvert">
+    L’extension se connecte à Enconvo d’elle-même, via `ws://localhost:11225`.
+  </Step>
+  <Step title="Vérifier la fenêtre contextuelle">
+    Cliquez sur l’icône de l’extension. La fenêtre affiche **Connected Chrome**, **Connected Edge**, **Connected Firefox**, ou le nom du navigateur dans lequel vous êtes.
+  </Step>
+  <Step title="Lancer une tâche de navigateur">
+    Demandez à Enconvo de lire, cliquer, saisir, prendre une capture ou gérer des onglets dans le navigateur.
+  </Step>
+</Steps>
+
+## La fenêtre contextuelle
+
+| Élément | Ce qu’il affiche |
+| --- | --- |
+| État de la connexion | Si l’extension de ce navigateur est connectée à Enconvo |
+| Navigateur actuel | Le navigateur auquel cette extension est connectée, comme Chrome, Edge, Brave ou Firefox |
+| Navigateurs connectés | Les autres navigateurs dont l’extension est connectée à Enconvo maintenant |
+| Version | La version installée de l’extension |
+| **En savoir plus** | Ouvre cette page |
+
+Si la fenêtre indique une déconnexion, redémarrez Enconvo et actualisez le navigateur. Si elle ne se connecte toujours pas, désactivez puis réactivez l’extension.
+
+## Utiliser plus d’un navigateur
+
+Enconvo peut se connecter à plusieurs navigateurs à la fois. Lorsqu’une tâche ne nomme pas de navigateur, Enconvo en choisit un dans cet ordre :
+
+1. Le **Navigateur par défaut** choisi dans les réglages d’Utilisation du navigateur (**Réglages → Utilisation du navigateur**, puis **Réglages** dans le menu **⋯**).
+2. Le navigateur par défaut de votre Mac.
+3. Le navigateur connecté que vous avez utilisé le plus récemment.
+
+Les API d’automatisation peuvent aussi nommer le navigateur :
+
+```json
+{
+  "browser": "edge"
+}
+```
+
+Les valeurs courantes sont `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera` et `firefox`.
+
+## Rester sur le bon onglet
+
+Lorsqu’une tâche de navigateur commence, Enconvo note le navigateur et l’onglet sur lesquels il travaille. Les étapes suivantes restent sur cet onglet chaque fois qu’elles le peuvent, même si la page ouvre une fenêtre, se recharge ou perd le focus.
+
+Pour de meilleurs résultats :
+
+- Gardez l’onglet ouvert jusqu’à la fin de la tâche.
+- Nommez le navigateur lorsque plusieurs sont connectés.
+- Dites « utilise l’onglet actuel » lorsque vous voulez qu’Enconvo agisse sur la page devant vous.
+- Demandez un nouveau regard sur la page après une navigation ou l’envoi d’un formulaire.
+
+## Accès aux sites et sécurité
+
+Les pages web peuvent contenir des instructions que vous n’avez pas écrites. Sur les pages sensibles, relisez le site et l’action avant de laisser Enconvo continuer.
+
+L’extension utilise les autorisations du navigateur pour lire les pages, cliquer, saisir, prendre des captures, voir les onglets et lire les cookies lorsqu’une tâche en a besoin. Traitez les pages connectées, l’historique du navigateur et les outils internes comme des données sensibles.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| La fenêtre indique une déconnexion | Vérifiez qu’Enconvo est en cours d’exécution, redémarrez le navigateur, puis désactivez et réactivez l’extension. Vérifiez que rien ne bloque `localhost:11225`. |
+| Le mauvais navigateur est contrôlé | Définissez **Navigateur par défaut** dans les réglages d’Utilisation du navigateur, ou passez une valeur de navigateur comme `edge`, `chrome` ou `firefox` dans l’action de navigateur. |
+| Connecté, mais une page ne peut pas être contrôlée | Les pages de navigateur comme `chrome://` ne peuvent pas être contrôlées. Les pages avec une politique de sécurité de contenu stricte, un Shadow DOM fermé et les demandes d’autorisation du navigateur peuvent aussi gêner. |
+| Un envoi de fichier ne fonctionne pas | Sur la page de détails de l’extension dans votre navigateur, activez l’accès aux URL de fichiers. Les tâches qui envoient des fichiers locaux ou ouvrent des pages adossées à des fichiers en ont besoin. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Utilisation du navigateur" icon="window-restore" href="/fr/features/browser-control">
+    Ce que les Agents peuvent faire dans votre navigateur.
+  </Card>
+  <Card title="Utilisation de l’ordinateur" icon="computer-mouse" href="/fr/features/computer-use">
+    Contrôlez les apps Mac et la barre d’outils propre au navigateur.
+  </Card>
+  <Card title="Image dans l’image" icon="clone" href="/fr/features/picture-in-picture">
+    Regardez l’onglet de l’agent en direct et reprenez la main lorsqu’il a besoin de vous.
+  </Card>
+</CardGroup>

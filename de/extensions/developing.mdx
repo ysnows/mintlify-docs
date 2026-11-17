@@ -1,0 +1,210 @@
+---
+title: "Erweiterungen entwickeln"
+description: "Baue ein Enconvo-Plugin mit einem TypeScript-Befehl und einer Local-API-Route, probiere es in der App und veröffentliche es im Plugin-Store."
+---
+
+Dieser Leitfaden ist für Entwickler, die Enconvo eigene Befehle hinzufügen wollen. Du legst ein Plugin mit einem Befehl und einer Local-API-Route an, baust es in Enconvo ein, testest es und veröffentlichst es im Plugin-Store.
+
+Ein Enconvo-Plugin ist ein ESM-Paket mit Metadaten in `package.json`, Befehlen unter `src/` und optionalen API-Routen unter `src/api/`. Befehle laufen über die Erweiterungslaufzeit von Enconvo; ein Plugin-Befehl ist eine als Default exportierte Funktion, keine Klasse, die ein `Command`-Interface implementiert.
+
+## Bevor du anfängst
+
+Du brauchst Node.js 18 oder neuer, npm oder einen anderen Paketmanager und Enconvo, das auf deinem Mac läuft.
+
+## Schnellstart
+
+Lege ein Plugin-Projekt in einem neuen Ordner an:
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+Das Projekt hat einen Befehl (**Say Hello**), eine Local-API-Route, ein Platzhalter-Symbol und eine README. `npm run dev` baut das Plugin in Enconvo ein und baut es neu, wann immer du speicherst. Suche in Enconvo nach **Say Hello**, um es auszuführen.
+
+Der Plugin-Name kommt vom Ordnernamen. Übergib `--name`, `--title`, `--description` oder `--author`, um sie selbst zu setzen. Wähle einen Namen, den noch kein in Enconvo installiertes Plugin nutzt, weil der Build die Dateien des installierten Plugins ersetzt; `plugin create` lehnt solche Namen ab.
+
+Für ein Plugin, das sich auch in Codex und Claude Code installieren lässt, starte stattdessen mit `--template skills` (eine Fähigkeit) oder `--template mcp` (ein MCP-Server). Siehe [Plugin-Formate](/extensions/plugin-formats) für diese Pakete und [Plugins installieren](/de/extensions/installing-plugins), um ein Plugin aus einem Ordner, von GitHub oder aus einem Marketplace auszuprobieren.
+
+<Note>
+`plugin create`, `plugin validate` und das Veröffentlichen zur Prüfung brauchen ein `@enconvo/api`-Release neuer als 0.1.173. Wenn deine Version sie nicht hat, richte das Projekt von Hand ein, wie unten beschrieben.
+</Note>
+
+## Ein Projekt von Hand einrichten
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+Lege `package.json` an:
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+Der erste Eintrag in `categories` wählt den Bereich, in dem das Plugin auf der Plugins-Seite und im Store erscheint: Productivity, Communication, Developer Tools, Data & Analytics, Finance, Creativity, Business & Operations, Education & Research oder Security.
+
+Installiere das SDK und die Build-Werkzeuge als Entwicklungsabhängigkeiten:
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build` kompiliert deinen Code mit dem eigenen `tsup` des Plugins. Ohne es hat der Build nichts zum Kompilieren; neuere SDKs stoppen mit einem Fehler, ältere beenden sich, ohne deine Befehle zu bauen.
+
+Lege `tsconfig.json` an:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+Lege ein quadratisches PNG-, JPEG-, WebP- oder GIF-Symbol von bis zu 5 MB unter `assets/icon.png` ab.
+
+## Einen Befehl hinzufügen
+
+`commands[].name` entspricht dem Quelldateinamen. Lege dies in `src/hello.ts` ab:
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+Der Befehlsschlüssel ist `hello_enconvo|hello`. Laufzeiteinstellungen und Anfrageparameter werden in den Anfragekörper gemischt.
+
+## Eine Local-API-Route hinzufügen
+
+Dateien in `src/api/` werden beim Build entdeckt und brauchen keinen Eintrag in `commands[]`. Lege dies in `src/api/echo.ts` ab:
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+Daraus wird `hello_enconvo/echo`. Ein Verzeichnis wie `src/api/items/list.ts` wird zu `hello_enconvo/items/list`. Nutze die installierten [Local-API-Schemas](/de/advanced/cli-local-api) für die genauen Anfrageformen.
+
+## Bauen und testen
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+Baue aus dem Plugin-Verzeichnis. Ein guter Build endet mit `ready - built extension successfully`. Wenn er eine `error`-Zeile ausgibt, behebe, was sie nennt, und baue erneut. Der Entwicklungsmodus beobachtet Dateien für Neubauten. API-Schemas werden in das Verzeichnis `skills/` des Plugins erzeugt.
+
+Rufe die Route auf, während Enconvo läuft:
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+Teste eine Begrüßung und eine ungültige API-Eingabe, bevor du das Plugin teilst. Ein erfolgreicher Build allein testet keine nativen Operationen und nicht jeden Anbieteraufruf.
+
+## Im Plugin-Store veröffentlichen
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### Das Plugin prüfen
+
+`plugin validate` prüft das Plugin gegen die Store-Regeln, ohne etwas hochzuladen; [Validation Codes](/extensions/validation-codes) erklärt jedes gemeldete Problem. Nach einem Build zeigt es auch, wie viele Dateien das Paket enthalten wird und welche Dateien ausgelassen werden. Es prüft, dass:
+
+- der Name nur Buchstaben, Ziffern, Punkte, Bindestriche und Unterstriche nutzt
+- `version` wie `1.2.3` aussieht
+- das Plugin einen Titel hat
+- das Symbol ein PNG, JPEG, WebP oder GIF von bis zu 5 MB ist
+
+Du kannst bis zu 8 Screenshots in einem Ordner `metadata/` hinzufügen; die Seite des Plugins im Store zeigt sie unter der Beschreibung, in der Reihenfolge der Dateinamen.
+
+### Zur Prüfung hochladen
+
+`plugin publish` baut das Plugin und lädt es mit dem Enconvo-Konto hoch, mit dem du angemeldet bist, deshalb muss Enconvo laufen und angemeldet sein. Enconvo prüft jede Version, bevor sie im Store erscheint. Bis ein neues Plugin freigegeben ist, siehst nur du es; während ein Update in Prüfung ist, bietet der Store weiter die vorherige Version an.
+
+Erhöhe `version` in `package.json` bei jedem Update. Bevor es etwas baut, fragt `plugin publish` den Store, welche Version er veröffentlicht hat, und stoppt mit der nächsten zu nutzenden Version, wenn deine nicht höher ist. Eine Version, die in Prüfung ist oder abgelehnt wurde, kann so erneut eingereicht werden; der neue Upload ersetzt sie.
+
+Das Paket wird aus dem gebauten Plugin gemacht. `.env`-Dateien, `node_modules`, Versionsverwaltungsordner und `.zip`-Archive werden ausgelassen, aber prüfe, dass keine anderen Anmeldedaten oder privaten Dateien darin landen.
+
+Prüfer folgen den [Richtlinien des Plugin-Stores](/de/extensions/publishing-guidelines). Füge `package.json` ein Objekt `review` mit den Prompts hinzu, die sie ausprobieren sollen, und übergib Anmeldedaten für ein Demokonto mit `--review-notes`; nur Prüfer sehen sie.
+
+## Nächste Schritte
+
+<CardGroup cols={2}>
+  <Card title="KI-Modell- und Sprach-Plugins" icon="microchip" href="/extensions/provider-plugins">
+    Ein eigenes KI-Modell oder eine Text-zu-Sprache-Stimme zu den Auswahlen von Enconvo hinzufügen
+  </Card>
+  <Card title="Extension API Reference" icon="book" href="/extensions/extension-api-reference">
+    Die Bausteine des SDK
+  </Card>
+  <Card title="Plugin-Formate" icon="box" href="/extensions/plugin-formats">
+    Fähigkeits- und MCP-Plugins, die sich auch in Codex und Claude Code installieren lassen
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/de/workflows/introduction">
+    Wiederverwendbare mehrstufige Abläufe, die kein Plugin brauchen
+  </Card>
+</CardGroup>

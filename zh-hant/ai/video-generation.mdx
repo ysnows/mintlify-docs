@@ -1,0 +1,67 @@
+---
+title: "影片生成"
+description: "將文字提示詞或圖片變成一段短影片片段。"
+---
+
+**Text to Video** 根據描述產生影片片段，而 **Image to Video** 則讓圖片動起來。兩者都使用你在 **設定 → 影片生成** 中設定的影片服務供應商，該設定獨立於圖片生成以及你聊天的模型。
+
+影片生成製作的是 AI 影像畫面。如果影片需要精準顯示文字、價格、日期或介面（例如預告片或操作導覽），請改為要求製作[動畫](/zh-hant/features/motion)。
+
+<Warning>
+每個片段都會消耗服務供應商額度或你的 Cloud 點數，且可能需要一段時間。嘗試新的服務供應商時，建議先從短片段開始。
+</Warning>
+
+## 開始之前
+
+1. 開啟 **設定 → 影片生成** 並挑選一個服務供應商。
+2. 設定它的 **憑證供應商**（使用的金鑰或帳號）以及 **模型名稱**。
+3. 點擊 **設為預設**。
+
+Enconvo Cloud 服務供應商 **xAI (Enconvo Cloud)** 與 **Google Gemini (Enconvo Cloud)** 不需要你自己的 API 金鑰。
+
+## 從文字建立片段
+
+1. 開啟 SmartBar，輸入你的描述，然後執行 **Text to Video**。描述主體、動作、攝影機移動方式與場景。
+2. 等待畫面顯示 **Generating video...**。
+3. 在結果中預覽片段，接著貼上、複製或在 Finder 中顯示。
+
+## 讓圖片動起來
+
+1. 附加來源圖片，並描述哪些部分移動、哪些部分保持不變。
+2. 執行 **Image to Video**。它同時需要描述以及至少一張圖片。
+3. 預覽片段並儲存。
+
+如果模型只接受單張圖片或有限的長度，請在這些限制範圍內撰寫你的請求。
+
+## 在聊天旁編輯片段
+
+在聊天中請代理程式製作片段，或在新聊天的訊息框下方選擇 **影片**。模型、其設定與 **避免** 會以膠囊標籤的形式顯示在訊息框下方。點擊代理程式產生的片段，即可在聊天旁的影片編輯器中開啟它，接著描述下一個修改。
+
+- 設定面板只會顯示所選模型支援的項目，例如長度、解析度、長寬比與 **避免**（要排除的內容）。
+- 右鍵點擊時間軸上的某個影格，選擇 **用作開始影格**、**用作結束影格** 或 **儲存為圖片**。
+- 每次修改都會成為一個新版本，且每個片段都會保存在[媒體](/zh-hant/features/media)與 `~/Enconvo/Media` 中。
+
+在[媒體](/zh-hant/features/media)中，你也可以用多個各自擁有提示詞與長度的鏡頭組成一部影片，並加入你自己的音訊。
+
+## 服務供應商與選項
+
+[影片服務供應商目錄](/zh-hant/providers/catalog)包含 xAI、Gemini、OpenRouter、PipeLLM、Kie.ai、Topview 及其 Enconvo Cloud 版本。各模型支援的輸入與解析度各不相同。例如，Grok Imagine Video 1.5 新增了基礎版 Grok Imagine Video 模型所沒有的 1080p 選項；而預設的 Google Gemini 模型 Gemini Omni 1.2 Flash 可產生 3 至 15 秒、最高 4K 的影片。
+
+**Text to Video** 與 **Image to Video** 會使用模型的預設長度與解析度。若要自訂這些參數，請在聊天中請代理程式製作片段，並只要求該模型支援的選項。
+
+## 疑難排解
+
+| 問題 | 解決方法 |
+| --- | --- |
+| 請求送出失敗 | 檢查服務供應商的存取權限以及你要求的選項 |
+| 片段仍在處理中 | 先檢查其狀態，再啟動另一次付費生成 |
+| 需要協助處理失敗的片段 | 保留你的輸入以及回傳的錯誤或狀態，並在移除憑證後提供這些資訊 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="圖片生成" icon="image" href="/zh-hant/ai/image-generation">在聊天中建立或編輯圖片。</Card>
+  <Card title="媒體" icon="images" href="/zh-hant/features/media">鏡頭、開始與結束影格以及音訊。</Card>
+  <Card title="媒體工具" icon="photo-film" href="/zh-hant/features/media-tools">下載、壓縮或從片段中擷取音訊。</Card>
+  <Card title="服務供應商目錄" icon="list" href="/zh-hant/providers/catalog">所有影片服務供應商及其設定。</Card>
+</CardGroup>

@@ -1,0 +1,91 @@
+---
+title: "Jumeler avec votre téléphone"
+description: "Jumelez l’app Enconvo iPhone ou Android avec un Mac, un PC Windows, un bureau Linux, ou un serveur Linux qui n’a qu’un terminal."
+---
+
+L’app Enconvo sur votre téléphone se jumelle avec chacun de vos ordinateurs, pour que leurs projets et chats soient sur le téléphone. Un chat ouvert depuis le téléphone continue de tourner sur cet ordinateur, avec ses fichiers, ses apps et ses agents. Le téléphone atteint l’ordinateur via le relais Enconvo, et les messages sont chiffrés de bout en bout. Quand le téléphone et l’ordinateur sont sur le même réseau, l’app s’y connecte directement, donc elle se connecte et répond plus vite à la maison ou au bureau.
+
+Chaque ordinateur se jumelle avec le téléphone de son côté. Jumeler deux ordinateurs entre eux (par exemple un portable Linux avec votre Mac) n’ajoute ni l’un ni l’autre au téléphone : jumelez le téléphone avec chaque ordinateur que vous voulez utiliser depuis lui.
+
+## Avant de commencer
+
+- **Obtenez l’app.** iPhone : [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android : Google Play, ou l’APK. **Télécharger l'app mobile** dans **Réglages → Connexions** sur votre ordinateur a un code de téléchargement pour chacun ; le bouton **Télécharger l'app mobile** du plugin Mobile Companion l’ouvre aussi.
+- **Utilisez un seul compte.** Connectez l’app du téléphone et l’ordinateur au même compte Enconvo. Seuls les téléphones de votre compte peuvent se jumeler. Un compte gratuit peut aussi se jumeler, et utiliser les chats de l’ordinateur et l’Écran à distance depuis le téléphone.
+- **Laissez l’ordinateur allumé et Enconvo en marche.** Le téléphone n’atteint un ordinateur que tant qu’Enconvo y tourne.
+
+## Mac, Windows, ou un bureau Linux
+
+Les étapes sont les mêmes sur les trois.
+
+<Steps>
+  <Step title="Afficher le code de jumelage sur l’ordinateur">
+    Cliquez sur le sélecteur d’appareil en bas de la barre latérale, puis **Ajouter un appareil → Jumeler un téléphone**. Ou ouvrez **Réglages → Connexions** et sélectionnez **Afficher le code de jumelage**. Un code QR apparaît. Il ne sert qu’une fois et dure cinq minutes.
+  </Step>
+  <Step title="Le scanner avec le téléphone">
+    Dans l’app Enconvo, ouvrez **À distance**, touchez **Associer un ordinateur**, et pointez l’appareil photo vers le code. Vous pouvez aussi le scanner avec l’appareil photo de l’iPhone, un appareil photo Android ou Google Lens : le code ouvre Enconvo, et vous confirmez l’ordinateur là. Si l’app n’est pas encore installée, le lien du code aide à l’installer, puis à jumeler.
+  </Step>
+  <Step title="Utiliser l’ordinateur depuis le téléphone">
+    Le téléphone se jumelle en un instant et affiche l’ordinateur. Avec plus d’un ordinateur jumelé, passez de l’un à l’autre depuis **À distance**.
+  </Step>
+</Steps>
+
+Si le code expire, sélectionnez **Afficher un nouveau code** et scannez à nouveau.
+
+## Un serveur Linux avec seulement un terminal
+
+Un serveur n’a pas de fenêtre pour afficher le code, donc la ligne de commande l’imprime. Il faut Enconvo 2.5.15 Bêta 1 ou une version ultérieure. Suivez d’abord [Installer sur un serveur](/fr/getting-started/linux).
+
+<Steps>
+  <Step title="Connecter le serveur">
+    ```bash
+    enconvo login
+    ```
+    Approuvez le code qu’il imprime sur `enconvo.com/device`.
+  </Step>
+  <Step title="Laisser Enconvo tourner">
+    ```bash
+    enconvo service install
+    ```
+    Le téléphone n’atteint le serveur que tant qu’Enconvo y tourne.
+  </Step>
+  <Step title="Imprimer le code de jumelage">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Il dessine un code QR dans le terminal, avec un lien en dessous, et dit quand il expire. Le code ne sert qu’une fois et dure cinq minutes.
+  </Step>
+  <Step title="Le scanner ou ouvrir le lien">
+    Scannez le code avec l’appareil photo du téléphone, ou ouvrez le lien sur le téléphone. Confirmez dans l’app Enconvo, et le serveur apparaît sur le téléphone.
+  </Step>
+</Steps>
+
+- **Par SSH** : le code est dessiné dans votre propre terminal, donc cela fonctionne aussi par SSH. S’il se replie, élargissez la fenêtre ou ouvrez le lien à la place.
+- **Connexion** : saisi dans votre propre terminal, le code connecte aussi l’app du téléphone, donc envoyez-le seulement à votre propre téléphone. Une sortie redirigée ou enregistrée, ou une commande lancée par un agent, n’imprime que le lien, qui ne connecte pas l’app : connectez d’abord l’app au même compte.
+- **Expiré** : relancez `enconvo companion pair --phone`.
+
+## Gérer les téléphones jumelés
+
+**Réglages → Connexions** sur chaque ordinateur liste ses téléphones jumelés.
+
+| Pour | Faites ceci |
+|---|---|
+| Jumeler un autre téléphone | Affichez un nouveau code et scannez-le avec ce téléphone. Un ordinateur peut avoir jusqu’à 10 téléphones jumelés. |
+| Renommer un téléphone | Cliquez sur le téléphone, puis sur **Renommer le téléphone** à côté de son nom. |
+| Retirer un téléphone | Sélectionnez **Supprimer** à côté. Ce téléphone ne peut plus atteindre cet ordinateur. |
+| Recommencer | Sélectionnez **Réinitialiser la connexion**. Chaque téléphone est retiré et doit se jumeler à nouveau. |
+
+## Dépannage
+
+| Problème | Correctif |
+|---|---|
+| Un ordinateur n’est pas sur le téléphone | Jumelez le téléphone avec cet ordinateur lui-même. Le jumeler avec un autre ordinateur ne l’ajoute pas. |
+| **Ce code a expiré** | Affichez un nouveau code, ou relancez la commande, et scannez dans les cinq minutes. |
+| **Connectez-vous pour jumeler un téléphone** | Connectez l’ordinateur à Enconvo. Sur un serveur, lancez `enconvo login`. |
+| Le serveur dit qu’il n’est pas connecté | Lancez `enconvo login`, puis à nouveau `enconvo companion pair --phone`. |
+| Le téléphone affiche le serveur hors ligne | Vérifiez qu’Enconvo y tourne : `enconvo service install`, et `sudo loginctl enable-linger "$USER"` s’il s’arrête quand vous vous déconnectez. |
+
+## Étapes suivantes
+
+- [App iPhone](/fr/integrations/iphone-app) : ce que vous pouvez faire depuis votre téléphone, avec un tutoriel vidéo.
+- [Linux (Bêta)](/fr/getting-started/linux) : installez Enconvo sur un bureau ou un serveur.
+- [Vos autres ordinateurs](/fr/integrations/other-computers) : jumelez vos ordinateurs entre eux.

@@ -1,0 +1,65 @@
+---
+title: "Wissensdatenbank-MCP"
+description: "Lass Claude, Cursor, Codex und andere MCP-Clients auf deinem Mac die Wissensdatenbanken durchsuchen und lesen, die du freigibst."
+---
+
+Enconvo kann deine Wissensdatenbanken an MCP-fähige KI-Clients auf demselben Mac ausliefern. Clients können die Wissensdatenbanken durchsuchen und lesen, die du freigibst, und sonst nichts. Der Zugriff ist nur lesend. Das ist getrennt von **Einstellungen → MCP-Server**, wo externe Tools zu den Agenten von Enconvo hinzugefügt werden.
+
+## Einen Client verbinden
+
+1. Öffne die [Wissensdatenbank](/de/ai/knowledge-base) und klicke auf das Zahnrad (**Wissensdatenbank-Einstellungen**), dann auf **KI-Clients (MCP)**.
+2. Schalte **Knowledge Base MCP aktivieren** ein. Es ist standardmäßig aus, und solange es aus ist, werden verbundene Clients abgewiesen.
+3. Wähle, was Clients sehen dürfen. **Diese Wissensdatenbank mit KI-Clients teilen** gilt für die gerade geöffnete, und **Gemeinsam genutzte Wissensdatenbanken** listet alle auf. Diktatverlauf und Erinnerungen bleiben ausgeblendet, bis du sie einschaltest.
+4. Unter **Client verbinden** wählst du deinen Client (Claude Code, Cursor, Codex oder Claude Desktop) und kopierst die Einrichtung.
+5. Bitte den Client, die Wissensdatenbanken aufzulisten, dann eine zu durchsuchen und einen passenden Eintrag zu lesen.
+
+Der lokale Endpunkt ist:
+
+```text
+http://localhost:54535/knowledge_base/mcp
+```
+
+Er nutzt den Streamable-HTTP-Transport. Lass Enconvo laufen, während der Client ihn verwendet. Claude Desktop verbindet sich über eine kleine Brücke, `mcp-remote`, und braucht dafür Node.js. Folge den clientbezogenen Anweisungen im Dialog.
+
+## Verfügbare Tools
+
+| Tool | Zweck |
+| --- | --- |
+| `kb_list` | Sichtbare Wissensdatenbanken auflisten |
+| `kb_search` | Eine sichtbare Wissensdatenbank durchsuchen |
+| `item_list` | Einträge in einer sichtbaren Wissensdatenbank auflisten |
+| `item_read` | Indizierten Eintragstext seitenweise lesen |
+
+Die Tools sind nur lesend. Dieser Endpunkt stellt keine allgemeinen Tools für Erinnerungen oder Aufnahmen bereit. Beim Lesen eines Eintrags kann der Quellpfad oder die URL als Metadaten zurückkommen.
+
+## Zugriff und Verarbeitung
+
+Der Server akzeptiert nur Loopback-Verbindungen und verlangt kein Token. Wenn du ihn einschaltest, können lokale Prozesse die Wissensdatenbanken lesen, die du freigibst. Ein verbundener KI-Client kann das, was er erhält, an seinen eigenen Modellanbieter senden. Prüfe deshalb auch die Einstellungen dieses Clients.
+
+Die Suche nutzt das Embedding-Modell unter **Suche** in **Einstellungen → Erinnerungen**. Läuft es auf Enconvo Cloud, wird der Suchtext dorthin gesendet. „Lokaler Endpunkt“ heißt nicht, dass jeder Teil von Abruf und Antwort offline läuft.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Verbindung abgelehnt | Stelle sicher, dass Enconvo und seine Local API laufen. |
+| Forbidden / 403 | Prüfe, dass **Knowledge Base MCP aktivieren** eingeschaltet ist, dass der Client von diesem Mac aus verbindet und dass seine Konfiguration zum Dialog passt. |
+| Wissensdatenbank nicht gefunden | Schalte die Wissensdatenbank unter **Gemeinsam genutzte Wissensdatenbanken** ein. Ausgeblendete und fehlende Wissensdatenbanken sehen für Clients gleich aus. |
+| Die URL im Browser zeigt 405 | Ein Browser-GET ist keine MCP-Anfrage. Verbinde einen MCP-Client. |
+| Ein langes Dokument kommt unvollständig zurück | Bitte den Client, weitere Seiten mit `item_read` anzufordern. |
+
+Um jeden Zugriff zu stoppen, schalte **Knowledge Base MCP aktivieren** aus. Um einzugrenzen, was Clients abrufen können, schalte einzelne Wissensdatenbanken unter **Gemeinsam genutzte Wissensdatenbanken** aus.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Wissensdatenbank" icon="book" href="/de/ai/knowledge-base">
+    Baue die Wissensdatenbanken auf, die Clients durchsuchen.
+  </Card>
+  <Card title="MCP-Server" icon="plug" href="/de/features/mcp">
+    Füge externe Tools zu den eigenen Agenten von Enconvo hinzu.
+  </Card>
+  <Card title="CLI und Local API" icon="terminal" href="/de/advanced/cli-local-api">
+    Weitere Wege, Enconvo von deinem Mac aus zu erreichen.
+  </Card>
+</CardGroup>

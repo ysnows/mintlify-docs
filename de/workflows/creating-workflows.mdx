@@ -1,0 +1,450 @@
+---
+title: "Workflows erstellen"
+description: "Erstelle, bearbeite, führe aus und teile Workflows im visuellen Editor oder in YAML, mit einem Assistenten, der Schritte für dich baut und repariert."
+---
+
+Diese Anleitung deckt alles ab, was du im Workflow-Editor tust: einen Workflow starten, ihn auf der Fläche oder in YAML bauen, den Assistenten ihn bearbeiten lassen, ihn ausführen und die Ergebnisse lesen. Die letzten Abschnitte sind eine Referenz für das Dateiformat und für jeden Schritttyp.
+
+Um den Editor zu öffnen, wähle **Workflows** in der Seitenleiste des Chatfensters oder öffne **Einstellungen → Workflows → Verwalten**. Wähle dann **Neuer Workflow** oder öffne einen vorhandenen Workflow mit **Bearbeiten**. Im Chatfenster bleibt der Workflow, den du bearbeitet hast, offen, wenn du zu einem Chat und zurück wechselst.
+
+Diese Seite behandelt der Reihe nach:
+
+- Einstieg: [wichtige Ideen](#wichtige-ideen), [deine Workflow-Liste](#workflows-verwalten) und [einen neuen Workflow starten](#einen-neuen-workflow-starten).
+- Bauen: [der visuelle Editor](#mit-dem-visuellen-editor-bauen), [Schrittverhalten](#schrittverhalten) und [der Bearbeitungsassistent](#den-bearbeitungsassistenten-nutzen).
+- Ausführen: [einen Workflow ausführen und seine Ergebnisse lesen](#ausführen-und-prüfen).
+- Referenz: [die YAML-Datei](#yaml-bearbeiten), [frühere Ergebnisse lesen](#frühere-ergebnisse-lesen) und [jeder Schritttyp](#schritttypen).
+
+## Wichtige Ideen
+
+- Ein Workflow erklärt seine **Eingaben**, dann einen oder mehrere Jobs, die jeweils eine geordnete Liste von Schritten halten. Siehe [Workflows](/de/workflows/introduction) für den Überblick.
+- Schritte in einem Job laufen von oben nach unten. Jobs laufen nebeneinander, sofern einer nicht auf einen anderen wartet.
+- Ein Schritt liest Ausführungseingaben und frühere Ergebnisse mit `{{ }}`-Vorlagen, etwa `{{ inputs.topic }}` oder `{{ steps.fetch.output }}`.
+- Einen Workflow zu bearbeiten und ihn auszuführen sind getrennte Aktionen. Speichern schreibt die Datei. Ausführen ruft echte Modelle und Tools auf.
+
+## Workflows verwalten
+
+Die Workflow-Liste ist der Ort, an dem du Workflows öffnest, ausführst, sortierst, findest und löschst.
+
+### Die Workflow-Liste
+
+Jede Zeile zeigt die Anzahl der Schritte des Workflows, wann er zuletzt bearbeitet wurde und wie seine letzte Ausführung lief.
+
+- Wähle die letzte Ausführung, um den Workflow mit den Ergebnissen dieser Ausführung auf der Fläche zu öffnen.
+- Wähle die Abspielen-Schaltfläche, um den Workflow zu öffnen und ihn sofort auszuführen. Wenn er Eingaben braucht, die du nicht ausgefüllt hast, öffnet sich zuerst der Bereich **Eingaben**. Während der Workflow läuft, wird die Abspielen-Schaltfläche zu einer Stopp-Schaltfläche. Wähle sie, um die Ausführung zu stoppen, ohne den Workflow zu öffnen.
+- Ein Workflow, der nach einem Zeitplan läuft, zeigt, wann seine nächste Ausführung ist, oder **Zeitplan pausiert**, wenn alle seine Automatisierungen aus sind. Wähle ihn, um den Workflow mit seinen Zeitplänen im Bereich Ausführungen zu öffnen.
+- Wähle die Kopieren-Schaltfläche, um einen Workflow unter einem neuen Titel zu duplizieren, damit du die Kopie ändern kannst, ohne das Original anzufassen. Die Liste scrollt zur Kopie und hebt sie hervor.
+- Nutze das Sortiermenü über der Liste, um Workflows nach **Zuletzt bearbeitet**, **Zuletzt ausgeführt** oder **Name** zu ordnen. Deine Wahl wird gemerkt.
+
+Die Liste aktualisiert sich von selbst, wenn du zu ihr zurückkommst und wenn eine geplante Ausführung startet.
+
+### Einen Workflow finden
+
+Tippe in **Workflows suchen**. Die Liste aktualisiert sich, während du tippst. Die Löschen-Schaltfläche oder Esc zeigt wieder jeden Workflow.
+
+Wähle ein Tag in einer Zeile, um nur die Workflows mit diesem Tag zu zeigen. Es funktioniert zusammen mit **Workflows suchen**. Eine Zeile zeigt bis zu vier Tags. Wähle **+N**, um den Rest zu sehen. Um wieder jeden Workflow zu zeigen, wähle das Tag erneut, wähle das × daneben über der Liste oder drücke Esc in **Workflows suchen**.
+
+| Taste | In der Workflow-Liste |
+| --- | --- |
+| **⌘F** oder **/** | Zu **Workflows suchen** springen |
+| ↓ in **Workflows suchen** | Zum ersten Workflow gehen |
+| ↑ und ↓ | Zwischen Workflows wechseln |
+| Return | Den gewählten Workflow öffnen |
+| Delete | Den gewählten Workflow löschen |
+
+### Einen Workflow umbenennen oder löschen
+
+Um einen Workflow umzubenennen, wähle seinen Namen oben im Editor, tippe den neuen Namen und drücke Return. Esc behält den alten Namen.
+
+Einen Workflow zu löschen stoppt zuerst seine Ausführung, wenn er läuft. Die [Automatisierungen](/de/workflows/scheduled-jobs), die ihn ausführen, werden pausiert und behalten, damit du ihnen einen anderen Workflow geben oder sie löschen kannst. Die Bestätigung sagt, wie viele, bevor du löschst.
+
+## Einen neuen Workflow starten
+
+Wähle **Neuer Workflow**, um einen Dialog mit diesen Startwegen zu öffnen. Wähle zuerst, welche Art von Workflow es ist:
+
+- **Aufgaben-Workflow**: wie eine Art von Aufgabe erledigt wird.
+- **Team-Workflow**: wie ein Ziel vom Plan zum Fertig geht, mit mehreren Mitgliedern. Seine Vorlagen umfassen **Planen, bauen, prüfen** und **Ein Mitglied**.
+
+Wenn du noch keine Workflows hast, bietet die Workflow-Liste dieselben Starts direkt dort: **Beschreiben, was er tun soll**, **Leerer Workflow** und die Vorlagen.
+
+| Start | Wie |
+| --- | --- |
+| Beschreiben | Schreibe, was der Workflow tun soll, etwa „Übersetze einen Text gleichzeitig ins Japanische und Spanische“, und wähle **Bauen** (oder drücke **⌘↩**). Der Workflow öffnet sich, während der Assistent ihn schon baut. Prüfe seine Schritte und wähle **Sichern**, wenn sie richtig aussehen. |
+| Von einer Vorlage starten | Wähle **Leer**, **Ein Thema recherchieren**, **Eine Webseite zusammenfassen**, **Notizen aus einem YouTube-Video**, **Schreiben und vorlesen** oder **Rundgang durch Schrittarten** (ein Shell-Befehl, ein Tool, eine Eingabe und ein Agent, mit zwei Jobs nebeneinander). Jede Vorlage ist ein vollständiger Workflow, den du sofort ausführen kannst. |
+| Eine Datei importieren | Wähle **Datei wählen…** oder lege eine Workflow-Datei `.yaml`, `.yml` oder `.json` irgendwo auf dem Dialog ab, etwa eine, die ein Teammitglied geteilt hat. Sie wird als neuer Workflow gespeichert, ersetzt also nie einen, den du schon hast. Wenn ihr Titel einem in deiner Liste entspricht, wird sie wie eine Kopie benannt, etwa „News copy“. Wenn die Datei kein gültiger Workflow ist, bleibt der Dialog offen und sagt warum. |
+| Einfügen | Füge das YAML oder JSON eines Workflows, etwa eines, das in einem Chat geteilt wurde, in das Beschreibungsfeld ein. **Bauen** wird zu **Importieren**, und der Workflow wird genau so erstellt, wie eingefügt. |
+
+### Eingebaute Workflows
+
+Workflows, die mit Enconvo kommen, öffnen sich schreibgeschützt. Um einen zu ändern, wähle **Eine Kopie erstellen** und bearbeite die Kopie.
+
+### Einen Workflow teilen
+
+Um einen Workflow zu teilen oder eine Kopie zu behalten, wähle die Teilen-Schaltfläche (das Download-Symbol) in seiner Zeile in der Workflow-Liste oder in der Editor-Symbolleiste:
+
+- **Als YAML-Datei exportieren…** speichert eine `.yaml`-Datei, wo du wählst. Importiere sie mit **Neuer Workflow** > **Datei wählen…** auf jedem Mac.
+- **YAML kopieren** kopiert den Workflow, bereit zum Einfügen in einen Chat oder in das Beschreibungsfeld von **Neuer Workflow**, das ihn importiert.
+
+Beide enthalten Änderungen, die du noch nicht gespeichert hast, wenn du sie aus dem Editor nutzt.
+
+## Mit dem visuellen Editor bauen
+
+<Frame caption="Der visuelle Editor zeigt parallele Jobs, aufeinanderfolgende Schritte und die Konfiguration des gewählten Schritts.">
+  <img src="/images/guides/workflow-visual.jpg" alt="Echter Enconvo-Workflow-Graph mit zwei parallelen Jobs und einem Schrittinspektor" />
+</Frame>
+
+Der Editor hat zwei Arten, denselben Workflow zu sehen:
+
+- **Visuell**: die Schritte als Karten auf einer Fläche, mit parallelen Jobs nebeneinander.
+- **Schritte**: die Schritte von oben nach unten gelistet, mit ihren Bedingungen, Wiederholungen und parallelen Schritten. Nutze das Menü **Hinzufügen** zwischen zwei Schritten, um dort einen einzufügen.
+
+Wähle **Anleitung** in der Kopfzeile für eine Erklärung des Workflows in einfachen Worten in deiner Sprache.
+
+1. Wähle **Visuell** in der Editor-Symbolleiste.
+2. Nutze **Schritt hier hinzufügen** zwischen Knoten, um einen Schritt einzufügen, oder **Parallelen Job hinzufügen** für einen eigenen Zweig. Die Schrittliste öffnet sich mit **Zuletzt verwendet**, den letzten Schritten und Tools, die du gewählt hast, sodass die, die du oft hinzufügst, einen Klick entfernt sind. Ein Plugin mit vielen Tools listet seine ersten acht. Wähle **N weitere anzeigen**, um den Rest zu sehen, oder tippe, um zu suchen.
+3. Wähle einen Schritt, um seinen Inspektor zu öffnen. Bearbeite seine ID, seinen Titel und die Executor-Einstellungen und öffne **Verhalten**, um zu ändern, wie er läuft.
+4. Wähle den Knoten **Eingaben**, um die erklärten Eingaben des Workflows zu konfigurieren: einen Namen, einen Typ (Text, Zahl, wahr/falsch, Liste oder Objekt), eine Beschreibung, einen Standard und ob eine Ausführung einen Wert braucht. Unter jedem Namen zeigt der Bereich, wie Schritte die Eingabe lesen, etwa `{{ inputs.topic }}`, und wie viele Schritte das tun. Eine Eingabe umzubenennen aktualisiert diese Schritte auf den neuen Namen. Ein Name kann Buchstaben, Ziffern und Unterstriche nutzen, darf nicht mit einer Ziffer beginnen und darf keiner anderen Eingabe entsprechen.
+5. Prüfe den Graphen und nutze **Rückgängig** oder **Wiederholen**, während du bearbeitest.
+6. Wähle **Sichern**, nachdem du deine Änderungen geprüft hast.
+
+### Eine Schrittkarte lesen
+
+Jede Schrittkarte zeigt den Namen des Schritts und darunter, was der Schritt tut: das Tool oder die Art des Schritts, dann den Anfang seiner Haupteinstellung, etwa *Websuche · ‹Thema› Nachrichten* oder die ersten Wörter einer Eingabe. Werte, die er aus Eingaben und früheren Schritten liest, erscheinen in ‹ › nach Namen. Ein Schritt ohne Namen zeigt seine ID in Worten. Fahre über eine Karte, um ihre ID zu sehen.
+
+Die Karte eines Tool-Schritts zeigt das Symbol seines Plugins. Kleine Markierungen auf der Karte zeigen, wie der Schritt läuft: nur wenn eine Bedingung wahr ist, einmal für jedes Element einer Liste, wiederholend, erneut versuchend, wenn er fehlschlägt, auch nach einem früheren Fehlschlag laufend oder den Workflow weiterlaufen lassend, wenn er fehlschlägt. Fahre über eine Markierung, um zu lesen, was sie bedeutet. Ändere sie im Abschnitt **Verhalten** des Schritts.
+
+### Einen Schritt wählen
+
+Die Schrittauswahl durchsucht eingebaute Schritte, installierte Tools und MCP-Tools. Sie lässt Tools weg, die nur ein Enconvo-Fenster öffnen oder die Modelle und Stimmen eines Anbieters listen. Ein Workflow kann sie in seinem YAML trotzdem nach Namen aufrufen.
+
+Wenn du nicht sicher bist, welchen du brauchst, tippe, was der Schritt tun soll, etwa „fasse den Artikel in drei Punkten zusammen“, und wähle **Den Assistenten bitten hinzuzufügen** unten in der Auswahl (**⌘↩**). Wenn nichts passt, tut Return dasselbe. Der Assistent fügt den Schritt genau dort hinzu, wo du die Auswahl geöffnet hast, vor oder nach dem benachbarten Schritt oder als neuen parallelen Job, und du kannst ihn wie jede andere Assistentenantwort zurücknehmen.
+
+### Einen Schritt bearbeiten
+
+Der Inspektor hat die Tabs **Konfiguration** und **Ausgabe**. **Schritt ausführen** führt den gewählten Schritt aus. Er kann echte Tool-Aufrufe oder Shell-Befehle ausführen. Prüfe, dass nötige vorgelagerte Werte existieren, bevor du einen einzelnen Schritt ausführst.
+
+Der Tab **Konfiguration** beginnt mit dem **Namen** des Schritts, den die Schrittkarte zeigt, und seiner **Schritt-ID**, die andere Schritte nutzen, um sein Ergebnis zu lesen. **Was er tut** nennt das Tool oder die Art des Schritts.
+
+Um den Schritt etwas anderes tun zu lassen, wähle **Ändern** und wähle ein anderes Tool oder eine andere Schrittart, oder beschreibe, was er tun soll, und wähle **Den Assistenten bitten, ihn zu ändern**:
+
+- Der Schritt behält seine ID, sodass Schritte, die sein Ergebnis lesen, weiter funktionieren.
+- Er behält, wann und wie er läuft: seine Bedingung, Wiederholung, erneuten Versuche und worauf er wartet.
+- Die Einstellungen des neuen Tools beginnen leer. Eine Eingabe, die zu einem Agenten wird, oder ein Agent, der zu einer Eingabe wird, behält seinen Text, sein Modell und sein Ausgabeschema.
+- Ein Name, den der Editor dem Schritt gegeben hat, folgt dem neuen Tool. Ein Name, den du geschrieben hast, bleibt.
+
+Wähle **Rückgängig**, um zurückzugehen.
+
+### Einen Schritt duplizieren, umordnen oder ausschalten
+
+Um einen Schritt wiederzuverwenden, wähle **Duplizieren** im Inspektor oder auf der Schrittkarte, wenn du darüber fährst. Die Kopie behält alle Einstellungen des Schritts, erscheint direkt nach dem Original und bekommt die nächste freie ID, etwa `fetch_2`.
+
+Schritte in einem Job laufen von oben nach unten. Um die Reihenfolge zu ändern, ziehe die Karte eines Schritts in seinem Job nach oben oder unten. Die anderen Karten rücken beiseite, um zu zeigen, wo er landen wird. Du kannst auch einen Schritt wählen und **Nach oben** oder **Nach unten** im Inspektor wählen oder **⌥↑** oder **⌥↓** drücken. Drücke **⌘Z**, um eine Verschiebung rückgängig zu machen. Wenn ein Schritt über einem Schritt landet, dessen Ergebnis er liest, zeigt seine Karte eine Warnung, bis du ihn wieder darunter schiebst.
+
+Um einen Schritt vorerst wegzulassen, ohne ihn zu löschen, wähle ihn und wähle **Schritt ausschalten**. Seine Karte verblasst und zeigt **Aus**, Ausführungen überspringen ihn, und die Schritte danach laufen weiter. Wähle **Schritt einschalten**, um ihn zurückzubringen.
+
+### Mit mehreren Schritten arbeiten
+
+Um mehrere Schritte auf einmal zu ändern, halte ⌘ oder Umschalt und klicke ihre Karten. Eine Leiste oben auf der Fläche zeigt, wie viele Schritte gewählt sind, mit **Ausschalten** (oder **Einschalten**) und **Löschen** für alle. Drücke Esc oder klicke eine leere Stelle auf der Fläche, um die Auswahl zu löschen, und **⌘Z**, um rückgängig zu machen.
+
+Wenn ein Löschen andere Schritte brechen oder einen Job leeren würde, fragt Enconvo zuerst. Die Bestätigung listet jeden Schritt, der von den zu löschenden abhängt, und warum, etwa **Nutzt seine Ausgabe** oder **Wartet, bis er fertig ist**. Wähle einen, um das Löschen abzubrechen und diesen Schritt zu öffnen, damit du ihn zuerst reparieren kannst. Dasselbe passiert, wenn du einen einzelnen Schritt löschst.
+
+Um Schritte zu kopieren, wähle einen (oder mehrere) und drücke **⌘C**, oder wähle **Kopieren** in der Leiste. **⌘X** schneidet sie aus. Wähle dann den Schritt, dem sie folgen sollen, und drücke **⌘V**:
+
+- Die Kopien landen direkt nach diesem Schritt oder am Ende des Jobs, wenn ein Job gewählt ist, und behalten ihre Einstellungen.
+- Eine Kopie, deren ID schon vergeben ist, bekommt eine neue, etwa `fetch_2`, und eingefügte Schritte, die voneinander lesen, folgen den neuen Namen.
+- Schritte lassen sich auf dieselbe Weise in einen anderen Workflow einfügen, und **⌘V** akzeptiert auch eine YAML- oder JSON-Schrittliste, die aus einer Workflow-Datei kopiert wurde.
+
+Wenn du Schritte löschst oder einfügst, sagt eine Mitteilung, was sich geändert hat. Wähle dort Rückgängig, um diese Änderung zurückzunehmen.
+
+### Finden, zoomen, sichern und ausführen
+
+- Um in einem großen Workflow zu einem Schritt zu springen, drücke **⌘F** oder wähle die Suchschaltfläche auf der Fläche, tippe einen Teil des Namens, der ID, des Tools oder des Texts des Schritts und wähle ihn. Der Schritt wird ausgewählt und in die Ansicht gebracht.
+- Nutze die Zoom-Steuerungen in der unteren rechten Ecke der Fläche. Wähle die Zoomstufe, um zu 100 % zurückzukehren.
+- Wähle **Schritt finden** oder drücke **⌘F** auf der Fläche und tippe einen Teil eines Schrittnamens, um diesen Schritt auszuwählen und in die Ansicht zu bringen. Es funktioniert auch in schreibgeschützten eingebauten Workflows.
+- Drücke **⌘S**, um von überall im Editor zu sichern, in Visuell oder YAML, auch während du in den Einstellungen eines Schritts tippst.
+- Drücke **⌘↩**, um den Workflow auszuführen. Er wird zuerst gesichert, wenn er Änderungen hat. Im YAML-Editor, im Assistenten und in anderen mehrzeiligen Feldern wähle stattdessen **Ausführen**.
+- Während eine Ausführung läuft, wird **Ausführen** zu **Stopp**. Nachdem du es gewählt hast, zeigt es **Stoppt…**, bis die Ausführung gestoppt hat.
+
+Wenn der Workflow ein Problem hat, etwa einen Schritt mit leerer Eingabe oder fehlender Beschreibung, stoppen Sichern und Ausführen und sagen, was zu reparieren ist. Wähle **Zeigen**, um den Schritt oder Titel und Beschreibung des Workflows zu öffnen. Schritte mit Problemen haben eine rote Markierung auf ihrer Karte. Fahre darüber, um zu lesen, was falsch ist. In YAML wähle **Prüfen**, um das ganze Dokument zu prüfen.
+
+### Nicht gespeicherte Änderungen
+
+Solange ein Workflow nicht gespeicherte Änderungen hat, zeigt die Kopfzeile des Editors **Nicht gespeichert**. Wähle es, um die YAML-Zeilen zu sehen, die seit dem letzten Speichern hinzugefügt und entfernt wurden, und wähle **Änderungen verwerfen**, um zur gespeicherten Version zurückzugehen. Im visuellen Editor bringt **⌘Z** deine Änderungen zurück. Wenn du mit nicht gespeicherten Änderungen zur Workflow-Liste zurückgehst, wähle **Sichern und verlassen**, **Verwerfen** oder **Weiter bearbeiten**.
+
+Nicht gespeicherte Änderungen bleiben auf diesem Mac auch, während du bearbeitest. Wenn das Fenster schließt oder neu lädt, bevor du sicherst, zeigt das erneute Öffnen des Workflows eine Leiste oben mit **Wiederherstellen**, die deine Änderungen als einen Schritt zurücklegt, den du rückgängig machen kannst, oder **Verwerfen**. Änderungen werden nur zurückgeboten, wenn der gespeicherte Workflow sich seitdem nicht geändert hat. In der Workflow-Liste zeigt ein solcher Workflow ein Tag **Nicht gespeicherte Änderungen**, und ihn zu löschen verwirft diese Änderungen ebenfalls.
+
+### Flächenkürzel
+
+| Kürzel | Was es tut |
+| --- | --- |
+| **⌘S** | Sichern |
+| **⌘↩** | Ausführen (sichert zuerst) |
+| **⌘F** | Einen Schritt finden |
+| **⌘Z** | Rückgängig |
+| **⌘C**, **⌘X**, **⌘V** | Schritte kopieren, ausschneiden und einfügen |
+| **⌘A** | Jeden Schritt wählen |
+| **⌫** | Die gewählten Schritte löschen |
+| **⌥↑**, **⌥↓** | Den gewählten Schritt nach oben oder unten bewegen |
+| **⌘=**, **⌘-** | Hinein- und herauszoomen |
+| **⌘0** | Den ganzen Workflow in die Ansicht passen |
+| **?** | Jedes Flächenkürzel zeigen |
+
+Du kannst auch jedes Flächenkürzel mit der Tastaturschaltfläche neben **Parallelen Job hinzufügen** sehen.
+
+## Schrittverhalten
+
+Der Abschnitt **Verhalten** des Inspektors setzt, wie ein Schritt läuft, ohne YAML zu bearbeiten. Seine Kopfzeile listet, was du geändert hast, etwa *Nur wenn… · Erneute Versuche 2×*, oder zeigt **Standard**.
+
+| Einstellung | Wahlmöglichkeiten | YAML, das sie schreibt |
+|---|---|---|
+| **Läuft** | Jedes Mal; nur wenn eine Bedingung wahr ist; sonst, wenn die Bedingung eines früheren Schritts falsch ist. **Auch laufen, wenn frühere Schritte fehlschlagen oder übersprungen werden** lässt den Schritt nach einem Fehlschlag davor weiterlaufen. | `if`, `else_of`, `run_when` |
+| **Wiederholt** | Einmal; einmal für jedes Element einer Liste; in Runden, bis eine Bedingung erfüllt ist, bis zu einer Höchstzahl von Runden | `foreach`, `loop` |
+| **Wenn er fehlschlägt** | Den Workflow stoppen oder weitergehen, damit spätere Schritte noch laufen. **Erneute Versuche** führt den Schritt erneut aus, bevor er als fehlgeschlagen zählt, mit einer optionalen Wartezeit zwischen Versuchen. | `required: false`, `retries` |
+| **Wartet auf** | Den vorherigen Schritt; nichts, sodass er sofort startet; oder die Schritte, die du aus einer Liste früherer Schritte und Schritte in anderen Jobs anhakst | `needs` |
+
+**Ausgabeschema** nimmt ein optionales JSON-Schema für ein strukturiertes Ergebnis. Eine Vorgabe erneut zu wählen entfernt die Einstellung aus dem YAML. [Fortgeschrittene Workflows](/de/workflows/advanced-workflows) erklärt jede Einstellung im Detail.
+
+## Den Bearbeitungsassistenten nutzen
+
+Wähle **Assistent** in der Editor-Symbolleiste, um den Assistentenbereich neben der Fläche zu öffnen, und beschreibe dann, was du willst, etwa: „Füge einen Eingabeschritt hinzu, der das vorherige Ergebnis zusammenfasst.“ Für einen neuen, leeren Workflow kannst du stattdessen den ganzen Ablauf beschreiben, etwa „Hole jeden Morgen die wichtigsten Hacker-News-Geschichten und fasse sie zusammen.“ Drücke Return, um zu senden, und **⇧↩** für eine neue Zeile, und wähle das Modell unter dem Eingabefeld.
+
+Während der Assistent arbeitet, zeigt der Bereich, was er tut, etwa den Workflow lesen, die Parameter eines Tools prüfen oder bearbeiten, und die Fläche aktualisiert sich unterwegs. Die Fläche ist schreibgeschützt, bis die Antwort fertig ist. Wähle **Stopp**, um sie früher zu beenden.
+
+### Mehr senden, während er arbeitet
+
+Du musst nicht warten, bis eine Antwort fertig ist, bevor du mehr verlangst. Drücke Return, während der Assistent arbeitet, und deine Nachricht wartet in einer Warteschlange über dem Eingabefeld. Nachrichten in der Warteschlange werden nacheinander gesendet, in der Reihenfolge, sobald jede Antwort fertig ist.
+
+- Ziehe eine wartende Nachricht, um sie umzuordnen, nutze ihr Menü **⋯**, um sie zu bearbeiten, oder wähle das Papierkorb-Symbol, um sie zu entfernen.
+- Wenn du **Stopp** wählst oder eine Antwort fehlschlägt, wird die Warteschlange als **Geparkt** markiert und nichts weiter wird von selbst gesendet. Wähle **Senden** an einer wartenden Nachricht, wenn du bereit bist.
+- Wenn eine Nachricht nicht warten kann, etwa eine Korrektur dessen, was der Assistent tut, drücke **⌘↩** statt Return oder wähle **Jetzt senden** an einer wartenden Nachricht. Die aktuelle Antwort stoppt, behält die Änderungen, die sie schon gemacht hat, und wird als **Unterbrochen** markiert, und deine Nachricht wird sofort gesendet. Der Rest der Warteschlange wird nicht geparkt. Er wird danach der Reihe nach gesendet.
+
+### Prüfen, was er geändert hat
+
+Jede Antwort, die den Workflow ändert, endet mit einer Karte, die die Schritte listet, die sie hinzugefügt, geändert oder entfernt hat. Wenn eine Antwort fertig ist, sind die hinzugefügten Schritte auf der Fläche mit **Hinzugefügt** markiert und die geänderten mit **Bearbeitet**, damit du siehst, was zu prüfen ist. Die Markierungen bleiben, bis du sicherst, rückgängig machst oder die Antwort zurücknimmst.
+
+- Wähle einen Schritt auf der Karte, um ihn auf der Fläche auszuwählen und in die Ansicht zu bringen. Schritt-IDs, die der Assistent in seiner Antwort nennt, etwa `summarize`, funktionieren genauso.
+- Wähle **Ausführen** auf der Antwortkarte, um die letzte Änderung des Assistenten zu probieren. Sie führt den Workflow genauso aus wie **Ausführen** in der Symbolleiste und fragt zuerst nach Eingaben, wenn sie welche braucht.
+- Wähle **Zurücknehmen** auf der neuesten Karte, um den Workflow so zurückzusetzen, wie er vor dieser Antwort war. **Rückgängig** (**⌘Z**) nimmt auch eine ganze Antwort in einem Schritt zurück.
+
+Wenn eine Antwort den Workflow ungültig hinterlässt, wechselt der Editor zu YAML und zeigt die Fehler. Repariere sie dort oder bitte den Assistenten, sie zu reparieren. Assistentenänderungen bleiben ungespeichert, bis du **Sichern** wählst.
+
+### Ihn auf einen Schritt oder ein Ergebnis richten
+
+- Um nach einem Schritt zu fragen, wähle ihn auf der Fläche und wähle **Assistenten fragen** in seinem Inspektor. Der Schritt wird an deine nächste Nachricht angehängt, sodass „mach das zuverlässiger“ diesen Schritt meint.
+- Wenn ein Schritt in einer Ausführung fehlschlägt, wähle **Mit dem Assistenten reparieren** in der Ausführungszusammenfassung oder im Tab **Ausgabe** des Schritts. Deine Nachricht trägt den Schritt und seinen Fehler, sodass du den Fehler nicht kopieren musst.
+- Um nach einem Teil des Ergebnisses eines Schritts zu fragen, wähle Text in seinem Tab **Ausgabe** und wähle **Assistenten fragen** unter der Auswahl. Der Text erscheint als Zitat über dem Nachrichtenfeld und geht mit deiner nächsten Nachricht, sodass du fragen kannst, was er bedeutet oder wie der Schritt geändert werden soll, der ihn erzeugt hat.
+
+### Chats und dauerhafte Anweisungen
+
+Wähle **Neuer Chat** oben im Bereich, um neu zu starten. Der frühere Chat bleibt in der Liste. Wähle den Namen des Chats oben im Bereich, um zu einem früheren Chat über denselben Workflow zurückzuwechseln oder einen zu löschen. Ein gespeicherter Workflow behält seine letzten zehn Chats in diesem Browser.
+
+Um Vorgaben zu setzen, denen der Assistent immer folgen soll, wähle **Einstellungen** (das Schieberegler-Symbol) oben im Bereich und schreibe sie unter **Anweisungen**, etwa „Speichere Dateien nach ~/Downloads.“, „Nutze anthropic/claude-haiku-4-5 für Eingabeschritte.“ oder „Antworte auf Chinesisch.“ Drücke **⌘↩** oder wähle **Sichern**. Die Anweisungen gelten für jeden Workflow, den der Assistent baut oder bearbeitet, und ein Punkt auf dem Einstellungen-Symbol zeigt, dass sie ein sind. Um sie nicht mehr zu nutzen, leere das Feld und sichere.
+
+## Ausführen und prüfen
+
+1. Wähle **Eingaben** und fülle die Werte für diese Ausführung aus.
+2. Prüfe die Definition und sieh dir Befehle oder Tool-Aufrufe an.
+3. Wähle **Ausführen** und beobachte den Schrittstatus im Graphen.
+4. Wähle den Tab **Ausgabe** eines Schritts, um sein Ergebnis oder seinen Fehler zu prüfen. Nach einer Ausführung zeigt jede Schrittkarte auch die erste Zeile dessen, was der Schritt zurückgegeben hat, oder warum er fehlgeschlagen ist, anstelle seiner Beschreibung. Wähle diese Zeile, um den Tab **Ausgabe** des Schritts zu öffnen. Wähle **Kopieren** im Tab **Ausgabe**, um das Ergebnis des Schritts zu kopieren, oder seinen Fehler, wenn er nichts zurückgegeben hat, etwa um es in einen Chat oder ein Dokument einzufügen.
+5. Öffne **Ausführungen**, um frühere Ausführungen zu prüfen.
+6. Sichere den Workflow, wenn du mit seiner Definition zufrieden bist.
+
+<Warning>
+Eine Ausführung kann Anbieter-Guthaben verbrauchen oder externe Daten ändern, je nach ihren Schritten. Shell- und Tool-Schritte handeln mit den Berechtigungen deines Mac-Kontos.
+</Warning>
+
+### Ausführungseingaben
+
+**Eingaben** in der Symbolleiste öffnet ein Formular mit einem Feld für jede Eingabe, die der Workflow erklärt, und zeigt ihren Typ, ihre Beschreibung und ihren Standard:
+
+- Lass ein Feld leer, um seinen Standard zu nutzen. Listen und Objekte nehmen JSON, etwa `["a", "b"]`.
+- Eine als **Erforderlich** markierte Eingabe ohne Standard braucht einen Wert. Wenn sie leer ist oder ein Wert den falschen Typ hat, stoppt **Ausführen**, bevor etwas gesichert oder ausgeführt wird, und zeigt auf das Feld, das zu reparieren ist.
+- Drücke **⌘↩** in einem Feld, um auszuführen.
+- Das Formular startet mit den Werten, mit denen der Workflow zuletzt in Enconvo gelaufen ist. Wähle **Leeren**, um jedes Feld auf einmal zu leeren, sodass die nächste Ausführung wieder die Standards nutzt. Eine Eingabe umzubenennen behält den Wert, den du für sie getippt hast.
+- Während eine frühere Ausführung aus **Letzte Ausführungen** auf der Fläche ist, wähle **Die Werte dieser Ausführung nutzen**, um das Formular mit den Eingaben zu füllen, mit denen sie gelaufen ist, und führe sie dann erneut so oder mit einer Änderung aus.
+- Ein leeres Feld zeigt seinen Standard in Grau. Um einen langen Standard zu ändern, statt ihn neu zu tippen, wähle **Standard bearbeiten** neben dem Feld, um den Standard hineinzulegen, und bearbeite ihn dann.
+- Im visuellen Editor wähle **Eingaben bearbeiten**, um zu ändern, wonach der Workflow fragt. Wenn Schritte noch eine Eingabe lesen, die du entfernst, nennt Enconvo sie und fragt, bevor sie entfernt wird. Wähle **Als JSON bearbeiten**, um die Eingaben als ein JSON-Objekt zu tippen, einschließlich Schlüsseln, die der Workflow nicht erklärt. **Formular nutzen** wechselt zurück.
+
+### Wenn eine Ausführung endet
+
+Wenn eine Ausführung endet, erscheint eine Zusammenfassung unten auf der Fläche:
+
+- Wenn ein Schritt fehlgeschlagen ist, nennt die Zusammenfassung ihn und zeigt die Zeile seines Fehlers, die sagt, was schiefging, etwa `command not found: datex`, statt nur eines Exit-Codes. Wähle **Fehler zeigen**, um den Tab **Ausgabe** dieses Schritts zu öffnen und den Schritt auf der Fläche in die Ansicht zu bringen.
+- Wähle **Mit dem Assistenten reparieren**, um den fehlgeschlagenen Schritt und seinen Fehler an den Assistenten zu geben. Er beginnt seine Antwort mit der Ursache und repariert dann den Schritt. Wenn die Ursache außerhalb des Workflows liegt, etwa ein fehlender API-Schlüssel, ein Netzwerkfehler oder eine fehlende Datei, sagt er dir, was zu ändern ist, statt zu bearbeiten. Der Tab **Ausgabe** eines fehlgeschlagenen Schritts hat dieselbe Schaltfläche **Mit dem Assistenten reparieren**.
+- Wähle **Fortsetzen**, um eine fehlgeschlagene oder gestoppte Ausführung fortzusetzen. Schritte, die schon fertig sind, behalten ihre Ergebnisse. Der fehlgeschlagene Schritt und alles danach laufen erneut. Wenn du einen Schritt nach der Ausführung bearbeitet hast, laufen dieser Schritt und die Schritte danach ebenfalls erneut. Wenn du die Ausführungseingaben änderst, läuft der ganze Workflow von vorn. **Fortsetzen** erscheint auch neben **Ausführen** in der Symbolleiste, bis du eine andere Ausführung startest.
+- Nach einer sauberen Ausführung wähle **Ausgabe zeigen**, um das Ergebnis des letzten Schritts zu sehen. Die Zusammenfassung verblasst nach ein paar Sekunden, sofern nichts deine Aufmerksamkeit braucht. Wähle **×**, um sie früher zu schließen.
+
+### Letzte Ausführungen
+
+**Letzte Ausführungen** listet die früheren Ausführungen des Workflows, die neueste zuerst. Jede Zeile zeigt:
+
+- ob die Ausführung gelungen ist, fehlgeschlagen ist oder noch läuft;
+- wann sie gestartet ist und wie lange sie gedauert hat;
+- ob ein Zeitplan (**Geplant**) oder ein Chat (**Aus dem Chat**) sie gestartet hat;
+- die Eingaben, mit denen sie gelaufen ist (fahre darüber, um alle zu sehen), und den Fehler, wenn sie fehlgeschlagen ist.
+
+Die auf der Fläche gezeigte Ausführung ist mit **Wird angezeigt** markiert. Wähle eine Zeile, um die Schrittergebnisse dieser Ausführung auf der Fläche zu zeigen. Wenn manche Ausführungen fehlgeschlagen sind und andere nicht, wähle **Fehlgeschlagen** über der Liste, um nur die fehlgeschlagenen zu sehen, und **Alle Ausführungen**, um wieder jede Ausführung zu sehen.
+
+### Nach einem Zeitplan ausführen
+
+**Zeitplan** oben im Bereich Ausführungen listet die Automatisierungen, die diesen Workflow ausführen, mit dem Zeitpunkt der nächsten Ausführung und den Eingaben, mit denen sie läuft.
+
+- Wenn die letzte Ausführung einer Automatisierung fehlgeschlagen ist, fahre über **Letzte Ausführung fehlgeschlagen**, um zu sehen warum, oder wähle es, um diese Ausführung auf der Fläche zu öffnen und zu sehen, welcher Schritt fehlgeschlagen ist.
+- Schalte eine Automatisierung mit ihrem Schalter aus oder ein oder wähle den Stift, um ihren Zeitplan zu ändern.
+- Wähle **Zeitplan hinzufügen**, um das Formular direkt dort zu öffnen, mit diesem Workflow schon gewählt und seinen Eingaben aus **Ausführungseingaben** gefüllt.
+- Wähle **Löschen** an einem Zeitplan, um diese Automatisierung zu entfernen.
+
+Geplante Ausführungen nutzen den gespeicherten Workflow, also sichere deine Änderungen vor der nächsten Ausführung. Jede Automatisierung ist auch unter **Automatisierungen** in der Seitenleiste des Chatfensters gelistet. Siehe [Automatisierungen](/de/workflows/scheduled-jobs).
+
+## YAML bearbeiten
+
+Speichern schreibt den Workflow nach `~/.enconvo/workflows/<id>.yaml`. Wähle **YAML**, um mit demselben Dokument als Quelle zu arbeiten. Der Editor prüft, während du tippst: Ein Fehler nennt seine Zeile und Spalte, und eine Warnung markiert Felder, die nichts tun. Das Kennzeichen **Gültig** oder **Ungültig** und die Aktion **Prüfen** prüfen das ganze Dokument. Nutze Buchstaben, Ziffern und Unterstriche für Job- und Schritt-IDs und beginne mit einem Buchstaben oder Unterstrich. Wenn du zu **Visuell** zurückwechselst, nimmt **⌘Z** deine YAML-Änderungen in einem Schritt zurück.
+
+```yaml
+version: agent-workflow/v1
+title: Greeting
+description: Produce a greeting and a formatted result without calling a model.
+inputs:
+  name:
+    type: string
+    default: world
+jobs:
+  main:
+    steps:
+      - id: greeting
+        uses: transform
+        value: "Hello, {{ inputs.name }}!"
+      - id: result
+        uses: transform
+        value: "Result: {{ steps.greeting.output }}"
+```
+
+Führe dieses Beispiel mit `Ada` im Feld **name** unter **Eingaben** aus. Der letzte Schritt erzeugt `Result: Hello, Ada!`.
+
+## Frühere Ergebnisse lesen
+
+| Ausdruck | Wert |
+| --- | --- |
+| `{{ inputs.name }}` | Ein Eingabewert |
+| `{{ steps.greeting.output }}` | Ein vorheriger Schritt im selben Job |
+| `{{ jobs.research.search.output }}` | Ein abgeschlossener Schritt in einem anderen Job |
+| `{{ item }}` und `{{ index }}` | Aktuelles Element und Index in `foreach` |
+| `{{ round }}` und `{{ last }}` | Runde und vorherige Ausgabe in einer Schleife |
+
+Füge `needs` auf Job-Ebene hinzu, bevor du die Ausgabe eines anderen Jobs liest. Prüfe Tool-Ergebnisse in **Ausgabe**, statt anzunehmen, dass jedes Tool dieselben Felder zurückgibt.
+
+### Einen Wert einfügen, ohne zu tippen
+
+Im visuellen Editor musst du diese nicht von Hand tippen. Wähle **Wert einfügen** (die Schaltfläche `{x}` rechts an einem Schrittfeld, etwa der Eingabe, dem Befehl, einer Tool-Einstellung oder einer Bedingung), um zu listen, was dieser Schritt lesen kann: die Eingaben des Workflows, die Ergebnisse früherer Schritte in seinem Job, die Schritte von Jobs, auf die er wartet, und bei einem wiederholten Schritt das aktuelle Element oder die Runde. Durchsuche die Liste und wähle eines. Es geht dorthin, wo dein Cursor war, oder ersetzt den Text, den du ausgewählt hast.
+
+- Ein Shell-Schritt bietet seinen gedruckten Text als `{{ steps.<id>.stdout | trim }}`.
+- Ein Schritt mit einem Ausgabeschema oder einer früheren Ausführung listet auch seine Ergebnisfelder.
+- Bedingungen, **Stoppen wenn** und die Liste, über die ein Schritt wiederholt, bekommen die richtige Form für dieses Feld, etwa ein bloßes `steps.check.output.ok` in einer Bedingung.
+
+Ein Feld, das etwas liest, das es nicht erreichen kann, zeigt darunter eine Warnung mit dem, was zu ändern ist: eine Eingabe, die der Workflow nicht erklärt, einen Schritt, der später läuft oder der Schritt selbst ist, einen Schritt, der zu einem anderen Job gehört, oder einen Job, auf den dieser nicht wartet. Auf der Fläche zeigt eine Schrittkarte mit einem solchen Wert ein Warnsymbol neben ihrem Titel. Fahre darüber, um zu sehen, was zu reparieren ist. Warnungen hindern dich nicht am Speichern.
+
+## Schritttypen
+
+Jedes Snippet unten ist ein Schrittleintrag: Lege es in die Liste `steps` eines Jobs. Im visuellen Editor wähle denselben Schritttyp aus der Schrittauswahl.
+
+### Shell
+
+```yaml
+- id: today
+  command: 'date "+%Y-%m-%d"'
+```
+
+Lies das Ergebnis mit `steps.today.output.stdout`. Optionale Einstellungen umfassen `cwd`, `shell`, `timeoutMs` und `env`. Befehle nutzen die Berechtigungen deines Mac-Kontos. Prüfe Befehle, bevor du sie ausführst.
+
+### Eingabe
+
+```yaml
+- id: summarize
+  prompt: "Summarize this text: {{ inputs.text }}"
+```
+
+Das ruft ein Modell einmal auf. Nutze [Ausgabeschemas](/de/workflows/advanced-workflows), wenn spätere Schritte strukturierte Felder brauchen.
+
+### Agent
+
+```yaml
+- id: plan
+  agent: agent/main
+  message: "Propose a three-step plan for {{ inputs.topic }}."
+```
+
+Nutze einen Befehlsschlüssel für einen installierten Agenten. Seine aktivierten Tools und Anbietereinstellungen bestimmen, was er tun kann.
+
+### Tool
+
+```yaml
+- id: saved
+  tool: workflow/list
+  with:
+    limit: 5
+```
+
+`tool` ist eine Local-API-Route in Schrägstrichform. `with` liefert Parameter (`params` ist ein Alias). Entdecke verfügbare Routen unter **Einstellungen → APIs** oder bitte den Bearbeitungsassistenten, installierte Tools zu prüfen.
+
+### Transform
+
+Nutze `uses: transform` mit einem `value`, um Eingaben oder vorherige Ausgaben zu kombinieren, ohne ein Modell aufzurufen. Das Beispiel [YAML bearbeiten](#yaml-bearbeiten) nutzt zwei Transform-Schritte.
+
+### Unterworkflow
+
+Nutze `uses: workflow` mit einer gespeicherten `workflowId` oder einem eingebetteten Dokument `workflow`, um einen wiederverwendbaren Kindprozess auszuführen. Im visuellen Editor wähle den gespeicherten Workflow nach Namen und fülle die Eingaben, nach denen er fragt, in einem Formular aus. Ein Unterworkflow-Schritt ohne gewählten Workflow besteht nicht. Er stoppt die Ausführung und sagt, was fehlt. Siehe [Fortgeschrittene Workflows](/de/workflows/advanced-workflows).
+
+### Freigabe
+
+```yaml
+- id: confirm
+  uses: approval
+  message: "Post this summary to the team? {{ inputs.text }}"
+```
+
+Enconvo fragt dich die `message` mit **Freigeben** und **Ablehnen** und wartet auf deine Antwort, bis zu 24 Stunden, sofern der Schritt nicht `timeoutMs` setzt. Bei Freigabe laufen die Schritte danach. Bei Ablehnung oder ohne Antwort wird er wie eine falsche Bedingung übersprungen: Die Schritte danach überspringen, und sein Schritt `else_of` läuft. `steps.confirm.output.feedback` hält, was du getippt hast, als du abgelehnt hast. Setze ihn direkt vor einen Schritt, der sendet, postet, löscht oder bezahlt. Wenn du nach dem Ablehnen **Erneut versuchen** wählst, erfährt die neue Ausführung, was du abgelehnt hast und warum. Eine Freigabe innerhalb eines Unterworkflows abzulehnen stoppt die ganze Ausführung, nicht nur den Unterworkflow.
+
+### Beurteilen
+
+```yaml
+- id: urgent
+  uses: judge
+  question: Does this message ask for a reply today?
+  input: "{{ inputs.text }}"
+```
+
+Jev, das schnelle Entscheidungsmodell von Enconvo Cloud, beantwortet die `question` über `input` mit `yes` und einer `probability`. `yes` ist wahr, wenn die Wahrscheinlichkeit `threshold` erreicht (0,5, sofern du sie nicht setzt). Verzweige darauf mit `if: "{{ steps.urgent.output.yes }}"` und einem Schritt `else_of`.
+
+### Klassifizieren
+
+```yaml
+- id: kind
+  uses: classify
+  question: What kind of request is this?
+  input: "{{ inputs.text }}"
+  options:
+    billing: A question about payments or invoices
+    bug: A report that something is broken
+    other: Anything else
+```
+
+Gib im Inspektor eine Zeile je Option ein. Jev wählt eine der `options` und gibt ihr `label`, eine `confidence` und die `probabilities` jeder Option zurück. `options` ist eine Liste von mindestens zwei Bezeichnungen oder eine Zuordnung jeder Bezeichnung zu ihrer Bedeutung. Verzweige mit `if: "{{ steps.kind.output.label == 'billing' }}"`.
+
+Beurteilen- und Klassifizieren-Schritte laufen auf Enconvo Cloud, also musst du angemeldet sein und Punkte übrig haben. Sie nehmen kein `output_schema`.
+
+## Die Schritte ansehen
+
+<video controls playsInline preload="none" poster="/images/guides/workflow-visual.jpg" aria-label="Den Workflow-Editor erkunden" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/workflow-editor.mp4" type="video/mp4" />
+  [Die Anleitung herunterladen](/videos/guides/workflow-editor.mp4).
+</video>
+
+Wechsle zwischen Visuell und YAML, prüfe Ausführungseingaben und öffne einen Schrittinspektor. Der Workflow wird weder geändert noch ausgeführt. Diese stumme Anleitung nutzt echte Oberflächenaufnahmen mit Pausen zum Lesen. Die geschriebenen Schritte oben geben dieselben Anweisungen.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Workflows" icon="diagram-project" href="/de/workflows/introduction">Jobs, Schritte und wie Workflows ausgeführt werden.</Card>
+  <Card title="Deinen ersten Workflow bauen" icon="play" href="/de/workflows/build-your-first-workflow">Ein Videotutorial von der Vorlage bis zur fertigen Ausführung.</Card>
+  <Card title="Fortgeschrittene Workflows" icon="code-branch" href="/de/workflows/advanced-workflows">Bedingungen, Schleifen, erneute Versuche, Ausgabeschemas und Unterworkflows.</Card>
+  <Card title="Automatisierungen" icon="clock" href="/de/workflows/scheduled-jobs">Führe einen Workflow nach einem Zeitplan aus.</Card>
+</CardGroup>

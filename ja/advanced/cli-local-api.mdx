@@ -1,0 +1,106 @@
+---
+title: "CLI とローカル API"
+description: "ターミナルから Enconvo のコマンドを実行したり、スクリプト、Agent、ほかのアプリからローカル HTTP API を呼び出したりできます。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+このページは、ターミナル、スクリプト、またはほかのアプリから Enconvo を操作したい開発者や上級ユーザー向けです。`enconvo` コマンドは Enconvo デスクトップアプリに同梱されており、別途インストールする必要はありません。また、アプリはインストール済みのすべてのプラグインのルートをローカル HTTP API として提供します。
+
+この動画では、API ページ、CLI ガイド、フックについて解説しています。
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="How to Use Enconvo's APIs, CLI and Hooks | Step-by-Step Tutorial" />
+
+ローカルランタイムを使うコマンドを実行する際は、Enconvo を起動した状態にしておいてください。
+
+## コマンドを探す
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+調べたいコマンドに `-h` を付けると、現在のサブコマンドやオプションを確認できます。
+
+**設定 → CLI ガイド** を開くと、CLI コマンドを公開しているインストール済み拡張機能の一覧が表示されます。名前をクリックすると `enconvo <name> -h` コマンドをコピーできます。インストール済み拡張機能の一覧が、お使いのアプリでサポートされているコマンドの正確な情報源です。
+
+シェルから `enconvo` が見つからない場合は、アプリの CLI ガイドを開いてインストール済みのアプリバージョンとコマンドライン設定を確認してください。
+
+## ローカル API を呼び出す
+
+アプリは各ルートを `http://localhost:54535/api/<extension>/<route>` で公開しています。JSON ボディを添えて `POST` リクエストを送信してください。
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**設定 → API** を開き、**APIを確認** をクリックすると、利用可能なルートとリクエストスキーマをそれぞれの例とあわせて確認できます。連携機能を書く際は、インストール済みビルドのスキーマを参照してください。拡張機能のアップデートに伴い、ルートパラメータが変更される場合があります。
+
+## Enconvo の外から Agent や AI コマンドを実行する
+
+各 Agent や AI コマンドの設定には **リンク、CLI、API** 行があります。テキストやファイルを渡して実行するためのリンク、`enconvo` コマンド、ローカル API 呼び出しがそのままコピーできる形で表示されます。
+
+| 方法 | 動作 |
+| --- | --- |
+| リンク | 新しいチャットを開き、そこで Agent または AI コマンドを実行します |
+| CLI | バックグラウンドで実行し、回答を出力します |
+| ローカル API | バックグラウンドで実行し、回答を返します |
+
+リンクは次の形式です。
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` には送信するテキストを指定します。
+- `window` は `chat_window` または `dynamic_island` を指定します。省略すると SmartBar で実行されます。
+- `files` には絶対パスまたは `~/` パスでファイルを添付します。複数のファイルを送る場合（別のアプリやスクリプトから画像を送信する場合など）は繰り返し指定します。
+
+ターミナルからの実行例：
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+Translate、Summarize、Convert to List などのライティングコマンドは、テキストを引数として受け取り、チャット履歴に追加することなく回答を返します。`enconvo agent main` は、Agent が最新のチャットで処理中の場合に新しいチャットで応答します。
+
+対応するローカル API ルートは `agent/call`（`agentId`, `message`, `context_files`）と `ai-command/run`（`command_key`, `input_text`, `files`）です。
+
+### 実行中のチャットを確認する
+
+- `agent/session/list` は、Claude Code や Codex のチャットを含め、すべての Agent とプロジェクトで現在実行中のチャットを、タイトル、Agent、プロジェクトとともに一覧表示します。回答待ちのチャットだけを取得するには `filter: "waiting"` を、両方取得するには `"active"` を渡してください。
+- `agent/session/status` は、`sessionId` を指定して特定のチャットの状態を確認します。
+- `agent/session/steer` は、現在実行中のチャットのターンを停止せずにメッセージを追加します。実行中でないチャットの場合は `not_running` を返すため、代わりに `agent/call` で新しいターンを開始してください。フルアクセス未満の実行では Enconvo のターンを操作できません。
+
+## 安全に利用する
+
+ナレッジベースの検索のみを必要とする AI クライアントには、汎用的なローカル API を公開する代わりに専用の [Knowledge Base MCP](/ja/advanced/knowledge-base-mcp) 接続を使用してください。
+
+ローカル API やシェルアクセスは強力な機能として扱い、コマンドは実装に応じてローカルデータの読み取りや変更を行える点に留意してください。スクリプトではコマンド、入力、出力先を明確に記述してください。
+
+プログラムからローカル API を通じて設定を読み取る場合、保存済みの API キーは `[hidden]` として返され、保存済みキーの送信先を変更できるのは Enconvo 自身のウィンドウのみです。詳しくは[認証情報](/ja/configuration/credentials)をご覧ください。
+
+ローカル API から設定するホットキーには、短縮の修飾キー名（`cmd`, `ctrl`, `alt`, `opt`, `fn`）または修飾キー記号を使用できます。Enconvo が認識しない単語を含むホットキーは登録されず、文字入力を行うキーには Command、Control、Option、Function のいずれかが必要です。
+
+## 拡張する
+
+- [拡張機能の開発](/ja/extensions/developing)：独自のコマンドやルートを追加します。プラグインの `src/api/` に置いたファイルがここのルートになります。
+- [Extension API Reference](/extensions/extension-api-reference)：SDK のエントリーポイントです。
+- [フック](/ja/configuration/hooks)：Agent の作業の決まったタイミングで独自のコマンドを実行します。JSON 設定から読み込まれ、**設定 → フック** に読み込み済みの一覧が表示されます。
+- [予約タスク](/ja/workflows/scheduled-jobs)：指定した時刻に作業を自動実行します。
+- [Linux サーバー上で Enconvo を設定する](/ja/advanced/linux-server)：Mac から追加したサーバーのモデル、Agent、プラグインを同じ `enconvo` コマンドで設定します。
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="拡張機能の開発" icon="code" href="/ja/extensions/developing">
+    コマンドやローカル API ルートを作成します
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/ja/advanced/knowledge-base-mcp">
+    ほかの AI クライアントからナレッジベースを参照できるようにします
+  </Card>
+</CardGroup>

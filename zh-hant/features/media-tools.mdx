@@ -1,0 +1,65 @@
+---
+title: "媒體工具"
+description: "壓縮圖片、影片與音訊，儲存影片中的音軌，或從連結下載影片。"
+---
+
+媒體工具是一組處理日常媒體作業的本機指令：縮小圖片、影片或音訊檔案、擷取影片的音軌，或從網頁下載影片。你可以在 SmartBar 或**設定 → 外掛程式**底下找到它們。
+
+| 指令 | 作用 | 儲存位置 |
+| --- | --- | --- |
+| **Image Compress** | 壓縮一張或多張圖片，或壓縮資料夾及其子資料夾中的所有圖片，並可調整品質 | 覆蓋原始圖片 |
+| **Video Compress** | 縮小影片檔案大小 | `~/Downloads` |
+| **Audio Compress** | 依你挑選的品質縮小音訊檔案，並保留封面圖（MP3、WAV、M4A、AAC、OGG、FLAC） | `~/Downloads` |
+| **Extract Audio** | 將影片（或資料夾中每個影片）的音軌儲存為 M4A（音軌無法直接複製時存為 MP3） | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | 從連結下載影片或音訊，例如 YouTube、TikTok、Instagram、Reddit、X 或 Vimeo | `~/Downloads` |
+
+<Warning>
+**Image Compress** 預設會覆蓋你的原始圖片。如果想保留原圖，請先在它的設定中關閉 **Overwrite Original Image File**；之後壓縮後的副本會儲存至圖片旁的 `enconvo-compressed-images` 資料夾中。
+</Warning>
+
+## 壓縮檔案或擷取音訊
+
+1. 在 Finder 中選取檔案，或附加檔案。使用 Image Compress 時也可以選擇一個資料夾：其中的圖片及子資料夾中的圖片都會被壓縮，副本會保留相同的資料夾結構。
+2. 開啟 SmartBar 並執行指令。
+3. 開啟輸出檔案並檢查結果。
+
+嘗試不同的壓縮設定時，建議先保留原始檔案。每個指令的設定位於**設定 → 外掛程式**底下：Image Compress 位於 **Image Utils**，其餘指令則位於 **Media Utils**。
+
+| 設定 | 作用 |
+| --- | --- |
+| **品質** | 從 0 到 100；數值越高保留越多畫質且檔案越大，預設為 80 |
+| **目標資料夾路徑** | 壓縮檔案的儲存位置：可填絕對路徑，或相對於原檔案的路徑 |
+| **Overwrite Original … File** | 覆蓋原始檔案。圖片預設開啟，影片與音訊預設關閉 |
+
+## 下載影片
+
+1. 在瀏覽器中開啟影片頁面，或複製它的連結。
+2. 從 SmartBar 執行 **Online Video Downloader**。它會讀取瀏覽器目前分頁的網址，或是你輸入的連結。
+3. 在動態島中查看進度，也可以在那裡取消。完成後點擊**在 Finder 中顯示**。
+
+下載記錄會儲存在你的聊天歷史記錄中，已下載過的檔案會直接重複使用而不必重新下載。特定網站能否下載取決於該網站及其開放存取的內容，請只下載你有權保存的內容。
+
+| 設定 | 作用 |
+| --- | --- |
+| **Output Directory** | 下載檔案的儲存位置，預設為 `~/Downloads` |
+| **Audio Only** | 只下載音訊 |
+| **Favorite Resolution** | 要下載的解析度，從 **Best**（預設）到 144p |
+| **Force Convert to Compatible MP4** | 將影片轉換為在任何裝置都能播放的 MP4。預設開啟；會耗費額外時間與 CPU 資源 |
+| **Use Browser Cookies** | 使用你瀏覽器的 Cookie 登入，適用於僅限你本人觀看的影片。在**瀏覽器**中選擇使用的瀏覽器 |
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| **No images to compress** | 在 Finder 中選取圖片或附上圖片，然後再執行一次指令 |
+| 轉換失敗 | 檢查檔案格式、輸出資料夾是否可寫入，以及磁碟是否還有足夠的可用空間 |
+| 私人影片無法下載 | 開啟 **Use Browser Cookies** 並選擇你已登入該網站的瀏覽器 |
+| 某個網站無法再下載 | 閱讀錯誤訊息，並先更新外掛程式後再試一次。網站會不定期變更格式與存取規則 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="圖片生成" icon="image" href="/zh-hant/ai/image-generation">在聊天中建立或編輯圖片。</Card>
+  <Card title="影片生成" icon="film" href="/zh-hant/ai/video-generation">將提示詞或圖片變成短片。</Card>
+  <Card title="語音轉寫" icon="file-audio" href="/zh-hant/features/transcription">將音訊與影片轉換為文字。</Card>
+</CardGroup>

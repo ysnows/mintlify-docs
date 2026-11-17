@@ -1,0 +1,65 @@
+---
+title: "MCP da Base de conhecimento"
+description: "Deixe o Claude, o Cursor, o Codex e outros clientes MCP no seu Mac pesquisar e ler as bases de conhecimento que você compartilha."
+---
+
+O Enconvo pode servir suas bases de conhecimento a clientes de IA compatíveis com MCP no mesmo Mac. Os clientes podem pesquisar e ler as bases que você compartilha, e nada mais; o acesso é somente leitura. Isso é separado de **Definições → Servidores MCP**, que adiciona ferramentas externas aos Agentes do Enconvo.
+
+## Conectar um cliente
+
+1. Abra a [Base de conhecimento](/pt-br/ai/knowledge-base) e clique na engrenagem (**Definições da base de conhecimento**), depois em **Clientes de IA (MCP)**.
+2. Ative **Ativar Knowledge Base MCP**. Fica desligado por padrão e, enquanto estiver desligado, clientes conectados são recusados.
+3. Escolha o que os clientes podem ver. **Partilhar esta base de conhecimento com clientes de IA** cobre a que você tem aberta, e **Bases de conhecimento partilhadas** lista todas. O Histórico de ditados e a Memória ficam ocultos até você ativá-los.
+4. Em **Ligar um cliente**, escolha o cliente (Claude Code, Cursor, Codex ou Claude Desktop) e copie a configuração.
+5. Peça ao cliente para listar as bases de conhecimento, depois pesquise uma e leia um item correspondente.
+
+O endpoint local é:
+
+```text
+http://localhost:54535/knowledge_base/mcp
+```
+
+Ele usa o transporte Streamable HTTP. Mantenha o Enconvo em execução enquanto o cliente o usa. O Claude Desktop se conecta por uma ponte pequena, `mcp-remote`, então a configuração precisa do Node.js; siga as instruções específicas do cliente mostradas no diálogo.
+
+## Ferramentas disponíveis
+
+| Ferramenta | Finalidade |
+| --- | --- |
+| `kb_list` | Listar bases de conhecimento visíveis |
+| `kb_search` | Pesquisar uma base de conhecimento visível |
+| `item_list` | Listar itens de uma base de conhecimento visível |
+| `item_read` | Ler o texto indexado de um item em páginas |
+
+As ferramentas são somente leitura. Este endpoint não expõe ferramentas gerais de Memória ou Gravações. Ler um item pode devolver o caminho ou a URL de origem como metadados.
+
+## Acesso e processamento
+
+O servidor aceita apenas conexões de loopback e não exige token. Ativá-lo permite que processos locais leiam as bases de conhecimento que você compartilha. Um cliente de IA conectado pode enviar o que recebe ao próprio fornecedor de modelo, então revise também as definições desse cliente.
+
+A pesquisa usa o modelo de embeddings definido em **Pesquisar** em **Definições → Memória**. Quando ele roda no Enconvo Cloud, o texto da pesquisa é enviado para lá. "Endpoint local" não significa que toda a recuperação e a resposta rodam offline.
+
+## Solução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Conexão recusada | Confirme que o Enconvo e a Local API estão em execução. |
+| Forbidden / 403 | Verifique se **Ativar Knowledge Base MCP** está ligado, se o cliente se conecta a partir deste Mac e se a configuração corresponde ao diálogo. |
+| Base de conhecimento não encontrada | Ative a base em **Bases de conhecimento partilhadas**. Bases ocultas e ausentes parecem iguais para os clientes. |
+| Abrir a URL no navegador mostra 405 | Um GET do navegador não é um pedido MCP. Conecte com um cliente MCP. |
+| Um documento longo volta incompleto | Peça ao cliente para solicitar mais páginas com `item_read`. |
+
+Para interromper todo o acesso, desligue **Ativar Knowledge Base MCP**. Para reduzir o que os clientes podem recuperar, desligue bases individuais em **Bases de conhecimento partilhadas**.
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Base de conhecimento" icon="book" href="/pt-br/ai/knowledge-base">
+    Monte as bases de conhecimento que os clientes vão pesquisar.
+  </Card>
+  <Card title="Servidores MCP" icon="plug" href="/pt-br/features/mcp">
+    Adicione ferramentas externas aos Agentes do Enconvo.
+  </Card>
+  <Card title="CLI e Local API" icon="terminal" href="/pt-br/advanced/cli-local-api">
+    Outras formas de chegar ao Enconvo a partir do seu Mac.
+  </Card>
+</CardGroup>
