@@ -1,6 +1,6 @@
 ---
 title: "Plugin Formats"
-description: "See which plugin packages Enconvo installs, from Codex and Claude Code plugins to portable plugins and desktop extensions, and which files and fields it reads from each."
+description: "See which plugin packages Enconvo installs, from Codex and Claude Code plugins to portable plugins, and which files and fields it reads from each."
 ---
 
 This reference is for developers who build plugins, or who want a Codex or Claude Code plugin to work in Enconvo. It lists the packages Enconvo installs and, for each part of a plugin, the files and fields Enconvo reads and where that differs from Codex and Claude Code.
@@ -21,7 +21,6 @@ The commands on this page need an `@enconvo/api` release newer than 0.1.174, and
 | Claude Code plugin | `.claude-plugin/plugin.json` | Skills, MCP servers, and settings from `userConfig` and `channels` |
 | Codex plugin | `.codex-plugin/plugin.json` | Skills, MCP servers, and the listing in `interface` |
 | Portable plugin ([Agent Plugins](https://agent-plugins.org)) | `plugin.json` at the root, with a `name` | Skills, MCP servers, and the listing in `extensions["com.openai"]` |
-| Desktop extension (MCPB, formerly DXT) | `manifest.json` | Its MCP server, and `user_config` as settings |
 
 Enconvo checks these in order and uses the first that matches. An Enconvo `package.json` always wins, so an Enconvo plugin can also carry a `plugin.json` for other apps. A `package.json` without Enconvo's schema or commands, such as the one an MCP server's Node.js project has, doesn't hide a `plugin.json` next to it.
 
@@ -463,7 +462,7 @@ Enconvo's store takes a plugin with hooks, but OpenAI's portal can't take one ye
 
 ## Settings
 
-Enconvo turns a Claude Code plugin's `userConfig`, and a desktop extension's `user_config`, into the plugin's settings. Until required settings are filled in, the plugin shows **Need configure** on the Plugins page, and `plugin install` says which settings it needs.
+Enconvo turns a Claude Code plugin's `userConfig` into the plugin's settings. Until required settings are filled in, the plugin shows **Need configure** on the Plugins page, and `plugin install` says which settings it needs.
 
 ```json .claude-plugin/plugin.json
 {
