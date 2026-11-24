@@ -1,0 +1,207 @@
+---
+title: "Hermes Agent"
+description: "Используйте Hermes Agent как OpenAI-совместимую модель в Enconvo"
+---
+
+Hermes Agent — это ИИ-агент с открытым исходным кодом от Nous Research. Он работает как локальная или серверная среда выполнения агента с инструментами, памятью, навыками, доступом к терминалу и интеграциями с мессенджерами.
+
+В Enconvo Hermes Agent используется через свой OpenAI-совместимый API-сервер. Когда шлюз Hermes запущен, Enconvo может использовать Hermes как любую другую AI-модель в чате, в агентах Enconvo и в функциях на основе моделей.
+
+<Tip>
+  Впервые слышите о Hermes? Начните с [краткого руководства Hermes Agent](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart), а затем вернитесь сюда, чтобы подключить его к Enconvo.
+</Tip>
+
+Справочник по API: [документация API-сервера Hermes Agent](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server). Исходный код: [репозиторий Hermes Agent на GitHub](https://github.com/NousResearch/hermes-agent).
+
+## Перед началом
+
+- Hermes Agent уже установлен и настроен
+- Шлюз Hermes запущен с включённым API-сервером
+- Токен API-сервера из `API_SERVER_KEY` в `~/.hermes/.env`
+- В Enconvo включён провайдер AI-модели Hermes Agent
+
+Hermes предоставляет OpenAI-совместимые конечные точки, такие как `/v1/models`, `/v1/chat/completions` и `/v1/responses`. Провайдер Hermes в Enconvo использует Chat Completions API (`/v1/chat/completions`).
+
+Enconvo не использует Hermes Responses API для этого провайдера. Настройте Hermes как OpenAI-совместимого провайдера Chat Completions.
+
+## Автоматическая настройка
+
+Откройте **Настройки → AI-модель → Hermes Agent**. Карточка настройки может запускать, останавливать и настраивать локальный API-сервер Hermes за вас.
+
+Используйте **Автоматическая настройка**, если Hermes установлен на том же Mac, что и Enconvo. Enconvo выполнит следующее:
+
+<Steps>
+  <Step title="Найти Hermes">
+    Проверит, что на этом Mac есть CLI `hermes`.
+  </Step>
+  <Step title="Включить API-сервер">
+    Обновит `~/.hermes/.env`, добавив `API_SERVER_ENABLED=true` и `API_SERVER_KEY`, если его нет.
+  </Step>
+  <Step title="Запустить шлюз">
+    Запустит службу шлюза Hermes.
+  </Step>
+  <Step title="Проверить API">
+    Опросит локальный API-сервер через `/v1/health` и `/v1/models`.
+  </Step>
+  <Step title="Сохранить учётные данные">
+    Сохранит базовый URL и ключ API-сервера в учётных данных Hermes в Enconvo.
+  </Step>
+</Steps>
+
+Карточка настройки показывает значок состояния, например **Выполняется** или **Остановлено**. Пока карточка видна, Enconvo периодически обновляет это состояние, а когда карточка скрыта, перестаёт его обновлять.
+
+## Получите базовый URL и ключ API
+
+Используйте этот базовый URL, когда Enconvo работает на том же Mac, что и Hermes:
+
+```text
+http://127.0.0.1:8642/v1
+```
+
+Прочитайте токен API-сервера из `~/.hermes/.env`:
+
+```bash
+awk -F= '/^API_SERVER_KEY=/{print $2}' ~/.hermes/.env
+```
+
+Enconvo отправляет это значение так:
+
+```http
+Authorization: Bearer <API_SERVER_KEY>
+```
+
+Чтобы проверить OpenAI-совместимую конечную точку напрямую:
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer <API_SERVER_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      { "role": "user", "content": "Hello!" }
+    ]
+  }'
+```
+
+Используйте базовый URL, оканчивающийся на `/v1`, а не полный адрес `/v1/chat/completions`.
+
+## Подключение Hermes вручную
+
+Откройте **Настройки → AI-модель → Hermes Agent**, затем настройте провайдера учётных данных.
+
+| Параметр | Значение |
+|---------|-------|
+| **Hermes Base URL** | `http://127.0.0.1:8642/v1` |
+| **API Server Key** | `API_SERVER_KEY` из `~/.hermes/.env` |
+
+Введя базовый URL и токен, нажмите **Проверить**.
+
+## Как работают запросы и вложения
+
+Enconvo отправляет запросы к Hermes через OpenAI-совместимый Chat Completions:
+
+```http
+POST /v1/chat/completions
+```
+
+Используйте `hermes-agent` или название модели, которое возвращает конечная точка Hermes `/v1/models`.
+
+Enconvo не отправляет изображения-вложения в Hermes. Считайте провайдера Hermes в Enconvo текстовым чат-провайдером, даже если ваш API-сервер Hermes заявляет поддержку ввода изображений. Для работы с изображениями используйте провайдера моделей с поддержкой зрения или выполните OCR или анализ изображения, прежде чем отправлять текст в Hermes.
+
+## Использование Hermes как AI-модели
+
+После настройки Hermes появляется в списке моделей. Выберите **Hermes Agent** и укажите заявленную модель, обычно `hermes-agent`.
+
+Используйте этот режим, когда хотите, чтобы беседа, команда или функция Enconvo выполнялись через Hermes Agent при обычном интерфейсе Enconvo.
+
+<Steps>
+  <Step title="Откройте выбор модели">
+    В чате или другой функции Enconvo на основе моделей нажмите на название текущей модели.
+  </Step>
+  <Step title="Выберите Hermes Agent">
+    Выберите **Hermes Agent** в списке провайдеров.
+  </Step>
+  <Step title="Выберите модель Hermes">
+    Выберите `hermes-agent` или название модели, которое возвращает ваш API-сервер Hermes.
+  </Step>
+  <Step title="Работайте как обычно">
+    Задайте вопрос или запустите функцию Enconvo. Обращение к модели Hermes выполняет незаметно для вас.
+  </Step>
+</Steps>
+
+Enconvo загружает модели Hermes из конечной точки Hermes `/v1/models`. Если Hermes не запущен или конечная точка недоступна, Enconvo использует `hermes-agent`.
+
+## Создание агента для Hermes
+
+Можно также создать агента Enconvo, который координирует Hermes Agent. Это удобно, если нужен процесс, набор инструментов или промпт Enconvo вокруг среды выполнения агента Hermes.
+
+<Steps>
+  <Step title="Откройте создание агента">
+    Откройте SmartBar и найдите **Создать агента**.
+  </Step>
+  <Step title="Назовите агента">
+    Задайте понятное название, например `Hermes Agent`.
+  </Step>
+  <Step title="Напишите инструкции для координатора">
+    Дайте агенту Enconvo инструкции о том, как ему работать с Hermes.
+
+    ```markdown
+    You coordinate Hermes Agent for the user.
+
+    Use Hermes for agentic work, automation, terminal-backed tasks, and requests that should run through the user's Hermes setup.
+    Summarize what Hermes did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Выберите модель Hermes">
+    В настройках модели агента выберите **Hermes Agent** и укажите `hermes-agent`.
+  </Step>
+  <Step title="Сохраните и используйте агента">
+    Начните беседу с новым агентом Enconvo. Он будет использовать Hermes, сохраняя интерфейс агента Enconvo и настроенные вами инструменты.
+  </Step>
+</Steps>
+
+## Подключение по сети
+
+Если Hermes работает на другом компьютере, укажите в Enconvo IP-адрес хоста в локальной сети:
+
+```text
+http://<hermes-host-lan-ip>:8642/v1
+```
+
+<Warning>
+  Для доступа из локальной сети используйте надёжный `API_SERVER_KEY`. Открывайте API-сервер Hermes только в сетях, которым вы доверяете.
+</Warning>
+
+## Устранение неполадок
+
+<AccordionGroup>
+  <Accordion title="Hermes Agent не появляется в выборе модели">
+    Убедитесь, что провайдер Hermes включён в **Настройки → AI-модель**. Если список моделей пуст, проверьте, что шлюз запущен, командой `hermes gateway status`.
+  </Accordion>
+  <Accordion title="Проверка завершается ошибкой unauthorized">
+    Ещё раз проверьте `API_SERVER_KEY` в `~/.hermes/.env`. Enconvo ожидает именно это значение и отправляет его как токен Bearer.
+  </Accordion>
+  <Accordion title="Не удаётся подключиться">
+    Убедитесь, что API-сервер работает, командой `curl http://127.0.0.1:8642/v1/health`. Если Enconvo работает на другом устройстве, используйте IP-адрес хоста в локальной сети и убедитесь, что Hermes доступен по сети.
+  </Accordion>
+  <Accordion title="Запуск прошёл успешно, но состояние обновляется не сразу">
+    Менеджеры служб могут вернуть управление раньше, чем API-сервер будет готов. Подождите несколько секунд и ещё раз посмотрите значок состояния на карточке настройки либо выполните `hermes gateway status` и проверьте `curl http://127.0.0.1:8642/v1/health`.
+  </Accordion>
+  <Accordion title="Изображения-вложения игнорируются">
+    Провайдер Hermes в Enconvo пока работает только с текстом. Enconvo не отправляет изображения-вложения в Hermes; для прямого ввода изображений выберите провайдера с поддержкой зрения.
+  </Accordion>
+  <Accordion title="Неверный базовый URL">
+    Укажите `http://<gateway-host>:8642/v1`. Не добавляйте `/chat/completions` в поле базового URL в Enconvo.
+  </Accordion>
+  <Accordion title="Нужны журналы шлюза">
+    Читайте журнал шлюза Hermes командой `tail -f ~/.hermes/logs/gateway.log`, а ошибки — командой `tail -f ~/.hermes/logs/gateway.error.log`.
+  </Accordion>
+</AccordionGroup>
+
+## Связанное
+
+<CardGroup cols={2}>
+  <Card title="OpenClaw" icon="server" href="/ru/providers/openclaw">Подключите другой шлюз агента тем же способом.</Card>
+  <Card title="Агенты" icon="robot" href="/ru/ai/agents">Дайте Агенту инструкции и инструменты.</Card>
+</CardGroup>

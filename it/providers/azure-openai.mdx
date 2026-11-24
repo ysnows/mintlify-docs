@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatta con i tuoi deployment Azure OpenAI in Enconvo."
+---
+
+Usa i modelli OpenAI che la tua organizzazione distribuisce su Azure. Enconvo comunica direttamente con la tua risorsa Azure, quindi accesso, quote e fatturazione seguono la tua sottoscrizione Azure.
+
+## Prima di iniziare
+
+Ti serve una risorsa Azure OpenAI con almeno un deployment di un modello. Dal portale di Azure copia la **chiave** della risorsa, il suo **endpoint** e il **nome del deployment** che hai dato al modello. Se non ne hai ancora configurata una, vedi [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview).
+
+## Connessione
+
+<Steps>
+  <Step title="Aggiungi la credenziale">
+    Apri **Impostazioni → Modello di IA → Azure OpenAI**. In **Autenticazione** compila **Chiave API**, **Endpoint** e **API Version**, poi fai clic su **Convalida**. L'endpoint ha questo aspetto: `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Imposta il deployment">
+    Inserisci il nome del tuo deployment in **Azure OpenAI Api Deployment Name**. Usa il nome della tua risorsa Azure, che può essere diverso dal nome del modello.
+  </Step>
+  <Step title="Provalo">
+    Invia un breve messaggio. Se ricevi una risposta, la connessione funziona.
+  </Step>
+</Steps>
+
+## Modelli e opzioni
+
+| Impostazione | Cosa fa |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | Il deployment che questo fornitore chiama. |
+| **Streaming** | Mostra la risposta mentre viene scritta. Attivo per impostazione predefinita; disattivalo se il tuo deployment non supporta lo streaming. |
+| **API Version** | Nella credenziale. Il valore predefinito è `2025-01-01-preview`. |
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| **Convalida** non riesce | Controlla che la chiave e l'**Endpoint** provengano dalla stessa risorsa Azure. |
+| Il deployment non viene trovato | Copia il nome del deployment esattamente come appare nel portale di Azure. |
+| La risposta non compare mai | Disattiva **Streaming** e riprova. |
+| Errori di limite o di quota | Aumenta la quota del deployment in Azure, oppure passa per ora a un altro fornitore. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/it/providers/openai">Usa invece l'API di OpenAI.</Card>
+  <Card title="Credenziali e profili" icon="key" href="/it/configuration/credentials">Tieni più chiavi e scopri cosa influenza una chiave condivisa.</Card>
+  <Card title="Scegli un modello" icon="list-check" href="/it/ai/model-selection-guide">Scegli un modello in base all'attività e scopri dove si impostano i valori predefiniti.</Card>
+  <Card title="Catalogo dei fornitori" icon="table" href="/it/providers/catalog">Tutti i fornitori, raggruppati per la funzione che alimentano.</Card>
+</CardGroup>

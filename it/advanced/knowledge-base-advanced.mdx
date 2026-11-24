@@ -1,0 +1,186 @@
+---
+title: "Come funzionano le basi di conoscenza"
+description: "Scopri come Enconvo memorizza, divide, indicizza e cerca le tue basi di conoscenza e come mantenere buoni i risultati di ricerca."
+---
+
+Questa pagina è per chi vuole sapere cosa succede a un documento dopo che è entrato in una base di conoscenza: dove lo conserva Enconvo, come lo divide e lo indicizza e come la ricerca sceglie i risultati. Usala per ottimizzare una raccolta, correggere risultati scadenti o richiamare le basi di conoscenza dal tuo codice. Se le basi di conoscenza sono una novità per te, comincia da [Base di conoscenza](/it/ai/knowledge-base).
+
+In breve: Enconvo legge il testo di ogni elemento, lo divide in blocchi, trasforma ogni blocco in un vettore e memorizza i blocchi in un database LanceDB locale. Una ricerca cerca i blocchi per significato e per parole esatte allo stesso tempo, poi fonde i due risultati.
+
+## Dove risiedono i dati
+
+| Cosa | Dove |
+|---|---|
+| Blocchi, vettori e indice full-text | Un database LanceDB in `~/.config/enconvo/.support/knowledge_base/vector/knowledge_base/` |
+| Basi di conoscenza, elementi e relativi dettagli | Un database SQLite (Drizzle ORM) in `~/.config/enconvo/.support/knowledge_base/db` |
+
+Tutte le basi di conoscenza condividono l'unico database LanceDB, e ogni base di conoscenza è una tabella al suo interno. Quando Enconvo ricostruisce l'indice di una base di conoscenza, scrive una nuova tabella accanto alla vecchia e passa a quella nuova quando è pronta, così la ricerca continua a funzionare durante la ricostruzione.
+
+Ogni base di conoscenza ha un id. Le API lo accettano come `knowledge_base_id`, ed Enconvo esegue la base di conoscenza come comando `knowledge_base|<id>`. Per copiare l'id di una base di conoscenza, apri **Impostazioni della base di conoscenza** dalla sua intestazione e vai su **Avanzate**.
+
+Lo spazio occupato dipende dagli asset originali, dal testo estratto, dal numero di blocchi e dalle dimensioni degli embedding. Monitora l'uso effettivo del disco per la tua raccolta invece di stimarlo solo dal numero di documenti. Conserva i file di origine e i backup separatamente dall'indice di ricerca.
+
+## Come entrano i contenuti
+
+### Lettura
+
+Enconvo legge ogni tipo di elemento con lo strumento adatto:
+
+| Contenuto | Letto da |
+|---|---|
+| **PDF** | Il plugin Document Parser. Usa il testo del PDF ed esegue il tuo fornitore OCR solo sulle pagine scansionate |
+| **Word, PowerPoint, Excel, EPUB, CSV** | Il plugin Document Parser |
+| **Testo e Markdown** | Letti così come sono |
+| **Immagini** | Il tuo fornitore OCR |
+| **Audio e video** | Il tuo fornitore di trascrizione |
+| **Pagine web** | Il tuo fornitore Web Fetch |
+| **Interi siti web** | Un crawler di siti web, pagina per pagina |
+| **YouTube** | La trascrizione del video |
+
+### Divisione in blocchi
+
+Enconvo divide il testo in blocchi dimensionati per la lingua in cui è scritto:
+
+| Testo | Dimensione del blocco | Sovrapposizione |
+|---|---|---|
+| Prevalentemente in alfabeto latino, come l'inglese | 1.500 caratteri | 200 caratteri |
+| Prevalentemente cinese, giapponese o coreano | 560 caratteri | 80 caratteri |
+| Un misto | Una via di mezzo, in base alla quota di ciascuno | Una via di mezzo |
+
+Divide sul confine più naturale che mantiene un blocco entro la sua dimensione, provando in quest'ordine:
+
+1. Paragrafi
+2. Righe
+3. Frasi
+4. Proposizioni
+5. Parole
+6. Un taglio netto (ultima risorsa)
+
+I fogli di calcolo vengono divisi circa una riga per blocco, così una ricerca di una riga trova quella riga. Queste dimensioni sono integrate; non c'è un'impostazione per modificarle.
+
+### Embedding
+
+Ogni base di conoscenza usa lo stesso modello di embedding, EmbeddingGemma 300M. Scegli dove viene eseguito in **Impostazioni → Memoria → Modello di embedding**:
+
+- **Questo Mac**: gratuito, e nulla lascia il tuo Mac, ma usa la GPU mentre viene indicizzato nuovo contenuto. Richiede un Mac con Apple silicon.
+- **Enconvo Cloud**: gratuito con il tuo account Enconvo. Il testo indicizzato o cercato viene inviato lì.
+
+Entrambi eseguono lo stesso modello, quindi cambiare mantiene intatto il tuo indice di ricerca. Enconvo elabora gli embedding dei blocchi in batch.
+
+### Memorizzazione
+
+Ogni blocco è una riga nella tabella della base di conoscenza:
+
+| Campo | Contiene |
+|---|---|
+| `text` | Il testo del blocco |
+| `vector` | Il suo embedding |
+| `id` | L'id del blocco |
+| `attachment_id` | L'elemento da cui proviene il blocco |
+| `type`, `url`, `title`, `ext`, `loc` | Il tipo, l'indirizzo, il titolo e l'estensione del file dell'elemento, e dove si trova il blocco al suo interno |
+| `metadata` | Altri dettagli sull'elemento |
+
+Enconvo mantiene anche un indice full-text di `text`, costruito da brevi sequenze di caratteri, così trova nomi esatti, numeri, codice e parole CJK.
+
+## Come funziona la ricerca
+
+Ogni ricerca esegue fino a tre interrogazioni contemporaneamente sui blocchi della base di conoscenza:
+
+1. **Per significato**: la query viene trasformata in embedding con lo stesso modello e vengono trovati i vettori più vicini.
+2. **Per parole**: una ricerca full-text (BM25) per ogni parola della query, escludendo le parole inglesi comuni.
+3. **Per titolo**: gli elementi il cui titolo corrisponde alla query, ciascuno con il suo blocco più vicino alla query.
+
+Enconvo poi le fonde. I punteggi di ogni elenco vengono riportati su una scala da 0 a 1, e il punteggio di un blocco è 0,6 del suo punteggio per significato più 0,4 del suo punteggio per parole. Un elemento il cui titolo corrisponde, o un blocco che contiene l'intera query, ha una posizione più alta. Di un singolo elemento si conservano solo pochi blocchi, così un documento lungo non può escludere gli altri, e ogni blocco torna con il testo che lo circonda.
+
+Nella ricerca nelle basi di conoscenza non c'è un passaggio di riordinamento separato.
+
+## Mantenere sano l’indice
+
+Enconvo crea l'indice full-text e riordina le tabelle da solo. Ricostruisce anche l'indice di una base di conoscenza quando è stato creato con un chunker più vecchio o con un modello di embedding diverso, a partire dal testo che ha già, senza rileggere i file.
+
+Per ricostruire a mano:
+
+- **L'intera base di conoscenza**: apri **Impostazioni della base di conoscenza** dalla sua intestazione, vai su **Indice e ricerca** e fai clic su **Reindicizza…** accanto a **Ricostruisci l'intero indice**. Le ricerche continuano a funzionare mentre procede.
+- **Un singolo elemento**: fai clic con il pulsante destro su di esso e scegli **Reindicizza**.
+
+**Impostazioni della base di conoscenza** ha cinque sezioni: **Generali** (nome e descrizione), **Indice e ricerca** (stato di salute, elementi che richiedono attenzione, il modello di ricerca e la reindicizzazione), **Fonti e acquisizione** (cartelle collegate e strumenti di acquisizione), **Client IA (MCP)** e **Avanzate** (l'id e l'eliminazione della base di conoscenza).
+
+Elimina le basi di conoscenza che non ti servono più per recuperare spazio su disco.
+
+### Cartelle collegate
+
+Per un elemento mancante, controlla prima lo stato di importazione e sincronizzazione della cartella di origine. In **Fonti e acquisizione**, ogni cartella collegata mostra se è in sincronizzazione, quando è stata sincronizzata l'ultima volta, oppure che la sua cartella di origine non è stata trovata, con **Sincronizza ora**, **Ricollega…** e **Sincronizzazione automatica**.
+
+Poi controlla separatamente lo stato di estrazione del contenuto e lo stato dell'embedding dell'elemento: la **Pipeline** dell'elemento mostra **Analisi dei contenuti** e **Indice di ricerca** come due fasi, e un testo estratto leggibile non garantisce che l'indicizzazione vettoriale sia terminata. Reindicizza l'elemento dopo aver corretto l'errore del fornitore o dell'accesso ai file.
+
+La cartella di origine resta l'autorità per i file collegati. Tieni separato il recupero di un'unità offline dall'eliminazione dei file: quando una cartella di origine non viene trovata, la base di conoscenza conserva i suoi elementi. Controlla il numero di file saltati prima di considerare completa un'importazione.
+
+## Organizzare più basi di conoscenza
+
+Ogni base di conoscenza ha i propri documenti, il proprio indice e la propria tabella. Dividi i contenuti nel modo in cui li cerchi:
+
+| Strategia | Descrizione | Esempio |
+|----------|-------------|---------|
+| **Per progetto** | Una base di conoscenza per progetto | `project-alpha`, `project-beta` |
+| **Per tipo** | Basi di conoscenza separate per tipo di contenuto | `code-docs`, `meeting-notes`, `research` |
+| **Per team** | Conoscenza specifica del team | `engineering`, `marketing`, `support` |
+| **Per ambito** | Personale o condiviso | `personal-notes`, `company-wiki` |
+
+Per cercare in più basi insieme, allegale con il selettore del contesto, oppure imposta le basi di conoscenza allegate dell'agente. Una ricerca che non nomina alcuna base di conoscenza cerca in tutte le tue tranne Memoria.
+
+## Usare le basi di conoscenza dal codice
+
+Il plugin Knowledge Base espone le sue route sulla [Local API](/it/advanced/cli-local-api), così altri plugin, flussi di lavoro e script possono richiamarle. Le principali:
+
+| Route | Scopo |
+|---|---|
+| `knowledge_base/create` | Crea una base di conoscenza |
+| `knowledge_base/delete` | Rimuove una base di conoscenza e tutti i suoi dati |
+| `knowledge_base/add`, `knowledge_base/add_attachments` | Aggiunge file, testo, link o contenuti multimediali |
+| `knowledge_base/search` | Cerca in una o più basi di conoscenza |
+| `knowledge_base/list` | Elenca le basi di conoscenza |
+| `knowledge_base/get_attachments` | Elenca gli elementi di una base di conoscenza |
+| `knowledge_base/delete_attachments` | Rimuove elementi da una base di conoscenza |
+| `knowledge_base/reindex` | Ricostruisce l'indice di una base di conoscenza o di un elemento |
+| `knowledge_base/summarize` | Riassume un elemento |
+
+Apri **Impostazioni → API** per i parametri di ogni route nella tua versione installata.
+
+I passaggi delle basi di conoscenza si inseriscono nei flussi di lavoro e nelle automazioni, ad esempio:
+
+```
+Trigger: New file in ~/Documents/research/
+  → Add to Knowledge Base "research"
+  → Search for related content
+  → Generate summary
+  → Save summary to notes
+```
+
+Per un altro client IA, usa [Knowledge Base MCP](/it/advanced/knowledge-base-mcp). Espone le basi di conoscenza selezionate tramite un servizio locale di sola lettura; non esporta la Memoria degli agenti né le registrazioni.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+|---|---|
+| La ricerca restituisce risultati irrilevanti | Controlla che la fase **Indice di ricerca** dell'elemento sia terminata, poi reindicizza la base di conoscenza. Cerca con le parole usate dal documento: nomi e numeri esatti corrispondono tramite l'indice full-text |
+| L'indicizzazione è lenta | I documenti grandi richiedono più tempo. Con **Questo Mac**, l'indicizzazione usa la GPU; imposta **Modello di embedding** su **Enconvo Cloud** per lasciare libero il tuo Mac |
+| I nuovi elementi non sono ricercabili con Enconvo Cloud | Accedi al tuo account Enconvo. Finché non lo fai, i nuovi contenuti non vengono indicizzati e la ricerca trova solo le parole corrispondenti |
+| Un tipo di file non è supportato | Convertilo in PDF, TXT o MD, poi aggiungilo di nuovo |
+| Una base di conoscenza non viene trovata tramite il suo id | Copia l'id da **Impostazioni della base di conoscenza → Avanzate** e passalo come `knowledge_base_id` |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Nozioni di base sulla base di conoscenza" icon="book" href="/it/ai/knowledge-base">
+    Come iniziare con le basi di conoscenza
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/it/advanced/knowledge-base-mcp">
+    Cerca nelle tue basi di conoscenza da un altro client IA
+  </Card>
+  <Card title="Memoria" icon="brain" href="/it/ai/memory">
+    Il modello di ricerca e ciò che gli agenti ricordano
+  </Card>
+  <Card title="Flussi di lavoro" icon="diagram-project" href="/it/workflows/introduction">
+    Automatizza le attività delle basi di conoscenza
+  </Card>
+</CardGroup>

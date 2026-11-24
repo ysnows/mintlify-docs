@@ -15,9 +15,14 @@ English is the source. Every other language is translated from the English page 
 2. Translate prose, headings, table cells, list items, the text inside components, and the display attributes `title`, `description`, `alt` and `label`.
 3. Keep unchanged: code blocks and inline code, commands, file paths, URLs, keyboard shortcuts, API, route and parameter names, JSON keys, component names and their other attributes (`icon`, `href`, `src`, `color`, `cols`), `import` lines, and HTML comments.
 4. Internal links: a link to another docs page (`/features/...`, `/ai/...`, `/providers/...`, and so on) gets the language folder prefix, `/zh/features/...`. Links to `keepEnglish` pages, to shared assets and to other sites stay unchanged. Anchors (`#section`) after a link stay in English when they point to an English heading, so drop the anchor when the target page is translated and its headings changed.
-5. Use the app's own UI names for features, menus, buttons and settings: `i18n/glossary.json` lists the main terms, and `modules/enconvo_webapp/src/lib/locales/<lang>.json` in the main repo has the rest. Terms under `keepEnglish` in the glossary stay in English.
+5. Use the app's own UI names for features, menus, buttons and settings: `i18n/glossary.json` lists the main terms, and `node scripts/i18n-terms.mjs <code> <page>` prints the app's name, in that language, for each UI label the English page uses (from `libs/AppLocalization/catalog.json` in the main repo). Terms under `keepEnglish` in the glossary stay in English.
 6. Write natural, concise text for that language's readers; do not translate word by word. Keep the same structure: the same headings, steps, cards and tables in the same order. Add or drop nothing.
-7. Chinese: put a space between Chinese and Latin letters or digits (`在 SmartBar 中`), use full-width Chinese punctuation in Chinese sentences, and keep half-width punctuation inside code.
+7. Address and style follow the app's own strings in that language:
+   - Chinese (`zh-Hans`, `zh-Hant`): put a space between Chinese and Latin letters or digits (`在 SmartBar 中`), use full-width Chinese punctuation in Chinese sentences, and keep half-width punctuation inside code. `zh-Hant` uses the Taiwan terms the app uses (`設定`, `帳號`, `外掛程式`).
+   - Japanese: です・ます form; a half-width space between Japanese and Latin words or digits, as the app writes it (`AI に送信`); full-width Japanese punctuation.
+   - Korean: polite 합니다/하세요 form; normal Korean word spacing.
+   - German: `du`. French: `vous`. Spanish: `tú`. Italian: `tu`. Portuguese: European Portuguese, as the app is (`Definições`, `ficheiro`), addressing the reader without `tu` (`a sua conta`). Russian: `вы`. Ukrainian: `ви`.
+   - Use the language's own quotation marks and punctuation in prose (French puts a non-breaking space before `:`, `;`, `?` and `!`), and keep code untouched.
 
 ## Keeping translations current
 

@@ -1,0 +1,116 @@
+---
+title: "So funktioniert das Kontextverständnis"
+description: "Erfahre, was Enconvo aus der App liest, die du gerade benutzt hast, wann es das liest und welche Berechtigungen und Einstellungen das steuern."
+---
+
+Diese Seite erklärt, was hinter dem [Kontextverständnis](/de/features/context-awareness) steckt: die Elemente, die Enconvo von deinem Mac lesen kann, wie es jedes davon liest und wie du entscheidest, was in eine Nachricht kommt. Lies sie, wenn du steuern willst, was ein Modell erreicht, oder wenn erwarteter Kontext nicht erscheint.
+
+Das Kontextverständnis beobachtet deinen Bildschirm nicht im Hintergrund. Es liest Kontext, wenn du die SmartBar öffnest oder selbst ein Element hinzufügst, und zwar aus der App, die du kurz davor benutzt hast.
+
+## Was Enconvo lesen kann
+
+Jede Art von Kontext ist ein Element, das einer Nachricht hinzugefügt werden kann.
+
+| Kontextelement | Was es enthält | Wie Enconvo es liest |
+|---|---|---|
+| **Selected Text** | Der in der App ausgewählte Text | Bedienungshilfen |
+| **Current Application Content** | Titel und Text des Fensters, die Adresse des Dokuments, wenn die App eine liefert, und ein Screenshot des Fensters | Bedienungshilfen und eine Fensteraufnahme |
+| **Browser Current Tab URL** | Die Adresse des vordersten Tabs, sein Titel und der Text der Seite | Apple Events; siehe [Browser](#browser) |
+| **Finder Selected Items** | Die im Finder ausgewählten Dateien und Ordner als Pfade | Apple Events |
+| **Finder Current Directory URL** | Der im vordersten Finder-Fenster geöffnete Ordner | Apple Events |
+| **Clipboard Text** | Der Text in der Zwischenablage | Die Zwischenablage, nur wenn du es hinzufügst |
+| **User Select Area Screenshot** | Ein von dir ausgewählter Bereich des Bildschirms | Bildschirmaufnahme |
+| **Current Application Screenshot** | Die App, die du benutzt hast | Bildschirmaufnahme |
+| **Current Screen Screenshot** | Der ganze Bildschirm | Bildschirmaufnahme |
+| **Live Screen Screenshot** | Der Bildschirm, wie er jetzt ist, ohne die Fenster von Enconvo | Bildschirmaufnahme |
+
+Enconvo liest bei Finder-Elementen die Pfade, nicht den Inhalt der Dateien.
+
+### Browser
+
+- **Adresse und Titel**: werden per Apple Events aus Safari, Chrome, Edge, Arc und anderen Chromium-Browsern gelesen. Firefox gibt die Adresse seines Tabs nicht heraus, daher kann Enconvo sie nicht lesen.
+- **Seitentext**: Safari liefert ihn direkt. Bei anderen Browsern liest Enconvo das Fenster über die Bedienungshilfen, was nur funktioniert, solange der Browser die vorderste App ist.
+
+### Andere Apps
+
+Code-Editoren, Texteditoren und jede andere App liefern **Current Application Content**: den Titel des Fensters, den Text, den die Bedienungshilfen bereitstellen, die Adresse des Dokuments, wenn die App eine liefert, und einen Screenshot des Fensters. Wie viel Text das ist, hängt von der App ab.
+
+## Wenn die SmartBar sich öffnet
+
+Wenn du die SmartBar öffnest, prüft sie drei Quellen in der App, die du benutzt hast. Unter **Einstellungen → Kontextverständnis** legst du fest, was mit jeder geschieht:
+
+| Quelle | Standard | Was sie aufnimmt |
+|---|---|---|
+| **Ausgewählter Text** | **Anhängen** | In der zuletzt benutzten App ausgewählter Text |
+| **Finder-Auswahl** | **Vorschlagen** | Im Finder ausgewählte Dateien und Ordner |
+| **Aktuelle Browserseite** | **Vorschlagen** | Die in Safari, Chrome, Arc, Edge oder einem anderen Chromium-Browser geöffnete Seite |
+
+- **Anhängen** fügt das Element der Eingabe hinzu, sobald sich die SmartBar öffnet.
+- **Vorschlagen** listet es über den Befehlen auf, sodass du es mit einem Klick hinzufügst. Der Text einer vorgeschlagenen Seite wird erst gelesen, wenn du darauf klickst.
+- **Aus** lässt die Quelle in Ruhe.
+
+Nur die SmartBar verwendet diese Einstellungen. Befehle, die du auf eine Auswahl ausführst, erhalten immer den ausgewählten Text.
+
+## Selbst Kontext hinzufügen
+
+1. Tippe in der SmartBar `#`.
+2. Tippe ein paar Buchstaben, um die Liste der Kontextelemente zu filtern.
+3. Wähle eines aus. Enconvo liest es und fügt es deiner Nachricht hinzu.
+
+Um ein anderes Zeichen zu verwenden, ändere **Kontext** unter **Einstellungen → SmartBar** im Bereich **Suchen**. Dieselbe Gruppe legt `@` für Befehle, `$` für Fähigkeiten und `>` für letzte Aufgaben fest.
+
+## Berechtigungen
+
+| Berechtigung | Wofür sie gebraucht wird |
+|---|---|
+| **Bedienungshilfen** | Ausgewählter Text, Fensterinhalt und Seitentext aus anderen Browsern als Safari |
+| **Automatisierung** | Finder-Elemente und Browserseiten. macOS fragt beim ersten Mal, wenn Enconvo jede App liest |
+| **Bildschirmaufnahme** (Bildschirm- & Systemaudioaufnahme) | Screenshots und die Fensteraufnahme in **Current Application Content** |
+
+Erteile sie unter **Systemeinstellungen → Datenschutz & Sicherheit**. Enconvo bemerkt eine Änderung bei den Bedienungshilfen von selbst. Die vollständige Liste steht unter [Berechtigungen](/de/configuration/permissions).
+
+## Kontext und Tokens
+
+Kontext zählt auf das Kontextfenster des Modells. Seitentext und Screenshots sind die größten Elemente, und sie können:
+
+- Antworten langsamer machen
+- Bei Cloud-Modellen mehr kosten
+- Weniger Platz für den Verlauf der Unterhaltung lassen
+
+<Tip>
+Füge in einem langen Chat eine Seite oder einen Screenshot nur der Nachricht hinzu, die sie braucht, statt sie jedes Mal anzuhängen.
+</Tip>
+
+## Datenschutz und Datenfluss
+
+Erfasster Kontext kann Teil einer gespeicherten Unterhaltung oder eines Elements der Wissensdatenbank werden. Modellanfragen und ausgewählte OCR-, Embedding-, Transkriptions- oder andere Tool-Anbieter können relevante Inhalte erhalten. Lies [Datenschutz & Sicherheit](/de/configuration/privacy-security), um den Unterschied zwischen lokaler Speicherung und Verarbeitung durch Anbieter zu verstehen.
+
+Ein lokales Chatmodell allein macht nicht jedes Tool offline. Prüfe den ganzen Ablauf, einschließlich Browserzugriff, Aufnahmen und anbieterbasierter Verarbeitung. macOS-Berechtigungen verringern den verfügbaren Kontext; sie sind kein Versprechen, dass sich jedes Feld einer Drittanbieter-App als sensibel einstufen lässt.
+
+## Fehlerbehebung
+
+| Problem | Was zu tun ist |
+|---|---|
+| Kein ausgewählter Text und kein Fensterinhalt | Schalte Enconvo unter **Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen** ein. Manche Apps stellen ihren Text nicht über die Bedienungshilfen bereit; kopiere den Text und füge stattdessen mit `#` **Clipboard Text** hinzu. |
+| Keine Browserseite und keine Finder-Elemente | Schalte Enconvo für diese App unter **Systemeinstellungen → Datenschutz & Sicherheit → Automatisierung** ein. |
+| Keine Adresse aus Firefox | Firefox gibt die Adresse seines Tabs nicht heraus. Verwende einen anderen Browser oder kopiere die Adresse. |
+| Eine Seite kommt ohne ihren Text | Außerhalb von Safari wird der Seitentext nur gelesen, solange der Browser im Vordergrund ist. Öffne die SmartBar aus dem Browser. |
+| Kontext kommt aus der falschen App | Kontext kommt aus der App, die du benutzt hast, als sich die SmartBar öffnete. Warte, bis die gewünschte App vorn ist, und öffne dann die SmartBar. |
+| Screenshots schlagen fehl | Schalte Enconvo unter **Systemeinstellungen → Datenschutz & Sicherheit → Bildschirm- & Systemaudioaufnahme** ein. |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Kontextverständnis" icon="eye" href="/de/features/context-awareness">
+    Im Alltag Kontext zu einer Nachricht hinzufügen
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/de/features/smartbar">
+    Mit Kontext aus jeder App fragen
+  </Card>
+  <Card title="Berechtigungen" icon="shield-check" href="/de/configuration/permissions">
+    Wofür jede macOS-Berechtigung da ist
+  </Card>
+  <Card title="OCR" icon="text" href="/de/ai/ocr">
+    Text aus Bildschirminhalten extrahieren
+  </Card>
+</CardGroup>

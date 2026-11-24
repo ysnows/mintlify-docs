@@ -1,0 +1,51 @@
+---
+title: "変数"
+description: "現在の入力、選択したテキスト、アプリのコンテキスト、日付を、プロンプトやテンプレートに対応したフィールドに挿入します。"
+---
+
+変数は、SmartBar に入力したテキスト、別のアプリで選択したテキスト、今日の日付など、毎回変わる値を埋め込みます。テンプレートに対応したプロンプトや設定で使うと、1 つの AI コマンド、エージェントの指示、ワークフローが、目の前にあるどんな内容にも使えます。**設定 → 変数** を開くと、利用できる変数を確認できます。
+
+## 利用できる変数
+
+| 変数 | 渡される値 |
+| --- | --- |
+| Input Text | 現在の SmartBar の入力 |
+| Selection Text | 現在のアプリで選択したテキスト |
+| Latest Clipboard | 直近のクリップボードの内容 |
+| Active Application | 最前面のアプリの情報 |
+| Active Application Screenshot | 最前面のウィンドウの画像 |
+| Active Screen Screenshot | アクティブな画面の画像 |
+| Focused Window Content | フォーカス中のウィンドウから抽出した内容 |
+| Browser Active Tab | アクティブなタブの URL と取得できるページの内容 |
+| Current Folder | Finder で開いているフォルダ |
+| Selected Files | Finder で選択したファイル |
+| History Messages | 現在の会話の履歴 |
+| Now | 現在の日付と時刻 |
+| Your Language | あなたが読む言語。**応答言語** の設定、または自動の場合はシステムの言語 |
+| Opened Applications | 実行中のアプリの情報 |
+| Opened Application Names | 実行中のアプリの名前 |
+
+## 変数を使う
+
+1. カスタマイズしたい AI コマンド、エージェントの指示、またはワークフローのフィールドを開きます。
+2. そのフィールドが変数に対応していることを確認します。ピッカーがある場合は、それを使います。
+3. 必要な値を挿入し、問題のないサンプルの内容でテストします。
+4. 入力が空の場合や、権限が不足している場合に、結果が変わらないか確認します。
+
+テキストのプロンプトでは、次のような、対応しているテンプレート名を使えます。
+
+```text
+Today is {{ now }}.
+Rewrite the following input as a concise checklist:
+{{ input_text }}
+```
+
+使える変数は、コマンドとコンテキストによって異なり、すべてのテキストフィールドがテンプレートを評価するわけではありません。スクリーンショットやアプリの内容には、macOS の権限が必要な場合や、その種類の入力に対応したモデルが必要な場合があります。
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="AI コマンド" icon="wand-magic-sparkles" href="/ja/features/ai-commands">変数を含むプロンプトを、選択したテキストに繰り返し使います。</Card>
+  <Card title="コンテキスト認識" icon="eye" href="/ja/features/context-awareness">Enconvo が画面とアプリをどのように理解するか。</Card>
+  <Card title="ワークフローを作成する" icon="pen-to-square" href="/ja/workflows/creating-workflows">ワークフローのステップで、実行入力と以前の結果を読み取ります。</Card>
+</CardGroup>

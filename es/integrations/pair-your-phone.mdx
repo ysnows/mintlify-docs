@@ -1,0 +1,91 @@
+---
+title: "Empareja con tu teléfono"
+description: "Empareja la app de Enconvo para iPhone o Android con un Mac, un PC con Windows, un escritorio Linux o un servidor Linux con solo un terminal."
+---
+
+La app de Enconvo en tu teléfono se empareja con cada uno de tus ordenadores, de modo que sus proyectos y chats están en el teléfono. Un chat que abres desde el teléfono sigue ejecutándose en ese ordenador, con sus archivos, apps y agentes. El teléfono accede al ordenador a través del relay de Enconvo, y los mensajes están cifrados de extremo a extremo. Cuando el teléfono y el ordenador están en la misma red, la app se conecta a él directamente, así que se conecta y responde más rápido en casa o en la oficina.
+
+Cada ordenador se empareja con el teléfono por separado. Emparejar dos ordenadores entre sí (por ejemplo, un portátil Linux con tu Mac) no añade ninguno de los dos al teléfono: empareja el teléfono con cada ordenador que quieras usar desde él.
+
+## Antes de empezar
+
+- **Consigue la app.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play, o el APK. **Descargar la app para el móvil** en **Ajustes → Conexiones** de tu ordenador tiene un código de descarga para cada una; el botón **Descargar la app para el móvil** del plugin Mobile Companion también lo abre.
+- **Usa una sola cuenta.** Inicia sesión en la app del teléfono y en el ordenador con la misma cuenta de Enconvo. Solo pueden emparejarse los teléfonos de tu cuenta. Una cuenta gratuita también puede emparejarse y usar desde el teléfono los chats del ordenador y la Pantalla remota.
+- **Mantén el ordenador encendido y Enconvo en ejecución.** El teléfono solo accede a un ordenador mientras Enconvo se ejecuta en él.
+
+## Mac, Windows o un escritorio Linux
+
+Los pasos son los mismos en los tres.
+
+<Steps>
+  <Step title="Muestra el código de emparejamiento en el ordenador">
+    Haz clic en el selector de dispositivos al final de la barra lateral y luego en **Añadir un dispositivo → Enlazar un teléfono**. O abre **Ajustes → Conexiones** y selecciona **Mostrar código de emparejamiento**. Aparece un código QR. Funciona una vez y dura cinco minutos.
+  </Step>
+  <Step title="Escanéalo con el teléfono">
+    En la app de Enconvo, abre **Remoto**, toca **Emparejar un ordenador** y apunta la cámara al código. También puedes escanearlo con la Cámara del iPhone, una cámara de Android o Google Lens: el código abre Enconvo y confirmas allí el ordenador. Si la app aún no está instalada, el enlace del código te ayuda a instalarla y luego a emparejar.
+  </Step>
+  <Step title="Usa el ordenador desde el teléfono">
+    El teléfono se empareja en un momento y muestra el ordenador. Con más de un ordenador emparejado, cambia entre ellos desde **Remoto**.
+  </Step>
+</Steps>
+
+Si el código caduca, selecciona **Mostrar un código nuevo** y escanea de nuevo.
+
+## Un servidor Linux con solo un terminal
+
+Un servidor no tiene ventana para mostrar el código, así que lo imprime la línea de comandos. Esto requiere Enconvo 2.5.15 Beta 1 o posterior. Sigue primero [Instalar en un servidor](/es/getting-started/linux).
+
+<Steps>
+  <Step title="Inicia sesión en el servidor">
+    ```bash
+    enconvo login
+    ```
+    Aprueba el código que imprime en `enconvo.com/device`.
+  </Step>
+  <Step title="Mantén Enconvo en ejecución">
+    ```bash
+    enconvo service install
+    ```
+    El teléfono solo accede al servidor mientras Enconvo se ejecuta en él.
+  </Step>
+  <Step title="Imprime el código de emparejamiento">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Dibuja un código QR en el terminal, con un enlace debajo, e indica cuándo caduca. El código funciona una vez y dura cinco minutos.
+  </Step>
+  <Step title="Escanéalo o abre el enlace">
+    Escanea el código con la cámara del teléfono, o abre el enlace en el teléfono. Confirma en la app de Enconvo y el servidor aparece en el teléfono.
+  </Step>
+</Steps>
+
+- **Por SSH**: el código se dibuja en tu propio terminal, así que también funciona por SSH. Si se desborda, ensancha la ventana o abre el enlace.
+- **Inicio de sesión**: escrito en tu propio terminal, el código también inicia sesión en la app del teléfono, así que envíalo solo a tu propio teléfono. Una salida redirigida o guardada, o un comando que ejecuta un agente, imprime solo el enlace, que no inicia sesión en la app: inicia antes sesión en la app con la misma cuenta.
+- **Caducado**: ejecuta de nuevo `enconvo companion pair --phone`.
+
+## Gestionar los teléfonos emparejados
+
+**Ajustes → Conexiones** en cada ordenador enumera sus teléfonos emparejados.
+
+| Para | Haz esto |
+|---|---|
+| Emparejar otro teléfono | Muestra un código nuevo y escanéalo con ese teléfono. Un ordenador puede tener hasta 10 teléfonos emparejados. |
+| Cambiar el nombre de un teléfono | Haz clic en el teléfono y luego en **Cambiar nombre del teléfono** junto a su nombre. |
+| Quitar un teléfono | Selecciona **Eliminar** junto a él. Ese teléfono ya no puede acceder a este ordenador. |
+| Empezar de cero | Selecciona **Restablecer conexión**. Se eliminan todos los teléfonos y tienen que emparejarse de nuevo. |
+
+## Solución de problemas
+
+| Problema | Solución |
+|---|---|
+| Un ordenador no está en el teléfono | Empareja el teléfono con ese mismo ordenador. Emparejarlo con otro ordenador no lo añade. |
+| **Este código ha caducado** | Muestra un código nuevo, o ejecuta el comando de nuevo, y escanea en cinco minutos. |
+| **Inicia sesión para emparejar un teléfono** | Inicia sesión en Enconvo en el ordenador. En un servidor, ejecuta `enconvo login`. |
+| El servidor dice que no ha iniciado sesión | Ejecuta `enconvo login` y luego `enconvo companion pair --phone` de nuevo. |
+| El teléfono muestra el servidor como desconectado | Comprueba que Enconvo se ejecuta allí: `enconvo service install`, y `sudo loginctl enable-linger "$USER"` si se detiene al cerrar sesión. |
+
+## Siguientes pasos
+
+- [App para iPhone](/es/integrations/iphone-app): lo que puedes hacer desde tu teléfono, con un tutorial en vídeo.
+- [Linux (Beta)](/es/getting-started/linux): instala Enconvo en un escritorio o en un servidor.
+- [Tus otros ordenadores](/es/integrations/other-computers): empareja tus ordenadores entre sí.

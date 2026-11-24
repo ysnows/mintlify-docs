@@ -31,7 +31,7 @@ error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md de
 | The manifest and its listing | [Text fields](#text-fields), [Addresses and colors](#addresses-and-colors), [Manifests](#manifests), [Images and other files](#images-and-other-files), [Enconvo manifest fields](#enconvo-manifest-fields) |
 | A plugin's parts | [Skills](#skills), [Claude Code agents and commands](#claude-code-agents-and-commands), [Claude Code settings and channels](#claude-code-settings-and-channels), [MCP servers and apps](#mcp-servers-and-apps), [Hooks](#hooks), [Claude Code components](#claude-code-components) |
 | The package and its catalog | [Archives](#archives), [Marketplaces](#marketplaces), [Packing and publishing](#packing-and-publishing), [Updates](#updates) |
-| Store review and OpenAI's portal | [Review materials](#review-materials), [OpenAI's final submission](#openais-final-submission), [Codes only OpenAI's portal reports](#codes-only-openais-portal-reports) |
+| Store review and OpenAI's portal | [Review materials](#review-materials), [OpenAI's final submission](#openai’s-final-submission), [Codes only OpenAI's portal reports](#codes-only-openai’s-portal-reports) |
 | What `plugin scan` reports | [MCP server scan](#mcp-server-scan), [Domain verification](#domain-verification) |
 
 ## Severity
@@ -42,7 +42,7 @@ error[skill_description_missing] skills/notes/SKILL.md: skills/notes/SKILL.md de
 | `warning` | The plugin works, but something is ignored or may not work in another app. |
 | `warning … (OpenAI's plugin portal)` | Only OpenAI's portal applies the rule. With `--openai`, and in `pack --openai`, it is an error. |
 
-The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers. So do `undeclared_mcp_manifest_ignored` and `undeclared_app_manifest_ignored`: the upload leaves the file out, but Codex still loads it. The [final submission's listing rules](#openais-final-submission) are reported only with `--openai`, as warnings.
+The review rules OpenAI checks at final submission, such as the number of test cases, stay warnings even with `--openai`, because the portal's upload accepts a plugin without them. So does `mcp_servers_multiple`: the upload takes a plugin with several MCP servers. So do `undeclared_mcp_manifest_ignored` and `undeclared_app_manifest_ignored`: the upload leaves the file out, but Codex still loads it. The [final submission's listing rules](#openai’s-final-submission) are reported only with `--openai`, as warnings.
 
 ## Text fields
 
@@ -460,7 +460,7 @@ These check the `review` object (in `package.json`, or `extensions["com.openai"]
 | `review_test_case_tools_triggered_missing` | warning | A positive case doesn't name the tools it should call. |
 | `review_commerce_description_missing` | warning | `commerce` is `true` but nothing says what is sold. |
 
-## OpenAI's final submission
+## OpenAI’s final submission
 
 OpenAI's portal takes the uploaded plugin without these, then asks for them when you submit it to the directory. `validate --openai` and `pack --openai` report them as warnings, and plain `validate` leaves them out. They check the listing in `.codex-plugin/plugin.json`, `plugin.json` or `.claude-plugin/plugin.json`.
 
@@ -476,7 +476,7 @@ OpenAI's portal takes the uploaded plugin without these, then asks for them when
 
 The directory shows the developer name of your verified OpenAI identity, whatever `interface.developerName` says. Screenshots are only for an MCP server with its own interface; see `screenshot_configuration_excluded` and, from `plugin scan --openai`, `screenshots_not_allowed`.
 
-## Codes only OpenAI's portal reports
+## Codes only OpenAI’s portal reports
 
 OpenAI's portal has a few codes that `validate` doesn't report, because they repeat a rule `validate` already checks under another code, or because only OpenAI can check them.
 

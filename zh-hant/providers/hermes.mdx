@@ -1,0 +1,207 @@
+---
+title: "Hermes Agent"
+description: "在 Enconvo 中將 Hermes Agent 當作與 OpenAI 相容的模型使用"
+---
+
+Hermes Agent 是 Nous Research 推出的開源 AI 代理程式。它以本機或伺服器代管的代理程式執行環境運作，具備工具、記憶、技能、終端機存取和訊息整合。
+
+在 Enconvo 中，Hermes Agent 是透過它與 OpenAI 相容的 API 伺服器來使用。Hermes 閘道執行後，Enconvo 就能像使用其他 AI 模型一樣，在聊天、Enconvo 代理程式和由模型驅動的功能中使用 Hermes。
+
+<Tip>
+  第一次使用 Hermes？請先閱讀 [Hermes Agent 快速入門](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)，再回到這裡把它連接到 Enconvo。
+</Tip>
+
+API 參考文件：[Hermes Agent API 伺服器文件](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server)。原始碼：[Hermes Agent GitHub 儲存庫](https://github.com/NousResearch/hermes-agent)。
+
+## 開始之前
+
+- 已安裝並設定好 Hermes Agent
+- Hermes 閘道正在執行，且已啟用 API 伺服器
+- `~/.hermes/.env` 中 `API_SERVER_KEY` 的 API 伺服器權杖
+- 已啟用 Hermes Agent AI 模型供應商的 Enconvo
+
+Hermes 提供與 OpenAI 相容的端點，例如 `/v1/models`、`/v1/chat/completions` 和 `/v1/responses`。Enconvo 的 Hermes 供應商使用 Chat Completions API（`/v1/chat/completions`）。
+
+Enconvo 不會為此供應商使用 Hermes 的 Responses API。請將 Hermes 設定為與 OpenAI 相容的 Chat Completions 供應商。
+
+## 自動設定
+
+開啟**設定 → AI 模型 → Hermes Agent**。設定卡片可以替你啟動、停止並設定本機的 Hermes API 伺服器。
+
+當 Hermes 與 Enconvo 安裝在同一台 Mac 上時，請使用**自動設定**。Enconvo 會：
+
+<Steps>
+  <Step title="尋找 Hermes">
+    檢查這台 Mac 上是否有 `hermes` CLI。
+  </Step>
+  <Step title="啟用 API 伺服器">
+    在 `~/.hermes/.env` 中加入 `API_SERVER_ENABLED=true`，如果缺少 `API_SERVER_KEY`，也會一併補上。
+  </Step>
+  <Step title="啟動閘道">
+    啟動 Hermes 閘道服務。
+  </Step>
+  <Step title="驗證 API">
+    以 `/v1/health` 和 `/v1/models` 探測本機的 API 伺服器。
+  </Step>
+  <Step title="儲存憑證">
+    將基礎網址和 API 伺服器金鑰儲存到 Enconvo 的 Hermes 憑證中。
+  </Step>
+</Steps>
+
+設定卡片會顯示執行狀態標章，例如**執行中**或**已停止**。卡片顯示期間，Enconvo 會定期重新整理這個狀態；卡片不再顯示時就會停止重新整理。
+
+## 取得基礎網址和 API 金鑰
+
+當 Enconvo 與 Hermes 在同一台 Mac 上執行時，請使用這個基礎網址：
+
+```text
+http://127.0.0.1:8642/v1
+```
+
+從 `~/.hermes/.env` 讀取 API 伺服器權杖：
+
+```bash
+awk -F= '/^API_SERVER_KEY=/{print $2}' ~/.hermes/.env
+```
+
+Enconvo 會以下列形式傳送這個值：
+
+```http
+Authorization: Bearer <API_SERVER_KEY>
+```
+
+若要直接測試與 OpenAI 相容的端點：
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer <API_SERVER_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      { "role": "user", "content": "Hello!" }
+    ]
+  }'
+```
+
+請使用以 `/v1` 結尾的基礎網址，而不是完整的 `/v1/chat/completions` 端點。
+
+## 手動連接 Hermes
+
+開啟**設定 → AI 模型 → Hermes Agent**，然後設定憑證供應商。
+
+| 設定 | 值 |
+|---------|-------|
+| **Hermes Base URL** | `http://127.0.0.1:8642/v1` |
+| **API Server Key** | `~/.hermes/.env` 中的 `API_SERVER_KEY` |
+
+輸入基礎網址和權杖後，按一下**驗證**。
+
+## 請求與附件的運作方式
+
+Enconvo 透過與 OpenAI 相容的 Chat Completions 向 Hermes 傳送請求：
+
+```http
+POST /v1/chat/completions
+```
+
+請使用 `hermes-agent`，或 Hermes `/v1/models` 端點所列出的模型名稱。
+
+Enconvo 不會把圖片附件傳送給 Hermes。即使上游的 Hermes API 伺服器宣稱支援圖片輸入，也請把 Hermes 供應商視為 Enconvo 中的文字／聊天供應商。若有圖片相關的工作流程，請使用支援視覺的模型供應商，或先進行 OCR／圖片分析，再把文字傳送給 Hermes。
+
+## 將 Hermes 當作 AI 模型使用
+
+設定完成後，Hermes 會出現在模型選擇器中。選擇 **Hermes Agent**，並選取所列出的模型，通常是 `hermes-agent`。
+
+當你希望 Enconvo 的對話、指令或功能透過 Hermes Agent 執行，同時保留一般的 Enconvo 介面時，請使用這種模式。
+
+<Steps>
+  <Step title="開啟模型選擇器">
+    在聊天或其他由模型驅動的 Enconvo 功能中，按一下目前的模型名稱。
+  </Step>
+  <Step title="選擇 Hermes Agent">
+    在供應商清單中選取 **Hermes Agent**。
+  </Step>
+  <Step title="選取 Hermes 模型">
+    選擇 `hermes-agent`，或你的 Hermes API 伺服器所列出的模型名稱。
+  </Step>
+  <Step title="照常執行功能">
+    提出你的問題或執行 Enconvo 功能。Hermes 會在背後處理模型呼叫。
+  </Step>
+</Steps>
+
+Enconvo 會從 Hermes 的 `/v1/models` 端點載入 Hermes 模型。如果 Hermes 沒有執行，或端點無法使用，Enconvo 會改用 `hermes-agent`。
+
+## 為 Hermes 建立代理程式
+
+你也可以建立一個負責協調 Hermes Agent 的 Enconvo 代理程式。當你想在 Hermes 的代理程式執行環境外，再加上一層面向 Enconvo 的工作流程、工具組或提示詞時，這很有用。
+
+<Steps>
+  <Step title="開啟建立代理">
+    開啟 SmartBar 並搜尋**建立代理**。
+  </Step>
+  <Step title="為代理程式命名">
+    取一個清楚的標題，例如 `Hermes Agent`。
+  </Step>
+  <Step title="撰寫協調指示">
+    為 Enconvo 代理程式撰寫指示，說明它應該如何與 Hermes 合作。
+
+    ```markdown
+    You coordinate Hermes Agent for the user.
+
+    Use Hermes for agentic work, automation, terminal-backed tasks, and requests that should run through the user's Hermes setup.
+    Summarize what Hermes did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="選擇 Hermes 模型">
+    在代理程式的模型設定中，選取 **Hermes Agent** 並選擇 `hermes-agent`。
+  </Step>
+  <Step title="儲存並使用代理程式">
+    與新的 Enconvo 代理程式開始對話。它會使用 Hermes，同時保留 Enconvo 代理程式的介面和你設定的工具。
+  </Step>
+</Steps>
+
+## 透過網路連接
+
+如果 Hermes 在另一台機器上執行，請在 Enconvo 中使用主機的區域網路 IP：
+
+```text
+http://<hermes-host-lan-ip>:8642/v1
+```
+
+<Warning>
+  區域網路存取應使用強度足夠的 `API_SERVER_KEY`。只在你信任的網路上公開 Hermes API 伺服器。
+</Warning>
+
+## 疑難排解
+
+<AccordionGroup>
+  <Accordion title="模型選擇器中沒有出現 Hermes Agent">
+    請確認 Hermes 供應商已在**設定 → AI 模型**中啟用。如果模型清單是空的，請用 `hermes gateway status` 確認閘道正在執行。
+  </Accordion>
+  <Accordion title="驗證時出現未授權錯誤">
+    重新檢查 `~/.hermes/.env` 中的 `API_SERVER_KEY`。Enconvo 需要這個值，並將它當作 Bearer 權杖傳送。
+  </Accordion>
+  <Accordion title="連線失敗">
+    用 `curl http://127.0.0.1:8642/v1/health` 確認 API 伺服器運作正常。如果 Enconvo 在另一台裝置上，請使用主機的區域網路 IP，並確認 Hermes 已綁定為允許網路存取。
+  </Accordion>
+  <Accordion title="啟動成功，但狀態要過一會兒才更新">
+    服務管理員可能在 API 伺服器就緒之前就已回應。請等幾秒鐘後再看一次設定卡片的執行狀態標章，或執行 `hermes gateway status` 並測試 `curl http://127.0.0.1:8642/v1/health`。
+  </Accordion>
+  <Accordion title="圖片附件被忽略">
+    Enconvo 中的 Hermes 供應商目前僅支援文字。Enconvo 不會把圖片附件傳送給 Hermes；若要直接輸入圖片，請選擇支援視覺的供應商。
+  </Accordion>
+  <Accordion title="基礎網址錯誤">
+    請輸入 `http://<gateway-host>:8642/v1`。不要在 Enconvo 的基礎網址欄位中加入 `/chat/completions`。
+  </Accordion>
+  <Accordion title="需要閘道記錄">
+    用 `tail -f ~/.hermes/logs/gateway.log` 讀取 Hermes 閘道記錄，並用 `tail -f ~/.hermes/logs/gateway.error.log` 讀取錯誤記錄。
+  </Accordion>
+</AccordionGroup>
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="OpenClaw" icon="server" href="/zh-hant/providers/openclaw">以同樣的方式連接另一個代理程式閘道。</Card>
+  <Card title="代理程式" icon="robot" href="/zh-hant/ai/agents">為代理程式提供指示和工具。</Card>
+</CardGroup>

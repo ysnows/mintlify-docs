@@ -1,0 +1,70 @@
+---
+title: "Permisos de macOS"
+description: "Consulta qué permisos de macOS usa Enconvo, concede los que necesita una función y soluciona la captura o la escritura que deja de funcionar."
+---
+
+Algunas funciones de Enconvo necesitan un acceso que macOS te pide aprobar, como ver tu pantalla o escribir en otras apps. **Ajustes → Permisos** enumera cada permiso, qué función habilita y si está concedido. El chat de texto no necesita ninguno, así que Enconvo no pregunta al iniciarse: pregunta la primera vez que usas una función que necesita un permiso, e indica qué función lo ha pedido.
+
+## Cuándo pregunta Enconvo
+
+Cuando usas una función que necesita un permiso que no has concedido, Enconvo abre su ventana de permisos, nombra la función y ofrece **Abrir Ajustes del Sistema**. También puedes elegir **Ahora no**.
+
+Para que una función deje de preguntar, marca **No volver a preguntar** para esa función en la ventana. A partir de entonces la función no preguntará hasta que lo cambies en la página Permisos. Para Grabación de pantalla, cuando el acceso solo espera a un reinicio, la ventana ofrece **Reiniciar**.
+
+## Concede un permiso
+
+1. Abre **Ajustes → Permisos**.
+2. Busca el permiso y haz clic en **Conceder**.
+3. macOS muestra su aviso, o abre el panel correspondiente en **Ajustes del Sistema → Privacidad y seguridad**. Para Accesibilidad y Monitorización de entrada, activa tú mismo el interruptor de Enconvo en ese panel.
+4. Si macOS te lo pide, cierra y vuelve a abrir Enconvo.
+5. De vuelta en Enconvo, la fila muestra **Concedido**. Prueba la función de nuevo.
+
+La página vuelve a comprobarlo por sí sola cuando regresas a ella. Haz clic en **Actualizar** para comprobarlo de inmediato.
+
+## Consulta qué funciones usan un permiso
+
+Bajo cada permiso, **Usado por** enumera las funciones que lo necesitan y si cada una preguntará:
+
+| Estado | Significado |
+| --- | --- |
+| **Pregunta al usarlo** | La función pide el permiso la próxima vez que la uses. |
+| **Rechazado · pregunta con el atajo** | Lo rechazaste; la función vuelve a preguntar solo cuando pulsas su atajo de teclado. |
+| **No preguntará** | Elegiste **No volver a preguntar**. Haz clic en él para volver a **Pregunta al usarlo**. |
+| **Desactivado** o **Plugin desactivado** | La función, o el plugin al que pertenece, está desactivado. |
+
+## Para qué sirve cada permiso
+
+| Permiso | Se usa para |
+| --- | --- |
+| Accesibilidad | Leer las interfaces de las apps, hacer clic, escribir y controlar ventanas: Uso del ordenador, PopBar, texto seleccionado e inserción de texto |
+| Grabación de pantalla | Capturas de pantalla que permiten a los agentes ver el contenido de las apps: Uso del ordenador, Appshots, contexto de pantalla y capturas de OCR. macOS puede llamarlo Grabación de pantalla y audio del sistema, y también cubre la captura del audio del sistema. |
+| Monitorización de entrada | Entrada de teclado global para PopBar, atajos de teclado y activadores de doble modificador mientras otras apps están en primer plano |
+| Micrófono | Dictado, Comando de voz, Nota de voz, grabación de reuniones, subtítulos en directo y Live Talk |
+| Notificaciones | Una notificación de macOS cuando una sesión de Agent termina o necesita tu atención |
+| Cámara | Fotos en directo de la cámara con el interruptor de cámara de SmartBar |
+| Ubicación | El tiempo local en la Dynamic Island y el contexto de ubicación para los agentes |
+| Automatización | Controlar otras apps con Apple Events: leer pestañas del navegador, selecciones del Finder, Mail, Mensajes y System Events |
+| Red local | Conectarse a servidores de modelos en otro ordenador de tu red. No está en la página Permisos; encuéntralo en **Ajustes del Sistema → Privacidad y seguridad → Red local**. |
+
+Calendario, Recordatorios, Notas, Mail y las demás apps de Apple se conectan en la página **Plugins**. Consulta [Apps de Apple](/es/integrations/apple-ecosystem).
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Un permiso está activado, pero la captura sigue fallando | Cierra y vuelve a abrir Enconvo y prueba de nuevo. Asegúrate de haber activado la app de Enconvo que estás ejecutando, no una copia anterior. |
+| Una función nunca pide el permiso que necesita | Comprueba su fila en **Usado por**. Si dice **No preguntará**, haz clic en él, o concede el permiso con **Conceder**. |
+| Grabación de pantalla aparece como concedida pero la captura sigue fallando | Haz clic en **Reiniciar** en la ventana de permisos, o cierra y vuelve a abrir Enconvo. |
+| El dictado muestra el texto pero no lo inserta | Comprueba Accesibilidad y que el campo de destino admita escritura o pegado. |
+| Un atajo de teclado solo funciona dentro de Enconvo | Comprueba Monitorización de entrada y Accesibilidad. Consulta [Atajos de teclado](/es/configuration/keyboard-shortcuts) para los atajos que chocan con otras apps. |
+| Un servidor de modelos en otro ordenador no se conecta | Comprueba Red local y que el servidor escuche en su dirección de red. |
+| No aparece ningún aviso cuando termina un Agent | Comprueba Notificaciones aquí, el modo de concentración de macOS y **Enviar una notificación del sistema** en [Notificaciones](/es/configuration/notifications). |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Solución de problemas" icon="circle-question" href="/es/getting-started/troubleshooting">Soluciones para problemas comunes.</Card>
+  <Card title="Privacidad y seguridad" icon="shield-halved" href="/es/configuration/privacy-security">Qué puede ver y hacer Enconvo con cada tipo de acceso.</Card>
+  <Card title="Uso del ordenador" icon="hand-pointer" href="/es/features/computer-use">La función que más usa Accesibilidad y Grabación de pantalla.</Card>
+  <Card title="Dictado" icon="microphone" href="/es/features/dictation">Habla en cualquier app; necesita Micrófono y Accesibilidad.</Card>
+</CardGroup>

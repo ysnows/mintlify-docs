@@ -1,0 +1,57 @@
+---
+title: "Google Gemini"
+description: "Gemini API キーを使って、Enconvo で Gemini モデルとチャットします。"
+---
+
+Google の Gemini モデルを、チャット、エージェント、AI コマンドで使えます。Google AI Studio の Gemini API キーで接続します。利用料金は Google からご自身のアカウントに請求されます。設定では **Google Gemini AI** と表示されます。
+
+<Note>
+Google Gemini は API キーでのみ接続できます。Google が個人の Google アカウントでの Gemini ログインのサポートを終了したため、Enconvo は 2.5.8 で Google アカウントのオプションを削除しました。Google ログインでモデルを使うには、[Antigravity](/ja/providers/antigravity) をご覧ください。
+</Note>
+
+## 接続
+
+<Steps>
+  <Step title="API キーを取得">
+    [Google AI Studio](https://aistudio.google.com/apikey) でキーを作成します。
+  </Step>
+  <Step title="Enconvo に追加">
+    **設定 → AI モデル → Google Gemini AI** を開きます。**認証** で、キーを **API キー** に貼り付け、**検証** をクリックします。
+  </Step>
+  <Step title="モデルを選択">
+    **モデル名** でモデルを選び、短いメッセージを送信します。返信があれば接続は成功です。
+  </Step>
+</Steps>
+
+2 つ目の Gemini キーを使うには、**新しいプロバイダーを追加** をクリックして別のプロファイルを作成します。
+
+## モデルとオプション
+
+| 設定 | 内容 |
+| --- | --- |
+| **モデル名** | このプロバイダーが使うモデルです。横の **更新** でリストを再読み込みし、**モデルを管理**（歯車）でモデルを追加または復元します。 |
+| **Google Search Tool** | 確認できる出典付きで、Google 検索の結果に基づいて回答します。デフォルトではオフです。 |
+| **URL Context Tool** | メッセージ内のリンク先のページをモデルが読めるようにします。デフォルトではオフです。 |
+| **Show thoughts** | 回答と一緒に、モデルの思考の要約を表示します。デフォルトではオフです。 |
+
+思考に対応した Gemini モデルでは、推論の強さとして思考する長さを設定できます。Gemini 4 Carbon は **低**、**中**（デフォルト）、**高** を選べ、有料の API ティアが必要です。日常のコーディングやエージェント作業向けの高速モデルである Gemini 4 Hydrogen は、**低**、**中**、**高**（デフォルト）、**特高** を選べます。**特高** は、難しい複数ステップのタスクで最も長く思考します。無料ティアでも使えます。
+
+同じ Google Gemini プロファイルは、Gemini のテキスト読み上げ、画像生成、文字起こし、動画生成、ウェブ検索にも使われるため、キーを変更するとそれらの機能にも影響します。
+
+## トラブルシューティング
+
+| 問題 | 対処 |
+| --- | --- |
+| **検証** に失敗する | キー全体をもう一度貼り付け、Google AI Studio でキーが有効か確認します。 |
+| モデルが見つからない | **モデル名** の横の **更新** をクリックします。自分でモデルを追加するには **モデルを管理** を使います。 |
+| 最新の出来事についての回答が古い | **Google Search Tool** をオンにします。 |
+| レートまたは使用量の制限エラー | Google AI Studio でクォータを確認するか、しばらく別のプロバイダーに切り替えます。 |
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="Antigravity" icon="google" href="/ja/providers/antigravity">Google ログインでモデルを使い、アカウントのリスクを把握します。</Card>
+  <Card title="認証情報とプロファイル" icon="key" href="/ja/configuration/credentials">複数のキーを使い分け、共有キーが影響する範囲を確認します。</Card>
+  <Card title="モデルを選択" icon="list-check" href="/ja/ai/model-selection-guide">タスクに合わせてモデルを選び、デフォルトの設定場所を確認します。</Card>
+  <Card title="プロバイダーカタログ" icon="table" href="/ja/providers/catalog">すべてのプロバイダーを、支える機能別にまとめています。</Card>
+</CardGroup>

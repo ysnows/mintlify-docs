@@ -1,0 +1,440 @@
+---
+title: "フック"
+description: "エージェントの開始時、ツールの使用時、終了時に、シェルコマンドの実行や Webhook の送信を自動で行います。"
+---
+
+フックは、エージェントの開始、完了、失敗、ツールの使用など、Enconvo で何かが起きたときに、シェルコマンドを実行したり HTTP リクエストを送信したりします。設定は JSON ファイルで行うため、エクステンションを作らなくても、通知、ログ、ローカルの自動化、連携を追加できます。
+
+<Note>
+ほとんどのフックは実行したら待たないタイプで、バックグラウンドで動作し、Enconvo をブロックしません。エージェントの実行中は、`PreToolUse`、`Stop`、`SubagentStop` だけが例外です。エージェントはこれらを待つため、ツール呼び出しをブロックしたり、エージェントを作業に戻したりできます。[ブロッキングフック](#ブロッキングフック)をご覧ください。
+</Note>
+
+## クイックスタート
+
+<Steps>
+  <Step title="フックのフォルダを作成する">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="~/.enconvo/hooks.json を作成する">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="エージェントを実行する">
+    任意のエージェントまたはチャットコマンドを開始します。ステータスが変わると、Enconvo は
+    設定したコマンドを実行し、`/tmp/enconvo-hooks.log` に 1 行追記します。
+  </Step>
+</Steps>
+
+## 設定ファイル
+
+フックは次の場所に置きます。
+
+```text
+~/.enconvo/hooks.json
+```
+
+新しいファイルがない場合、Enconvo は以前のファイル `~/.config/enconvo/hooks.json` も読み込みます。両方のファイルがある場合は、`~/.enconvo/hooks.json` が優先されます。
+
+ファイルはイベントが発生するたびに読み直されるため、Enconvo の実行中にフックを編集できます。再起動は不要です。
+
+## 設定でフックを管理する
+
+**設定 → フック**を開くと、`~/.enconvo/hooks.json` のフックがイベントごとにまとめて表示されます。項目はスイッチでオンとオフを切り替えられ、**hooks.json を開く**をクリックするとファイルを編集できます。項目をオフまたはオンにすると、その項目に `enabled: false` または `enabled: true` が書き込まれ、コマンドや Webhook は変更されません。
+
+## プラグインのフック
+
+context-mode などの Claude Code や Codex のプラグインは、独自のフックを持てます。許可すると、Claude Code と同じように、チャットの開始時、各メッセージ、ツール呼び出し、コンパクションの前後、返信が失敗したとき、エージェントが終了したときに実行されます。
+
+1. **プラグイン**からプラグインをインストールするか、チャットでエージェントにプラグインの GitHub リポジトリ、Git アドレス、zip、npm パッケージを渡します。エージェントがそのプラグインのインストールカードを表示します。
+2. インストールの前に、**フックの実行を許可**にチェックを入れます。これを付けずにインストールしたプラグインは、フックがオフであることが表示されます。あとで**フックを許可**をクリックするとオンになります。
+
+プラグインのアップデートでフックが変わった場合、内容を確認して再び許可するまで、フックは実行されません。Enconvo で実行できないフックは、カードに Enconvo では実行されないと表示されます。
+
+## フックの仕組み
+
+イベントが発生すると、Enconvo は次の処理を行います。
+
+1. `~/.enconvo/hooks.json` を読み込みます。
+2. 新しいファイルがない場合に限り、`~/.config/enconvo/hooks.json` にフォールバックします。
+3. 最上位の `hooks` オブジェクトの中から、キーがイベント名に一致する項目を探します。
+4. 任意の `matcher` の正規表現を適用します。
+5. `enabled` が `false` の項目をスキップします。
+6. 設定されたすべてのフックを同時に実行します。
+
+フックのイベント名は、Claude Code と Codex のライフサイクルのセットに従い、`SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`Stop`、`SubagentStop` です。以前の Enconvo のイベント名と以前のフラットな JSON 形式も、既存のインストールでは引き続き動作しますが、新しく書き込む場合はラップされた Codex 形式を使います。
+
+## 設定リファレンス
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| フィールド | 型 | 必須 | 説明 |
+|-------|------|----------|-------------|
+| `hooks` | object | はい | イベント名をキーとするイベントマップ。 |
+| `event_name` | string | はい | 待ち受けるイベント。`hooks` 内のキーとして使います。 |
+| `matcher` | string | いいえ | 正規表現のフィルタ。ツールのイベントでは `toolName`、`toolTitle`、`path` に一致し、それ以外のイベントではフックのイベント名に一致します。 |
+| `enabled` | boolean | いいえ | `false` にすると、設定には残したまま実行をスキップします。初期設定は `true` です。 |
+| `hooks` | array | はい | 実行するコマンドフックと HTTP フック。 |
+
+### コマンドフック
+
+コマンドフックは、シェルコマンドを実行します。Enconvo は、イベントのペイロードを JSON としてコマンドの標準入力に書き込みます。
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| フィールド | 型 | 初期値 | 説明 |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | 必須のフックの種類。 |
+| `command` | string | - | 実行するシェルコマンド。 |
+| `timeout` | number | `30000` | タイムアウト（ミリ秒）。 |
+
+### HTTP フック
+
+HTTP フックは、イベントのペイロードを JSON のリクエストボディとして送信します。
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| フィールド | 型 | 初期値 | 説明 |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | 必須のフックの種類。 |
+| `url` | string | - | HTTP エンドポイントの URL。 |
+| `method` | string | `"POST"` | HTTP メソッド。 |
+| `headers` | object | `{}` | 追加のリクエストヘッダー。 |
+| `timeout` | number | `30000` | タイムアウト（ミリ秒）。 |
+
+## ブロッキングフック
+
+エージェントまたはボットの実行中は、3 つのイベントがブロッキングフックとして動作します。エージェントは、一致するすべてのフック（並行して実行されます）を待ってから続行し、Claude Code や Codex と同じ方法でその結果を読み取ります。
+
+| イベント | タイミング | フックができること |
+|-------|------|----------------------|
+| `PreToolUse` | ツール呼び出しが実行される直前。`matcher` は、ツール名、タイトル、ルートパスに対して照合されます。 | 呼び出しをブロックするか、その入力を書き換えます。 |
+| `Stop` | エージェントが回答してターンを終える直前。 | 指示を付けて、エージェントを作業に戻します。 |
+| `SubagentStop` | サブエージェントが終了する直前。 | 指示を付けて、サブエージェントを作業に戻します。 |
+
+フックは、次の 2 つの方法のどちらかで判断します。
+
+- **終了コード 2** はブロックします。コマンドが標準エラー出力に書いたテキストが理由になります。
+- **終了コード 0 と標準出力の JSON。** それ以外の出力、終了コード、エラー、タイムアウトは何も判断せず、フックがなかったかのように実行が続きます。
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| JSON の出力 | 効果 |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`：呼び出しは実行されません。モデルには `permissionDecisionReason` がツールの結果として見え、別の方法を選べます。 |
+| `hookSpecificOutput.permissionDecision: "ask"` | `deny` として扱われます。Enconvo には、フック用の確認プロンプトがまだありません。 |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`：呼び出しが実行されます。 |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`：モデルの入力の代わりに、この入力で呼び出しが実行されます。 |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`：エージェントは作業を続け、`reason` が次の指示になります。`PreToolUse` では呼び出しをブロックします。 |
+| `{ "decision": "approve" }` | `allow` と同じです。 |
+
+HTTP フックは、本文が同じ JSON である 2xx のレスポンスで判断します。
+
+複数のフックが一致した場合は、deny が ask より優先され、ask が allow より優先されます。理由は連結され、最後の `updatedInput` が使われます。
+
+`Stop` フックがエージェントを作業に戻せるのは、1 ターンにつき最大 5 回です。2 回目以降のチェックでは `stop_hook_active` が `true` になるため、フックは、指示に従ったあとにエージェントが停止するのを許可できます。`Stop` のブロックは、エージェントが正常に終了したときだけ適用されます。失敗または停止した実行でも、`Stop` はバックグラウンドで実行されます。
+
+<Tip>
+エージェントはブロッキングフックを待つため、遅い `PreToolUse` フックはすべてのツール呼び出しを遅くし、遅い `Stop` フックはターンの終了を遅らせます。フックは高速にし、短い `timeout` を設定するか、時間のかかる処理をバックグラウンド（`command &`）で実行してください。
+</Tip>
+
+ブロッキングフックは、通常の[イベントペイロード](#イベントペイロード)に加えて、最上位に Claude Code のフィールドを受け取ります。
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` と `SubagentStop` は、ツールのフィールドの代わりに `stop_hook_active` と `last_assistant_message` を受け取ります。コマンドフックは、エージェントの作業ディレクトリで実行されます。
+
+### 危険なコマンドをブロックする
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### 終了前にエージェントにテストを実行させる
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## イベントペイロード
+
+コマンドフックは、この JSON を標準入力で受け取ります。HTTP フックは、同じ JSON をリクエストボディとして受け取ります。
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| フィールド | 説明 |
+|-------|-------------|
+| `event` | 短いイベント名。 |
+| `fullEvent` | `event-` プレフィックスが付いた内部のイベント名。 |
+| `sourceEvent` | このフックのイベントを発生させた元の Enconvo のイベント（Codex との互換性のためにイベントが対応付けられている場合）。 |
+| `sourceFullEvent` | `event-` プレフィックスが付いた、元の内部のイベント名。 |
+| `params` | イベント固有のペイロード。 |
+| `timestamp` | ミリ秒単位の Unix タイムスタンプ。 |
+
+バックグラウンドのフックも Claude Code のフィールドを受け取ります。`hook_event_name`、イベントにある場合は `session_id`、ツールのイベントでは `tool_name`、`tool_input`、`tool_use_id` です。
+
+## 使えるイベント
+
+| イベント | パラメーター | タイミング |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | 新しいチャットセッションが作成されたとき。 |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | ユーザーの入力から、エージェント、チャット、ボットの実行が始まったとき。 |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | ツール呼び出しが始まったとき。エージェントの実行中はブロッキング。 |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | ツール呼び出しが、権限の確認または拒否の状態になったとき。 |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | ツール呼び出しが成功、失敗、完了、または拒否されたとき。 |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | エージェント、チャット、ボットの実行が最終的なステータスになったとき。エージェントが正常に終了するときはブロッキング。 |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | サブエージェントがまもなく終了するとき。ブロッキング。サブエージェントは `Stop` を発生させません。 |
+
+`run_status_changed` や `agent_tool_step_changed` など、以前の Enconvo の名前も引き続き使えるため、既存のフックファイルをすぐに移行する必要はありません。
+
+## レシピ
+
+### エージェントが失敗したときの macOS の通知
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### エージェントのステータス変更を記録する
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### エージェントのツール呼び出しを記録する
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Slack に送信する
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### カスタムスクリプト
+
+標準入力からイベントのペイロードを読み取るスクリプトを作成します。
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+`~/.enconvo/hooks.json` から参照します。
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+スクリプトを実行可能にします。
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## トラブルシューティング
+
+| 問題 | 対処 |
+| --- | --- |
+| フックが実行されなかった | `~/.enconvo/hooks.json` が有効な JSON であること、最上位のキーがイベント名に一致していること、コマンドを自分で実行して動作することを確認してください。`~/.config/enconvo/hooks.json` がまだ残っている場合、新しいファイルがある間は無視されます。 |
+| フックが Enconvo をブロックするのかわからない | ブロックするのは、エージェントの実行中の `PreToolUse`、`Stop`、`SubagentStop` だけです。それ以外のフックはすべて、実行したら待たないタイプです。フックが失敗またはタイムアウトした場合、Enconvo は失敗をログに記録し、フックがなかったかのように続行します。 |
+| プラグインのフックが実行されない | プラグインを開いて**フックを許可**をクリックしてください。フックが変わったアップデートのあとは、内容を確認して、再び許可してください。 |
+| コマンドがスクリプトやバイナリを見つけられない | 絶対パスを使ってください。シェル経由でコマンドを実行する場合は `~` の展開が機能しますが、絶対パスのほうがデバッグしやすくなります。 |
+
+### スクリプトを手動でテストする
+
+サンプルのペイロードをスクリプトにパイプで渡します。
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## 関連ページ
+
+<CardGroup cols={2}>
+  <Card title="エージェント" icon="robot" href="/ja/ai/agents">
+    Enconvo のエージェントとカスタムボットについて学びます
+  </Card>
+  <Card title="エクステンション API リファレンス" icon="code" href="/extensions/extension-api-reference">
+    イベントを発行または待ち受けるエクステンションを作ります
+  </Card>
+</CardGroup>

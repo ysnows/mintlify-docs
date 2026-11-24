@@ -1,0 +1,112 @@
+---
+title: "Browsernutzung"
+description: "Lass einen Agenten in deinen echten Browser-Tabs lesen und arbeiten, mit den Anmeldungen, die dein Browser bereits hat."
+---
+
+Mit der Browsernutzung kann ein Agent in Browser-Tabs arbeiten, die mit der Enconvo-Companion-Erweiterung verbunden sind. Er kann eine Seite lesen, auf Bedienelemente klicken, Felder ausfüllen, das Ergebnis prüfen und Tabs verwalten, alles mit den Anmeldungen, die dein Browser bereits hat. Nutze sie, wenn eine Aufgabe eine Website braucht, bei der du angemeldet bist.
+
+## Einrichten
+
+<Steps>
+  <Step title="Erweiterung installieren">
+    Installiere [Enconvo Companion aus dem Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) in einem unterstützten Chromium-Browser oder klicke in **Einstellungen → Browsernutzung** auf **Browser-Begleiter installieren**. Für andere Browser verwendest du das Erweiterungspaket, das für diesen Browser gemacht ist.
+  </Step>
+  <Step title="Beides geöffnet lassen">
+    Lass Enconvo und den Browser geöffnet.
+  </Step>
+  <Step title="Verbindung prüfen">
+    Klicke auf das Symbol der Erweiterung. Das Popup zeigt **Verbunden** und den Namen des Browsers.
+  </Step>
+  <Step title="Zugriff prüfen">
+    Stelle sicher, dass der Agent, den du verwendest, die Browser-Tools hat, und bestätige jede Website, nach der die Erweiterung fragt.
+  </Step>
+  <Step title="Eine reine Leseaufgabe ausprobieren">
+    Beginne mit etwas, das nichts verändert, zum Beispiel „Lies diese Seite und fasse die wichtigsten Punkte zusammen."
+  </Step>
+</Steps>
+
+Safari verwendet die Chromium-Erweiterung nicht. In Safari klickt und tippt die [Computernutzung](/de/features/computer-use) stattdessen auf dem Bildschirm, daher kann nicht jeder Browser dasselbe. Im Abschnitt [Browsererweiterungen](/de/features/browser-extension) findest du das Popup, verbundene Browser, die Tab-Auswahl und Website-Freigaben.
+
+## In einem bestimmten Tab arbeiten
+
+Nenne in deiner Anfrage den Browser und die Seite:
+
+> Lies in Edge den aktuellen Dokumentations-Tab und liste die drei Einrichtungsschritte auf. Lass die Seite geöffnet.
+
+Der Agent liest die Seite, wählt ein Element aus, führt die Aktion aus und prüft, was sich geändert hat. Seitenelemente können sich nach einer Navigation oder einer Live-Aktualisierung ändern. Verliert der Agent ein Element, bitte ihn, sich die Seite neu anzusehen.
+
+Arbeitet der Agent in einem Tab, den du nicht siehst, zeigt dir ein [Bild-in-Bild](/de/features/picture-in-picture)-Fenster ihn live in der Ecke des Bildschirms. Klicke darauf, um zum Tab zu wechseln und selbst zu übernehmen.
+
+## Wenn die Aufgabe endet
+
+Die Tabs, die ein Agent öffnet, werden geschlossen, wenn sein Zug endet. Diese bleiben geöffnet:
+
+- eine Seite, die der Agent dir als Ergebnis übergibt
+- ein Tab, den er dir übergeben hat
+- ein Tab, den du angeheftet hast
+- der Tab, den du gerade ansiehst
+
+Deine eigenen Tabs werden nie geschlossen.
+
+## Was er kann
+
+| Bereich | Beispiele |
+| --- | --- |
+| Navigation | Eine URL öffnen, vor- oder zurückgehen, neu laden, auf eine Bedingung warten |
+| Lesen | Seitenstatus, sichtbarer Text, Attribute, Screenshots, ausgewählter Inhalt |
+| Interaktion | Klicken, tippen, ausfüllen, auswählen, Tasten drücken, scrollen, ziehen |
+| Browser-Organisation | Tabs, Fenster und verbundene Sitzungen ansehen und verwalten |
+| Erweiterte Tools | Seitenauswertung, Cookies, Speicher, Verlauf und browserspezifische Untersuchung |
+
+### Eine ganze Seite erfassen
+
+Bitte den Agenten, eine ganze Webseite zu erfassen, zum Beispiel „Speichere einen Screenshot dieser gesamten Seite auf meinem Schreibtisch." Er speichert eine PNG-Datei dort, wo du es möchtest, in der Auflösung der Seite und ohne den Mauszeiger des Agenten.
+
+### Anmeldungen und Menschenprüfungen
+
+Erreicht eine Aufgabe die Anmeldeseite einer Website, fragt dich eine Karte einmalig nach Benutzername und Passwort. Enconvo trägt sie nur auf dieser Website ein, und der Agent sieht das Passwort nie; siehe [Zugangsdaten](/de/configuration/credentials). Zeigt eine Seite eine Menschenprüfung, kann der Agent den Tab an dich übergeben. Melde dich in diesem Tab an oder löse die Prüfung und klicke dann auf **An den Agenten zurückgeben**, um ihn zurückzugeben.
+
+Was funktioniert, hängt vom Browser, von der Seite, von der Version der Erweiterung und von den aktivierten Tools ab. Browserseiten wie `chrome://` und andere eingeschränkte Inhalte sind möglicherweise nicht erreichbar.
+
+<Warning>
+Die Browsernutzung handelt in deinen echten Konten. Sage dazu, ob eine Aufgabe nur einen Entwurf vorbereiten oder ihn auch absenden soll.
+</Warning>
+
+## Einstellungen
+
+| Einstellung | Wo | Was sie ändert |
+| --- | --- | --- |
+| **Standardbrowser** | **Einstellungen → Browsernutzung**, dann **Einstellungen** im Menü **⋯** | Der Browser, den Aufgaben verwenden, wenn du keinen nennst. **Auto (Systemstandard)** folgt dem Standardbrowser deines Macs. |
+| **Browsererweiterungen** | **Einstellungen → Browsernutzung** | Listet die Browser mit der Erweiterung auf, jeweils **Verbunden** oder **Getrennt**. |
+| **Bild-in-Bild-Fenster** | **Einstellungen → Browsernutzung** | Wann eine Live-Ansicht des Agenten-Tabs in der Ecke des Bildschirms erscheint: **Immer** (Standard), **Nur wenn ich gebraucht werde** oder **Aus**. Siehe [Bild-in-Bild](/de/features/picture-in-picture). |
+
+Du kannst den Browser auch direkt in der Aufgabe nennen.
+
+Für Entwickler meldet die Local-API-Route `browser-use/status` den Verbindungsstatus, und **Einstellungen → APIs** listet die installierten Routen und ihre Schemas auf.
+
+## Fehlerbehebung
+
+| Problem | Was zu tun ist |
+| --- | --- |
+| Nicht verbunden | Prüfe, ob die Erweiterung eingeschaltet und Enconvo geöffnet ist, und sieh dir das Popup an. Die Erweiterung verbindet sich über Port 11225 mit Enconvo auf diesem Mac. |
+| Falscher Browser oder Tab | Nenne den Browser und die Seite und bitte darum, die Seite neu anzusehen. |
+| Ein Klick oder Ausfüllen schlägt fehl | Sieh dir die Seite im aktuellen Zustand an. Ein Dialog, eine Navigation oder ein eingebetteter Frame kann das Ziel verschoben haben. |
+| Der Screenshot ist leer | Bringe den Tab in den Vordergrund und warte, bis die Seite geladen ist. |
+| Die Website fordert dich zur Anmeldung auf | Melde dich wie gewohnt auf der Website an. Dass du im Browser angemeldet bist, heißt nicht, dass jede Website-Sitzung noch gültig ist. |
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Browsererweiterungen" icon="puzzle-piece" href="/de/features/browser-extension">
+    Das Popup, verbundene Browser und Website-Sicherheit.
+  </Card>
+  <Card title="Computernutzung" icon="computer-mouse" href="/de/features/computer-use">
+    Native Mac-Apps, Dateidialoge und Desktop-Steuerung.
+  </Card>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">
+    Wähle, welche Tools ein Agent verwenden darf.
+  </Card>
+  <Card title="CLI und Local APIs" icon="terminal" href="/de/advanced/cli-local-api">
+    Rufe Browsernutzungs-Routen aus Skripten auf.
+  </Card>
+</CardGroup>

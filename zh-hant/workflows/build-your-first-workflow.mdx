@@ -1,0 +1,131 @@
+---
+title: "建立你的第一個工作流程"
+description: "跟著有旁白的影片，從範本建立工作流程，用手動和助理兩種方式加入步驟，然後執行它並讀取每個步驟的輸出。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+工作流程會把提示詞、代理程式和工具串成一次可重複的執行。本教學從頭到尾建立一個：從 **步驟類型導覽** 範本建立它，手動加入一個步驟，讓工作流程助理再加入另一個，然後執行它並讀取每個步驟的輸出。
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+影片長度為 2 分 24 秒。下方的書面步驟依相同順序進行，並為每個步驟附上對應的時間戳記。
+
+## 你將建立的內容
+
+**步驟類型導覽** 範本開箱即可執行。在教學過程中，它會逐步成長為一條小型內容管線：
+
+| 步驟 | 類型 | 作用 |
+| --- | --- | --- |
+| 取得今天的日期 | Shell | 印出今天的日期 |
+| 列出已儲存的工作流程 | 工具 | 列出你現有的工作流程（與日期平行執行） |
+| 向模型要一個點子 | 提示詞 | 針對 `topic` 輸入，建議一個新的自動化 |
+| 讓代理程式展開它 | 代理程式 | 把點子變成三步驟計畫 |
+| 寫一則推文 | 提示詞 | 手動加入：把計畫變成一則有力的推文 |
+| 把推文翻譯成日文 | 提示詞 | 由助理加入：翻譯推文 |
+
+## 跟著操作
+
+<Steps>
+  <Step title="建立工作流程 (0:07)">
+    開啟 **設定 → 工作流程 → 管理**，選擇 **新增工作流程**。在 **或從範本開始** 下，選擇 **步驟類型導覽**。工作流程就會建立好，編輯器以 **視覺化** 模式開啟。影片是在 **新增工作流程** 對話框出現之前錄製的，所以影片中的起始範本叫做 *Starter Workflow*。
+  </Step>
+  <Step title="閱讀流程圖 (0:18)">
+    從上往下閱讀流程圖。**輸入** 節點宣告一次執行所需的內容；這裡只有一個 `topic`。前兩個步驟並排，因為它們屬於不同的工作，所以平行執行。每個結果接著往下流入它下方的步驟，這些步驟依序執行。
+  </Step>
+  <Step title="編輯步驟 (0:28)">
+    選取一個步驟，在檢視器中開啟它，你可以更改它的 ID、標題和提示詞。雙大括號會把值帶入步驟：`{{ inputs.topic }}` 讀取執行的輸入，`{{ steps.idea.output }}` 讀取先前步驟的結果。步驟之間就是這樣彼此溝通的。
+  </Step>
+  <Step title="加入步驟 (0:37)">
+    選取最後一個步驟下方的 **+**，並選擇步驟類型，例如提示詞、代理程式、Shell 或工具。為新的提示詞步驟指定 ID `tweet`、標題「寫一則推文」，以及這個提示詞：
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    重新命名步驟 ID 之後，請先按 Return，再移到下一個欄位。
+    </Tip>
+  </Step>
+  <Step title="或請工作流程助理處理 (0:57)">
+    與其手動編輯，不如在工具列中選取 **助理**，並在畫布旁開啟的面板中描述你要的變更：
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    助理會編輯流程圖，並列出它變更的步驟。如果你不喜歡結果，請在它的回覆上選取 **還原**。在影片中，它加入了一個 `translate_ja` 步驟，其提示詞會讀取 `{{ steps.tweet.output }}`。儲存前請先檢查新的步驟：在你選取 **儲存** 之前，助理的編輯都不會儲存。
+  </Step>
+  <Step title="查看 YAML (1:16)">
+    在工具列中選取 **YAML**，即可以原始碼形式查看同一個工作流程。每個工作流程都是一個純文字檔案，儲存在 `~/.enconvo/workflows/<id>.yaml`，因此很容易閱讀、比對差異和分享。選取 **視覺化** 即可回到流程圖。完整的檔案在下方的[完成後的工作流程](#完成後的工作流程)中。
+  </Step>
+  <Step title="執行並檢查輸出 (1:28)">
+    選取 **輸入**，設定執行的值（影片使用 `{"topic": "matcha"}`），然後選擇 **執行**。執行中的步驟會亮起藍色，完成的步驟會變成綠色。代理程式步驟花的時間比其他步驟長。
+
+    執行結束後，選取任何一個步驟並開啟它的 **輸出** 分頁，即可確切看到它產生了什麼。最後一個步驟取得了推文並翻譯它，完全不需要複製貼上。
+  </Step>
+  <Step title="尋找過去的執行 (2:05)">
+    每次執行都會保留在工具列的 **執行紀錄** 下，因此你之後隨時都能回頭查看任何結果。
+  </Step>
+</Steps>
+
+<Note>
+執行工作流程會呼叫真實的模型和工具。它可能會使用供應商的額度，而且 Shell 或工具步驟會以你 Mac 帳號的權限動作。執行工作流程之前，請先檢查它的步驟。
+</Note>
+
+## 完成後的工作流程
+
+以下是影片中建立的工作流程，以 YAML 寫出。**YAML** 檢視的格式可能略有不同。
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+`ideate` 工作透過 `needs` 等待 `date` 和 `catalog`，因此它可以用 `jobs.<job>.<step>.output` 讀取它們的結果。在同一個工作內，後面的步驟用 `steps.<id>.output` 讀取前面的步驟。
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="工作流程" icon="diagram-project" href="/zh-hant/workflows/introduction">工作、步驟，以及每一種步驟。</Card>
+  <Card title="建立工作流程" icon="pen-to-square" href="/zh-hant/workflows/creating-workflows">視覺化編輯器、YAML 和編輯助理的詳細說明。</Card>
+  <Card title="進階工作流程" icon="code-branch" href="/zh-hant/workflows/advanced-workflows">條件、迴圈、重試、輸出結構描述和子工作流程。</Card>
+  <Card title="排程工作" icon="clock" href="/zh-hant/workflows/scheduled-jobs">在指定時間執行工作流程或代理程式指示。</Card>
+</CardGroup>

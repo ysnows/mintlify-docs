@@ -1,0 +1,159 @@
+---
+title: "Linux サーバーで Enconvo を設定する"
+description: "Linux サーバーで動作する Enconvo のモデル、エージェント、プラグインを、Web UI、コマンドライン、または Mac からの同期で選びます。"
+---
+
+このページは、Mac が **設定 → 接続**で Linux サーバーを追加し、そこに Enconvo をインストールした方向けです。サーバーは画面なしで Enconvo を実行し、Mac からはそのチャットを開けますが、設定は開けません。サーバーの設定には 3 つの方法があります。Web UI で行う、コマンドラインから行う、Mac の設定を同期する、のいずれかです。
+
+## Mac がサーバーと共有するもの
+
+ペアリングにより、Mac はサーバーのチャット、エージェント、ファイルを使えるようになります。設定は共有されません。サーバーは独自のモデル、エージェント、プラグイン、API キーを保持し、Mac からコピーすることはありません。
+
+- 設定と API キーは Mac から開けません。サーバー側で変更します。
+- 初期状態では、サーバーのエージェントはデフォルトモデルを使います。新規インストールではそれが Enconvo Cloud で、サーバーがサインインしたアカウントのものなので、サーバーのチャットはあなたの Cloud ポイントを使います。
+- 1 つのエージェントのモデルをすばやく切り替えるには、Mac でサーバーのチャットにあるモデルピッカーを使います。サーバー上のそのエージェントのモデル、推論の強度、速度を設定します。API キーが必要なプロバイダーは、先にそのキーをサーバーに登録しておく必要があります。
+
+## サーバーの Web UI を開く
+
+サーバーは、チャットウィンドウと設定を Web サイトとして提供できるため、Mac のブラウザで設定を使えます。Mac からのインストールでは、これは有効になりません。SSH 経由で一度だけ有効にします。
+
+<Steps>
+  <Step title="Web UI を有効にする">
+    `ssh` でサーバーに接続し、次を実行します。
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    これにより、Web UI を有効にした状態で Enconvo サービスが書き換えられ、再起動されます。待ち受けは `127.0.0.1` のみなので、サーバーの外からは到達できません。`enconvo service install` を再度実行すると、サービスは新しい実行のオプションだけで動作します。
+  </Step>
+  <Step title="Mac からトンネルを開く">
+    Mac の Terminal で、`ssh` で使っているものと同じホスト名を使って実行します。
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    Web UI を使っているあいだは実行したままにします。閉じるには Control-C を押します。
+  </Step>
+  <Step title="Web UI を開く">
+    Mac のブラウザで `http://127.0.0.1:54580` を開きます。設定は Mac と同じように使えます。**設定 → AI モデル**でモデルを選び、**設定 → プラグイン**でプラグインを追加し、API キーもここで入力します。
+  </Step>
+</Steps>
+
+サーバーで `enconvo service url` を実行すると、Web UI のアドレスが表示されます。
+
+### トンネルなしでアクセスする
+
+SSH を使わずにほかのコンピュータから Web UI を開くには、ネットワークにバインドします。
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+この場合、Web UI には接続トークンが必要です。`enconvo service url` を実行すると、末尾が `?tkn=` のトークン付きアドレスが表示されます。そのリンクを一度開けば、ブラウザがトークンを保持します。リバースプロキシの背後では、プロキシが提供するアドレスを指定して `--web-url https://enconvo.example.com` を追加するか、サーバーに別の名前でアクセスする場合は `--web-host <name>` を追加します。どちらもトークンが必要です。
+
+<Warning>
+  トークンを持つ人は、サーバー上のあなたの Enconvo アカウントと、そのユーザーが読み取れるすべてのファイルにアクセスできます。リンクは非公開にし、ポートはファイアウォールまたは VPN の内側に置き、できるだけ SSH トンネルを使ってください。トークンを新しくするには、サーバーで `~/.config/enconvo/.support/windows-shell/web-token` を削除し、`systemctl --user restart enconvo` を実行します。
+</Warning>
+
+## コマンドラインから設定する
+
+インストール済みのすべてのプラグインのルートは、サーバー上で `enconvo` コマンドになります。`enconvo <plugin> <route> --flags` と入力するか、リクエスト全体を `--input-json` で渡します。どの階層でも `-h` を付けると、そこにあるものが表示されます。
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+`'agent|main'` のように `|` を含むキーは引用符で囲んでください。囲まないと、シェルが `|` をパイプとして解釈します。
+
+### モデル
+
+サーバーのモデルプロバイダーを一覧表示します。それぞれの `commandKey`(`llm|enconvo_ai` など)が、設定する値です。
+
+```bash
+enconvo llm list_providers
+```
+
+デフォルトモデルを設定します。デフォルトに設定されているすべてのエージェントがこれを使います。
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+1 つのエージェントのモデルを設定します。メインエージェントは `agent|main` で、ほかのエージェントの `command_key` は `enconvo agent list` で確認できます。
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+値を `default` にすると、再びデフォルトモデルに従います。`enconvo config preferences 'agent|main'` は、エージェントが持つすべての設定を一覧表示します。
+
+1 つの設定だけを元に戻すには、その名前を指定します。
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  `--keys` なしで `enconvo config reset` を実行すると、そのキーのすべての設定がリセットされ、エージェントやコマンドの場合はそのワークスペースデータも削除されます。この操作は元に戻せません。
+</Warning>
+
+`config get` は、保存された API キーとトークンを `[hidden]` と表示します。API キーがシェルの履歴に残らないよう、`config set` ではなく、Web UI の設定で入力してください。
+
+### プラグイン
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install` には、GitHub の `owner/repo`、git の URL、`.zip` への `https` リンク、`npm:<package>`、フォルダー、または `<plugin>@<marketplace>` を指定できます。画面が必要なプラグインは、サーバーでは表示されません。
+
+### エージェント
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+`enconvo agent -h` には、エージェントの削除や一時停止など、そのほかの操作が一覧表示されます。
+
+## 同期で Mac の設定を使う
+
+同期は、Enconvo アカウントを通じて、Mac の設定をサーバーにコピーします。Enconvo Cloud プランと永久ライセンスに含まれています。
+
+1. Mac で **設定 → 同期**を開き、**コンピュータ間で同期**をオンにして、**ストレージ**で **Enconvo アカウント**を選びます。Linux サーバーは iCloud にアクセスできません。
+2. サーバーの Web UI で **設定 → 同期**を開き、**コンピュータ間で同期**をオンにします。
+3. **同期する内容**で、両方のコンピュータで引き継ぐ項目(**設定**、**プラグイン**、**スキル**など)を選びます。
+4. API キーも引き継ぐには、両方で **API キー**をオンにします。これは初期状態ではオフです。すると Mac にコードが表示されるので、サーバーに同じコードが表示されていることを確認して、**許可**をクリックします。
+
+1 台のコンピュータに属するものは、そのコンピュータに残ります。ホットキー、フォルダーのパスと作業フォルダー、サインイン、予約タスク、メッセージングボットなどです。各選択肢の対象については、[Mac を同期する](/ja/configuration/account)を参照してください。
+
+## トラブルシューティング
+
+| 問題 | 対処 |
+| --- | --- |
+| `enconvo: command not found` | 新しい SSH セッションを開いてください。インストールにより、シェルのプロファイルの `PATH` に Enconvo のフォルダーが追加されますが、インストール前に開いたセッションはそれをまだ読み込んでいません。 |
+| `enconvo service url` がアドレスを表示しない | Enconvo が実行されていないか、Web UI なしで実行されています。`enconvo service install --web 127.0.0.1:54580` をもう一度実行してください。 |
+| ブラウザで `127.0.0.1:54580` を開けない | トンネルがまだ開いていることを確認し、`systemctl --user status enconvo` でサービスを、`journalctl --user -u enconvo` でそのログを確認してください。 |
+| Web UI が接続トークンを求める | `enconvo service url` が表示する、末尾が `?tkn=` の完全なリンクを開いてください。 |
+| `service install` が、このユーザーでは Enconvo がすでに実行中だと表示する | ログアウト後にサーバーがユーザーサービスを実行し続けない場合、Mac は Enconvo をバックグラウンドプロセスとして起動します。`sudo loginctl enable-linger $USER` を実行し、`enconvo service install --web 127.0.0.1:54580` をもう一度実行してから、サーバーを再起動して、サービスに引き継がせてください。 |
+| `service install` が systemd を利用できないと表示する | 代わりに、独自のプロセスマネージャー配下で `enconvo --headless --web 127.0.0.1:54580` を実行してください。 |
+| チャットが Mac とは別のモデルを使う | サーバーは独自のモデルを持っています。`enconvo config get llm --includes selected` を確認するか、同期をオンにしてください。 |
+
+## 関連ページ
+
+<CardGroup cols={2}>
+  <Card title="CLI と Local API" icon="terminal" href="/ja/advanced/cli-local-api">
+    Terminal やスクリプトから Enconvo のコマンドを実行する
+  </Card>
+  <Card title="アカウントと同期" icon="rotate" href="/ja/configuration/account">
+    すべてのコンピュータで設定を同じに保つ
+  </Card>
+</CardGroup>

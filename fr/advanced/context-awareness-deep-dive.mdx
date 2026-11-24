@@ -1,0 +1,116 @@
+---
+title: "Comment fonctionne la compréhension du contexte"
+description: "Découvrez ce qu'Enconvo lit dans l'app que vous utilisiez, quand il le lit, et quelles autorisations et quels réglages le contrôlent."
+---
+
+Cette page explique ce qui se cache derrière [Compréhension du contexte](/fr/features/context-awareness) : les éléments qu'Enconvo peut lire sur votre Mac, la manière dont il lit chacun d'eux et la façon dont vous décidez de ce qui entre dans un message. Lisez-la quand vous voulez contrôler ce qui parvient à un modèle, ou quand un contexte que vous attendez n'apparaît pas.
+
+La Compréhension du contexte ne surveille pas votre écran en arrière-plan. Elle lit le contexte quand vous ouvrez la SmartBar ou quand vous ajoutez vous-même un élément, depuis l'app que vous utilisiez juste avant.
+
+## Ce qu’Enconvo peut lire
+
+Chaque type de contexte est un élément qui peut être ajouté à un message.
+
+| Élément de contexte | Ce qu'il contient | Comment Enconvo le lit |
+|---|---|---|
+| **Texte sélectionné** | Le texte sélectionné dans l'app | Accessibilité |
+| **Current Application Content** | Le titre et le texte de la fenêtre, l'adresse du document quand l'app en donne une, et une capture d'écran de la fenêtre | Accessibilité et capture de fenêtre |
+| **Browser Current Tab URL** | L'adresse de l'onglet au premier plan, son titre et le texte de la page | Apple Events ; voir [Navigateurs](#navigateurs) |
+| **Finder Selected Items** | Les fichiers et dossiers sélectionnés dans le Finder, sous forme de chemins | Apple Events |
+| **Finder Current Directory URL** | Le dossier ouvert dans la fenêtre du Finder au premier plan | Apple Events |
+| **Clipboard Text** | Le texte du presse-papiers | Le presse-papiers, uniquement quand vous l'ajoutez |
+| **User Select Area Screenshot** | Une zone de l'écran que vous sélectionnez | Capture d'écran |
+| **Current Application Screenshot** | L'app que vous utilisiez | Capture d'écran |
+| **Current Screen Screenshot** | L'écran entier | Capture d'écran |
+| **Live Screen Screenshot** | L'écran tel qu'il est maintenant, sans les fenêtres d'Enconvo | Capture d'écran |
+
+Enconvo lit les chemins des éléments du Finder, pas le contenu des fichiers.
+
+### Navigateurs
+
+- **Adresse et titre** : lus via Apple Events depuis Safari, Chrome, Edge, Arc et d'autres navigateurs Chromium. Firefox ne fournit pas l'adresse de son onglet : Enconvo ne peut donc pas la lire.
+- **Texte de la page** : Safari le fournit directement. Pour les autres navigateurs, Enconvo lit la fenêtre via l'Accessibilité, ce qui ne fonctionne que lorsque le navigateur est l'app au premier plan.
+
+### Autres apps
+
+Les éditeurs de code, les éditeurs de texte et toutes les autres apps obtiennent **Current Application Content** : le titre de la fenêtre, le texte exposé par l'Accessibilité, l'adresse du document quand l'app en donne une, et une capture d'écran de la fenêtre. La quantité de texte dépend de l'app.
+
+## Quand la SmartBar s’ouvre
+
+Quand vous ouvrez la SmartBar, elle vérifie trois sources dans l'app que vous utilisiez. **Réglages → Compréhension du contexte** définit ce qui se passe pour chacune :
+
+| Source | Par défaut | Ce qu'elle récupère |
+|---|---|---|
+| **Texte sélectionné** | **Joindre** | Le texte sélectionné dans l'app que vous utilisiez |
+| **Sélection du Finder** | **Suggérer** | Les fichiers et dossiers sélectionnés dans le Finder |
+| **Page actuelle du navigateur** | **Suggérer** | La page ouverte dans Safari, Chrome, Arc, Edge ou un autre navigateur Chromium |
+
+- **Joindre** ajoute l'élément à la saisie dès l'ouverture de la SmartBar.
+- **Suggérer** le liste au-dessus des commandes, pour que vous l'ajoutiez d'un clic. Le texte d'une page suggérée n'est lu que lorsque vous cliquez dessus.
+- **Désactivé** ignore la source.
+
+Seule la SmartBar utilise ces réglages. Les commandes que vous exécutez sur une sélection reçoivent toujours le texte sélectionné.
+
+## Ajouter du contexte vous-même
+
+1. Dans la SmartBar, tapez `#`.
+2. Tapez quelques lettres pour filtrer la liste des éléments de contexte.
+3. Choisissez-en un. Enconvo le lit et l'ajoute à votre message.
+
+Pour utiliser un autre caractère, modifiez **Contexte** dans **Réglages → SmartBar**, sous **Rechercher**. Le même groupe définit `@` pour les commandes, `$` pour les Compétences et `>` pour les tâches récentes.
+
+## Autorisations
+
+| Autorisation | Nécessaire pour |
+|---|---|
+| **Accessibilité** | Le texte sélectionné, le contenu des fenêtres et le texte des pages des navigateurs autres que Safari |
+| **Automatisation** | Les éléments du Finder et les pages des navigateurs. macOS demande la première fois qu'Enconvo lit chaque app |
+| **Enregistrement de l’écran** (Enregistrement de l’écran et de l’audio système) | Les captures d'écran et la capture de fenêtre dans **Current Application Content** |
+
+Accordez-les dans **Réglages Système → Confidentialité et sécurité**. Enconvo remarque tout seul un changement d'Accessibilité. Voir [Autorisations](/fr/configuration/permissions) pour la liste complète.
+
+## Contexte et jetons
+
+Le contexte compte dans la fenêtre de contexte du modèle. Le texte des pages et les captures d'écran sont les éléments les plus volumineux, et ils peuvent :
+
+- Ralentir les réponses
+- Coûter plus cher avec les modèles cloud
+- Laisser moins de place à l'historique de la conversation
+
+<Tip>
+Dans un long chat, n'ajoutez une page ou une capture d'écran qu'au message qui en a besoin, au lieu de la joindre à chaque fois.
+</Tip>
+
+## Confidentialité et circulation des données
+
+Le contexte capturé peut faire partie d'une conversation enregistrée ou d'un élément d'une base de connaissances. Les requêtes aux modèles et les fournisseurs d'OCR, d'embedding, de transcription ou d'autres outils que vous avez choisis peuvent recevoir le contenu concerné. Consultez [Confidentialité et sécurité](/fr/configuration/privacy-security) pour la distinction entre le stockage local et le traitement par un fournisseur.
+
+Un modèle de chat local ne suffit pas à rendre tous les outils hors ligne. Vérifiez l'ensemble du flux, y compris l'accès au navigateur, les captures et le traitement par des fournisseurs. Les autorisations de macOS réduisent le contexte disponible ; elles ne garantissent pas que chaque champ d'une app tierce puisse être classé comme sensible.
+
+## Dépannage
+
+| Problème | Que faire |
+|---|---|
+| Aucun texte sélectionné ni contenu de fenêtre | Activez Enconvo dans **Réglages Système → Confidentialité et sécurité → Accessibilité**. Certaines apps n'exposent pas leur texte via l'Accessibilité ; copiez le texte et ajoutez plutôt **Clipboard Text** avec `#`. |
+| Aucune page de navigateur ni aucun élément du Finder | Activez Enconvo pour cette app dans **Réglages Système → Confidentialité et sécurité → Automatisation**. |
+| Aucune adresse depuis Firefox | Firefox ne fournit pas l'adresse de son onglet. Utilisez un autre navigateur, ou copiez l'adresse. |
+| Une page arrive sans son texte | En dehors de Safari, le texte de la page n'est lu que lorsque le navigateur est au premier plan. Ouvrez la SmartBar depuis le navigateur. |
+| Le contexte provient de la mauvaise app | Le contexte provient de l'app que vous utilisiez à l'ouverture de la SmartBar. Attendez que l'app voulue soit au premier plan, puis ouvrez la SmartBar. |
+| Les captures d'écran échouent | Activez Enconvo dans **Réglages Système → Confidentialité et sécurité → Enregistrement de l’écran et de l’audio système**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Compréhension du contexte" icon="eye" href="/fr/features/context-awareness">
+    Ajouter du contexte à un message au quotidien
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/fr/features/smartbar">
+    Poser une question avec le contexte de n'importe quelle app
+  </Card>
+  <Card title="Autorisations" icon="shield-check" href="/fr/configuration/permissions">
+    À quoi sert chaque autorisation de macOS
+  </Card>
+  <Card title="OCR" icon="text" href="/fr/ai/ocr">
+    Extraire le texte du contenu de l'écran
+  </Card>
+</CardGroup>

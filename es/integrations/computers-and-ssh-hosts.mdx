@@ -1,0 +1,116 @@
+---
+title: "Ordenadores y hosts SSH"
+description: "Deja que tus agentes trabajen en tus otros ordenadores y en servidores a los que accedes por SSH, y controla quién puede acceder a este Mac."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Tus agentes pueden trabajar en algo más que este Mac. Añade un servidor al que accedes con SSH, menciónalo en un chat y pide lo que necesites, igual que lo harías con tu propio Mac: el Agente ejecuta los comandos allí y responde aquí. No se instala nada en el servidor. Tus otros ordenadores que ejecutan Enconvo se pueden emparejar de la misma manera.
+
+El siguiente vídeo añade un host SSH desde tu configuración de SSH, pide al Agente que lea un registro en él y muestra quién puede acceder a este Mac.
+
+<YouTubePlayer videoId="ojtTTtqTod4" title="Computers and SSH Hosts in Enconvo" />
+
+## Antes de empezar
+
+- Necesitas un servidor al que puedas acceder con `ssh` desde este Mac: un host en `~/.ssh/config`, o una dirección que puedas escribir como `user@host`. Enconvo usa el `ssh` y las claves de este Mac. Si el servidor pide una contraseña o una frase de contraseña, `ssh` la pide a través de Enconvo, y Enconvo no guarda nada de ello.
+- Para un servidor de tu red local, permite Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Red local**.
+
+## Qué muestra Conexiones
+
+Abre **Ajustes → Conexiones**. Tiene tres listas:
+
+| Lista | Qué contiene |
+| --- | --- |
+| **Teléfonos** | Las apps de iPhone y Android emparejadas con este Mac. Consulta [App para iPhone](/es/integrations/iphone-app). |
+| **Ordenadores** | Tus otros ordenadores que ejecutan Enconvo, emparejados con este Mac. Cada uno aparece una vez, con el sentido en el que controla. Haz clic en **Emparejar un ordenador** para añadir uno. Consulta [Tus otros ordenadores](/es/integrations/other-computers). |
+| **Hosts SSH** | Servidores a los que tus agentes acceden por SSH, sin nada instalado en ellos. |
+
+Haz clic en un teléfono o en un ordenador para abrir su propia página, con lo que puede hacer en este Mac.
+
+También puedes añadir un host, emparejar un ordenador o emparejar un teléfono desde la Ventana de chat: haz clic en el selector de dispositivos al final de la barra lateral y luego en **Añadir un dispositivo**.
+
+## Añadir un host SSH
+
+1. Abre **Ajustes → Conexiones** y, en **Hosts SSH**, haz clic en **Añadir un host**.
+2. La lista muestra los hosts de tu `~/.ssh/config`. Elige uno, como `build-server`, o escribe `user@host` (o `user@host:port`).
+3. Haz clic en **Conectar**. Enconvo prueba la conexión: llega al host, comprueba la clave del host, inicia sesión y ejecuta un comando.
+4. En **Antes de cada comando**, elige cómo pregunta el Agente antes de ejecutar un comando allí:
+   - **Seguir el chat**: pregunta según indica el modo de permisos del chat. Consulta [Aprobar acciones](/es/ai/agents).
+   - **Preguntar siempre**: pregunta antes de cada comando.
+5. Haz clic en **Añadir host**.
+
+El host aparece ahora en **Hosts SSH** y en el menú `@` de todos los chats.
+
+La primera vez que Enconvo ve la clave de host de un servidor, comprueba la clave con quien administre el servidor y luego haz clic en **Confiar y conectar**. En un servidor Linux, el cuadro de diálogo también ofrece **Instalar también Enconvo allí**, que empareja el servidor como un ordenador. Déjalo desactivado para no instalar nada.
+
+## Pedir al Agente que trabaje en un host
+
+1. En un chat, escribe `@` y el principio del nombre del host. Tus ordenadores y hosts SSH aparecen en **Ordenadores**.
+2. Elige el host. Se incluye en el mensaje como una etiqueta.
+3. Pide lo que quieres que se haga allí y envía. Por ejemplo:
+
+   ```text
+   @build-server What errors are in ~/app/logs/app.log? Just read it, don't change anything.
+   ```
+
+El Agente ejecuta los comandos en el host por SSH, preguntando antes según lo que hayas elegido para ese host. Cada paso de comando indica en qué host se ejecutó. La respuesta vuelve al chat.
+
+Para ver qué ejecutó, haz clic en **Trabajó durante** sobre la respuesta. El desplegable enumera cada comando.
+
+Puedes mencionar un ordenador emparejado de la misma manera. El Agente entrega la tarea al propio agente de ese ordenador, o ejecuta comandos allí cuando ese ordenador permite Terminal para este Mac.
+
+En el chat, un comando ejecutado en un host o en otro ordenador aparece como **Ejecutó un comando**, y cada paso indica la máquina.
+
+## Dejar que los agentes trabajen en un ordenador emparejado
+
+En **Ajustes → Conexiones**, haz clic en un ordenador de **Ordenadores** para abrir su página. Dos interruptores deciden qué pueden hacer con él los agentes de los chats de aquí:
+
+| Interruptor | Qué hace |
+| --- | --- |
+| **Agentes** | Añade sus agentes a Proyectos, o le entrega un chat a uno. La tarea se ejecuta en ese ordenador, y cualquier cosa que su agente quiera hacer te lo pregunta allí primero. |
+| **Comandos** | Los agentes de los chats de aquí pueden ejecutar comandos en él, preguntando según indica el modo de permisos del chat. |
+
+Un interruptor atenuado significa que el otro ordenador no lo ha permitido: activa **Agentes** o **Terminal** para este Mac en ese ordenador. Desactivar **Comandos** también detiene los comandos a través de un host SSH del mismo ordenador.
+
+Para que los agentes de otro ordenador usen directamente la pantalla y el navegador de este Mac, activa **Control por agentes** en la página de ese ordenador aquí. Consulta [Tus otros ordenadores](/es/integrations/other-computers).
+
+## Cambiar los ajustes de un host
+
+En **Hosts SSH**, haz clic en un host para abrir su página:
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Los agentes pueden usarlo** | Desactivado mantiene el host en la lista pero fuera de todos los chats. |
+| **Antes de cada comando** | **Seguir el chat** o **Preguntar siempre**. |
+| **Copiar archivos** | Permite que los agentes copien archivos hacia y desde el host con `scp`. |
+| **Empieza en** | La carpeta en la que empiezan los comandos. Vacío significa la carpeta de inicio de sesión. |
+
+El menú **⋯** de la página tiene **Probar la conexión** y **Quitar host…**. Quitar un host hace que Enconvo lo olvide. Tu `~/.ssh/config` y el servidor se quedan como están.
+
+## Ver quién puede acceder a este Mac
+
+**Quién puede acceder a este Mac**, en **Ajustes → Conexiones**, muestra cuántos teléfonos y ordenadores pueden acceder a este Mac.
+
+Para cortarles el acceso a todos a la vez, haz clic en **Detener todo el acceso** y confirma. Tus teléfonos y otros ordenadores ya no podrán acceder a ninguno de tus Mac, y lo que tengan en ejecución allí se detiene. Haz clic en **Volver a activar el acceso** cuando quieras recuperarlos.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| La prueba no llega a un servidor de tu red local | macOS retiene la conexión por su permiso de Red local. Haz clic en **Permite la red local para Enconvo**, o activa Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Red local**, y vuelve a intentarlo. |
+| La prueba dice que el servidor rechazó tu clave | Comprueba `IdentityFile` del host en `~/.ssh/config`, o añade la clave con `ssh-add`. |
+| El servidor respondió con una clave de host distinta | Puede que se haya reconstruido, o que haya algo entre tú y él. Si se reconstruyó, quita la clave antigua en Terminal con `ssh-keygen -R` seguido de la dirección del servidor y vuelve a intentarlo. |
+| El host no está en el menú `@` | Abre la página del host y activa **Los agentes pueden usarlo**. |
+| Contraseña o frase de contraseña incorrecta | El cuadro se abre de nuevo e indica que no funcionó. Vuelve a escribirla. |
+| Un ordenador tiene dos hosts SSH | El primer host sigue vinculado al ordenador, y su página muestra ese. Al quitarlo se vincula el otro. |
+| `~/.ssh/config` no tiene hosts | Escribe la dirección como `user@host` en **Añadir un host**. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Tus otros ordenadores" icon="laptop" href="/es/integrations/other-computers">Empareja un ordenador y usa sus chats, su pantalla y sus archivos.</Card>
+  <Card title="App para iPhone" icon="mobile" href="/es/integrations/iphone-app">Empareja un teléfono, la primera lista de Conexiones.</Card>
+  <Card title="Agentes" icon="robot" href="/es/ai/agents">Modos de permisos y cómo pregunta el Agente antes de actuar.</Card>
+  <Card title="Uso del ordenador" icon="computer-mouse" href="/es/features/computer-use">Deja que el Agente use las apps de este Mac.</Card>
+</CardGroup>

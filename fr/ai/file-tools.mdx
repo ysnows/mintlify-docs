@@ -1,0 +1,53 @@
+---
+title: "Fichiers et dossiers"
+description: "Laissez un Agent trouver, lire et modifier les fichiers de votre Mac."
+---
+
+Les outils de fichiers permettent à un Agent de trouver des fichiers, de chercher à l’intérieur, de les lire et de les modifier. Désignez un dossier ou un fichier à l’Agent et demandez en langage courant ; il choisit le bon outil et vous montre ce qu’il a utilisé.
+
+## Avant de commencer
+
+- **Dossier de travail :** le **Dossier de travail** d’un Agent, dans la partie **Définition** de ses réglages, est le point de départ des chemins relatifs.
+- **Approbations :** la pastille **Autorisations** dans le chat décide quand l’Agent demande d’abord. Avec **Demander l’approbation**, il demande avant de modifier des fichiers en dehors du dossier de travail. La lecture et la recherche ne demandent jamais. Voir [Approuver les actions](/fr/ai/agents).
+
+## Commencer par une tâche en lecture seule
+
+1. Dans les réglages de l’Agent, vérifiez ses outils de fichiers et son **Dossier de travail**.
+2. Dans le chat, nommez un dossier ou joignez le fichier que vous voulez utiliser.
+3. Posez une question bornée, par exemple « Trouve les fichiers Markdown de ce projet et résume le README. »
+4. Regardez les fichiers et les sorties d’outils utilisés par l’Agent avant de lui demander de modifier quoi que ce soit.
+
+## Ce que fait chaque outil
+
+| Outil | Fonction |
+| --- | --- |
+| Glob | Trouve des fichiers selon un motif de chemin, comme `**/*.md`, les plus récents d’abord |
+| Grep | Cherche le texte à l’intérieur des fichiers, avec des motifs de fichiers et des numéros de ligne |
+| Read File | Lit les fichiers texte, extrait le texte des documents et lit les images, les fichiers audio et les vidéos |
+| Edit File | Remplace un texte exact dans un fichier et indique les lignes modifiées |
+| Write File | Crée un fichier, ou remplace tout son contenu |
+
+<Warning>
+Write File peut écraser un fichier existant sans avertissement. Conservez une copie ou utilisez le contrôle de version pour les documents importants, et vérifiez la destination et la modification avant de l’approuver. Les fichiers qu’un Agent modifie dans une discussion sont listés dans l’onglet **Modifications** du panneau latéral, avec **Annuler**.
+</Warning>
+
+## Documents et médias
+
+La lecture d’un PDF, d’un document Office, d’une image, d’un fichier audio ou d’une vidéo peut lancer une analyse, de l’OCR ou une transcription au lieu de renvoyer des octets bruts. Pour l’audio et la vidéo, l’Agent lit la transcription. Dans un tableur, une cellule de formule est lue comme sa valeur, ou comme la formule elle-même quand elle n’a jamais été calculée. Les formats pris en charge dépendent des outils installés et des fournisseurs que vous avez configurés. Voir [OCR](/fr/ai/ocr), [Transcription](/fr/features/transcription) et [Base de connaissances](/fr/ai/knowledge-base).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Une erreur d’accès | Vérifiez le **Dossier de travail** de l’Agent, la pastille **Autorisations** et les autorisations macOS |
+| Un document est lu comme vide | Vérifiez le type de fichier et s’il peut être analysé. Un PDF numérisé peut nécessiter de l’OCR |
+| Une modification ne trouve pas le texte à remplacer | Demandez à l’Agent de relire le fichier actuel avant de le modifier |
+
+## À voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Code Runner" icon="terminal" href="/fr/ai/code-runner">Exécutez du code et des commandes shell. Les outils de fichiers inspectent et modifient sans shell.</Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Définissez les outils d’un Agent et quand il demande d’abord.</Card>
+  <Card title="OCR" icon="font" href="/fr/ai/ocr">Lisez le texte des images et des numérisations.</Card>
+  <Card title="Base de connaissances" icon="book" href="/fr/ai/knowledge-base">Cherchez dans vos propres documents.</Card>
+</CardGroup>

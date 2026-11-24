@@ -1,0 +1,222 @@
+---
+title: "OpenClaw"
+description: "Utilisez des agents OpenClaw comme modèles compatibles OpenAI dans Enconvo"
+---
+
+OpenClaw est une plateforme d’agents d’IA auto-hébergée pour exécuter des assistants à travers le chat, les canaux de messagerie, les outils, les compétences et les automatisations.
+
+OpenClaw peut exposer ses agents via une passerelle (Gateway) compatible OpenAI. Une fois la passerelle activée, Enconvo peut utiliser un agent OpenClaw comme n’importe quel autre modèle d’IA, y compris dans les discussions, les agents Enconvo et les fonctions qui s’appuient sur un modèle.
+
+La passerelle d’OpenClaw expose des points d’accès compatibles OpenAI tels que `/v1/models`, `/v1/chat/completions` et `/v1/responses`. Le fournisseur OpenClaw d’Enconvo utilise l’API Chat Completions (`/v1/chat/completions`).
+
+<Note>
+  Enconvo n’utilise pas l’API Responses d’OpenClaw pour ce fournisseur. Configurez OpenClaw via sa passerelle Chat Completions compatible OpenAI.
+</Note>
+
+Vous découvrez OpenClaw ? Commencez par le [guide de prise en main d’OpenClaw](https://docs.openclaw.ai/start/getting-started), puis revenez ici pour le connecter à Enconvo.
+
+Consultez la [documentation de la passerelle OpenClaw](https://docs.openclaw.ai/gateway#openai-compatible-endpoints) pour la référence complète des points d’accès.
+
+## Avant de commencer
+
+- OpenClaw installé sur la machine qui exécutera la passerelle
+- La passerelle OpenClaw lancée sur un hôte et un port accessibles
+- Le point d’accès Chat Completions de la passerelle activé
+- Le jeton de la passerelle, dans `~/.openclaw/openclaw.json`
+- Enconvo avec le fournisseur de modèle d’IA OpenClaw activé
+
+## Configurer automatiquement
+
+Ouvrez **Réglages → Modèle d’IA → OpenClaw**. La carte de configuration peut démarrer, arrêter et configurer pour vous la passerelle OpenClaw locale.
+
+Utilisez **Configuration automatique** lorsqu’OpenClaw est installé sur le même Mac qu’Enconvo. Enconvo va :
+
+<Steps>
+  <Step title="Trouver OpenClaw">
+    Vérifier que la CLI `openclaw` existe sur ce Mac.
+  </Step>
+  <Step title="Activer Chat Completions">
+    Exécuter `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`.
+  </Step>
+  <Step title="Préparer le jeton de la passerelle">
+    Lire `gateway.auth.token` dans `~/.openclaw/openclaw.json`, ou en créer un s’il manque.
+  </Step>
+  <Step title="Démarrer la passerelle">
+    Démarrer ou redémarrer le service de passerelle OpenClaw.
+  </Step>
+  <Step title="Vérifier l’API">
+    Sonder la passerelle avec `/health` et `/v1/models`.
+  </Step>
+  <Step title="Enregistrer les identifiants">
+    Enregistrer l’URL de base et le jeton de la passerelle dans les identifiants OpenClaw d’Enconvo.
+  </Step>
+</Steps>
+
+La carte de configuration affiche un badge d’état tel que **En cours d’exécution** ou **Arrêté**. Tant que la carte est visible, Enconvo actualise régulièrement cet état, et cesse de le faire lorsque la carte n’est plus visible.
+
+## Activer la passerelle OpenClaw
+
+Vous pouvez demander à OpenClaw de préparer pour vous les informations de la passerelle :
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+Utilisez l’URL de base et le jeton renvoyés dans les réglages d’identifiants OpenClaw d’Enconvo.
+
+<Steps>
+  <Step title="Activer Chat Completions">
+    Activez une seule fois le point d’accès de chat compatible OpenAI :
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="Choisir le mode de liaison">
+    Pour un accès local uniquement, gardez la liaison loopback par défaut. Pour qu’un autre appareil de votre réseau local accède à la passerelle, liez-la au réseau local :
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="Redémarrer la passerelle">
+    Appliquez la modification de configuration :
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="Vérifier l’état de la passerelle">
+    Vérifiez que la passerelle est lancée :
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## Connecter OpenClaw manuellement
+
+Ouvrez **Réglages → Modèle d’IA → OpenClaw**, puis configurez le fournisseur d’identifiants.
+
+| Réglage | Valeur |
+|---------|-------|
+| **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
+| **Gateway Token** | `gateway.auth.token` de `~/.openclaw/openclaw.json` |
+
+Enconvo utilise automatiquement l’API Chat Completions pour OpenClaw.
+
+Utilisez l’URL de base qui se termine par `/v1`, et non le point d’accès complet `/v1/chat/completions`. Par exemple, si votre point d’accès est `http://192.168.1.18:18789/v1/chat/completions`, saisissez `http://192.168.1.18:18789/v1`.
+
+Pour lire le jeton de la passerelle dans le fichier de configuration OpenClaw par défaut :
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo envoie cette valeur sous la forme :
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+Cliquez sur **Valider** après avoir saisi l’URL de base et le jeton.
+
+## Fonctionnement des requêtes et des pièces jointes
+
+Enconvo envoie les requêtes à OpenClaw via Chat Completions compatible OpenAI :
+
+```http
+POST /v1/chat/completions
+```
+
+Utilisez `openclaw:main` ou un autre nom de modèle annoncé par votre liste d’agents OpenClaw.
+
+<Warning>
+  Enconvo n’envoie pas les images jointes à OpenClaw. Considérez le fournisseur OpenClaw comme un fournisseur de texte et de discussion dans Enconvo. Pour les flux de travail avec des images, utilisez un fournisseur de modèle capable de vision, ou faites une OCR ou une analyse d’image avant d’envoyer du texte à OpenClaw.
+</Warning>
+
+## Utiliser OpenClaw comme modèle d’IA
+
+Une fois configuré, OpenClaw apparaît dans le sélecteur de modèle. Choisissez **OpenClaw** et sélectionnez le modèle adossé à un agent, par exemple `openclaw:main`.
+
+Utilisez ce mode lorsque vous voulez qu’une conversation, une commande ou une fonction d’Enconvo passe par un agent OpenClaw tout en gardant l’interface habituelle d’Enconvo.
+
+<Steps>
+  <Step title="Ouvrir le sélecteur de modèle">
+    Dans une discussion ou une autre fonction d’Enconvo qui s’appuie sur un modèle, cliquez sur le nom du modèle actuel.
+  </Step>
+  <Step title="Choisir OpenClaw">
+    Sélectionnez **OpenClaw** dans la liste des fournisseurs.
+  </Step>
+  <Step title="Sélectionner un modèle d’agent OpenClaw">
+    Choisissez `openclaw:main` ou un autre agent OpenClaw dans la liste des modèles.
+  </Step>
+  <Step title="Utiliser la fonction normalement">
+    Posez votre question ou lancez la fonction d’Enconvo. L’agent OpenClaw sélectionné gère l’appel au modèle en coulisses.
+  </Step>
+</Steps>
+
+Enconvo charge les modèles OpenClaw depuis `openclaw agents list`. Si la CLI OpenClaw n’est pas disponible en local, Enconvo se rabat sur `openclaw:main`.
+
+## Créer un agent pour OpenClaw
+
+Vous pouvez aussi créer un agent Enconvo qui coordonne un agent OpenClaw. C’est utile lorsque vous voulez un flux de travail, un jeu d’outils ou une consigne côté Enconvo autour d’un agent OpenClaw précis.
+
+<Steps>
+  <Step title="Ouvrir Créer un agent">
+    Ouvrez SmartBar et cherchez **Créer un agent**.
+  </Step>
+  <Step title="Nommer l’agent">
+    Donnez-lui un titre clair, par exemple `OpenClaw Main`.
+  </Step>
+  <Step title="Rédiger les instructions de coordination">
+    Donnez à l’agent Enconvo des instructions qui expliquent comment travailler avec OpenClaw.
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Choisir le modèle OpenClaw">
+    Dans les réglages de modèle de l’agent, sélectionnez **OpenClaw** et choisissez `openclaw:main`.
+  </Step>
+  <Step title="Enregistrer et utiliser l’agent">
+    Démarrez une conversation avec le nouvel agent Enconvo. Il utilisera le modèle d’agent OpenClaw sélectionné tout en gardant l’interface d’agent d’Enconvo et les outils que vous avez configurés.
+  </Step>
+</Steps>
+
+## Dépannage
+
+<AccordionGroup>
+  <Accordion title="OpenClaw n’apparaît pas dans le sélecteur de modèle">
+    Vérifiez que le fournisseur OpenClaw est activé dans **Réglages → Modèle d’IA**. Si la liste de modèles est vide, vérifiez que `openclaw agents list` fonctionne en local, ou utilisez `openclaw:main` par défaut.
+  </Accordion>
+  <Accordion title="La validation échoue avec « unauthorized »">
+    Vérifiez de nouveau le jeton de la passerelle. Enconvo attend la valeur de `gateway.auth.token` et l’envoie comme jeton Bearer.
+  </Accordion>
+  <Accordion title="La connexion échoue">
+    Vérifiez que la passerelle est lancée avec `openclaw gateway status`. Si Enconvo est sur un autre appareil, définissez `gateway.bind` sur `lan`, redémarrez la passerelle et utilisez l’adresse IP locale de l’hôte dans l’URL de base.
+  </Accordion>
+  <Accordion title="Le démarrage réussit mais Enconvo indique brièvement qu’il faut intervenir">
+    OpenClaw peut signaler que le LaunchAgent a redémarré avant que la passerelle HTTP soit prête. Attendez quelques secondes et consultez de nouveau le badge d’état de la carte de configuration. Vous pouvez aussi vérifier directement avec `openclaw gateway status` et `curl http://127.0.0.1:18789/health`.
+  </Accordion>
+  <Accordion title="La passerelle est lancée mais `/v1/models` échoue">
+    Vérifiez qu’Enconvo utilise le même jeton que `gateway.auth.token` dans `~/.openclaw/openclaw.json`. L’état de la configuration peut détecter une passerelle en marche via `/health`, mais la validation du modèle exige le jeton Bearer.
+  </Accordion>
+  <Accordion title="Les images jointes sont ignorées">
+    Le fournisseur OpenClaw d’Enconvo ne gère pour l’instant que le texte. Enconvo n’envoie pas les images jointes à OpenClaw ; choisissez un fournisseur capable de vision pour une saisie directe d’images.
+  </Accordion>
+  <Accordion title="Mauvaise URL de base">
+    Saisissez `http://<gateway-host>:<port>/v1`. N’incluez pas `/chat/completions` dans le champ d’URL de base d’Enconvo.
+  </Accordion>
+</AccordionGroup>
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/fr/providers/hermes">Connectez une autre passerelle d’agent de la même façon.</Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Donnez des instructions et des outils à un Agent.</Card>
+</CardGroup>

@@ -1,0 +1,108 @@
+---
+title: "Agents de code"
+description: "Discutez avec Claude Code, Codex, Grok Build, Antigravity, Muse Code et Grok Bot dans Enconvo, et choisissez les fonctionnalités d’Enconvo qu’ils peuvent utiliser."
+---
+
+Les agents de code sont les outils de programmation IA que vous utilisez déjà, comme Claude Code et Codex, exécutés dans les chats d’Enconvo. Utilisez-en un quand le travail porte sur du code dans un dossier de projet : il modifie les fichiers avec des diffs, exécute des commandes et demande avant d’agir, tandis qu’Enconvo conserve le chat, son historique et ses approbations dans la Fenêtre de chat, SmartBar et sur votre téléphone.
+
+| Agent de code | Créé par | S’exécute |
+| --- | --- | --- |
+| **Claude Code** | Anthropic | Sur votre Mac, connecté avec Claude |
+| **Codex** | OpenAI | Sur votre Mac, connecté avec ChatGPT |
+| **Grok Build** | xAI | Sur votre Mac, connecté avec Grok |
+| **Antigravity** | Google | Sur votre Mac, connecté avec Google |
+| **Muse Code** | Meta | Sur votre Mac, connecté avec Meta, ou sur son modèle local |
+| **Grok Bot** | xAI | Dans le cloud de xAI, via une routine que vous connectez |
+
+## Avant de commencer
+
+Chaque agent de code a sa propre page dans **Réglages → Liste des agents**. Cliquez dessus pour voir son **État** :
+
+1. S’il affiche **Non installé**, cliquez sur **Installer**, ou exécutez la commande affichée dans le Terminal puis cliquez sur **Vérifier à nouveau**. Une version trop ancienne affiche **Mettre à jour**.
+2. Sous **Compte**, cliquez sur **Se connecter avec Claude**, **Se connecter avec ChatGPT**, **Se connecter avec Grok**, **Se connecter avec Google** ou **Se connecter avec Meta**. Enconvo utilise la même connexion que la ligne de commande de l’agent dans le Terminal.
+
+Lorsque la connexion de Claude Code ou de Codex expire dans les dix jours, la page de l’agent, la liste **Mises à jour** et le Tableau d’un Projet l’indiquent, avec **Se reconnecter**. Une tâche du Tableau dont l’agent de code est déconnecté reste **En attente** et reprend dès que vous vous reconnectez.
+
+Muse Code exécuté sur son modèle local n’a pas besoin de connexion Meta. Grok Bot a besoin d’une routine à la place ; consultez [Connecter Grok Bot](#connecter-grok-bot).
+
+## Discuter avec un agent de code
+
+1. Dans la Fenêtre de chat, choisissez l’agent de code dans les cartes d’agents ou dans le menu des agents.
+2. Choisissez le dossier de projet dans lequel il travaille.
+3. Saisissez votre demande et envoyez-la. Ses étapes, ses diffs et ses commandes s’affichent en continu dans le chat, et ses questions d’approbation apparaissent sous forme de cartes auxquelles vous répondez.
+
+Les approbations du chat suivent le [Mode d’autorisation](/fr/ai/agents) d’Enconvo. En **Accès complet**, un nouveau chat Claude Code démarre en **Contourner les autorisations** (là où les réglages propres à Claude Code le permettent) et un nouveau chat Codex en **Accès complet** : aucun des deux ne demande avant d’agir.
+
+Dans un chat de worktree, l’onglet **Pull request** du panneau latéral (**⌃⇧P**) affiche la pull request de la branche sur GitHub, ou en crée une. Consultez [Fenêtre de chat](/fr/ai/chat).
+
+Pour reprendre une session précédente, choisissez **Reprendre une session précédente**. Les sessions que vous avez lancées dans la ligne de commande de l’agent sont également listées, sous les noms que vous leur avez donnés.
+
+Vous pouvez aussi confier à un agent de code un chat commencé avec Mavis en le poursuivant dans un nouveau chat avec lui. Les autres Agents peuvent utiliser les agents de code comme sous-agents, et un Projet peut leur confier des tâches ou en faire diriger un. Consultez [Sous-agents](/fr/ai/agents) et [Projets](/fr/ai/projects).
+
+### Claude Code : effort, mode rapide et Ultracode
+
+Le sélecteur d’effort d’un chat Claude Code règle son effort de raisonnement. Lorsque la session le prend en charge, le sélecteur affiche aussi le **Mode rapide** et un interrupteur **Ultracode**. Ultracode active l’orchestration de workflows pour le reste de la session, au niveau d’effort que vous choisissez, et reste actif quand vous changez d’effort. Saisir `/effort ultracode` produit le même effet. Dans un nouveau chat, vous pouvez régler le mode rapide et Ultracode avant le premier message.
+
+### Codex : avertissements
+
+Les avertissements de Codex restent hors de la conversation. Saisissez `/warnings` pour les lister.
+
+### Muse Code : continuer dans le Terminal
+
+Pour poursuivre un chat Muse Code dans le Terminal, choisissez **Continuer dans le Terminal**, ou **Copier la commande** pour la copier. Le chat s’ouvre avec `muse resume` dans son dossier. Quand vous quittez Muse Code là-bas et que vous envoyez de nouveau depuis Enconvo, les tours que vous avez exécutés dans le Terminal reviennent dans le chat.
+
+Les questions d’approbation de Muse Code montrent la modification qu’appliquerait une édition. Quand vous refusez une étape, ce que vous saisissez avec **Refuser** est transmis à Muse Code dans le même tour, qui peut ainsi en tenir compte immédiatement. Ses compétences et `/compact` se trouvent dans le menu `/`.
+
+<Note>
+Le mode Contributeur de Muse Code est activé par défaut, ce qui permet à Meta d’entraîner ses modèles sur vos prompts et votre code. Enconvo le laisse tel quel ; désactivez-le dans les réglages propres à Muse Code.
+</Note>
+
+## Choisir ce qu’un agent de code peut utiliser dans Enconvo
+
+Les agents de code peuvent utiliser les plugins d’Enconvo dans leurs chats, par exemple pour écrire à vos Agents Enconvo, créer des images et des vidéos, utiliser la mémoire, le navigateur et l’Utilisation de l’ordinateur. Sur la page de l’agent dans **Réglages → Liste des agents**, sous **Fonctionnalités d’Enconvo** :
+
+- Désactivez **Fonctionnalités d’Enconvo** pour tenir cet agent à l’écart de tous les plugins d’Enconvo.
+- Ou cliquez sur **Personnaliser** à côté de **Plugins** et désactivez les plugins un par un. Un plugin désactivé est masqué pour cet agent, et ses appels sont refusés.
+
+Le changement s’applique aussi aux chats ouverts de l’agent. Les chats d’agents de code dans l’Espace de travail d’un client restent entièrement à l’intérieur de cet Espace de travail.
+
+## Connecter Grok Bot
+
+Grok Bot s’exécute dans le cloud de xAI. Enconvo envoie chaque message à une routine Webhook que vous créez dans Grok Bot, et affiche la réponse dans le chat, même quand elle arrive en retard.
+
+1. Dans Grok Bot, créez une routine avec un déclencheur Webhook.
+2. Ouvrez **Grok Bot** dans **Réglages → Liste des agents**, cliquez sur **Copier** à côté de **Instructions de routine**, puis collez-les dans la routine.
+3. Ajoutez l’URL du webhook et la clé de la routine comme identifiant sur la même page, puis cliquez sur **Tester**. Le test attend la réponse de la routine pendant environ 90 secondes au maximum.
+
+Tant que la routine n’est pas connectée, le sélecteur d’agents affiche Grok Bot comme **Non configuré**. Chaque message consomme l’utilisation hebdomadaire de votre forfait Grok Bot. **Arrêter** arrête seulement l’attente d’Enconvo : l’exécution de la routine se poursuit dans le cloud, et une réponse qui arrive plus tard est tout de même ajoutée au chat.
+
+Un message peut contenir jusqu’à 32 000 caractères. Les fichiers et les images joints restent sur votre Mac ; seul le texte est envoyé.
+
+### Laisser Grok Bot appeler Enconvo
+
+Avec le serveur MCP d’Enconvo, Grok Bot peut répondre à vos chats, notifier votre Mac et vos téléphones associés, et demander à un Agent sur votre Mac d’exécuter une tâche.
+
+1. Sur la page de Grok Bot, sous **Grok Bot appelle Enconvo**, cliquez sur **Connecter**. Vous devez être connecté à votre compte Enconvo.
+2. Dans Grok Bot, ouvrez **Plugins**, ajoutez l’**URL du serveur** affichée, puis connectez-vous avec votre compte Enconvo quand Grok Bot vous le demande.
+
+Chaque demande adressée à un Agent sur votre Mac attend votre approbation, sauf si vous activez **Toujours autoriser ask_mac**. Les demandes restent listées dans le chat **Grok Bot sur ce Mac**. Cliquez sur **Déconnecter** pour empêcher Grok Bot d’appeler Enconvo ; la déconnexion, ou le passage de votre Mac hors ligne, retire une demande encore en attente.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Un chat indique que l’agent n’est pas connecté | Ouvrez la page de l’agent dans **Réglages → Liste des agents** et cliquez sur **Se reconnecter**. Un chat Mavis ou une app qui a appelé l’agent reçoit la même erreur de connexion, et ses tâches du Tableau restent **En attente** jusqu’à votre reconnexion. |
+| L’agent affiche **Non installé** ou une version trop ancienne | Cliquez sur **Installer** ou **Mettre à jour** sur sa page, puis sur **Vérifier à nouveau**. |
+| Muse Code indique qu’Enconvo doit être mis à jour | Mettez Enconvo à jour pour qu’il fonctionne avec la version plus récente de Muse Code. |
+| Grok Bot affiche **Non configuré** | Ajoutez l’URL du webhook et la clé de la routine sur la page de Grok Bot, puis cliquez sur **Tester**. |
+| Le test de Grok Bot indique trop de messages | La routine ou Enconvo refuse trop de messages pour le moment. Réessayez plus tard. |
+| Un chat Muse Code ouvert dans le Terminal ne s’envoie pas | Quittez Muse Code dans le Terminal pour récupérer ses tours, puis envoyez depuis Enconvo. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Sous-agents, rôles et approbations.</Card>
+  <Card title="Projets" icon="folder" href="/fr/ai/projects">Confiez des tâches de code à une équipe dans un même dossier.</Card>
+  <Card title="Fenêtre de chat" icon="comments" href="/fr/ai/chat">Démarrez, pilotez et organisez vos chats.</Card>
+  <Card title="Points d’accroche" icon="anchor" href="/fr/configuration/hooks">Exécutez vos propres commandes quand un Agent agit.</Card>
+</CardGroup>

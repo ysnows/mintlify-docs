@@ -1,0 +1,107 @@
+---
+title: "Choisir un modèle"
+description: "Choisissez un modèle adapté à la tâche, et sachez où le modèle par défaut d’Enconvo est défini."
+---
+
+Vous n’avez pas à choisir : [Auto Route](/fr/providers/auto-route), le modèle par défaut, en choisit un pour chaque message. Lorsque vous voulez un modèle précis, cette page vous aide à en choisir un et montre où ce choix est enregistré.
+
+## Choisir selon la tâche
+
+| Tâche | À rechercher |
+| --- | --- |
+| Reformulations rapides et réponses courtes | Un modèle rapide et peu coûteux |
+| Travail d’Agent en plusieurs étapes | Des appels d’outils fiables et la prise en charge du raisonnement |
+| Questions sur une capture d’écran ou une image | La saisie d’images |
+| Longs documents | Une longue fenêtre de contexte |
+| Travail privé qui reste sur votre Mac | Un [modèle local](/fr/ai/local-llm), plus des fournisseurs locaux pour les autres étapes |
+| Conversations vocales | [Live Talk](/fr/features/live-voice), qui a ses propres réglages de voix |
+| Création d’images ou de vidéos | Un fournisseur d’[images](/fr/ai/image-generation) ou de [vidéos](/fr/ai/video-generation), pas un modèle de chat |
+
+Le sélecteur de modèle montre les modèles que vos fournisseurs proposent à l’instant. Les modèles qui prennent en charge le mode Fast affichent une pastille Mode Fast, qui les exécute plus vite à un prix plus élevé.
+
+## Utiliser les recommandations
+
+Les sélecteurs de modèle dans les Réglages commencent par trois suggestions pour ce type de travail : **Le plus adapté**, **Le moins cher** et **Qualité optimale**. Chacune affiche une courte raison et son prix par million de tokens, en entrée et en sortie. Sous le réglage, une ligne vous indique quand le modèle que vous avez choisi coûte plusieurs fois plus cher que le modèle recommandé.
+
+Lorsque vous créez un Agent dans **Nouvel agent**, Enconvo lit la description de l’Agent et suggère un modèle, avec un modèle moins cher et un plus puissant à côté. Cliquez sur l’un d’eux pour l’utiliser.
+
+## Où le modèle par défaut est défini
+
+- **Un nouveau chat** : le modèle que vous choisissez dans un **Nouvelle discussion** de premier niveau devient le modèle par défaut de l’Agent.
+- **Un projet** : un nouveau chat dans un projet utilise le modèle propre au projet.
+- **Un chat existant** : une fois qu’un chat a démarré, il garde son modèle et son effort de raisonnement jusqu’à ce que vous les changiez dans ce chat.
+- **Les chats sans choix propre, et les canaux de messagerie instantanée** : ils suivent le modèle par défaut de l’Agent.
+
+Après avoir changé un modèle par défaut ailleurs, vérifiez le modèle affiché dans le chat avant d’envoyer.
+
+## Effort de raisonnement
+
+L’effort de raisonnement détermine combien de temps un modèle réfléchit avant de répondre. Un effort plus élevé peut donner de meilleures réponses aux problèmes difficiles, mais prend plus de temps et utilise plus de tokens. Les niveaux dépendent du modèle ; un modèle sans mode de réflexion n’a pas de réglage d’effort.
+
+## Fenêtre de contexte
+
+La fenêtre de contexte correspond à la part d’une conversation que le modèle lit en une fois. Lorsqu’un chat la dépasse, Enconvo compacte la partie la plus ancienne. Les modèles Claude qui peuvent aller jusqu’à 1 M de tokens démarrent à 500 K, si bien que les longs chats se compactent plus tôt et coûtent moins cher.
+
+Pour changer la fenêtre de contexte d’un modèle, ouvrez le fournisseur dans **Réglages → Modèle d’IA**, cliquez sur **Gérer les modèles** (l’engrenage à côté de **Nom du modèle**), modifiez le modèle et réglez **Fenêtre de contexte**.
+
+## Choisir les modèles des tâches d’arrière-plan
+
+De petites tâches s’exécutent en arrière-plan sur un modèle peu coûteux : titres de chat, suggestions de message suivant, Live Talk, titres et résumés d’enregistrements, traduction d’enregistrements et titres d’idées. Par défaut, chacune est réglée sur **Automatique**, qui utilise un petit modèle :
+
+- Les titres de chat, les suggestions de message suivant et Live Talk utilisent un petit modèle du fournisseur du chat lui-même. Un chat sur votre propre clé API ne dépense pas de points Enconvo Cloud pour eux.
+- Les enregistrements et les titres d’idées utilisent un petit modèle de votre fournisseur par défaut.
+- Lorsque le fournisseur n’a aucun petit modèle connu d’Enconvo, Automatique utilise le modèle du chat ou votre modèle par défaut.
+
+Pour choisir vous-même un modèle :
+
+<Steps>
+  <Step title="Ouvrir Modèles de tâches">
+    Ouvrez **Réglages → Modèle d’IA** et cliquez sur **Modèles de tâches** en haut de la page.
+  </Step>
+  <Step title="Choisir une tâche">
+    Cliquez sur une tâche. **Automatique** indique quel modèle il choisit pour chaque fournisseur.
+  </Step>
+  <Step title="Choisir un modèle">
+    Cliquez sur **Choisir un modèle**, choisissez un fournisseur, puis un modèle.
+  </Step>
+</Steps>
+
+Désactivez l’interrupteur à côté de **Suggestions de message suivant** pour cesser de suggérer votre prochain message après chaque réponse. **Tout remettre sur Automatique** remet chaque tâche sur **Automatique**.
+
+## Poursuivre les chats avec des modèles de secours
+
+Secours maintient une réponse en cours lorsque son modèle devient inutilisable, par exemple lorsqu’il atteint une limite d’utilisation, perd sa connexion ou sa clé, ou est injoignable. La réponse continue sur votre prochain modèle de secours, et le chat indique quel modèle a pris le relais et pourquoi.
+
+<Steps>
+  <Step title="Ouvrir Secours">
+    Ouvrez **Réglages → Modèle d’IA** et cliquez sur **Secours** en haut de la page.
+  </Step>
+  <Step title="Ajouter des modèles de secours">
+    Cliquez sur **Ajouter un modèle de secours** et choisissez un modèle. Vous pouvez en ajouter jusqu’à trois, et les faire glisser pour changer l’ordre.
+  </Step>
+  <Step title="Régler l’effort de chaque modèle de secours">
+    Pour un modèle à niveaux de raisonnement, choisissez son **Effort de raisonnement**. Chaque modèle de secours garde le sien.
+  </Step>
+</Steps>
+
+Le panneau montre la chaîne en fonctionnement : **Le modèle utilisé** en premier, puis vos modèles de secours numérotés, chacun marqué **Prêt** ou **En pause**. Cliquez sur le nom du modèle d’un modèle de secours pour le remplacer par un autre modèle de ce fournisseur. Dans la liste des fournisseurs, chaque fournisseur qui détient un modèle de secours affiche une étiquette **secours N** avec sa place dans la chaîne.
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Basculer aussi quand le service est saturé** | Bascule aussi en cas de limites de débit et d’erreurs de serveur, une fois les nouvelles tentatives épuisées. |
+| **Revenir quand le modèle fonctionne à nouveau** | Remet le chat sur son propre modèle dès le tour suivant, une fois ce modèle rétabli, jamais au milieu d’un tour. |
+
+Une requête refusée par une politique de sécurité ne fait jamais changer de modèle.
+
+## Comparer deux modèles
+
+Envoyez la même petite tâche réelle aux deux. Vérifiez que la réponse est correcte, que les outils ont terminé, ainsi que le temps pris et le coût. **Détails** sous chaque réponse affiche le modèle, l’effort, les tokens, la durée, et les points ou le coût.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Auto Route" icon="route" href="/fr/providers/auto-route">Laissez Enconvo choisir le modèle pour chaque message.</Card>
+  <Card title="Fournisseurs" icon="plug" href="/fr/providers/overview">Connectez Enconvo Cloud, vos clés ou vos abonnements.</Card>
+  <Card title="Modèles locaux" icon="microchip" href="/fr/ai/local-llm">Exécutez des modèles sur votre Mac.</Card>
+  <Card title="Tarifs Cloud" icon="receipt" href="https://www.enconvo.com/cloud-pricing">Les points par modèle sur Enconvo Cloud.</Card>
+</CardGroup>

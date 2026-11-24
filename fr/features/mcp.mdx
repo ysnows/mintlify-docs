@@ -1,0 +1,160 @@
+---
+title: "Serveurs MCP"
+description: "Ajoutez des serveurs MCP pour que les agents d'Enconvo puissent utiliser leurs outils : depuis les Réglages, la CLI, une configuration que vous avez déjà ou un lien d'installation."
+---
+
+Le [Model Context Protocol (MCP)](https://modelcontextprotocol.io) est un standard ouvert qui permet aux modèles d'IA d'utiliser des outils et des données externes. Chaque serveur MCP propose des outils qu'un agent peut appeler, comme lire des fichiers, interroger une base de données ou envoyer un message. Ajoutez un serveur à Enconvo, et les agents utilisent ses outils d'eux-mêmes quand une tâche l'exige.
+
+## Ajouter un serveur dans les Réglages
+
+<Steps>
+  <Step title="Ouvrir Serveurs MCP">
+    Ouvrez les **Réglages** depuis l'icône Enconvo dans la barre des menus (**Réglages…**), ou appuyez sur **⌘,**. Ouvrez ensuite **Réglages → Serveurs MCP**.
+  </Step>
+  <Step title="Ajouter le serveur">
+    Cliquez sur **Ajouter un serveur** et saisissez un **Nom du serveur**. Choisissez un transport : **STDIO** pour une commande exécutée sur votre Mac, ou **HTTP** ou **SSE** pour un serveur accessible par une URL. Renseignez ses champs, puis cliquez sur **Enregistrer**.
+  </Step>
+  <Step title="Vérifier la connexion">
+    Le point à côté du serveur devient vert, et sa ligne indique le nombre d'outils qu'il propose. Cliquez sur ce nombre pour les voir.
+  </Step>
+  <Step title="Choisir où s'appliquent ses outils">
+    Utilisez l'interrupteur sur la ligne du serveur. Activé : Enconvo inclut les outils du serveur chaque fois que l'assistant prépare une réponse, partout. Désactivé : ils ne sont pas chargés partout, mais vous pouvez toujours ajouter le serveur depuis SmartBar ou l'activer pour une seule app dans la Barre latérale de l’app.
+  </Step>
+</Steps>
+
+Les serveurs qui utilisent OAuth ouvrent une page de connexion la première fois que vous vous connectez. Si un serveur affiche **S’authentifier**, cliquez dessus et terminez la connexion. **Autoriser l’accès** apparaît lorsqu'un serveur connecté demande plus d'accès que votre connexion ne lui en a donné.
+
+Les serveurs fournis avec un plugin sont listés sous **Depuis les plugins**.
+
+<Tip>
+La barre latérale des Réglages est longue. Appuyez sur **⌘F** dans les Réglages et tapez « MCP » pour accéder directement au volet, ou ouvrez-le avec le lien profond `enconvo://preference?pane=mcp_management`.
+</Tip>
+
+## Ajouter un serveur depuis la CLI
+
+```bash
+# Add a stdio server
+enconvo mcp add github --command npx --args "-y @modelcontextprotocol/server-github"
+
+# Add an HTTP server
+enconvo mcp add notion --transport http --url "https://mcp.notion.com/mcp"
+
+# List servers
+enconvo mcp servers list
+
+# List tools
+enconvo mcp tools list
+```
+
+## Importer des serveurs depuis une autre app
+
+Importez les configurations MCP que vous utilisez déjà dans Claude Desktop, Cursor ou un autre outil.
+
+1. Dans **Réglages → Serveurs MCP**, cliquez sur **Importer**.
+2. Sous **Format de configuration**, choisissez **Claude Desktop** ou **Codex CLI**.
+3. Collez la configuration dans **Configuration JSON**.
+4. Cliquez sur **Importer**. Tous les serveurs qu'elle contient sont ajoutés.
+
+## Installer un bundle MCP
+
+Un bundle MCP est un fichier `.mcpb` qui regroupe un serveur à exécuter sur votre Mac. Dans **Réglages → Serveurs MCP**, cliquez sur **Installer un bundle** et choisissez le fichier. Ouvrir un fichier `.mcpb` dans le Finder vous amène au même endroit.
+
+Le serveur d'un bundle s'exécute sur votre Mac avec vos autorisations : n'installez donc que des bundles provenant de personnes de confiance. Pour en mettre un à jour, installez un fichier `.mcpb` plus récent.
+
+## Partager un lien d’installation
+
+Un lien d'installation ajoute un serveur MCP à Enconvo en un clic. Il utilise le même format que `mcp.json` : un nom et la configuration du transport.
+
+```
+https://enconvo.com/mcp/install?name=$NAME&config=$BASE64_ENCODED_CONFIG
+```
+
+| Composant | Description |
+|-----------|-------------|
+| `https://enconvo.com` | Page d'installation web |
+| `/mcp/install` | Chemin |
+| `name` | Paramètre de requête pour le nom du serveur |
+| `config` | Paramètre de requête pour la configuration JSON encodée en base64 |
+
+La page web ouvre le lien profond `enconvo://` et affiche la configuration du serveur au cas où l'app ne s'ouvrirait pas.
+
+### Créer un lien
+
+1. Récupérez le nom du serveur et sa configuration JSON.
+2. Appliquez `JSON.stringify` à la configuration, puis encodez-la en base64.
+3. Remplacez `$NAME` et `$BASE64_ENCODED_CONFIG` par le nom et la configuration encodée.
+
+Par exemple, cette configuration :
+
+```json Single MCP server config
+{
+  "exa": {
+    "url": "https://mcp.exa.ai/mcp"
+  }
+}
+```
+
+donne ces résultats :
+
+| Format | Exemple |
+|--------|---------|
+| Lien texte | `https://enconvo.com/mcp/install?name=exa&config=eyJ1cmwiOiJodHRwczovL21jcC5leGEuYWkvbWNwIn0=` |
+| Bouton sombre | <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" /> |
+| Bouton clair | <img src="https://file.enconvo.com/badges/mcp-install-light.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" /> |
+
+### Ajouter un bouton à votre README
+
+<CodeGroup>
+
+```markdown Markdown
+[![Add to Enconvo](https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo)](https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG)
+```
+
+```html HTML
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" />
+</a>
+```
+
+```jsx JSX
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height={44} />
+</a>
+```
+
+</CodeGroup>
+
+### Ce qui se passe quand quelqu’un l’ouvre
+
+1. La personne clique sur le lien ou le colle dans un navigateur.
+2. Enconvo demande **Ajouter le serveur MCP « nom » ?** et montre ce que le serveur exécute ou à quoi il se connecte. Elle clique sur **Ajouter**.
+3. **Réglages → Serveurs MCP** s'ouvre, et le serveur est ajouté et commence à se connecter.
+4. Une fois connecté, les agents peuvent utiliser ses outils.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Le serveur ne démarre pas | Vérifiez la commande et les arguments. Pour un serveur STDIO, assurez-vous que le programme est installé et présent dans votre `PATH`. Pour un serveur Node.js, assurez-vous que `npx` ou `node` est disponible. |
+| Ses outils n'apparaissent pas | Vérifiez que le point du serveur est vert. Certains serveurs exigent une clé API avant de proposer des outils. Désactivez puis réactivez le serveur. |
+| Le serveur affiche **S’authentifier** | Cliquez dessus et terminez la connexion sur la page qui s'ouvre. |
+| Erreurs d'authentification | Vérifiez que les clés API sont correctes et n'ont pas expiré, et que les variables d'environnement requises par le serveur sont définies. |
+
+Pour la spécification MCP complète, consultez [modelcontextprotocol.io](https://modelcontextprotocol.io).
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Créer des serveurs MCP personnalisés" icon="code" href="/fr/advanced/mcp-advanced">
+    Créez votre propre serveur pour Enconvo.
+  </Card>
+  <Card title="Plugins" icon="puzzle-piece" href="/fr/extensions/overview">
+    Trouvez des plugins, des Connecteurs et des skills.
+  </Card>
+  <Card title="Barre latérale de l’app" icon="table-columns" href="/fr/features/app-sidebar">
+    Activez les outils d'un serveur pour une seule app.
+  </Card>
+  <Card title="CLI et API locales" icon="terminal" href="/fr/advanced/cli-local-api">
+    Pilotez Enconvo par script depuis le terminal.
+  </Card>
+</CardGroup>

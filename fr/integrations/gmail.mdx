@@ -1,0 +1,133 @@
+---
+title: "Gmail"
+description: "Connectez Gmail une seule fois pour que les agents puissent rechercher, lire, organiser et envoyer votre courrier depuis n’importe quelle discussion."
+---
+
+Le Connecteur Gmail apporte votre messagerie dans Enconvo. Demandez à un agent de trouver les e-mails importants, de résumer un fil de discussion, de rédiger une réponse ou de faire le ménage dans votre boîte de réception, et il utilise Gmail à votre place. Vous connectez votre compte Google une seule fois, via votre compte Enconvo ; il n’y a ni projet Google Cloud ni clé API à configurer.
+
+Un compte Gmail que vous connectez ici apparaît aussi dans [E-mail](/fr/integrations/email), où vous pouvez le lire, le trier et y répondre vous-même.
+
+## Avant de commencer
+
+Connectez-vous à votre compte Enconvo dans **Réglages → Compte**. Les Connecteurs sont gratuits avec toutes les offres, mais ils nécessitent un compte Enconvo.
+
+## Connecter Gmail
+
+<Steps>
+  <Step title="Trouver Gmail">
+    Ouvrez **Réglages → Plugins** et recherchez **Gmail** dans l’onglet **Enconvo**. Cliquez dessus pour ouvrir sa page.
+  </Step>
+  <Step title="Connecter">
+    Cliquez sur **Connecter**. Votre navigateur ouvre la connexion Google.
+  </Step>
+  <Step title="Autoriser l’accès">
+    Choisissez votre compte Google et vérifiez l’accès demandé avant de l’autoriser. L’écran de consentement de Google affiche Composio, le partenaire d’intégration d’Enconvo.
+  </Step>
+  <Step title="Vérifier le résultat">
+    De retour dans Enconvo, votre adresse s’affiche sous **Compte**. Cliquez sur **Essayer maintenant**, ou posez d’abord une question en lecture seule à un agent, par exemple « Résume les e-mails non lus de ma boîte de réception aujourd’hui. »
+  </Step>
+</Steps>
+
+Si vous interrogez un agent sur votre courrier avant que Gmail soit connecté, la discussion affiche une carte pour le connecter.
+
+## Ce que les agents peuvent faire
+
+| Domaine | Ce que les agents peuvent faire |
+| --- | --- |
+| Lire | Rechercher des e-mails, ouvrir des messages et des fils, télécharger des pièces jointes, lister les libellés et les brouillons |
+| Organiser | Ajouter et retirer des libellés, archiver, déplacer des messages vers la Corbeille et les restaurer |
+| Écrire | Créer et envoyer des brouillons, envoyer de nouveaux e-mails, répondre et transférer |
+
+La recherche utilise la syntaxe de recherche propre à Gmail, par exemple `from:john@example.com`, `subject:invoice` ou `after:2024/01/01`.
+
+Lorsque les agents écrivent ou envoient un e-mail, ils peuvent définir À, CC et BCC, écrire un corps en texte brut ou en HTML, répondre dans un fil existant et joindre des fichiers de votre Mac : jusqu’à 10 fichiers, de 95 Mo chacun au maximum. Les fichiers qui dépassent ce qu’un seul e-mail peut transporter (25 Mo au total) partent plutôt sous forme de liens de téléchargement sur file.enconvo.com, et toute personne disposant d’un lien peut télécharger le fichier.
+
+<Warning>
+Les agents peuvent envoyer des e-mails sans demander d’abord. Demandez un brouillon quand vous voulez le relire. Enconvo ne supprime jamais définitivement un e-mail ; la suppression le déplace vers la Corbeille.
+</Warning>
+
+## Options
+
+Elles apparaissent sur la page de Gmail une fois un compte connecté.
+
+| Option | Ce qu’elle modifie |
+| --- | --- |
+| **Disponible dans tous les chats** | Activée : les agents peuvent utiliser Gmail dans toutes les conversations. Désactivée : les agents ne l’utilisent que si vous le mentionnez avec `@` ou si un Profil l’inclut. |
+| **Alertes e-mail** | Vous alerte sur la Dynamic Island et sur votre téléphone quand un e-mail important arrive. Elle est désactivée tant que vous ne l’activez pas dans **Tâches planifiées → E-mails importants**, et son interrupteur **Téléphone** envoie les alertes à un téléphone iPhone ou Android associé. Enconvo demande avant de l’activer, car l’expéditeur, l’objet et le début de chaque nouvel e-mail sont envoyés à Enconvo Cloud pour juger de son importance. Le courrier n’y est jamais stocké. |
+| **Connecter un autre compte** | Ajoute une autre adresse Gmail, jusqu’à 5. |
+
+Avec plusieurs comptes, les agents lisent dans tous, et envoient ou créent des e-mails avec le compte par défaut sauf si vous en nommez un autre, par exemple « envoie-le depuis mon adresse professionnelle ». Choisissez **Définir par défaut** dans le menu d’un compte pour changer le compte par défaut.
+
+## Utiliser Gmail dans les discussions
+
+Une fois Gmail connecté, demandez ce dont vous avez besoin. L’agent choisit les bons outils Gmail.
+
+**Rechercher et résumer :**
+```
+"Find all emails from John in the last week and summarize them"
+```
+
+**Rédiger une réponse :**
+```
+"Draft a reply to the latest email from marketing@company.com thanking them for the report"
+```
+
+**Faire le ménage dans la boîte de réception :**
+```
+"Archive all newsletters from the past month"
+```
+
+**Gérer les libellés :**
+```
+"Create a label called 'Q1 Reports' and move all emails with 'quarterly report' in the subject there"
+```
+
+**Supprimer d’anciens e-mails (ils vont dans la Corbeille) :**
+```
+"Delete all promotional emails older than 6 months"
+```
+
+## Idées de flux de travail
+
+Gmail fonctionne aussi dans les [flux de travail](/fr/workflows/introduction) et les [tâches planifiées](/fr/workflows/scheduled-jobs) :
+
+| Idée | Ce qu’elle fait |
+| --- | --- |
+| **Résumé quotidien des e-mails** | Recherche les e-mails non lus, les résume et présente un point du matin |
+| **Catégorisation automatique** | Recherche les nouveaux e-mails et applique des libellés selon leur contenu |
+| **Rappel de relance** | Trouve les e-mails qui attendent une réponse et crée des rappels |
+| **Génération de rapport** | Recherche les e-mails qui correspondent à vos critères et compile un rapport de synthèse |
+
+## Confidentialité
+
+- **Via Enconvo Cloud et Composio** : votre courrier ne transite par Enconvo Cloud et Composio que pour faire ce que vous demandez, et n’est pas stocké.
+- **Votre mot de passe reste chez Google** : vous vous connectez sur la page même de Google, donc Enconvo ne voit jamais votre mot de passe Google.
+- **À la demande** : les agents ne lisent Gmail que lorsqu’une tâche en a besoin. La seule exception est **Alertes e-mail** qui, lorsque vous l’activez, vérifie chaque nouvel e-mail à son arrivée.
+- **Révocable** : cliquez sur **Déconnecter** sur la page de Gmail pour supprimer l’accès sur tous vos appareils. Vous pouvez aussi supprimer l’accès dans les [autorisations de votre compte Google](https://myaccount.google.com/permissions).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| **Connecter** est grisé | Connectez-vous d’abord à votre compte Enconvo dans **Réglages → Compte**. |
+| Gmail affiche **Reconnecter** | Son accès a expiré. Cliquez sur **Reconnecter** et connectez-vous de nouveau avec Google. |
+| L’agent n’utilise pas Gmail | Vérifiez que Gmail est connecté. Si **Disponible dans tous les chats** est désactivé, mentionnez Gmail avec `@` dans la discussion. |
+| Une recherche ne trouve rien | Essayez d’abord une requête plus simple, comme `from:john`, et vérifiez que l’e-mail se trouve dans un compte connecté. La recherche Gmail fonctionne comme sur le site web de Gmail. |
+| Une pièce jointe ne part pas | Vérifiez que les chemins des fichiers sont corrects et que les fichiers existent sur votre Mac. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Apps Apple" icon="envelope" href="/fr/integrations/apple-ecosystem">
+    Travaillez avec l’app Mail et d’autres apps de votre Mac.
+  </Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">
+    Des agents qui utilisent Gmail à votre place.
+  </Card>
+  <Card title="E-mail" icon="inbox" href="/fr/integrations/email">
+    Lisez n’importe quelle boîte aux lettres IMAP et répondez-y dans la Fenêtre de chat.
+  </Card>
+  <Card title="Tâches planifiées" icon="clock" href="/fr/workflows/scheduled-jobs">
+    Exécutez une tâche d’e-mail selon un calendrier.
+  </Card>
+</CardGroup>

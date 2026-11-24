@@ -53,7 +53,7 @@ for (const page of pages) {
       problems.push(`link missing /${l.dir} prefix: ${href}`);
     }
   }
-  if (!/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af\u0400-\u04ff\u00c0-\u017f]/.test(tr.replace(/^\s*```[\s\S]*?^\s*```/gm, '')) && !['de','fr','es','pt-BR','it'].includes(l.code)) problems.push('no translated text found');
+  if (!/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af\u0400-\u04ff\u00c0-\u017f]/.test(tr.replace(/^\s*```[\s\S]*?^\s*```/gm, '')) && !['de','fr','es','pt','it'].includes(l.code)) problems.push('no translated text found');
   if (problems.length) { failed++; console.log(`FAIL ${page}\n  - ${problems.join('\n  - ')}`); }
   else console.log(`ok   ${page}`);
 }

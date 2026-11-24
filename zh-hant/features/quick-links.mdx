@@ -1,0 +1,67 @@
+---
+title: "快捷連結"
+description: "用一個指令從 SmartBar 開啟網頁搜尋、網站、檔案、資料夾或 Deeplink。"
+---
+
+快捷連結會將網頁搜尋、網址、檔案或資料夾，或 App 的 Deeplink 變成你可從 SmartBar 執行的指令。預留位置會以你輸入的內容、剪貼簿、選取的文字或日期來填入連結。Enconvo 內建可直接使用的 Google、YouTube 與 X 搜尋。
+
+快捷連結是開啟一個目的地。[網頁搜尋](/zh-hant/ai/web-search)則是將搜尋結果帶入 AI 的回答，而[使用瀏覽器](/zh-hant/features/browser-control)則讓代理程式在網頁中操作。
+
+## 從 SmartBar 搜尋網路
+
+1. 開啟 SmartBar，找到**在瀏覽器中進行 Google 搜尋**、**在瀏覽器中進行 YouTube 搜尋**或**在瀏覽器中進行 Twitter/X 搜尋**。
+2. 輸入你的搜尋文字作為指令的輸入。選取的文字也可以。
+3. 執行指令。搜尋會在你的預設瀏覽器中開啟。
+
+## 建立快捷連結
+
+1. 從 SmartBar 執行**新增快捷連結**。
+2. 輸入**名稱**，例如 Search GitHub。
+3. 輸入**連結**：網址、檔案或資料夾路徑，或 Deeplink。點按**插入預留位置**即可加入一個，例如 `https://github.com/search?q={argument}`。
+4. 若要在特定的 App 中開啟它，請在**打開方式**中輸入 App 名稱（例如 Safari）、App 路徑或 bundle id。留空則使用預設的 App。
+5. 點按**儲存**。在 SmartBar 中搜尋該快捷連結的名稱即可執行它。
+
+執行快捷連結時，你輸入或選取的文字會填入它的第一個引數。如果必要的引數仍是空的，Enconvo 會在開啟連結之前向你詢問。
+
+| 預留位置 | 填入的內容 |
+| --- | --- |
+| `{argument name="Query"}` | 快捷連結開啟時你輸入的值 |
+| `{clipboard}` | 剪貼簿上的文字 |
+| `{selection}` | 你正在使用的 App 中所選取的文字 |
+| `{date}`、`{time}`、`{datetime}` | 目前的日期、時間，或兩者 |
+| `{date format="yyyy-MM-dd"}` | 以你指定的格式顯示的日期 |
+| `{uuid}` | 一個新的唯一 ID |
+
+請先用一般文字測試新的連結，包括空格與標點符號。
+
+## 管理你的快捷連結
+
+從 SmartBar 執行**搜尋快捷連結**即可查看每個快捷連結。你可以在那裡開啟、編輯、複製或刪除某一個，並點按**新增**加入另一個。
+
+**更多**選單中有**匯入快捷連結…**（可讀取 Raycast 的快捷連結與設定匯出檔）以及**匯出到「下載項目」**。Raycast 設定的匯出檔會要求你輸入匯出時所選擇的密碼。
+
+## 設定
+
+開啟**設定 → 外掛程式 → 快捷連結**。每個搜尋指令也有它自己的**連結**，例如 `https://www.google.com/search?q={query}`，你可以變更它。
+
+| 設定 | 變更的內容 |
+| --- | --- |
+| **在新視窗中打開** | 在新的瀏覽器視窗中開啟網頁快捷連結。適用於 Chrome、Edge、Brave、Vivaldi、Opera、Chromium、Firefox 與 Zen；Safari、Arc 與 Orion 則照常開啟連結。預設為關閉 |
+| **沒有選取文字時** | 當沒有選取任何內容時，`{selection}` 連結的行為：**向我詢問**（預設）或**使用剪貼簿** |
+| **刪除前確認** | 在你刪除快捷連結之前詢問。預設為開啟 |
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| 開啟了錯誤的頁面 | 檢查快捷連結的**連結**與其預留位置，然後用純文字試試 |
+| 瀏覽器沒有開啟 | 檢查你的預設瀏覽器、快捷連結的**打開方式**，以及該指令是否已安裝 |
+| `{selection}` 連結要求輸入文字 | 沒有選取任何內容。請先選取文字，或將**沒有選取文字時**設為**使用剪貼簿** |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh-hant/features/smartbar">尋找並執行任何指令。</Card>
+  <Card title="網頁搜尋" icon="globe" href="/zh-hant/ai/web-search">將搜尋結果帶入 AI 的回答。</Card>
+  <Card title="使用瀏覽器" icon="window-maximize" href="/zh-hant/features/browser-control">讓代理程式在網頁中操作。</Card>
+</CardGroup>

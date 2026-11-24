@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Converse com as suas implementações do Azure OpenAI no Enconvo."
+---
+
+Use os modelos da OpenAI que a sua organização implementa no Azure. O Enconvo comunica diretamente com o seu recurso Azure, pelo que o acesso, as quotas e a faturação seguem a sua subscrição do Azure.
+
+## Antes de começar
+
+Precisa de um recurso Azure OpenAI com pelo menos uma implementação de modelo. No portal do Azure, copie a **chave** do recurso, o respetivo **endpoint** e o **nome da implementação** que deu ao modelo. Consulte [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview) se ainda não configurou um.
+
+## Ligar
+
+<Steps>
+  <Step title="Adicionar a credencial">
+    Abra **Definições → Modelo de IA → Azure OpenAI**. Em **Autenticação**, preencha **Chave de API**, **Endpoint** e **API Version** e clique em **Validar**. O endpoint tem este aspeto: `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Definir a implementação">
+    Introduza o nome da sua implementação em **Azure OpenAI Api Deployment Name**. Use o nome do seu recurso Azure, que pode ser diferente do nome do modelo.
+  </Step>
+  <Step title="Testar">
+    Envie uma mensagem curta. Se receber uma resposta, a ligação funciona.
+  </Step>
+</Steps>
+
+## Modelos e opções
+
+| Definição | O que faz |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | A implementação que este fornecedor chama. |
+| **Streaming** | Mostra a resposta à medida que é escrita. Ativado por predefinição; desative-o se a sua implementação não suportar streaming. |
+| **API Version** | Na credencial. A predefinida é `2025-01-01-preview`. |
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| **Validar** falha | Confirme que a chave e o **Endpoint** vêm do mesmo recurso Azure. |
+| A implementação não é encontrada | Copie o nome da implementação exatamente como aparece no portal do Azure. |
+| A resposta nunca aparece | Desative **Streaming** e tente novamente. |
+| Erros de limite de taxa ou de quota | Aumente a quota da implementação no Azure ou mude para outro fornecedor por agora. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/pt/providers/openai">Use antes a API própria da OpenAI.</Card>
+  <Card title="Credenciais e perfis" icon="key" href="/pt/configuration/credentials">Mantenha várias chaves e veja o que uma chave partilhada afeta.</Card>
+  <Card title="Escolher um modelo" icon="list-check" href="/pt/ai/model-selection-guide">Escolha um modelo por tarefa e veja onde se definem os predefinidos.</Card>
+  <Card title="Catálogo de fornecedores" icon="table" href="/pt/providers/catalog">Todos os fornecedores, agrupados pela funcionalidade que alimentam.</Card>
+</CardGroup>

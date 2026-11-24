@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Laissez un Agent écrire un court script qui effectue de nombreux appels d’outils d’un coup et ne relit que le résultat."
+---
+
+Code Mode permet à un Agent de faire en une étape ce qui en demanderait autrement beaucoup : il écrit un court script qui effectue de nombreux appels d’outils, en parallèle ou à la suite, et ne relit que le résultat. Utilisez-le quand une tâche répète le même appel sur de nombreux éléments, comme vérifier une liste de pages ou rassembler les résultats de plusieurs services : le travail est plus rapide et le chat ne se remplit pas de tous les résultats intermédiaires.
+
+Vous n’appelez pas Code Mode vous-même. Quand il est activé, l’Agent l’utilise dès qu’une tâche s’y prête, et le chat affiche une carte avec les appels effectués par le script.
+
+## Configurer Code Mode
+
+1. Ouvrez **Réglages → Code Mode**. Vous pouvez aussi ouvrir **Code Mode** depuis l’onglet **Intégré** de la page Plugins.
+2. Sous **Accès des scripts**, activez ce qu’un script peut appeler. Chaque appel vous demande toujours confirmation comme l’indique le [Mode d’autorisation](/fr/ai/agents) du chat.
+3. Choisissez quels modèles peuvent écrire des scripts, ce que le chat affiche et ce qui se passe quand un script dure longtemps.
+
+## Réglages
+
+**Accès des scripts** liste ce qu’un script peut appeler :
+
+| Accès | Ce qu’il autorise | Par défaut |
+| --- | --- | --- |
+| **Plugins** | La recherche, la base de connaissances, les documents et les autres routes de plugins | Activé |
+| **Connectors et MCP** | Vos comptes liés et les outils MCP | Activé |
+| **Fichiers** | La lecture et l’écriture de fichiers | Activé |
+| **Commandes shell** | L’exécution de commandes dans un terminal | Activé |
+| **Navigateur** | L’[Utilisation du navigateur](/fr/features/browser-control), dans votre propre navigateur | Activé |
+| **Apps** | L’[Utilisation de l’ordinateur](/fr/features/computer-use), dans les limites de sa liste d’accès aux apps | Activé |
+| **Autres agents** | Le démarrage de sous-agents ou l’envoi de messages à ceux-ci | Désactivé |
+| **Appels de modèle** | Un petit modèle pour résumer ou évaluer des éléments | Activé |
+
+Les autres options :
+
+| Option | Choix |
+| --- | --- |
+| **Utiliser avec** | **Modèles qui écrivent bien du code** (les autres font leurs appels un par un), ou **Tous les modèles**. |
+| **Afficher dans le chat** | **Les appels**, ou **Les appels et le code**. |
+| **Quand un script dure longtemps** | **Continuer, jusqu’à 2 heures** en arrière-plan, ou **Arrêter après 10 minutes**. |
+
+## Code Mode en dehors d’un chat
+
+Quand un script s’exécute en dehors d’un chat, par exemple dans une automatisation, il n’appelle que des outils qui lisent : les recherches et lectures intégrées, les pages web publiques, les fichiers ordinaires et les outils MCP qui ne déclarent pas modifier quoi que ce soit. Enconvo vérifie chaque appel de nouveau juste avant son exécution.
+
+## Utiliser un script dans une Compétence
+
+Une Compétence peut conserver un script Code Mode dans son propre dossier `scripts` et l’exécuter comme l’une de ses étapes. Consultez [Compétences](/fr/configuration/skills).
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| L’Agent fait ses appels un par un | Vérifiez **Utiliser avec**. Avec **Modèles qui écrivent bien du code**, les autres modèles n’utilisent pas Code Mode. |
+| Un script n’atteint pas un outil | Activez ce type d’accès sous **Accès des scripts**. En dehors d’un chat, les scripts ne font que lire. |
+| Un long script s’est arrêté | Avec **Arrêter après 10 minutes**, les scripts plus longs sont interrompus. Choisissez **Continuer, jusqu’à 2 heures**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Choisissez les outils et les autorisations d’un Agent.</Card>
+  <Card title="Compétences" icon="star" href="/fr/configuration/skills">Enregistrez une tâche répétitive, avec ses propres scripts.</Card>
+  <Card title="Code Runner" icon="terminal" href="/fr/ai/code-runner">Exécutez du code et des commandes shell.</Card>
+  <Card title="Serveurs MCP" icon="plug" href="/fr/features/mcp">Connectez des services externes comme outils.</Card>
+</CardGroup>

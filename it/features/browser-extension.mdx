@@ -1,0 +1,95 @@
+---
+title: "Estensioni del browser"
+description: "Installa l'estensione Enconvo Companion perché Enconvo possa lavorare nel tuo browser reale, con i tuoi accessi, cookie ed estensioni."
+---
+
+L'estensione del browser di Enconvo, Enconvo Companion, permette a Enconvo di controllare il tuo browser reale quando un'attività richiede lo stato del browser con i tuoi accessi. Usala per siti come LinkedIn, Gmail, Salesforce, dashboard o strumenti interni, dove contano i tuoi cookie e le tue estensioni. Nelle Impostazioni si chiama **Assistente del browser**.
+
+Per pagine pubbliche, anteprime locali o flussi di lavoro che non devono toccare il tuo profilo personale del browser, usa invece l'automazione isolata del browser.
+
+## Configurare l’estensione
+
+<Steps>
+  <Step title="Installa l'estensione">
+    Apri **Impostazioni → Uso del browser** e fai clic su **Installa l’app complementare per il browser** in **Estensioni del browser**. Si apre la pagina dell'estensione nel Chrome Web Store. Puoi anche installarla dallo store delle estensioni del tuo browser. Funziona in Chrome, Edge, Brave, Arc, Vivaldi, Opera e Firefox. Il [video tutorial su Uso del computer](https://youtu.be/0CbQA7d8zqU?t=33) mostra l'installazione in Chrome.
+  </Step>
+  <Step title="Tieni aperto il browser">
+    L'estensione si collega a Enconvo da sola, tramite `ws://localhost:11225`.
+  </Step>
+  <Step title="Controlla il popup">
+    Fai clic sull'icona dell'estensione. Il popup mostra **Connected Chrome**, **Connected Edge**, **Connected Firefox** o il nome del browser che stai usando.
+  </Step>
+  <Step title="Avvia un'attività nel browser">
+    Chiedi a Enconvo di leggere, fare clic, scrivere, fare una schermata o gestire le schede nel browser.
+  </Step>
+</Steps>
+
+## Il popup
+
+| Voce | Cosa mostra |
+| --- | --- |
+| Stato della connessione | Se l'estensione di questo browser è collegata a Enconvo |
+| Browser corrente | Il browser con cui questa estensione è collegata, come Chrome, Edge, Brave o Firefox |
+| Browser collegati | Gli altri browser la cui estensione è ora collegata a Enconvo |
+| Versione | La versione installata dell'estensione |
+| **Scopri di più** | Apre questa pagina |
+
+Se il popup indica che non c'è connessione, riavvia Enconvo e aggiorna il browser. Se ancora non si collega, disattiva e riattiva l'estensione.
+
+## Usare più di un browser
+
+Enconvo può collegarsi a più browser contemporaneamente. Quando un'attività non indica un browser, Enconvo ne sceglie uno in quest'ordine:
+
+1. Il **Browser predefinito** scelto nelle impostazioni di Uso del browser (**Impostazioni → Uso del browser**, poi **Impostazioni** nel menu **⋯**).
+2. Il browser predefinito del tuo Mac.
+3. Il browser collegato che hai usato più di recente.
+
+Le API di automazione possono anche indicare il browser:
+
+```json
+{
+  "browser": "edge"
+}
+```
+
+I valori comuni includono `chrome`, `google_chrome`, `edge`, `brave_browser`, `arc`, `vivaldi`, `opera` e `firefox`.
+
+## Restare sulla scheda giusta
+
+Quando parte un'attività nel browser, Enconvo annota il browser e la scheda in cui sta lavorando. I passaggi successivi restano su quella scheda quando possibile, anche se la pagina apre un popup, si ricarica o perde il focus.
+
+Per ottenere i risultati migliori:
+
+- Tieni aperta la scheda finché l'attività non termina.
+- Indica il browser quando ce ne sono più di uno collegati.
+- Di' "usa la scheda corrente" quando vuoi che Enconvo agisca sulla pagina che hai davanti.
+- Chiedi di guardare di nuovo la pagina dopo che ha cambiato indirizzo o dopo aver inviato un modulo.
+
+## Accesso ai siti web e sicurezza
+
+Le pagine web possono contenere istruzioni che non hai scritto tu. Nelle pagine sensibili, controlla il sito e l'azione prima di lasciar proseguire Enconvo.
+
+L'estensione usa le autorizzazioni del browser per leggere le pagine, fare clic, scrivere, fare schermate, vedere le schede e leggere i cookie quando un'attività lo richiede. Considera dati sensibili le pagine con accesso effettuato, la cronologia del browser e gli strumenti interni.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Il popup indica che non c'è connessione | Assicurati che Enconvo sia in esecuzione, riavvia il browser, poi disattiva e riattiva l'estensione. Controlla che nulla blocchi `localhost:11225`. |
+| Viene controllato il browser sbagliato | Imposta **Browser predefinito** nelle impostazioni di Uso del browser, oppure passa un valore come `edge`, `chrome` o `firefox` nell'azione del browser. |
+| Connesso, ma una pagina non si può controllare | Le pagine del browser come `chrome://` non si possono controllare. Possono dare problemi anche pagine con una content security policy rigida, Shadow DOM chiuso e richieste di autorizzazione del browser. |
+| Il caricamento di un file non funziona | Nella pagina dei dettagli dell'estensione nel tuo browser, attiva l'accesso agli URL dei file. Le attività che caricano file locali o aprono pagine basate su file ne hanno bisogno. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Uso del browser" icon="window-restore" href="/it/features/browser-control">
+    Cosa possono fare gli Agenti nel tuo browser.
+  </Card>
+  <Card title="Uso del computer" icon="computer-mouse" href="/it/features/computer-use">
+    Controlla le app del Mac e la barra degli strumenti del browser.
+  </Card>
+  <Card title="Picture in Picture" icon="clone" href="/it/features/picture-in-picture">
+    Guarda la scheda dell'agente in tempo reale e prendi il controllo quando serve il tuo intervento.
+  </Card>
+</CardGroup>

@@ -1,0 +1,131 @@
+---
+title: "Crea il tuo primo flusso di lavoro"
+description: "Segui un video con voce narrante per creare un flusso di lavoro da un modello, aggiungere passaggi a mano e con l'assistente, poi eseguirlo e leggere l'output di ogni passaggio."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+I flussi di lavoro concatenano prompt, agenti e strumenti in un'unica esecuzione ripetibile. Questo tutorial ne costruisce uno dall'inizio alla fine: lo crei dal modello **Panoramica dei tipi di passaggio**, aggiungi un passaggio a mano, lasci che l'assistente dei flussi di lavoro ne aggiunga un altro, poi lo esegui e leggi l'output di ogni passaggio.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+Il video dura 2 minuti e 24 secondi. I passaggi scritti qui sotto seguono lo stesso ordine, con il timestamp corrispondente per ciascuno.
+
+## Cosa costruirai
+
+Il modello **Panoramica dei tipi di passaggio** funziona già subito. Nel corso del tutorial diventa una piccola pipeline di contenuti:
+
+| Passaggio | Tipo | Cosa fa |
+| --- | --- | --- |
+| Get today's date | Shell | Stampa la data di oggi |
+| List saved workflows | Strumento | Elenca i tuoi flussi di lavoro esistenti (viene eseguito in parallelo con la data) |
+| Ask the model for an idea | Prompt | Suggerisce una nuova automazione sull'input `topic` |
+| Let the agent expand it | Agente | Trasforma l'idea in un piano in tre passaggi |
+| Write a tweet | Prompt | Aggiunto a mano: trasforma il piano in un tweet incisivo |
+| Translate the tweet into Japanese | Prompt | Aggiunto dall'assistente: traduce il tweet |
+
+## Segui il tutorial
+
+<Steps>
+  <Step title="Crea un flusso di lavoro (0:07)">
+    Apri **Impostazioni → Flussi di lavoro → Gestisci** e seleziona **Nuovo workflow**. In **Oppure parti da un modello**, scegli **Panoramica dei tipi di passaggio**. Il flusso di lavoro viene creato e l'editor si apre in modalità **Visivo**. Il video è stato registrato prima che esistesse la finestra **Nuovo workflow**, quindi lì il punto di partenza si chiama *Starter Workflow*.
+  </Step>
+  <Step title="Leggi il grafico (0:18)">
+    Leggi il grafico dall'alto. Il nodo **Input** dichiara ciò di cui un'esecuzione ha bisogno; qui è un solo `topic`. I primi due passaggi stanno affiancati perché appartengono a job separati, quindi vengono eseguiti in parallelo. Ogni risultato scende poi nei passaggi sottostanti, che vengono eseguiti in ordine.
+  </Step>
+  <Step title="Modifica un passaggio (0:28)">
+    Seleziona un passaggio per aprirlo nell'ispettore, dove puoi cambiare il suo ID, il titolo e il prompt. Le doppie parentesi graffe portano valori in un passaggio: `{{ inputs.topic }}` legge un input dell'esecuzione, e `{{ steps.idea.output }}` legge il risultato di un passaggio precedente. È così che i passaggi comunicano tra loro.
+  </Step>
+  <Step title="Aggiungi un passaggio (0:37)">
+    Seleziona il **+** sotto l'ultimo passaggio e scegli un tipo di passaggio, come Prompt, Agente, Shell o Strumento. Dai al nuovo passaggio Prompt l'ID `tweet`, il titolo "Write a tweet" e questo prompt:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    Dopo aver rinominato l'ID di un passaggio, premi Invio prima di passare al campo successivo.
+    </Tip>
+  </Step>
+  <Step title="Oppure chiedi all'assistente dei flussi di lavoro (0:57)">
+    Invece di modificare a mano, seleziona **Assistente** nella barra degli strumenti e descrivi la modifica nel pannello che si apre accanto alla tela:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    L'assistente modifica il grafico ed elenca i passaggi che ha cambiato. Seleziona **Ripristina** sulla sua risposta se il risultato non ti piace. Nel video aggiunge un passaggio `translate_ja` il cui prompt legge `{{ steps.tweet.output }}`. Controlla il nuovo passaggio prima di salvare: le modifiche dell'assistente restano non salvate finché non selezioni **Salva**.
+  </Step>
+  <Step title="Guarda il YAML (1:16)">
+    Seleziona **YAML** nella barra degli strumenti per vedere lo stesso flusso di lavoro come sorgente. Ogni flusso di lavoro è un semplice file, salvato in `~/.enconvo/workflows/<id>.yaml`, quindi è facile da leggere, confrontare e condividere. Seleziona **Visivo** per tornare al grafico. Il file completo è in [Il flusso di lavoro finito](#il-flusso-di-lavoro-finito) qui sotto.
+  </Step>
+  <Step title="Eseguilo e controlla l'output (1:28)">
+    Seleziona **Input**, imposta i valori dell'esecuzione (il video usa `{"topic": "matcha"}`) e scegli **Esegui**. I passaggi in esecuzione si illuminano di blu e quelli terminati diventano verdi. Il passaggio Agente richiede più tempo degli altri.
+
+    Quando l'esecuzione termina, seleziona un passaggio qualsiasi e apri la sua scheda **Output** per vedere esattamente cosa ha prodotto. L'ultimo passaggio ha preso il tweet e lo ha tradotto, senza copia e incolla.
+  </Step>
+  <Step title="Trova le esecuzioni passate (2:05)">
+    Ogni esecuzione viene conservata in **Esecuzioni** nella barra degli strumenti, così puoi tornare a qualsiasi risultato in seguito.
+  </Step>
+</Steps>
+
+<Note>
+Eseguire un flusso di lavoro chiama modelli e strumenti reali. Può consumare i crediti del provider, e i passaggi Shell o Strumento agiscono con le autorizzazioni del tuo account Mac. Controlla i passaggi di un flusso di lavoro prima di eseguirlo.
+</Note>
+
+## Il flusso di lavoro finito
+
+Ecco il flusso di lavoro costruito nel video, scritto come YAML. La vista **YAML** potrebbe formattarlo in modo leggermente diverso.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+Il job `ideate` attende `date` e `catalog` tramite `needs`, quindi può leggere i loro risultati con `jobs.<job>.<step>.output`. All'interno di un job, i passaggi successivi leggono quelli precedenti con `steps.<id>.output`.
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Flussi di lavoro" icon="diagram-project" href="/it/workflows/introduction">Job, passaggi e ogni tipo di passaggio.</Card>
+  <Card title="Creare flussi di lavoro" icon="pen-to-square" href="/it/workflows/creating-workflows">L'editor visuale, YAML e l'assistente di modifica nel dettaglio.</Card>
+  <Card title="Flussi di lavoro avanzati" icon="code-branch" href="/it/workflows/advanced-workflows">Condizioni, cicli, nuovi tentativi, schemi di output e sottoflussi di lavoro.</Card>
+  <Card title="Attività programmate" icon="clock" href="/it/workflows/scheduled-jobs">Esegui un flusso di lavoro o un'istruzione per un Agente a un orario stabilito.</Card>
+</CardGroup>

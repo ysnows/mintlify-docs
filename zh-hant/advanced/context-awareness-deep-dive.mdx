@@ -1,0 +1,116 @@
+---
+title: "上下文感知的運作方式"
+description: "了解 Enconvo 會從你正在使用的 App 讀取什麼、何時讀取，以及哪些權限與設定能控制這些行為。"
+---
+
+本頁說明[上下文感知](/zh-hant/features/context-awareness)背後的運作：Enconvo 可以從你的 Mac 讀取哪些項目、如何讀取每一項，以及你如何決定哪些內容要放進訊息。當你想控制哪些內容會傳送給模型，或是預期的上下文沒有出現時，請閱讀本頁。
+
+上下文感知不會在背景監看你的螢幕。它只會在你開啟 SmartBar 或自行加入項目時，從你剛才正在使用的 App 讀取上下文。
+
+## Enconvo 可以讀取什麼
+
+每一種上下文都是可以加入訊息的項目。
+
+| 上下文項目 | 內容 | Enconvo 的讀取方式 |
+|---|---|---|
+| **Selected Text** | App 中選取的文字 | 輔助使用 |
+| **Current Application Content** | 視窗的標題與文字、App 提供時的文件位址，以及視窗的螢幕截圖 | 輔助使用與視窗擷取 |
+| **Browser Current Tab URL** | 最前方分頁的位址、標題與網頁文字 | Apple Events；請參閱[瀏覽器](#瀏覽器) |
+| **Finder Selected Items** | 在 Finder 中選取的檔案與資料夾，以路徑表示 | Apple Events |
+| **Finder Current Directory URL** | 最前方 Finder 視窗中開啟的資料夾 | Apple Events |
+| **Clipboard Text** | 剪貼簿上的文字 | 剪貼簿，只在你加入時才讀取 |
+| **User Select Area Screenshot** | 你選取的螢幕範圍 | 螢幕擷取 |
+| **Current Application Screenshot** | 你正在使用的 App | 螢幕擷取 |
+| **Current Screen Screenshot** | 整個螢幕 | 螢幕擷取 |
+| **Live Screen Screenshot** | 目前的螢幕畫面，不含 Enconvo 的視窗 | 螢幕擷取 |
+
+對於 Finder 項目，Enconvo 讀取的是路徑，而不是檔案內容。
+
+### 瀏覽器
+
+- **位址與標題**：透過 Apple Events 從 Safari、Chrome、Edge、Arc 與其他 Chromium 瀏覽器讀取。Firefox 不提供其分頁的位址，所以 Enconvo 無法讀取。
+- **網頁文字**：Safari 會直接提供。對其他瀏覽器，Enconvo 會透過輔助使用讀取視窗，這只有在該瀏覽器位於最前方時才有效。
+
+### 其他 App
+
+程式碼編輯器、文字編輯器與其他所有 App 都會取得 **Current Application Content**：視窗的標題、輔助使用所公開的文字、App 提供時的文件位址，以及視窗的螢幕截圖。實際有多少文字，取決於該 App。
+
+## SmartBar 開啟時
+
+當你開啟 SmartBar，它會檢查你剛才所用 App 中的三個來源。**設定 → 上下文感知**可設定每個來源的處理方式：
+
+| 來源 | 預設 | 擷取的內容 |
+|---|---|---|
+| **選取的文字** | **自動加入** | 在你剛才使用的 App 中選取的文字 |
+| **Finder 選取項目** | **建議** | 在 Finder 中選取的檔案與資料夾 |
+| **瀏覽器目前網頁** | **建議** | 在 Safari、Chrome、Arc、Edge 或其他 Chromium 瀏覽器中開啟的網頁 |
+
+- **自動加入**會在 SmartBar 開啟時，立刻將項目加入輸入框。
+- **建議**會將項目列在指令上方，讓你點一下就能加入。建議的網頁，其文字只會在你點選時才讀取。
+- **關閉**則不處理該來源。
+
+只有 SmartBar 會使用這些設定。你對選取內容執行的指令，一律會收到選取的文字。
+
+## 自行加入上下文
+
+1. 在 SmartBar 中輸入 `#`。
+2. 輸入幾個字母來篩選上下文項目清單。
+3. 選一個項目。Enconvo 會讀取它並加入你的訊息。
+
+若要使用其他字元，請在**設定 → SmartBar** 的**搜尋**下變更**上下文**。同一組設定也可以設定用於指令的 `@`、用於技能的 `$`，以及用於最近任務的 `>`。
+
+## 權限
+
+| 權限 | 用途 |
+|---|---|
+| **輔助使用** | 選取的文字、視窗內容，以及 Safari 以外瀏覽器的網頁文字 |
+| **自動化** | Finder 項目與瀏覽器網頁。第一次讀取每個 App 時，macOS 會詢問 |
+| **螢幕錄製**（螢幕與系統音訊錄製） | 螢幕截圖，以及 **Current Application Content** 中的視窗擷取 |
+
+請在**系統設定 → 隱私權與安全性**中授予這些權限。Enconvo 會自行偵測輔助使用的變更。完整清單請參閱[權限](/zh-hant/configuration/permissions)。
+
+## 上下文與 Token
+
+上下文會占用模型的上下文視窗。網頁文字與螢幕截圖是最大的項目，它們可能會：
+
+- 讓回覆變慢
+- 使用雲端模型時費用較高
+- 為對話歷史留下較少的空間
+
+<Tip>
+在冗長的對話中，只將網頁或螢幕截圖加入需要它的那則訊息，而不要每次都附加。
+</Tip>
+
+## 隱私與資料流向
+
+擷取到的上下文可能成為已儲存對話或知識庫項目的一部分。模型請求，以及所選的 OCR、嵌入、語音轉寫或其他工具供應商，可能會收到相關內容。關於本機儲存與供應商處理之間的差異，請參閱[隱私權與安全性](/zh-hant/configuration/privacy-security)。
+
+僅使用本機對話模型，並不會讓所有工具都離線運作。請檢查整個流程，包括瀏覽器存取、擷取與以供應商為基礎的處理。macOS 權限會減少可用的上下文；但這並不保證能將第三方 App 的每個欄位都歸類為敏感資料。
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+|---|---|
+| 沒有選取的文字或視窗內容 | 在**系統設定 → 隱私權與安全性 → 輔助使用**中開啟 Enconvo。有些 App 不會透過輔助使用公開其文字；請改為複製文字，並以 `#` 加入 **Clipboard Text**。 |
+| 沒有瀏覽器網頁或 Finder 項目 | 在**系統設定 → 隱私權與安全性 → 自動化**中，為該 App 開啟 Enconvo。 |
+| 沒有 Firefox 的位址 | Firefox 不提供其分頁的位址。請改用其他瀏覽器，或複製位址。 |
+| 網頁沒有帶入文字 | 在 Safari 以外，只有在瀏覽器位於最前方時才會讀取網頁文字。請從瀏覽器開啟 SmartBar。 |
+| 上下文來自錯誤的 App | 上下文來自 SmartBar 開啟時你正在使用的 App。請等到你要的 App 位於最前方，再開啟 SmartBar。 |
+| 螢幕截圖失敗 | 在**系統設定 → 隱私權與安全性 → 螢幕與系統音訊錄製**中開啟 Enconvo。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="上下文感知" icon="eye" href="/zh-hant/features/context-awareness">
+    在日常使用中將上下文加入訊息
+  </Card>
+  <Card title="SmartBar" icon="magnifying-glass" href="/zh-hant/features/smartbar">
+    帶著任何 App 的上下文提問
+  </Card>
+  <Card title="權限" icon="shield-check" href="/zh-hant/configuration/permissions">
+    每項 macOS 權限的用途
+  </Card>
+  <Card title="OCR" icon="text" href="/zh-hant/ai/ocr">
+    從螢幕內容擷取文字
+  </Card>
+</CardGroup>

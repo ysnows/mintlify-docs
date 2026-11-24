@@ -1,0 +1,230 @@
+---
+title: "Projetos e o Quadro"
+description: "Mantenha num só lugar as conversas, as ideias e a equipa de um Projeto, entregue tarefas a Agentes e Agentes de código e acompanhe todas as tarefas no Quadro."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Um Projeto mantém juntos as conversas, as ideias e a equipa de uma pasta. Escreve o que quer como uma ideia, o líder do Projeto planeia-a com a equipa e cada tarefa avança pelo Quadro até estar concluída. Utilize um Projeto para trabalho contínuo, como um site ou uma app, em que quer ver de relance o que está a ser executado e o que precisa de si.
+
+O vídeo abaixo abre um Projeto, adiciona uma ideia que entrega parte do trabalho ao Claude Code, acompanha-a no Quadro e arquiva e restaura o Projeto.
+
+<YouTubePlayer videoId="sDHMeGn6iX0" title="Projects and the Board in Enconvo" />
+
+## Antes de começar
+
+Precisa de um Projeto. Clique em **+** junto de **Projetos** na barra lateral da Janela de chat e escolha uma pasta: consulte [Criar um Projeto](/pt/ai/agent-orchestrator). Para entregar tarefas a um Agente de código como o Claude Code ou o Codex, instale-o e inicie sessão primeiro: consulte [Agentes de código](/pt/ai/coding-agents).
+
+## Abrir um Projeto
+
+Clique no Projeto na barra lateral. A respetiva página tem três separadores:
+
+| Separador | O que mostra |
+| --- | --- |
+| **Chat** | A conversa do Projeto com o respetivo líder e um painel do que [precisa de si](#ver-o-que-precisa-de-si). |
+| **Quadro** | As ideias do Projeto, desde **Não iniciado**, passando por **Planejando** e **Em curso**, até **Concluído**. |
+| **Equipe e ajustes** | Quem está na equipa e quando a equipa [consulta você](#escolher-quando-a-equipa-consulta-você). |
+
+Os rostos da equipa, com o líder em primeiro lugar, aparecem no canto superior esquerdo. As tarefas de uma conversa do Projeto aparecem também por baixo da respetiva linha na barra lateral.
+
+## Adicionar uma ideia
+
+Uma ideia é algo que quer que o Projeto faça.
+
+1. Abra o separador **Quadro** e clique em **Nova ideia**.
+2. Escreva o que quer, como o diria. Pode anexar capturas de ecrã ou ficheiros, ou clicar no microfone e falar.
+3. Defina uma **Prioridade** se quiser. O Enconvo deduz o **Tipo** a partir das suas palavras: **Recurso**, **Erro**, **Melhoria**, **Documentos** ou **Pesquisa**. Altere-o se a dedução estiver errada.
+4. Clique em **Adicionar ideia**.
+
+A ideia aparece como um cartão em **Não iniciado**, com um título curto escrito a partir das suas palavras e uma bandeira vermelha, âmbar ou azul para a respetiva prioridade. O líder começa logo a planeá-la e move-a para **Planejando**. Os ficheiros que anexou chegam ao líder quando a ideia começa. Para ver apenas um tipo de ideia, utilize **Filtrar por tipo**.
+
+As ideias podem também chegar sozinhas. Dê a uma [Automatização](/pt/workflows/scheduled-jobs) a ação **Adicionar a Ideas** e cada issue do GitHub, mensagem do Discord ou do Telegram, e-mail ou webhook que ela receba torna-se uma ideia no quadro do Projeto. O líder reproduz um erro e planeia a correção, ou pesquisa um pedido e fecha-o com um motivo ou planeia-o, e pergunta-lhe antes de alterar o que quer que seja.
+
+Quando o plano está pronto, mostra cada tarefa, quem a faz e em que modelo. Reveja-o e clique em **Iniciar**. A ideia passa para **Em curso**. O líder planeia a partir do **Objetivo** da ideia e da linha **Pronto quando**, e a ideia só passa para **Concluído** quando o líder considera esse objetivo cumprido.
+
+## Acompanhar uma ideia
+
+Clique numa ideia para abrir a respetiva página. A sua conversa com o líder fica de um lado e, do outro, o plano da ideia, as tarefas, as palavras, os ficheiros e o objetivo. **Em que ponto está** mostra **Planear o trabalho**, **Fazer o trabalho** e **Revisão e testes**, com o progresso de cada um e quem o faz.
+
+Para voltar a trabalhar numa ideia concluída, clique em **Reabrir**.
+
+Uma ideia com tarefas tem duas vistas no topo: **Tarefas** mostra apenas as respetivas tarefas como um quadro, e **Conversar com** e o nome do líder, como **Conversar com Mavis**, abre a conversa em que foi planeada.
+
+## Entregar uma tarefa a um agente de código
+
+Nomeie o Agente, e o modelo se quiser um, na ideia ou na conversa do Projeto. Pode também nomear apenas um modelo, como o Opus 5.5, e o líder faz essa tarefa com ele. Isto funciona também num Projeto sem membros. Por exemplo:
+
+```text
+Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
+```
+
+O líder planeia a parte nomeada como uma tarefa para esse Agente nesse modelo, mesmo que o Agente não seja um dos membros do Projeto, e pode fazer o resto ele próprio. O plano e o Quadro mostram o modelo junto de quem faz a tarefa. Se o nome puder significar vários modelos, ou nenhum, o líder pergunta.
+
+Quando o agente de código termina, a respetiva tarefa aguarda a sua revisão em **Por rever** no quadro de **Tarefas** da ideia. Num Projeto cuja pasta não é um repositório git, vai diretamente para **Concluído**. Cada tarefa de código trabalha na sua própria cópia do código, e o cartão de resultado do plano tem **Integrar** para quando estiver pronto. Os membros não podem fazer push nem integrar por si.
+
+Cada tarefa que dá ao líder, no separador Chat ou nas Ideias, aparece no Quadro, agrupada por ideia ou por conversa. Escolha uma conversa no filtro de conversas do Quadro, ou escolha **Agrupar por** **Conversa**, para acompanhar uma conversa.
+
+O trabalho que faz nas conversas do Projeto aparece também no Quadro: quando uma conversa altera ficheiros ou executa um comando, um cartão acompanha-a até **Concluído** com um breve resumo e os ficheiros que alterou. Clique no cartão para abrir a conversa. O líder vê estes cartões e mantém as suas próprias tarefas afastadas dos mesmos ficheiros.
+
+## Integrar o trabalho concluído
+
+Clique em **Integrar** numa tarefa, ou no cartão de resultado do plano, para a integrar no **Branch base** do Projeto. As alterações por confirmar noutras linhas do mesmo ficheiro não impedem uma integração. Se o git estiver ocupado, a integração aguarda um momento por ele e indica o ficheiro de bloqueio quando ficar algum para trás.
+
+Para integrar sem clicar, ative **Integrar o trabalho que passa** em **Definições do projeto → Quadro**. Precisa de um **Branch base**, definido em **Worktrees**. Cada tarefa é então integrada por si assim que passam a sua verificação e uma revisão por um Agente de outro fornecedor. Em **Passa quando**, escolha **Sem observações bloqueantes**, **O revisor aprova** ou **Só verificação**. Uma tarefa com um conflito regressa ao seu membro. Quando o revisor não consegue ser executado, todas as integrações param em vez de serem ignoradas.
+
+### Projetos fora do git
+
+Num Projeto cuja pasta não é um repositório git, cada conversa do Líder guarda os seus Planos de trabalho na sua própria pasta de conversa, pelo que duas conversas do Líder podem executar planos ao mesmo tempo. O cartão do plano mostra **Guarda em** e a pasta, e **Também mudou** lista os ficheiros que uma tarefa tocou fora dela.
+
+## Perguntar ao líder de outras formas
+
+Na conversa do Líder de um Projeto:
+
+- **Comparar respostas** faz a mesma pergunta a dois a seis agentes, e o líder compara o que eles dizem.
+- **Usar estilo** escolhe a forma como o líder escreve as suas respostas.
+
+Para que o Codex, o Claude Code ou outro dos seus Agentes reveja ou teste o trabalho atual, basta pedir. Num Projeto, o líder inicia esse Agente como Subagente e traz o resultado de volta para a mesma conversa. O líder pode também iniciar Subagentes para o seu próprio trabalho, a par das tarefas que atribui aos membros do Projeto.
+
+Para executar uma tarefa através de um dos fluxos de trabalho do Projeto, escreva `@` e escolha o fluxo de trabalho, ou clique em **Usar no chat** junto dele no separador **Equipe e ajustes**. Consulte [Utilizar os seus próprios fluxos de trabalho](#utilizar-os-seus-próprios-fluxos-de-trabalho).
+
+## Ver o que precisa de si
+
+Abra o separador **Chat**. O painel por cima da caixa de mensagem tem três colunas:
+
+| Coluna | O que lista |
+| --- | --- |
+| **Precisa de si** | Tarefas que aguardam a sua resposta, aprovação ou revisão. |
+| **A trabalhar em** | Tarefas que estão em execução. |
+| **Novos resultados** | Tarefas concluídas que ainda não abriu. |
+
+Clique numa linha para abrir a respetiva ideia.
+
+## Utilizar o Quadro para tudo
+
+O **Quadro**, no menu **···** da barra de ícones da barra lateral da Janela de chat, mostra num só lugar as tarefas de todas as conversas, Projetos e equipas. Para o manter na barra, escolha **Personalizar a barra lateral…** nesse menu. Consulte [Janela de chat](/pt/ai/chat).
+
+Para ver apenas alguns Projetos, clique no filtro no canto superior esquerdo (**Todos os quadros**) e escolha os que quer. Os outros controlos do Quadro estão em [Acompanhar o Quadro](/pt/ai/agent-orchestrator).
+
+## Configurar a equipa
+
+Abra o separador **Equipe e ajustes**. O topo mostra o líder e cada membro, com **Adicionar membro** para trazer outro Agente. Clique nos rostos da equipa no canto superior esquerdo para ver a equipa toda de uma vez: o líder com **Alterar** e cada membro com uma função que pode editar no local.
+
+O líder pode ser um dos seus Agentes ou um Agente de código: Claude Code, Codex, Grok Build ou Antigravity. Um líder Agente de código planeia o trabalho dos membros num Plano de trabalho e lê os respetivos resultados, como qualquer outro líder.
+
+Os membros podem ser Agentes nos seus [outros computadores emparelhados](/pt/integrations/other-computers). O líder entrega-lhes tarefas que precisam desse computador e a resposta volta como resultado da tarefa. Se esse computador não tiver acesso de dispositivo na sua conta, a tarefa di-lo e remete para **Gerir dispositivos**.
+
+### Como a equipa funciona
+
+Cada objetivo que dá ao líder, a partir do Chat ou das Ideias, passa por **Padrão**: **Planear o trabalho**, **Fazer o trabalho** e, depois, **Revisão e testes**. Escolha quem faz cada passo. Dê o planeamento a um membro e esse membro escreve o plano quando o pedir; o líder propõe então as respetivas tarefas como um Plano de trabalho que aguarda o seu **Iniciar**. Pode também ativar ou desativar a verificação e definir as **Rondas de correção**, ou seja, quantas vezes uma tarefa volta para ser corrigida.
+
+### Utilizar os seus próprios fluxos de trabalho
+
+Os **Fluxos de trabalho personalizados**, no separador **Equipe e ajustes**, estão desativados até os ativar. Enquanto estiverem desativados, todos os objetivos passam por **Padrão**. Ative-os para executar objetivos ou tarefas individuais através de [Fluxos de trabalho](/pt/workflows/introduction):
+
+- **Ou execute cada objetivo com um fluxo de trabalho** lista os fluxos de trabalho da equipa. Aponte para um e clique em **Usar para todos os objetivos**, ou clique em **Novo fluxo de trabalho de equipa** para criar o seu.
+- **Fluxos de trabalho de tarefa** lista os fluxos de trabalho que o líder pode dar a uma única tarefa, como corrigir um erro. Clique em **Usar no chat** para nomear um na conversa do Líder, ou em **Novo fluxo de trabalho** para criar um.
+
+Os fluxos de trabalho integrados:
+
+| Fluxo de trabalho | O que faz |
+| --- | --- |
+| **Ship** | Transforma uma ideia numa especificação, num design e num plano que aprova, constrói cada tarefa com testes, verificações, revisão e validação e, depois, revê o ramo inteiro. |
+| **Planeador** | Transforma uma ideia numa especificação, num design e em tarefas que aprova, e entrega as tarefas ao líder como um Plano de trabalho. |
+| **Sprint** | Constrói uma tarefa planeada com testes, verificações, revisão e validação. |
+| **Compound** | Aplica as lições que manteve à documentação e às regras do repositório. |
+| **Verificar configuração** | Descobre como verificar e executar o Projeto, escreve um guia de verificação que aprova e prova-o executando-o. |
+
+Cada linha mostra o ícone do fluxo de trabalho, os rostos dos membros que o executam e quantas execuções teve e quantas falharam. Quando falta um membro a um fluxo de trabalho, clique em **Escolher um agente…** na respetiva linha. Clique numa linha para abrir o fluxo de trabalho e alterar os respetivos passos ou quem os executa.
+
+As alterações que guardar num fluxo de trabalho de um Projeto continuam a ser um **Rascunho**: os novos planos continuam a utilizar a versão publicada até clicar em **Publicar**. **Reverter para a versão anterior** repõe a versão anterior. O fluxo de trabalho de uma tarefa mostra os tokens e o custo de cada passo, com um total a preços de API.
+
+### Definir o comando de verificação
+
+O comando de verificação é executado na cópia do código de uma tarefa concluída antes de ir para revisão. Uma verificação que falhe volta ao membro da tarefa para a corrigir.
+
+1. No separador **Equipe e ajustes**, clique em **Definições do projeto** e, depois, em **Quadro**.
+2. Junto de **Comando de verificação**, clique em **Encontrar**. O Enconvo lê o comando a partir dos ficheiros do Projeto e só o preenche se passar.
+3. Se não encontrar nenhum, clique em **Pedir ao Mavis para configurar** (o botão tem o nome do seu líder). O líder encontra ou adiciona o comando na sua conversa.
+
+Um Projeto sem comando de verificação mostra o respetivo passo de verificação como **Não verificado**.
+
+### Limpar worktrees
+
+Cada conversa e tarefa num Projeto git trabalha no seu próprio worktree. Para libertar espaço em disco, o Enconvo arquiva os worktrees com que já terminou e remove as respetivas pastas. Em **Definições do projeto → Worktrees**:
+
+| Definição | O que faz |
+| --- | --- |
+| **Arquivar worktrees integrados** | Arquiva um worktree quando o respetivo trabalho está no ramo base e não resta nada por confirmar nem por enviar. |
+| **Arquivar worktrees sem conversas** | Arquiva um worktree quando nenhuma das respetivas conversas resta na lista de conversas. |
+| **Arquivar worktrees inativos** | Arquiva um worktree, com as respetivas conversas, depois de não terem atividade durante os dias que escolher em **Arquivar após inatividade de**: 3, 7, 14 ou 30. |
+
+Um worktree com alterações por confirmar nunca é arquivado. **Restaurar** traz de volta um worktree arquivado.
+
+## Escolher quando a equipa consulta você
+
+Abra o separador **Equipe e ajustes**.
+
+Em **Quando consultar você**:
+
+| Definição | O que faz |
+| --- | --- |
+| **Quando um plano está pronto** | **Inteligente**, a predefinição, inicia o plano de imediato quando faz o que já pediu e aguarda o seu **Iniciar** quando vai mais longe ou é arriscado. **Perguntar-me sempre** aguarda **Iniciar** sempre. **Iniciar sempre** inicia todos os planos assim que estão prontos. |
+| **Começar a planear assim que uma tarefa é adicionada** | Ativado: o líder planeia cada nova ideia de imediato. Desativado: as novas ideias aguardam em **Não iniciado** até as iniciar. |
+
+As ações que eliminam, enviam, publicam, pagam ou fazem push perguntam sempre, seja qual for a sua escolha. A pasta, os worktrees, as permissões, o orçamento e o limite estão em **Definições do projeto**.
+
+## Deixar o líder agir enquanto está ausente
+
+Num Projeto em **Acesso total**, o líder pode manter o trabalho em andamento quando uma tarefa dá notícias e ninguém está na conversa. Ative **O líder age enquanto está ausente** em **Definições do projeto → Quadro**.
+
+O líder corrige, repete e integra então por si, dentro de 6 turnos por hora e 100 000 pontos por dia. Nunca envia, faz push, publica, paga nem elimina o que quer que seja fora da cópia do código da própria tarefa.
+
+Quando regressar, um cartão **Enquanto esteve ausente** no topo da conversa do Líder lista o que o líder fez e os passos que deixou para si. Após dois turnos falhados seguidos, ou num limite, o líder faz uma pausa e **Precisa de si** pergunta se quer **Retomar** ou **Manter em pausa**.
+
+## Arquivar um Projeto
+
+Quando um Projeto termina, arquive-o para o retirar da barra lateral sem eliminar nada.
+
+1. Aponte para o Projeto na barra lateral e clique em **⋯**.
+2. Escolha **Arquivar projeto**.
+
+O Projeto e as respetivas conversas saem da barra lateral, e as tarefas agendadas são suspensas. Uma conversa de um Projeto arquivado não aceita mensagens até o restaurar.
+
+Para o trazer de volta:
+
+1. Abra **Definições → Arquivado**.
+2. Clique em **Projetos**.
+3. Clique em **Restaurar** junto do Projeto.
+
+O Projeto regressa à barra lateral com as respetivas conversas, e as tarefas agendadas voltam a ser ativadas.
+
+## Projetos no telemóvel
+
+A app para iPhone abre também os seus Projetos: Ideias, o Quadro, as Definições do projeto, **Novo projeto** e o cartão do Plano de trabalho, onde responde, integra, inicia ou repete uma tarefa. O menu `@` aí lista os membros e os fluxos de trabalho do Projeto. Consulte [App para iPhone](/pt/integrations/iphone-app).
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Uma nova ideia fica em **Não iniciado** | Ative **Começar a planear assim que uma tarefa é adicionada** em **Equipe e ajustes**, ou abra a ideia e inicie-a manualmente. |
+| Um plano aguarda mesmo tendo escolhido **Inteligente** | O plano vai mais longe do que o que pediu, ou inclui um passo arriscado. Reveja-o e clique em **Iniciar**. |
+| A tarefa de um agente de código não começa | Instale o agente de código e inicie sessão nele. |
+| Uma tarefa aguarda como **Em espera** com um aviso de início de sessão | O agente de código tem a sessão terminada, ou o início de sessão termina em breve. Clique em **Iniciar sessão novamente**. As tarefas em espera voltam a ser executadas assim que iniciar sessão. |
+| Um cartão do Quadro mostra um problema a âmbar | É um problema de configuração. Siga a correção do cartão; o líder não volta a tentar. Um erro do Enconvo diz que é seguro tentar de novo. |
+| Uma tarefa falha num Projeto guardado no iCloud | Com Otimizar armazenamento do Mac ativado, os ficheiros podem não estar no seu Mac. No Finder, escolha **Manter descarregado** para a pasta do Projeto. |
+| Uma tarefa diz que a pasta do Projeto desapareceu | A pasta foi movida ou eliminada. Volte a movê-la ou crie um novo Projeto para a nova localização. |
+| Uma tarefa pára no **Limite** do Projeto | Clique em **Editar Limite** na tarefa para permitir o que ela precisa. Um Limite só pode ser alterado por si. |
+| Uma tarefa indica que uma integração ou um rebase ficou a meio | O respetivo agente parou a meio. Conclua ou anule a integração ou o rebase antes de integrar a tarefa. |
+| Todos os planos aguardam por **Iniciar** | Os planos aguardam enquanto não tem sessão iniciada no Enconvo. Inicie sessão em **Definições → Conta**. |
+| Falta um Projeto na barra lateral | Pode estar arquivado. Procure em **Definições → Arquivado**, em **Projetos**. |
+| Uma tarefa de Fluxo de trabalho falhou | Abra a tarefa. Indica o que o respetivo comando escreveu por último e o passo de que membro falhou. |
+| Um objetivo não utiliza o fluxo de trabalho de equipa que escolheu | Ative os **Fluxos de trabalho personalizados** no separador **Equipe e ajustes**. Enquanto estiverem desativados, todos os objetivos passam por **Padrão**. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Orquestrador de Agentes" icon="sitemap" href="/pt/ai/agent-orchestrator">Planos de trabalho, os controlos do Quadro e a criação de um Projeto.</Card>
+  <Card title="Agentes de código" icon="code" href="/pt/ai/coding-agents">Instale e inicie sessão no Claude Code, no Codex e nos outros.</Card>
+  <Card title="Janela de chat" icon="message" href="/pt/ai/chat">Conversas, Projetos e a barra lateral.</Card>
+  <Card title="Espaços de trabalho" icon="layer-group" href="/pt/configuration/account">Mantenha as conversas e a Memória de um cliente separadas das suas.</Card>
+</CardGroup>

@@ -1,0 +1,521 @@
+---
+title: "Fähigkeiten"
+description: "Bringe den Agenten von Enconvo mit einer Fähigkeit eine wiederholbare Aufgabe bei: Anleitungen, Referenzen und optionale Skripte in einem Ordner."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Eine Fähigkeit bündelt Anleitungen, Ressourcen und optionale Skripte, damit Enconvo einen Ablauf zuverlässig befolgen kann. Erstelle eine, wenn du immer wieder dasselbe Verfahren erklärst, etwa wie Code geprüft oder wie Besprechungsnotizen formatiert werden. Du kannst Fähigkeiten mit deinem Team oder der Community teilen.
+
+<Note>
+Fähigkeiten nutzen **Progressive Disclosure**, um den Kontext effizient zu verwalten: Enconvo beginnt mit den Metadaten jeder Fähigkeit (Name, Beschreibung, Dateipfad). Die vollständigen Anleitungen werden erst geladen, wenn eine Fähigkeit aktiviert wird.
+</Note>
+
+Dieses Video behandelt Fähigkeiten, dann MCP-Server, Plugins und den Extension Store.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="How to Use Skills, MCP and Plugins in Enconvo | Step-by-Step Tutorial" />
+
+## Deine Fähigkeiten verwalten
+
+Öffne **Einstellungen → Fähigkeiten**. Alle Agenten teilen sich diese Fähigkeiten, und jeder Agent kann in seinen Einstellungen eigene hinzufügen.
+
+- Die Karten oben zählen **Alle Fähigkeiten**, die **Aktiv, nie verwendet**, die **In mehreren Ordnern** und die, die **Aus** sind. Klicke auf eine Karte, um nur diese aufzulisten.
+- Jede Zeile zeigt den **Speicherort** (integriert oder der Ordner bzw. die App, aus der sie stammt) und wann sie **Zuletzt verwendet** wurde. Schalte Fähigkeiten, die deine Agenten nicht brauchen, mit dem Schalter am Zeilenende aus, oder wähle mehrere aus und schalte sie gemeinsam aus.
+- **Von GitHub hinzufügen** installiert eine Fähigkeit aus einem Repository, und **Importieren** fügt eine aus einem Ordner auf deinem Mac hinzu. Siehe [Fähigkeiten installieren](#fähigkeiten-installieren).
+- **Deine Skills** listet die Fähigkeiten auf, die du erstellt hast, nach Herkunft: **Aufgenommen**, **Gelernt**, **Skript**, **Geschrieben** oder **Installiert**. Klicke auf eine, um ihre **Schritte**, **Stolperfallen** und ihren **Verlauf** zu sehen. Siehe [Fähigkeiten mit gespeicherten Schritten](#fähigkeiten-mit-gespeicherten-schritten).
+
+Im Chatfenster kannst du Fähigkeiten auch direkt im Fenster über **Plugins** auf der Symbolleiste öffnen.
+
+## Wie eine Fähigkeit aussieht
+
+Eine Fähigkeit ist ein Ordner mit einer Datei `SKILL.md` sowie optionalen Skripten und Referenzen.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### Das Format von SKILL.md
+
+`SKILL.md` muss mit einem Frontmatter-Block beginnen, der einen `name` und eine `description` enthält:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo wählt eine Fähigkeit anhand ihrer `description`, also gib ihr einen klaren Umfang und klare Grenzen. Sage, **wann** die Fähigkeit genutzt werden soll und **wann nicht**.
+</Tip>
+
+## Eine Fähigkeit nutzen
+
+Du kannst eine Fähigkeit beim Namen aufrufen oder Enconvo eine passend zu deiner Anfrage wählen lassen.
+
+### Eine Fähigkeit beim Namen aufrufen
+
+Gib in der SmartBar oder im Chat `/` gefolgt vom Namen der Fähigkeit ein:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+Das ist der zuverlässigste Weg: Du erhältst genau die Fähigkeit, die du willst. Um nur Fähigkeiten aufzulisten, gib `$` ein.
+
+Die Fähigkeiten von Plugins, die du installiert hast, stehen ebenfalls in den Menüs `/` und `$`, benannt als `plugin:skill` wie in Claude Code.
+
+### Enconvo wählen lassen
+
+Wenn du keine Fähigkeit nennst, ordnet Enconvo deine Anfrage anhand ihrer `description` der passendsten Fähigkeit zu:
+
+1. Du gibst ein: „Fasse diese Besprechungsnotizen in Aufgaben zusammen“
+2. Enconvo durchsucht alle verfügbaren Beschreibungen von Fähigkeiten
+3. Die Fähigkeit `meeting-notes` passt („...formatiere rohe Besprechungsprotokolle zu strukturierten Notizen mit Aufgaben...“)
+4. Die Fähigkeit wird aktiviert, und ihre Anleitungen steuern die Antwort
+
+Die Zuordnung erfolgt nach Bedeutung, nicht nur nach gemeinsamen Schlüsselwörtern, sodass eine Anfrage, die anders formuliert oder in einer anderen Sprache geschrieben ist als die Beschreibung, die Fähigkeit trotzdem findet. Damit ein Agent eine Fähigkeit immer sieht, hefte sie in den Einstellungen **Tools & Fähigkeiten** des Agenten an; siehe [Agenten](/de/ai/agents).
+
+### Beschreibungen schreiben, die gut passen
+
+Gute Zuordnung hängt von einer gut geschriebenen `description` ab:
+
+| Qualität | Beispiel |
+|---------|---------|
+| **Zu vage** | „Hilft bei Code“ |
+| **Zu breit** | „Macht alles rund um Programmierung“ |
+| **Gut** | „Prüfe Code auf Bugs, Sicherheitsprobleme und Best Practices. Nutze dies, wenn der Benutzer ein Code-Review möchte oder die Codequalität verbessern will. Nicht für Codegenerierung oder das Schreiben von neuem Code verwenden.“ |
+
+Eine gute Beschreibung hat drei Teile:
+
+- **Was sie macht**: „Prüfe Code auf Bugs, Sicherheitsprobleme und Best Practices“
+- **Wann sie auslöst**: „Nutze dies, wenn der Benutzer ein Code-Review möchte“
+- **Wann sie nicht auslöst**: „Nicht für Codegenerierung oder das Schreiben von neuem Code verwenden“
+
+## Wo Fähigkeiten liegen
+
+Enconvo liest Fähigkeiten aus mehreren Orten, jeder mit eigenem Geltungsbereich:
+
+| Geltungsbereich | Ort | Wofür |
+|-------|----------|------------|
+| **Projekt** | `$PROJECT/.agents/skills/` (auch `.enconvo/skills/`, `.claude/skills/` und `.codex/skills/`) | Fähigkeiten für ein Projekt oder einen Arbeitsbereich |
+| **Benutzer** | `~/.agents/skills/` (auch `~/.enconvo/skills/`, `~/.claude/skills/` und `~/.codex/skills/`) | Persönliche Fähigkeiten für alle deine Projekte |
+| **System** | Mit Enconvo gebündelt | Integrierte Fähigkeiten für alle |
+
+Jeder Agent kann außerdem eigene Fähigkeiten mitbringen: Füge sie in den Einstellungen des Agenten unter **Fähigkeiten** hinzu.
+
+Wenn zwei Fähigkeiten an verschiedenen Orten denselben Namen haben, bleiben beide verfügbar; Enconvo führt sie nicht zusammen. **Einstellungen → Fähigkeiten** listet diese Fähigkeiten unter **In mehreren Ordnern** auf.
+
+### Projektfähigkeiten
+
+Projektfähigkeiten liegen in deinem Projektordner und sind nur verfügbar, wenn dieses Projekt aktiv ist:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+Nutze sie für Fähigkeiten, die von den Konventionen, der Dateistruktur oder den Tools eines Projekts abhängen.
+
+### Benutzerfähigkeiten
+
+Benutzerfähigkeiten in `~/.agents/skills/` sind in jedem Projekt verfügbar. Nutze sie für persönliche Fähigkeiten, die nicht zu einem Projekt gehören:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## Eine Fähigkeit erstellen
+
+### Mit dem Skill Creator
+
+Der schnellste Weg, eine Fähigkeit zu erstellen, ist der integrierte Creator:
+
+```
+/skill-creator
+```
+
+Der Creator führt dich durch:
+
+1. Was die Fähigkeit macht
+2. Wann sie auslösen soll
+3. Ob sie nur aus Anleitungen bestehen oder Skripte enthalten soll
+
+Nur Anleitungen sind die Standardeinstellung und der empfohlene Ansatz. Füge Skripte nur hinzu, wenn du deterministisches Verhalten oder externe Tools brauchst.
+
+### Von Hand
+
+Erstelle einen Ordner mit einer Datei `SKILL.md`:
+
+<Steps>
+  <Step title="Den Ordner der Fähigkeit erstellen">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="SKILL.md schreiben">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Prüfen, ob sie erscheint">
+    Enconvo erkennt Änderungen an Fähigkeiten automatisch. Erscheint die neue Fähigkeit nicht, starte Enconvo neu.
+  </Step>
+</Steps>
+
+### Die Anleitungen schreiben
+
+Der Textteil von `SKILL.md` unter dem Frontmatter enthält die Anleitungen, denen die KI folgt. Schreibe sie als klare Schritte im Imperativ:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### Tipps für gute Fähigkeiten
+
+- **Halte jede Fähigkeit fokussiert.** Eine Fähigkeit erledigt eine Aufgabe. Eine Fähigkeit, die zu viele Dinge tut, löst schwerer korrekt aus und ist schwerer zu pflegen. Wenn du 10 oder mehr Schritte schreibst, die mehrere Aufgaben abdecken, teile sie in getrennte Fähigkeiten auf.
+- **Sei konkret bei den Eingaben.** Sage genau, woher die Eingabe kommt: „Lies den markierten Text“, „Werte die angehängte Datei aus“, „Verwende die URL aus der Nachricht des Benutzers“.
+- **Definiere das Ausgabeformat.** Füge ein konkretes Beispiel dafür ein, wie die Ausgabe aussehen soll, damit die Ergebnisse einheitlich bleiben.
+- **Behandle Randfälle.** Ergänze Anleitungen für häufige Randfälle: „Wenn keine Commits gefunden werden, melde, dass der Bereich leer ist“ oder „Wenn die Eingabe kein gültiges JSON ist, bitte den Benutzer, das Format zu prüfen“.
+- **Schreibe Schritte im Imperativ.** Sei ausdrücklich bei Eingaben, Schritten und erwarteten Ausgaben. Vage Anleitungen führen zu uneinheitlichen Ergebnissen.
+- **Bevorzuge Anleitungen gegenüber Skripten.** Anleitungen in normaler Sprache sind leichter zu schreiben, zu debuggen und zu ändern. Nutze Skripte nur, wenn du deterministisches Verhalten oder externe Tools brauchst.
+- **Setze klare Grenzen.** Nenne in der Beschreibung sowohl, was die Fähigkeit abdecken soll, als auch, was nicht.
+- **Teste deine Auslöse-Beschreibungen.** Probiere verschiedene Prompts aus, um zu bestätigen, dass die Fähigkeit auslöst, wenn sie soll, und nicht auslöst, wenn nicht.
+- **Versioniere deine Fähigkeiten.** Halte im Team geteilte Fähigkeiten in der Versionskontrolle (Git), damit du Änderungen nachverfolgen, zurückrollen und zusammenarbeiten kannst.
+
+## Skripte hinzufügen
+
+Für Fähigkeiten, die ausführbare Logik brauchen, füge einen Ordner `scripts/` hinzu:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Verweise in deiner `SKILL.md` auf die Skripte:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### Wann Skripte nutzen
+
+| Skripte nutzen, wenn | Nur Anleitungen nutzen, wenn |
+|-----------------|---------------------------|
+| Du deterministische Ausgabe brauchst (exakte Formate, Berechnungen) | Die Aufgabe hauptsächlich aus Überlegen und Sprache besteht |
+| Du mit externen APIs oder Datenbanken arbeitest | Die Aufgabe nur die eingebauten Fähigkeiten der KI nutzt |
+| Du Daten programmatisch verarbeiten oder umwandeln musst | Es bei der Aufgabe ums Schreiben, Zusammenfassen oder Analysieren geht |
+| Du Authentifizierung oder den Umgang mit Zugangsdaten brauchst | Die Anleitungen allein ausreichen |
+
+## Referenzen hinzufügen
+
+Binde Dokumentations- oder Kontextdateien ein, die die Fähigkeit heranziehen kann:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Verweise in den Anleitungen auf sie:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+Referenzen sind nützlich für:
+
+- API-Dokumentation, der die Fähigkeit folgen muss
+- Styleguides oder Markenrichtlinien
+- Codebeispiele und Vorlagen
+- Fachspezifisches Wissen
+
+## Fähigkeiten installieren
+
+Nutze `/skill-installer`, um eine Fähigkeit aus dem Skills-Store von Enconvo oder von GitHub zu installieren. Er kann auch aus Skills.sh, ClawHub und direkten ZIP-URLs installieren.
+
+### Aus dem Skills-Store von Enconvo
+
+Suche nach einer Fähigkeit anhand ihres Namens und installiere sie:
+
+```
+/skill-installer pdf
+```
+
+Das durchsucht den Skills-Store von Enconvo und installiert die passende Fähigkeit. Enconvo erkennt neu installierte Fähigkeiten automatisch.
+
+### Von GitHub
+
+Installiere eine Fähigkeit direkt über die URL eines GitHub-Repositorys:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+Die URL kann auf einen Unterordner zeigen, sodass du eine einzelne Fähigkeit aus einem größeren Repository installieren kannst, ohne es ganz zu klonen.
+
+### Aus einem Ordner auf deinem Mac
+
+1. Öffne **Einstellungen → Fähigkeiten** und klicke auf **Importieren**.
+2. Wähle einen Ordner, der Unterordner mit Fähigkeiten enthält, jeweils mit einer `SKILL.md`.
+
+Enconvo fügt den Ordner zu den Orten hinzu, aus denen es Fähigkeiten liest, und seine Fähigkeiten werden von allen Agenten geteilt. Um den Ordner nicht mehr zu verwenden, wähle ihn im Quellenmenü und dann **Ordner entfernen**. Der Ordner selbst bleibt auf dem Datenträger.
+
+## Fähigkeiten mit gespeicherten Schritten
+
+Jeder gespeicherte Workflow ist auch eine Fähigkeit mit eigener `SKILL.md`, und eine Fähigkeit kann die Schritte einer Aufgabe behalten, die sie schon einmal erledigt hat. Wenn du eine solche Fähigkeit ausführst, laufen zuerst ihre gespeicherten Schritte, ohne das Hauptmodell, was schneller und günstiger ist. Ein Schritt, der nicht mehr passt, etwa eine verschobene Schaltfläche, wird anhand der eigenen Notizen und Screenshots der Fähigkeit repariert. Erst wenn das scheitert, erledigt ein Agent die Aufgabe nach `SKILL.md`.
+
+In **Deine Skills** hat eine Fähigkeit mit der Markierung **Führt zuerst die gespeicherten Schritte aus** Schritte; eine mit **Nur Anleitung** nicht. Der **Verlauf** jeder Fähigkeit zeigt, wie ihre Läufe verliefen und was sie gelernt hat, und du kannst eine frühere Version wiederherstellen.
+
+### Eine Aufnahme in eine Fähigkeit verwandeln
+
+Du kannst die Aufnahme einer Aufgabe, die du erledigt hast, in eine Fähigkeit verwandeln. Jede aufgenommene Aktion wird zu einem geprüften Schritt, und ihr Screenshot wird für Reparaturen aufbewahrt. Die Fähigkeit bleibt ein **Entwurf**, bis ein Lauf davon funktioniert.
+
+### Ein Skript als Schritt ausführen
+
+Eine Fähigkeit kann ein [Code Mode](/de/configuration/code-mode)-Skript in ihrem eigenen Ordner `scripts` behalten und es als einen ihrer Schritte ausführen, sodass eine Aufgabe, die viele Tool-Aufrufe macht, als ein Schritt läuft.
+
+## Fähigkeiten lernen lassen, wie du arbeitest
+
+Fähigkeiten können lernen, wie du Aufgaben gern erledigt haben möchtest, so wie Erinnerungen Fakten lernen. Öffne **Einstellungen → Erinnerungen** und schalte **Vorgehensweisen lernen** ein:
+
+- Wenn du korrigierst, wie eine Aufgabe erledigt wurde, oder ein Schritt repariert werden musste, lernt die Fähigkeit das sofort. Der Chat zeigt einen Hinweis **Gelernt** mit **Rückgängig**.
+- Wenn eine Aufgabe ein zweites Mal auftaucht, wird daraus eine neue Fähigkeit.
+- Auch die Prüfung und das Aufräumen der Erinnerungen kümmern sich um Fähigkeiten.
+
+Wähle unter **Wenn Schritte geändert werden** **Sofort verwenden** oder **Erst fragen**, damit eine Änderung an den Schritten einer Fähigkeit wartet, bis du in ihrem Hinweis auf **Anwenden** klickst. Stolperfallen werden in beiden Fällen sofort eingetragen. Zahlungen, Senden und Löschen fragen immer zuerst bei dir nach, und Schlüssel und Passwörter werden nie gelernt.
+
+## Fähigkeiten verwalten
+
+### Deine Fähigkeiten ansehen
+
+**Einstellungen → Fähigkeiten** listet die Fähigkeiten auf, die alle Agenten teilen. Wähle oben eine Ansicht:
+
+| Ansicht | Zeigt |
+| --- | --- |
+| **Alle Fähigkeiten** | Jede Fähigkeit einmal, auch wenn mehrere Ordner eine Kopie haben |
+| **Aktiv, nie verwendet** | Fähigkeiten, die Agenten in jedem Chat angeboten werden, aber noch nicht genutzt haben |
+| **In mehreren Ordnern** | Fähigkeiten mit einer Kopie in mehr als einem Ordner, etwa für Claude Code und Codex |
+| **Aus** | Fähigkeiten, die Agenten nicht erhalten |
+
+Suche, filtere nach Quelle (**Alle Quellen**, **Integriert**, **Aus Plugins** oder ein Ordner) oder sortiere nach **Name A bis Z** oder **Zuletzt verwendet**.
+
+### Fähigkeiten aktualisieren
+
+- **Fähigkeiten aus dem Store**: Führe `/skill-installer` erneut aus, um nach einer neueren Version zu suchen.
+- **Fähigkeiten von GitHub**: Führe den Installer erneut mit derselben URL aus.
+- **Deine eigenen Fähigkeiten**: Bearbeite die Datei `SKILL.md` direkt. Enconvo erkennt die Änderung automatisch.
+
+### Eine Fähigkeit ausschalten
+
+Du kannst eine Fähigkeit ausschalten, ohne sie zu löschen:
+
+1. Öffne **Einstellungen → Fähigkeiten**.
+2. Finde die Fähigkeit.
+3. Schalte ihren Schalter aus.
+
+Agenten können eine ausgeschaltete Fähigkeit weder beim Namen noch per Zuordnung nutzen, bis du sie wieder einschaltest. Ein App-Profil, das die Fähigkeit anheftet, kann sie weiterhin nutzen.
+
+## Beispielfähigkeiten
+
+### Code-Reviewer
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Besprechungsnotizen
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Git-Commit-Nachricht
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### Generator für API-Dokumentation
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Gib einem Agenten eigene Fähigkeiten und Tools.</Card>
+  <Card title="MCP-Integration" icon="plug" href="/de/features/mcp">Kombiniere Fähigkeiten mit MCP-Tools.</Card>
+  <Card title="Enconvo GitHub" icon="github" href="https://github.com/enconvo">Durchsuche Open-Source-Erweiterungen und -Fähigkeiten.</Card>
+  <Card title="Community Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">Teile Fähigkeiten und erhalte Hilfe von der Community.</Card>
+</CardGroup>

@@ -1,0 +1,213 @@
+---
+title: "プラグインのインストール"
+description: "Enconvo、Codex、Claude Code、およびポータブルなプラグインを、ストア、アーカイブ、GitHub、git、npm、フォルダ、プラグインマーケットプレイスからインストールし、最新の状態に保ちます。"
+---
+
+ほとんどの場合、プラグインは Enconvo の **プラグイン** ページにあるプラグインストアからインストールします。Enconvo は、それ以外の場所からもインストールできます。開発者が GitHub やプラグインマーケットプレイスで公開している Codex や Claude Code のプラグインも含まれます。Enconvo が読み込めるパッケージについては、[Plugin Formats](/extensions/plugin-formats) を参照してください。
+
+アプリからインストールするには、[プラグインページから](#プラグインページから) と [チャットから](#チャットから) をお読みください。このページの残りは、開発者や上級ユーザー向けです。ターミナルからのインストール、プラグインマーケットプレイスの追加、更新とアンインストール、自作プラグインの共有について説明します。
+
+<Warning>
+Enconvo のストアにあるプラグインだけが、Enconvo によって審査されています。それ以外の場所のプラグインは、MCP サーバーを通じて Mac 上でプログラムを実行できるため、信頼できる提供元のものだけをインストールしてください。
+</Warning>
+
+## プラグインページから
+
+**プラグイン** ページで **追加** をクリックします。
+
+| オプション | 動作 |
+|---|---|
+| **プラグインを作成** | Enconvo のエージェントと一緒にプラグインを作成するチャットを開始します。 |
+| **プラグインのアーカイブをアップロード…** | ファイルをインストールします。`.enconvo` パッケージ、または Claude Code や Codex のプラグインの `.zip` です。 |
+| **GitHub から追加…** | GitHub、git、npm、フォルダから、プラグインまたはプラグインマーケットプレイス内のプラグインをインストールします (下記を参照)。 |
+| **MCP サーバーを追加…** | MCP の設定を開き、プラグインを介さずに 1 つのサーバーを接続します。 |
+| **PopBar 拡張機能を追加…** | リンク、ファイル、`#popclip` スニペットから PopBar 拡張機能をインストールします ([PopBar 拡張機能](/ja/features/popbar) を参照)。 |
+| **新規スキル…** | スキルの設定を開き、自分のスキルを作成します。 |
+| **開発者ガイド** | [拡張機能の開発](/ja/extensions/developing) を開きます。 |
+
+追加したものは、**Enconvo** タブの上部にある **インストール済み** に、名前順で表示されます。接続したコネクタと、インストールまたは作成したプラグインです。**インストール済み** をクリックすると、すべてを確認できます。Enconvo に付属するプラグインは、ここには表示されません。PopBar 拡張機能には専用の **PopBar** タブがあり、Enconvo が審査したカタログが表示されます。[PopBar 拡張機能](/ja/features/popbar) を参照してください。
+
+### GitHub から追加する
+
+プラグインの場所を貼り付けて、**プレビュー** を押します。
+
+- `owner/repo`、または GitHub のリンク (フォルダへのリンク `/tree/<branch>/<folder>` を含む)
+- リポジトリ内のプラグインには `owner/repo/folder`。`@branch` または `@tag` を付けるとバージョンを固定できます
+- https の git アドレス
+- `npm:<package>`。`@version` を付けるとバージョンを固定できます
+- プラグインの `.zip` への https リンク
+- Mac 上のフォルダ
+
+プライベートな GitHub や git のリポジトリでも使えます。Enconvo は、Mac ですでにサインインしている GitHub アカウント、または SSH キーを使うため、パスワードを入力する必要はありません。
+
+Enconvo は、何かをインストールする前に、プラグインの内容を表示します。形式 (Codex、Claude Code、ポータブル、Enconvo)、バージョン、開発者、スキル、MCP サーバーとフック、含まれる ChatGPT アプリ (Enconvo は読み込みません) です。各 MCP サーバーについては、Mac 上で起動するのか、インターネット経由で接続するのかが示されます。プラグインのフックは Mac 上でコマンドを実行するため、**フックの実行を許可** にチェックを入れない限りオフのままです。**インストール** をクリックすると、Enconvo がプラグインのページを開きます。**ソース** の行には、プラグインの入手元 (GitHub と git の場合はコミットも) が表示され、リポジトリまたは npm のページへのリンクがあります。下部のメモには、プラグインが示す開発者が表示されます。Enconvo 製であると表示されるのは、Enconvo 自身のプラグインとそのストアのプラグインだけです。この方法でインストールしたプラグインは **個人** に表示されます。同じ場所から再度インストールすると、プラグインが更新されます。同じ名前のプラグインがすでに別の場所からインストールされている場合は、先にアンインストールしてください。
+
+アドレスがプラグインマーケットプレイスの場合、ダイアログにそのプラグインが一覧表示され、それぞれに **インストール** ボタンがあります。1 つをインストールするとマーケットプレイスが追加され、次にダイアログを開いたときに **追加したマーケットプレイス** に表示されます。
+
+Enconvo のプラグインは、ソースコードをビルドしないと動作しません。そのため、ダイアログには、代わりにターミナルで実行する `enconvo plugin install` コマンドが表示されます。
+
+## チャットから
+
+Enconvo のエージェントに、今のプラグインではできないことを頼むと、Mac 上のプラグインマーケットプレイスからプラグインを探せます。Enconvo で追加したもの、および Codex や Claude Code にあって Enconvo にはまだないもの (Codex に付属する OpenAI Curated マーケットプレイスを含む) が対象です ([Codex または Claude Code で追加したマーケットプレイス](#codex-または-claude-code-で追加したマーケットプレイス) を参照)。Mac にすでにあるカタログのコピーを読み、探している間は何もダウンロードしません。インストール済みのプラグイン、および別の場所からインストールしたものと名前が似ているプラグインは除外されます。
+
+見つかると、エージェントがチャットにカードを表示します。**インストール** をクリックするまで、何もインストールされません。
+
+- Enconvo で追加したマーケットプレイスのプラグインの場合、カードには、そのプラグインが Mac 上で起動する、または接続する MCP サーバー、スキル、必要なほかのプラグインが表示されます。
+- Codex や Claude Code にしかないマーケットプレイスのプラグインの場合、カードには、インストールするとそのマーケットプレイスが Enconvo に追加されることが表示されます。それまでは、Enconvo がプラグインの内容を読めないため、カードに一覧を表示できません。
+
+どちらの場合も、プラグインのフックは、**プラグイン** でオンにするまでオフのままです。必要なプラグインがインストールできないなど、プラグインをインストールできない場合は、カードを表示する代わりにエージェントがその旨を伝えます。
+
+### ChatGPT のプラグイン
+
+[ChatGPT のプラグインディレクトリ](https://chatgpt.com/plugins) にあるプラグインは、Enconvo にはインストールできません。その大半は ChatGPT 内でのみ動作する ChatGPT アプリで、残りも OpenAI が ChatGPT と Codex にしか提供していません。Mac で Codex にサインインしている場合、エージェントは、Codex が保持するコピーからディレクトリの内容を把握しています。ディレクトリのプラグイン名を挙げたり、その chatgpt.com のリンクを貼り付けたりすると、エージェントは、インストールできない理由を伝え、同じことができる代替手段を提案します。コネクタ、MCP サーバー、スキル、またはマーケットプレイスにある同名のプラグインです。ファイルを含むディレクトリのプラグインの多くには、Codex に付属するマーケットプレイスである OpenAI Curated (OpenAI の公開リポジトリ `openai/plugins`) に同名のプラグインもあります。エージェントはそのプラグインを提案し、インストールすると OpenAI Curated が Enconvo に追加されます。Enconvo は、それらのプラグインに含まれる ChatGPT アプリは読み込まず、スキルと MCP サーバーだけを読み込みます。
+
+chatgpt.com のリンクは **GitHub から追加** でも使えません。ダイアログにも同じ内容が表示されます。
+
+## コマンドラインから
+
+`plugin install` は、GitHub、git、npm、ウェブ上の zip、フォルダ、マーケットプレイスからプラグインをインストールします。Enconvo 2.5.6 以降が実行中である必要があります。
+
+```sh
+npx -p @enconvo/api enconvo plugin install <source>
+```
+
+| ソース | 例 |
+|---|---|
+| GitHub のリポジトリ。その中のフォルダとブランチ、タグ、コミットも指定可能 | `acme/notes`, `acme/plugins/notes@v1.2.0` |
+| GitHub のアドレス | `https://github.com/acme/plugins/tree/main/notes` |
+| https 経由のその他の git リポジトリ (git が必要)。ssh アドレスは GitHub でのみ使えます | `https://git.example.com/notes.git`, `git@github.com:acme/notes.git` |
+| npm パッケージ | `npm:@acme/notes-plugin`, `npm:@acme/notes-plugin@1.2.0` |
+| ウェブ上のプラグインの zip (公開された https のみ) | `https://downloads.acme.com/notes-1.2.0.zip` |
+| Mac 上のフォルダ | `./notes`, `~/code/notes`, `/Users/ada/notes` |
+| 追加済みのマーケットプレイスにあるプラグイン | `notes@acme-plugins` |
+
+<Note>
+`plugin install` と `plugin marketplace` には、0.1.174 より新しい `@enconvo/api` のリリースが必要です。`@enconvo/api` に依存するプロジェクトの中では、`npx enconvo …` で足ります。`marketplace import` には Enconvo 2.5.7 以降も必要です。
+</Note>
+
+`--preview` を付けると、インストールせずに、何がどこからインストールされるかを確認できます。
+
+ソースがプラグインではなくプラグインマーケットプレイスの場合、`plugin install` はそのプラグインを一覧表示します。200 件を超えるマーケットプレイスでは、最初の 200 件を表示し、残りの件数を示します。`plugin marketplace add` はすべてを一覧表示します。`--plugin` で 1 つを選ぶと、マーケットプレイスも追加されます。
+
+```sh
+npx -p @enconvo/api enconvo plugin install acme/plugins --plugin notes
+```
+
+### インストール時に起こること
+
+- **設定**: API キーなど、必須の設定があるプラグインは、インストール後にその入力を求めます。`plugin install` は設定の名前を表示します。プラグインのページで入力してください。
+- **ソースからの Enconvo プラグイン**: GitHub のリポジトリまたはフォルダにビルドされていない Enconvo プラグインがある場合、`plugin install` が先にビルドします。フォルダは、`npm install` の後、その場でビルドされます。
+- **オンボーディング**: プラグインがオンボーディングスキルを指定している場合、Enconvo は最初のインストール後にそれを実行するか尋ねます。
+- **サインイン**: Notion や Figma のように、プラグインの MCP サーバーでサインインが必要な場合、インストール直後にプラグインページに **ログイン** が表示されます。Enconvo は、ブラウザでサーバーのサインインページを開き、そのサーバーが接続されると、次のサーバーを提案します。`plugin install` は、代わりにサーバーの名前を表示します。スキップしたサインインは、**設定 → MCP サーバー** に残ります。
+- **フック**: プラグインの[フック](/extensions/plugin-formats#hooks)は、コマンドを実行するため、オフの状態でインストールされます。`--preview` で一覧表示でき、プラグインのページの **フックを許可** スイッチで許可します。許可したフックは、変更されない更新の間はオンのままです。
+- **依存関係**: マーケットプレイスの Claude Code プラグインがほかのプラグインを必要とする場合、Enconvo はそれらも一緒にインストールします ([プラグインマーケットプレイス](#プラグインマーケットプレイス) を参照)。`--preview` は、それらを一覧表示し、すでにインストール済みのもの、インストールされるもの、インストールできないものを示します。マーケットプレイスのエントリが宣言する依存関係が、許可されていないマーケットプレイスのものである場合は、インストールが停止します。プラグイン自身の `plugin.json` が宣言するものは除外され、インストールは続行されます。それらのフックはオフのままで、プラグインをアンインストールしても、整理するまでは残ります ([アンインストール](#アンインストール) を参照)。
+- **使う**: Codex と同じように、チャットで `@` を入力してプラグインを選ぶか、ページの **質問してみましょう** の下のプロンプトをクリックします。どちらの場合も、チャットにプラグインが添付されます。カテゴリを指定していない Codex や Claude Code のプラグインを含め、インストール済みのすべてのプラグインが `@` メニューに表示されます。
+- **同じ名前**: 同じソースから再度インストールすると、プラグインが更新されます。同じ名前のプラグインがすでにストアなど別の場所からインストールされている場合、Enconvo はそれに触れず、先にアンインストールするよう求めます。
+
+Enconvo が実行されていない場合でも、`plugin install` は、GitHub の Enconvo プラグインをビルドしてインストールできます。それ以外の場合は、Enconvo を開いてもう一度試してください。
+
+## プラグインマーケットプレイス
+
+マーケットプレイスは、リポジトリまたはフォルダにあるプラグインのカタログです。Enconvo は、Codex の `.agents/plugins/marketplace.json` と Claude Code の `.claude-plugin/marketplace.json` の両方を読み込みます。
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins   # GitHub, a git address or a folder
+npx -p @enconvo/api enconvo plugin marketplace add acme/plugins --ref v2   # at a branch, tag or commit
+npx -p @enconvo/api enconvo plugin marketplace list               # added marketplaces and their plugins
+npx -p @enconvo/api enconvo plugin install notes@acme-plugins     # install one of them
+npx -p @enconvo/api enconvo plugin marketplace refresh            # fetch them again for new plugins
+npx -p @enconvo/api enconvo plugin marketplace remove acme-plugins
+```
+
+`refresh` は `upgrade` (Codex での名前) と `update` (Claude Code での名前) でも使え、`--ref v2` は `acme/plugins@v2` と同じです。
+
+プラグインページで **追加 → GitHub から追加…** を開き、マーケットプレイスのアドレスを貼り付けるか、**追加したマーケットプレイス** から追加済みのものを選びます。
+
+Enconvo は、GitHub または git のマーケットプレイスはコピーを保持し、フォルダのマーケットプレイスはその場所のまま読み取ります。マーケットプレイスを削除しても、そこからインストールしたプラグインは残ります。
+
+### Codex または Claude Code で追加したマーケットプレイス
+
+この Mac の Codex や Claude Code でマーケットプレイスを追加している場合、または Codex が OpenAI Curated マーケットプレイスを取得している場合、`marketplace list` は、Enconvo にまだないものを表示し、`import` がそれらを追加します。アドレスを再度入力する必要はありません。
+
+```sh
+npx -p @enconvo/api enconvo plugin marketplace import                            # all of them
+npx -p @enconvo/api enconvo plugin marketplace import claude-plugins-official    # only these
+```
+
+Enconvo は、Codex の `~/.codex/config.toml`、OpenAI Curated のコピー、個人用の `~/.agents/plugins/marketplace.json`、および Claude Code の既知のマーケットプレイスの一覧からこれらを見つけます。これらのファイルを読み取るだけで、どちらのアプリにも変更を加えません。OpenAI Curated は、GitHub の `openai/plugins` から追加されます。Codex に付属するその他のマーケットプレイス (Codex 自身のツール用のプラグインを含むもの) と、`marketplace.json` ファイルのウェブアドレスから追加された Claude Code のマーケットプレイス (Enconvo は追加しません) は除外されます。両方のアプリに同じ名前のマーケットプレイスがある場合は、Codex のものが提案されます。
+
+OpenAI Curated のような Codex のマーケットプレイスには、各プラグインの名前と入手元だけが記載されています。マーケットプレイス自身のフォルダにあるプラグインについては、Enconvo は、Codex と同じように、プラグインのマニフェストにあるタイトル、説明、カテゴリ、開発者を表示し、エージェントは名前だけでなく、機能でもそれを探せます。マーケットプレイスのエントリ自身の記述が優先されます。
+
+OpenAI Curated のプラグインの一部 (Gmail、Google Drive、Outlook、Teams など) は、ChatGPT で Codex にサインインしたときにしか動作しません。そのため、Codex は API キーでサインインしている人には提供しません。Enconvo も ChatGPT にサインインしないため、それらは ChatGPT のサインインが必要なものとして表示され、インストールされず、エージェントも提案しません。それらのサービスには、代わりに、そのプロバイダ自身の MCP サーバーまたはコネクタを追加してください。
+
+### マーケットプレイスのプラグインの入手元
+
+マーケットプレイスのプラグインは、マーケットプレイス内のフォルダ、別の GitHub リポジトリ、git アドレス、git リポジトリ内のフォルダ、npm、またはウェブ上の zip (Claude Code の `archive` ソース) から取得できます。Codex のマーケットプレイスが `NOT_AVAILABLE` と記載しているプラグインは、インストールできません。
+
+`./plugins/notes` のように書かれたフォルダのソースは、マーケットプレイスの最上位から読み取られます。`notes` のような名前だけの場合は、Claude Code と同じように、`metadata.pluginRoot` が指すフォルダから読み取られ、そのフィールドが必要です。
+
+GitHub、npm、ウェブからのダウンロードには最大 3 分かかることがあります。それより長くかかる場合は、Enconvo が中止し、接続を確認するよう求めます。
+
+zip は、リンクを貼り付けた場合でも、マーケットプレイスが一覧表示している場合でも、公開された https アドレスから、最大 5 回のリダイレクトを経由してのみダウンロードされます。マーケットプレイスが `sha256` を示している場合、それと一致しないダウンロードは拒否されます。プラグインは、zip の最上位にも、1 つのフォルダの中にも置けます。
+
+### Claude Code マーケットプレイスのエントリ
+
+Claude Code のマーケットプレイスのエントリは、Claude Code が読み取るのと同じように、プラグイン自身の `plugin.json` と組み合わせて動作します。
+
+- エントリは、プラグイン自身の `commands`、`agents`、`skills`、`outputStyles`、`themes` に追加でき、その `hooks` は、同じイベントについてプラグインのフックを置き換えます。
+- `plugin.json` を持つプラグインに対して、`"strict": false` のエントリがこれらのいずれかも一覧に含める場合、マニフェストの競合として拒否されます。1 か所にまとめてください。
+- プラグインに `plugin.json` がない場合は、エントリがそのマニフェストになります。
+- エントリの名前、説明、作者、その他の掲載情報が表示されます。バージョンはプラグインのものです。
+- マーケットプレイスの `renames` に従います。古い名前でインストールされたプラグインは、新しい名前で更新され続け、古い名前でインストールしても見つかります。`null` に名前が変更されたものは、マーケットプレイスから削除されたことを意味し、Enconvo がその旨を伝えます。プラグイン自身のマニフェストも名前を変更している場合は、Enconvo がプラグインをマニフェストの名前で管理するため、古いプラグインをアンインストールして新しいプラグインをインストールするよう求めます。
+- プラグインの `dependencies` (エントリまたは `plugin.json` 内) は、一緒にインストールされます。各依存関係は、名前 (`"formatter"`)、名前とマーケットプレイス (`"formatter@acme-tools"`)、そのどちらかに `^` の範囲を続けたもの (`"formatter@acme-tools@^2.1"`)、または semver の範囲を指定した `{ "name", "marketplace", "version" }` で指定します。依存関係は、別のマーケットプレイスを指定しない限り、プラグイン自身のマーケットプレイスから取得されます。別のマーケットプレイスを指定するには、インストール元のマーケットプレイスの `allowCrossMarketplaceDependenciesOn` にそれが記載されている必要があります。`version` の範囲を持つ依存関係は、その範囲内、およびほかのインストール済みプラグインがそれに課す範囲内で、プラグイン自身のリポジトリ (マーケットプレイス内のプラグインの場合は、マーケットプレイスのリポジトリ。マーケットプレイスのフォルダが git リポジトリの中にある場合も該当) の最も高いリリースタグ (`<plugin>--v<version>`) でインストールされます。そのようなタグがない場合、マーケットプレイス内のプラグインはマーケットプレイスにある状態のままインストールされ、独自のリポジトリにあるプラグインは拒否されます。どの 1 つのバージョンも満たさない範囲はインストールを拒否し、更新は範囲内にとどまります。すでにインストール済みの依存関係はそのままにされ、`version` の範囲外のものは警告が表示されます。
+
+### 共有する前にマーケットプレイスを確認する
+
+マーケットプレイスを共有する前に、マーケットプレイスとその中のすべてのプラグインを確認してください。ルールは `claude plugin validate` が適用するもので、`.agents/plugins/marketplace.json` には Codex のルールも加わります。[Validation Codes](/extensions/validation-codes#marketplaces) を参照してください。エラーは、Claude Code がマーケットプレイスを追加したりプラグインをインストールしたりできないことを意味します (一覧には表示される場合があります)。エントリのフィールドの型が違う、プラグインにつながらない `renames`、拒否される `relevance` シグナル、`claude-plugins-hub` のように Anthropic 自身のものに見えるマーケットプレイス名などです。警告は、フィールド名のつづりの誤りなど Claude Code が無視するもの、および Claude Desktop が拒否する名前を対象とします。
+
+```sh
+npx -p @enconvo/api enconvo plugin validate path/to/marketplace
+```
+
+## 更新
+
+Enconvo のプラグインの更新チェックは、GitHub、git、npm、フォルダ、マーケットプレイスからインストールしたプラグインも対象とし、その更新をストアのものと一緒に一覧表示します。リポジトリの最新のコミットはダウンロードせずに読み取り、npm には最新のバージョンを問い合わせ、インストール済みのフォルダが変更されたことを検知し、マーケットプレイスが `sha256` で固定している zip については、その固定値が変わったことを検知します。更新すると、同じソースからプラグインが再インストールされます。
+
+1 つのプラグインを確認するには、そのページを開き、**⋯** メニューの **アップデートを確認** を選びます。新しいバージョンがある場合は、表示されるメッセージの **更新** をクリックします。
+
+または、Claude Code の `claude plugin update` と同じように、ターミナルから 1 つを更新します。
+
+```bash
+npx -p @enconvo/api enconvo plugin update notes                # from wherever it came from, or the store
+npx -p @enconvo/api enconvo plugin update notes@acme-plugins   # only if it came from that marketplace
+```
+
+まず確認します。新しいものがない場合は、プラグインがすでに最新であることを伝え、何も変更しません。ある場合は、更新リストと同じ方法でプラグインを更新します。
+
+## アンインストール
+
+プラグインは、プラグインページのメニューまたはそのページから、先に確認が表示された上でアンインストールするか、ターミナルからアンインストールします。
+
+```bash
+npx -p @enconvo/api enconvo plugin uninstall notes            # also: remove, rm
+npx -p @enconvo/api enconvo plugin uninstall notes --prune    # and the dependencies nothing needs any more
+npx -p @enconvo/api enconvo plugin prune --dry-run            # list them without removing anything
+npx -p @enconvo/api enconvo plugin prune                      # remove them (also: autoremove)
+```
+
+整理 (prune) で削除されるのは、ほかのプラグインが必要としたためにインストールされたプラグインのうち、インストール済みのどのプラグインにも必要とされなくなったものだけです。Claude Code の `claude plugin prune` と同じです。自分でインストールしたプラグインが整理されることはなく、依存関係を自分でもう一度インストールすると、それは自分のものになります。ターミナルでは、Enconvo が削除するものを一覧表示して先に確認します。`-y` を付けるとその確認を省略できます。確認できない場合は、`--prune` に必要です。プラグインページのアンインストールは、まだ整理を行いません。
+
+## 自分で公開する
+
+Enconvo ストアにプラグインを掲載するには、[プラグインストアのガイドライン](/ja/extensions/publishing-guidelines) を参照してください。誰でもインストールできるリンクを送るには、プラグインのページで **共有…** をクリックします。[プラグインを共有する](/ja/extensions/overview) を参照してください。Enconvo を使わずに共有するには、GitHub またはマーケットプレイスにプッシュすると、**GitHub から追加…** または上記のコマンドでインストールできます。
+
+### リリースにタグを付ける
+
+`plugin tag` は、リリースするコミットに、`claude plugin tag` と同じ `<plugin>--v<version>` という名前の git タグを付けます。ほかのプラグインの依存関係がバージョンの範囲を求めると、Claude Code と Enconvo はこれらのタグから選び、誰でもそのリリースを Enconvo でインストールできます。たとえば `acme/plugins/notes@notes--v1.2.0` です。
+
+```sh
+npx -p @enconvo/api enconvo plugin tag plugins/notes --dry-run   # check, and print the git commands
+npx -p @enconvo/api enconvo plugin tag plugins/notes --push      # tag HEAD and push the tag to origin
+```
+
+バージョンは、プラグインのマニフェスト、またはマニフェストにない場合はそのマーケットプレイスのエントリから取得され、semver (`1.2.0`) である必要があります。タグを付ける前に、`plugin tag` は `plugin validate` と同じようにプラグインを検証し、マーケットプレイスのエントリが別のバージョンを示している場合、プラグインのフォルダ内のファイルがコミットされていない場合、またはそのタグがすでに存在する場合に停止します。新しいリリースではバージョンを上げてください。`--force` は、代わりに既存のタグを移動します。Codex、Claude Code、ポータブル、Enconvo のどのプラグインにもタグを付けられるため、パッケージが持つすべてのマニフェストが同じバージョンを示している必要があります。`-m` はタグのメッセージを設定し (`%s` がバージョンです)、`--remote` は `--push` のプッシュ先のリモートを設定します。`plugin install` と同様に、0.1.174 より新しい `@enconvo/api` のリリースが必要です。

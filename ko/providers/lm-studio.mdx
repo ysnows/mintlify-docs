@@ -1,0 +1,55 @@
+---
+title: "LM Studio"
+description: "Mac 또는 다른 컴퓨터에서 LM Studio가 제공하는 모델과 대화하세요."
+---
+
+LM Studio로 이 Mac이나 네트워크의 다른 컴퓨터, 즉 내 하드웨어에서 모델을 실행하세요. Enconvo는 채팅을 LM Studio 서버로 보내므로 제공업체 계정이 필요 없습니다.
+
+## 이 Mac에서 연결
+
+<Steps>
+  <Step title="LM Studio 시작">
+    [LM Studio](https://lmstudio.ai/)에서 모델을 로드하고 로컬 API 서버를 시작하세요.
+  </Step>
+  <Step title="Enconvo가 LM Studio를 가리키게 하기">
+    **설정 → AI 모델 → LM Studio**를 여세요. **인증**에서 LM Studio의 포트를 바꾸지 않았다면 **BaseUrl**을 `http://127.0.0.1:1234/v1`로 그대로 두세요.
+  </Step>
+  <Step title="모델 선택">
+    **모델 이름**에서 모델을 고르고 짧은 메시지를 보내세요. 답장이 오면 연결이 정상입니다.
+  </Step>
+</Steps>
+
+## 다른 컴퓨터에 연결
+
+1. 다른 컴퓨터에서 LM Studio가 자기 자신뿐 아니라 네트워크의 연결도 받도록 설정하세요.
+2. Enconvo에서 **BaseUrl**을 그 컴퓨터의 네트워크 주소로 지정하고, 포트와 경로는 그대로 두세요. `127.0.0.1`과 `localhost`는 언제나 Enconvo가 실행 중인 Mac을 뜻합니다.
+3. macOS가 연결을 막으면 **시스템 설정 → 개인정보 보호 및 보안 → 로컬 네트워크**에서 Enconvo를 켜세요.
+
+신뢰할 수 있는 네트워크에만 서버를 열어 두세요.
+
+## 모델과 옵션
+
+| 설정 | 기능 |
+| --- | --- |
+| **모델 이름** | 이 제공업체가 사용하는 모델입니다. 옆의 **새로고침**은 서버에서 목록을 다시 불러옵니다. |
+| **Response Timeout** | 서버가 답장을 시작하거나 이어 가기를 기다리는 시간입니다. 기본값은 **제한 없음**입니다. 내 하드웨어에서는 긴 프롬프트의 첫 단어가 나오기까지 몇 분씩 걸릴 수 있습니다. |
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| 연결이 거부됨 | LM Studio가 실행 중이고 **BaseUrl**의 주소와 포트가 맞는지 확인하세요. 다른 컴퓨터라면 네트워크 연결을 받도록 설정되어 있는지 확인하세요. |
+| 네트워크에 연결할 수 없음 | 네트워크와, 시스템 설정의 **로컬 네트워크** 권한을 확인하세요. |
+| 모델 목록이 비어 있음 | LM Studio에서 모델을 로드하거나 다운로드한 다음 **새로고침**을 클릭하세요. |
+| 답장이 중간에 끊김 | **Response Timeout**을 더 길게 설정하거나 **제한 없음**으로 설정하세요. |
+| 도구나 이미지가 실패함 | 도구 호출이나 이미지 입력을 지원하는 모델을 고르세요. |
+| 메모리 부족 | 더 작은 모델을 고르거나 입력을 줄이세요. |
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="로컬 모델" icon="microchip" href="/ko/ai/local-llm">채팅 모델만이 아니라 작업 전체를 Mac 안에서 처리합니다.</Card>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/ko/providers/mlx">서버 없이 Enconvo 안에서 모델을 실행합니다.</Card>
+  <Card title="Ollama" icon="server" href="/ko/providers/ollama">Ollama가 제공하는 모델을 사용합니다.</Card>
+  <Card title="권한" icon="shield" href="/ko/configuration/permissions">로컬 네트워크를 비롯한 macOS 권한입니다.</Card>
+</CardGroup>

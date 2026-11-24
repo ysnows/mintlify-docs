@@ -1,0 +1,160 @@
+---
+title: "MCP サーバー"
+description: "MCP サーバーを追加して、Enconvo のエージェントがそのツールを使えるようにします。設定、CLI、すでにある設定ファイル、インストールリンクから追加できます。"
+---
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) は、AI モデルが外部のツールやデータを使えるようにするオープンな標準です。各 MCP サーバーは、ファイルの読み取り、データベースへのクエリ、メッセージの送信など、エージェントが呼び出せるツールを提供します。Enconvo にサーバーを追加すると、タスクで必要になったときに、エージェントがそのツールを自分で使います。
+
+## 設定でサーバーを追加する
+
+<Steps>
+  <Step title="MCP サーバーを開く">
+    メニューバーの Enconvo アイコンから **設定** (**設定...**) を開くか、**⌘,** を押します。続いて **設定 → MCP サーバー** を開きます。
+  </Step>
+  <Step title="サーバーを追加する">
+    **サーバーを追加** をクリックし、**サーバー名** を入力します。トランスポートを選びます。Mac 上で実行するコマンドには **STDIO**、URL にあるサーバーには **HTTP** または **SSE** を選びます。フィールドを入力して **保存** をクリックします。
+  </Step>
+  <Step title="接続できたか確認する">
+    サーバーの横のドットが緑色になり、行にツールの数が表示されます。ツールの数をクリックすると、一覧が表示されます。
+  </Step>
+  <Step title="ツールを適用する場所を選ぶ">
+    サーバーの行のスイッチを使います。オン: アシスタントが返信を準備するたびに、Enconvo はどこでもそのサーバーのツールを含めます。オフ: どこでも読み込まれませんが、SmartBar からサーバーを追加したり、アプリのサイドバーで 1 つのアプリに対してオンにしたりできます。
+  </Step>
+</Steps>
+
+OAuth を使うサーバーは、初めて接続するときにサインインページが開きます。サーバーに **認証する** と表示されたら、それをクリックしてサインインを完了してください。接続済みのサーバーが、サインインで得たアクセスよりも多くのアクセスを求める場合は、**アクセスを許可** が表示されます。
+
+プラグインに付属するサーバーは、**プラグインから** に一覧表示されます。
+
+<Tip>
+設定のサイドバーは長くなっています。設定で **⌘F** を押して「MCP」と入力するとそのペインに移動できます。または、ディープリンク `enconvo://preference?pane=mcp_management` で開けます。
+</Tip>
+
+## CLI からサーバーを追加する
+
+```bash
+# Add a stdio server
+enconvo mcp add github --command npx --args "-y @modelcontextprotocol/server-github"
+
+# Add an HTTP server
+enconvo mcp add notion --transport http --url "https://mcp.notion.com/mcp"
+
+# List servers
+enconvo mcp servers list
+
+# List tools
+enconvo mcp tools list
+```
+
+## ほかのアプリからサーバーをインポートする
+
+Claude Desktop、Cursor、またはほかのツールですでに使っている MCP の設定を取り込めます。
+
+1. **設定 → MCP サーバー** で **インポート** をクリックします。
+2. **設定形式** で **Claude Desktop** または **Codex CLI** を選びます。
+3. **JSON 設定** に設定を貼り付けます。
+4. **インポート** をクリックします。その中のすべてのサーバーが追加されます。
+
+## MCP バンドルをインストールする
+
+MCP バンドルは、Mac 上で実行するサーバーをまとめた `.mcpb` ファイルです。**設定 → MCP サーバー** で **バンドルをインストール** をクリックし、ファイルを選びます。Finder で `.mcpb` ファイルを開いても、同じ場所に移動します。
+
+バンドルのサーバーは、あなたの権限で Mac 上で実行されるため、信頼できる相手のバンドルだけをインストールしてください。更新するには、新しい `.mcpb` ファイルをインストールします。
+
+## インストールリンクを共有する
+
+インストールリンクを使うと、ワンクリックで MCP サーバーを Enconvo に追加できます。形式は `mcp.json` と同じで、名前とトランスポートの設定で構成されます。
+
+```
+https://enconvo.com/mcp/install?name=$NAME&config=$BASE64_ENCODED_CONFIG
+```
+
+| 構成要素 | 説明 |
+|-----------|-------------|
+| `https://enconvo.com` | ウェブのインストールページ |
+| `/mcp/install` | パス |
+| `name` | サーバー名のクエリパラメータ |
+| `config` | base64 エンコードした JSON 設定のクエリパラメータ |
+
+ウェブページは `enconvo://` ディープリンクを開き、アプリが開かない場合に備えて、サーバーの設定を表示します。
+
+### リンクを作る
+
+1. サーバーの名前と JSON 設定を用意します。
+2. 設定を `JSON.stringify` してから、base64 エンコードします。
+3. `$NAME` と `$BASE64_ENCODED_CONFIG` を、名前とエンコードした設定に置き換えます。
+
+たとえば、次の設定では、
+
+```json Single MCP server config
+{
+  "exa": {
+    "url": "https://mcp.exa.ai/mcp"
+  }
+}
+```
+
+次のような結果になります。
+
+| 形式 | 例 |
+|--------|---------|
+| テキストリンク | `https://enconvo.com/mcp/install?name=exa&config=eyJ1cmwiOiJodHRwczovL21jcC5leGEuYWkvbWNwIn0=` |
+| ダークボタン | <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Enconvo に追加" height="44" /> |
+| ライトボタン | <img src="https://file.enconvo.com/badges/mcp-install-light.svg?v=20260628-adaptive-logo" alt="Enconvo に追加" height="44" /> |
+
+### README にボタンを追加する
+
+<CodeGroup>
+
+```markdown Markdown
+[![Add to Enconvo](https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo)](https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG)
+```
+
+```html HTML
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height="44" />
+</a>
+```
+
+```jsx JSX
+<a href="https://enconvo.com/mcp/install?name=your-server&config=BASE64_CONFIG">
+  <img src="https://file.enconvo.com/badges/mcp-install-dark.svg?v=20260628-adaptive-logo" alt="Add to Enconvo" height={44} />
+</a>
+```
+
+</CodeGroup>
+
+### リンクを開いたときの流れ
+
+1. リンクをクリックするか、ブラウザに貼り付けます。
+2. Enconvo が **MCP サーバー「name」を追加しますか?** と尋ね、サーバーが実行するもの、または接続先を表示します。**追加** をクリックします。
+3. **設定 → MCP サーバー** が開き、サーバーが追加されて接続が始まります。
+4. 接続されると、エージェントがそのツールを使えるようになります。
+
+## トラブルシューティング
+
+| 問題 | 対処 |
+| --- | --- |
+| サーバーが起動しない | コマンドと引数を確認してください。STDIO サーバーの場合は、プログラムがインストールされていて `PATH` にあることを確認します。Node.js サーバーの場合は、`npx` または `node` が使えることを確認します。 |
+| ツールが表示されない | サーバーのドットが緑色であることを確認してください。サーバーによっては、ツールを提供する前に API キーが必要です。サーバーをオフにして、もう一度オンにしてください。 |
+| サーバーに **認証する** と表示される | それをクリックし、開いたページでサインインを完了してください。 |
+| 認証エラー | API キーが正しく、期限が切れていないこと、サーバーに必要な環境変数が設定されていることを確認してください。 |
+
+MCP の完全な仕様については、[modelcontextprotocol.io](https://modelcontextprotocol.io) を参照してください。
+
+## 関連項目
+
+<CardGroup cols={2}>
+  <Card title="カスタム MCP サーバーを作成する" icon="code" href="/ja/advanced/mcp-advanced">
+    Enconvo 用の独自サーバーを作成します。
+  </Card>
+  <Card title="プラグイン" icon="puzzle-piece" href="/ja/extensions/overview">
+    プラグイン、コネクタ、スキルを探します。
+  </Card>
+  <Card title="アプリのサイドバー" icon="table-columns" href="/ja/features/app-sidebar">
+    1 つのアプリに対してサーバーのツールをオンにします。
+  </Card>
+  <Card title="CLI とローカル API" icon="terminal" href="/ja/advanced/cli-local-api">
+    ターミナルから Enconvo をスクリプトで操作します。
+  </Card>
+</CardGroup>

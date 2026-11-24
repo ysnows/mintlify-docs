@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatea con tus despliegues de Azure OpenAI en Enconvo."
+---
+
+Usa los modelos de OpenAI que tu organización despliega en Azure. Enconvo se comunica directamente con tu recurso de Azure, así que el acceso, las cuotas y la facturación dependen de tu suscripción de Azure.
+
+## Antes de empezar
+
+Necesitas un recurso de Azure OpenAI con al menos un despliegue de modelo. En el portal de Azure, copia la **clave** del recurso, su **endpoint** y el **nombre del despliegue** que le diste al modelo. Si aún no has configurado uno, consulta [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview).
+
+## Conectar
+
+<Steps>
+  <Step title="Añade la credencial">
+    Abre **Ajustes → Modelo de IA → Azure OpenAI**. En **Autenticación**, rellena **Clave de API**, **Endpoint** y **API Version**, y haz clic en **Validar**. El endpoint tiene este aspecto: `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Define el despliegue">
+    Escribe el nombre de tu despliegue en **Azure OpenAI Api Deployment Name**. Usa el nombre de tu recurso de Azure, que puede ser distinto del nombre del modelo.
+  </Step>
+  <Step title="Pruébalo">
+    Envía un mensaje corto. Si recibes respuesta, la conexión funciona.
+  </Step>
+</Steps>
+
+## Modelos y opciones
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | El despliegue al que llama este proveedor. |
+| **Streaming** | Muestra la respuesta a medida que se escribe. Activado de forma predeterminada; desactívalo si tu despliegue no admite streaming. |
+| **API Version** | En la credencial. El valor predeterminado es `2025-01-01-preview`. |
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| **Validar** falla | Comprueba que la clave y el **Endpoint** proceden del mismo recurso de Azure. |
+| No se encuentra el despliegue | Copia el nombre del despliegue exactamente como aparece en el portal de Azure. |
+| La respuesta nunca aparece | Desactiva **Streaming** y vuelve a intentarlo. |
+| Errores de límite o de cuota | Aumenta la cuota del despliegue en Azure, o cambia a otro proveedor por ahora. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/es/providers/openai">Usa en su lugar la API propia de OpenAI.</Card>
+  <Card title="Credenciales y perfiles" icon="key" href="/es/configuration/credentials">Mantén varias claves y consulta qué afecta una clave compartida.</Card>
+  <Card title="Elige un modelo" icon="list-check" href="/es/ai/model-selection-guide">Elige un modelo según la tarea y consulta dónde se definen los valores predeterminados.</Card>
+  <Card title="Catálogo de proveedores" icon="table" href="/es/providers/catalog">Todos los proveedores, agrupados por la función que habilitan.</Card>
+</CardGroup>

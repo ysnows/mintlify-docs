@@ -1,0 +1,107 @@
+---
+title: "Elige un modelo"
+description: "Elige un modelo para cada trabajo y descubre dónde se establece el modelo predeterminado de Enconvo."
+---
+
+No tienes que elegir: [Auto Route](/es/providers/auto-route), el modelo predeterminado, elige uno para cada mensaje. Cuando quieras un modelo concreto, esta página te ayuda a elegirlo y te muestra dónde se guarda la elección.
+
+## Elige según la tarea
+
+| Tarea | Busca |
+| --- | --- |
+| Reescrituras rápidas y respuestas cortas | Un modelo rápido y de bajo coste |
+| Trabajo de Agent de varios pasos | Llamadas a herramientas fiables y compatibilidad con razonamiento |
+| Preguntas sobre una captura de pantalla o una imagen | Entrada de imágenes |
+| Documentos largos | Una ventana de contexto larga |
+| Trabajo privado que se queda en tu Mac | Un [modelo local](/es/ai/local-llm), además de proveedores locales para los demás pasos |
+| Conversaciones de voz | [Live Talk](/es/features/live-voice), que tiene sus propios ajustes de voz |
+| Crear imágenes o vídeo | Un proveedor de [imágenes](/es/ai/image-generation) o de [vídeo](/es/ai/video-generation), no un modelo de chat |
+
+El selector de modelos muestra los modelos que tus proveedores ofrecen ahora mismo. Los modelos que admiten el modo Fast muestran un chip de modo Fast, que los ejecuta más rápido a un precio más alto.
+
+## Usa las recomendaciones
+
+Los selectores de modelos de Ajustes empiezan con tres sugerencias para ese tipo de trabajo: **El más adecuado**, **El más barato** y **Máxima calidad**. Cada una muestra un breve motivo y su precio por 1 M de tokens, de entrada y de salida. Bajo el ajuste, una línea te avisa cuando el modelo que elegiste cuesta muchas veces más que el recomendado.
+
+Cuando creas un Agent en **Nuevo agente**, Enconvo lee la descripción del Agent y sugiere un modelo, con uno más barato y otro más potente a su lado. Haz clic en uno para usarlo.
+
+## Dónde se establece el predeterminado
+
+- **Un chat nuevo**: el modelo que eliges en un **Nuevo chat** de nivel superior pasa a ser el predeterminado del Agent.
+- **Un proyecto**: un chat nuevo dentro de un proyecto usa el modelo propio del proyecto.
+- **Un chat existente**: una vez que un chat empieza, conserva su modelo y su esfuerzo de razonamiento hasta que los cambias en ese chat.
+- **Chats sin elección propia y canales de mensajería instantánea**: siguen el predeterminado del Agent.
+
+Después de cambiar un predeterminado en otro lugar, comprueba el modelo que se muestra en el chat antes de enviar.
+
+## Esfuerzo de razonamiento
+
+El esfuerzo de razonamiento establece cuánto tiempo piensa un modelo antes de responder. Un esfuerzo mayor puede dar mejores respuestas a problemas difíciles, pero tarda más y usa más tokens. Los niveles dependen del modelo; un modelo sin modo de pensamiento no tiene ajuste de esfuerzo.
+
+## Ventana de contexto
+
+La ventana de contexto es cuánto de una conversación lee el modelo de una vez. Cuando un chat la supera, Enconvo compacta la parte anterior. Los modelos Claude que pueden admitir hasta 1 M de tokens empiezan en 500 K, así que los chats largos se compactan antes y cuestan menos.
+
+Para cambiar la ventana de contexto de un modelo, abre el proveedor en **Ajustes → Modelo de IA**, haz clic en **Gestionar modelos** (el engranaje junto a **Nombre del modelo**), edita el modelo y establece **Ventana de contexto**.
+
+## Elige los modelos para tareas en segundo plano
+
+Los trabajos pequeños se ejecutan en segundo plano en un modelo barato: títulos de chats, sugerencias del siguiente mensaje, Live Talk, títulos y resúmenes de grabaciones, traducción de grabaciones y títulos de ideas. De forma predeterminada, cada uno está en **Automático**, que usa un modelo pequeño:
+
+- Los títulos de chats, las sugerencias del siguiente mensaje y Live Talk usan un modelo pequeño del proveedor propio del chat. Un chat con tu propia clave de API no gasta puntos de Enconvo Cloud en ellos.
+- Las grabaciones y los títulos de ideas usan un modelo pequeño de tu proveedor predeterminado.
+- Cuando el proveedor no tiene ningún modelo pequeño que Enconvo conozca, Automático usa el modelo del chat o tu modelo predeterminado.
+
+Para elegir un modelo tú mismo:
+
+<Steps>
+  <Step title="Abre Task models">
+    Abre **Ajustes → Modelo de IA** y haz clic en **Task models** en la parte superior de la página.
+  </Step>
+  <Step title="Elige una tarea">
+    Haz clic en una tarea. **Automático** muestra qué modelo elige para cada proveedor.
+  </Step>
+  <Step title="Elige un modelo">
+    Haz clic en **Elige un modelo**, elige un proveedor y luego un modelo.
+  </Step>
+</Steps>
+
+Desactiva el interruptor junto a **Sugerencias del siguiente mensaje** para dejar de sugerir tu siguiente mensaje después de cada respuesta. **Reset all to Auto** devuelve todas las tareas a **Automático**.
+
+## Mantén los chats en marcha con modelos de respaldo
+
+El respaldo mantiene una respuesta en marcha cuando no se puede usar su modelo, por ejemplo cuando alcanza un límite de uso, pierde su inicio de sesión o su clave, o no se puede acceder a él. La respuesta continúa en tu siguiente modelo de respaldo, y el chat indica qué modelo tomó el relevo y por qué.
+
+<Steps>
+  <Step title="Abre Respaldo">
+    Abre **Ajustes → Modelo de IA** y haz clic en **Respaldo** en la parte superior de la página.
+  </Step>
+  <Step title="Añade respaldos">
+    Haz clic en **Añadir modelo de respaldo** y elige un modelo. Puedes añadir hasta tres y arrastrarlos para cambiar el orden.
+  </Step>
+  <Step title="Establece el esfuerzo de cada respaldo">
+    Para un modelo con niveles de razonamiento, elige su **Esfuerzo de razonamiento**. Cada respaldo conserva el suyo.
+  </Step>
+</Steps>
+
+El panel muestra la cadena tal como funciona: primero **El modelo en uso**, luego tus respaldos numerados, cada uno marcado como **Listo** o **En pausa**. Haz clic en el nombre del modelo de un respaldo para cambiarlo a otro modelo de ese proveedor. En la lista de proveedores, cada proveedor que tiene un respaldo muestra una etiqueta **backup N** con su lugar en la cadena.
+
+| Ajuste | Qué hace |
+| --- | --- |
+| **Cambiar también cuando el servicio esté saturado** | También cambia ante límites de velocidad y errores del servidor, una vez agotados los reintentos. |
+| **Volver cuando el modelo funcione de nuevo** | Devuelve el chat a su propio modelo a partir del siguiente turno una vez que ese modelo funciona, nunca a mitad de un turno. |
+
+Una solicitud rechazada por una política de seguridad nunca cambia de modelo.
+
+## Compara dos modelos
+
+Envía la misma tarea real y pequeña a ambos. Comprueba que la respuesta es correcta, que las herramientas terminaron, cuánto tardó y cuánto costó. **Detalles** bajo cada respuesta muestra el modelo, el esfuerzo, los tokens, el tiempo y los puntos o el coste.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Auto Route" icon="route" href="/es/providers/auto-route">Deja que Enconvo elija el modelo para cada mensaje.</Card>
+  <Card title="Proveedores" icon="plug" href="/es/providers/overview">Conecta Enconvo Cloud, tus claves o tus planes.</Card>
+  <Card title="Modelos locales" icon="microchip" href="/es/ai/local-llm">Ejecuta modelos en tu Mac.</Card>
+  <Card title="Precios de Cloud" icon="receipt" href="https://www.enconvo.com/cloud-pricing">Puntos por modelo en Enconvo Cloud.</Card>
+</CardGroup>

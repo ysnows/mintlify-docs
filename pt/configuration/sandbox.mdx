@@ -1,0 +1,85 @@
+---
+title: "Sandbox do Agente"
+description: "Mantenha os comandos de um Agente na sua pasta de trabalho, longe das suas chaves e de outras aplicações, e veja porque é que o Enconvo pergunta antes de um comando ser executado."
+---
+
+A Sandbox limita o que os comandos de shell de um Agente podem alcançar. Com ela ativa, um comando só pode alterar a pasta de trabalho do chat e a pasta temporária, e o macOS impede-o de ler as suas chaves, controlar outras aplicações ou ligar-se ao Enconvo. Ative-a para um Agente que executa comandos que não quer acompanhar um a um.
+
+A Sandbox funciona em conjunto com o Modo de permissões do Agente. O modo decide quando o Enconvo pergunta antes de uma ação; a Sandbox limita o que um comando pode fazer depois de ser executado.
+
+## Ativar a Sandbox
+
+1. Abra um chat com o Agente na Janela de chat, na SmartBar, na Dynamic Island, na Barra lateral da aplicação ou no chat principal de um Projeto.
+2. Clique no chip **Permissões** junto ao modo de execução.
+3. Ative a **Sandbox**.
+
+O interruptor pertence ao Agente, por isso aplica-se em todas as janelas em que utiliza esse Agente. Os Agentes que ele chama também executam os seus comandos na Sandbox.
+
+Para ver o que a Sandbox permite que os comandos do Agente alcancem, clique em **Como funciona a sandbox** por baixo do interruptor. Mostra a Sandbox do próprio Agente: a sua pasta de trabalho, o seu Modo de permissões e cada local que um comando pode ou não alcançar.
+
+## O que um comando na Sandbox pode alcançar
+
+| Local | Dentro da Sandbox |
+| --- | --- |
+| A pasta de trabalho e a pasta temporária | Pode ler e alterar |
+| Os seus outros ficheiros | Pode ler, não pode alterar |
+| A Internet | Pode ligar-se |
+| Chaves e palavras-passe, como chaves SSH, porta-chaves e cookies | Não pode ler |
+| Credenciais guardadas e definições do Enconvo | Não pode ler |
+| Outras aplicações | Não pode abri-las nem controlá-las |
+| Enconvo | Não pode ligar-se a ele |
+
+Todos os programas que um comando inicia também são executados dentro da Sandbox. O Enconvo utiliza a sandbox do próprio macOS, a mesma que as aplicações da App Store utilizam.
+
+## Quando a Sandbox impede um comando
+
+Quando um comando tenta alcançar algo que a Sandbox lhe veda, o macOS recusa, e uma linha por baixo do passo indica o que foi impedido, como uma escrita numa pasta ou a leitura de um ficheiro de chaves.
+
+1. Clique na linha para ver o que foi impedido e porquê.
+2. Para deixar o comando fazê-lo, clique em **Executar fora**. O comando é executado uma vez com o seu acesso total e aparece depois no chat como qualquer outro comando. Nada é memorizado.
+
+**Executar fora** só é oferecido enquanto a execução decorre e alguém a está a acompanhar. As tarefas agendadas e outras execuções que ninguém acompanha nunca executam um comando fora da Sandbox.
+
+## Porque é que o Enconvo pergunta antes de um comando
+
+O Modo de permissões do Agente decide o que pergunta, com ou sem a Sandbox. Consulte [Aprovar ações](/pt/ai/agents).
+
+| Modo | Com a Sandbox ativa |
+| --- | --- |
+| **Pedir aprovação** | Todos os comandos continuam a perguntar antes de serem executados. A Sandbox limita o que um comando que permite pode fazer. |
+| **Aprovar por mim** | Os comandos são executados sem perguntar, exceto os arriscados, como eliminar ficheiros ou publicar. |
+| **Acesso total** | Os comandos são executados sem perguntar. Só perguntam as alterações que possam prejudicar o seu computador. |
+
+O Enconvo lê cada comando por partes, por isso um passo prejudicial escondido num comando entre aspas, aninhado, encadeado ou com pipes continua a perguntar, e os inofensivos, como um echo ou listar uma pasta, não perguntam.
+
+Mesmo em **Acesso total**, o Enconvo pergunta com **Permitir uma vez** e **Recusar** antes de uma alteração que possa prejudicar o seu computador, como eliminar uma pasta crítica, editar os ficheiros de arranque da shell ou as chaves SSH, ou ler palavras-passe guardadas, qualquer que seja a forma como o comando escreve o caminho.
+
+Com **Aprovar por mim**, um comando que as regras não conseguem avaliar é verificado em função do que pediu. Quando não esperaria que fosse executado por si só, o Enconvo pergunta-lhe e indica o motivo.
+
+Cada cartão de aprovação nomeia a definição que fez com que perguntasse, como "Perguntou porque este Projeto está em Aprovar por mim."
+
+## Outras ações que perguntam
+
+- A [Utilização do computador](/pt/features/computer-use) pergunta antes de um atalho de teclado que elimina, envia, paga, fecha uma aplicação ou termina sessão, tal como faz com os cliques.
+- Um comando que chama as rotas próprias da página de um plugin pergunta primeiro.
+- Aprovar a ferramenta de um plugin mostra o que a ferramenta está prestes a enviar.
+- Um Agente pergunta antes de ligar ou enviar mensagens aos seus [amigos](/pt/features/friends) e colegas de equipa, exceto em **Acesso total**, onde não pergunta.
+- Um Agente não pode responder aos seus próprios cartões de aprovação, aumentar as suas próprias Permissões nem responder a um cartão destinado a si, como a instalação de um plugin ou o limite de pontos.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Um comando falha com um erro de permissão | A Sandbox pode tê-lo impedido. Clique na linha por baixo do passo e depois em **Executar fora** se confiar no comando. |
+| O Agente não consegue abrir nem controlar uma aplicação a partir de um comando | Os comandos na Sandbox não podem controlar outras aplicações. Utilize a [Utilização do computador](/pt/features/computer-use) ou desative a Sandbox para este Agente. |
+| Esperava que o Enconvo perguntasse e não perguntou | Verifique o Modo de permissões do Agente no chip **Permissões**. O **Acesso total** só pergunta antes de alterações que possam prejudicar o seu computador. |
+| O interruptor **Sandbox** não aparece | Verifique se o chat está no modo Agente e atualize o Enconvo. Consulte [Atualizações](/pt/configuration/updates). |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">Modos de permissões e cartões de aprovação.</Card>
+  <Card title="Code Runner" icon="terminal" href="/pt/ai/code-runner">Como um Agente executa comandos de shell.</Card>
+  <Card title="Privacidade e segurança" icon="shield-halved" href="/pt/configuration/privacy-security">Para onde vão os seus dados e como os controlar.</Card>
+  <Card title="Permissões do macOS" icon="shield" href="/pt/configuration/permissions">O acesso que o macOS concede ao próprio Enconvo.</Card>
+</CardGroup>

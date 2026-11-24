@@ -1,0 +1,210 @@
+---
+title: "Розробка розширень"
+description: "Створіть плагін Enconvo з командою на TypeScript і маршрутом Local API, спробуйте його в застосунку та опублікуйте в магазині плагінів."
+---
+
+Цей посібник призначений для розробників, які хочуть додати до Enconvo власні команди. Ви створюєте плагін з однією командою й одним маршрутом Local API, збираєте його в Enconvo, тестуєте та публікуєте в магазині плагінів.
+
+Плагін Enconvo — це пакет ESM із метаданими в `package.json`, командами в `src/` і необов’язковими маршрутами API в `src/api/`. Команди виконуються через середовище виконання розширень Enconvo; команда плагіна — це функція, експортована за замовчуванням, а не клас, що реалізує інтерфейс `Command`.
+
+## Перш ніж почати
+
+Вам потрібні Node.js 18 або новіша версія, npm чи інший менеджер пакетів і Enconvo, запущений на вашому Mac.
+
+## Швидкий старт
+
+Створіть проєкт плагіна в новій теці:
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+Проєкт містить одну команду (**Привітатися**), один маршрут Local API, піктограму-заглушку та README. `npm run dev` збирає плагін в Enconvo й перезбирає його щоразу, коли ви зберігаєте зміни. Знайдіть в Enconvo **Привітатися**, щоб запустити його.
+
+Назва плагіна береться з назви теки. Передайте `--name`, `--title`, `--description` або `--author`, щоб задати їх самостійно. Виберіть назву, яку ще не використовує жоден плагін, установлений в Enconvo, бо збирання замінює файли встановленого плагіна; `plugin create` відхиляє такі назви.
+
+Щоб створити плагін, який також установлюється в Codex і Claude Code, почніть натомість із `--template skills` (навичка) або `--template mcp` (сервер MCP). Про ці пакети див. [Plugin Formats](/extensions/plugin-formats), а щоб спробувати будь-який плагін із теки, GitHub або маркетплейсу, див. [Встановлення плагінів](/uk/extensions/installing-plugins).
+
+<Note>
+`plugin create`, `plugin validate` і публікація на розгляд потребують випуску `@enconvo/api` новішого за 0.1.173. Якщо у вашій версії їх немає, налаштуйте проєкт уручну, як описано нижче.
+</Note>
+
+## Налаштування проєкту вручну
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+Створіть `package.json`:
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+Перший елемент у `categories` визначає розділ, у якому плагін з’являється на сторінці Плагіни та в магазині: Productivity, Communication, Developer Tools, Data & Analytics, Finance, Creativity, Business & Operations, Education & Research або Security.
+
+Установіть SDK, а інструменти збирання — як залежності для розробки:
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build` компілює ваш код власним `tsup` плагіна. Без нього збиранню нічим компілювати; новіші SDK зупиняються з помилкою, а старіші завершуються без збирання ваших команд.
+
+Створіть `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+Покладіть квадратну піктограму у форматі PNG, JPEG, WebP або GIF розміром до 5 МБ у `assets/icon.png`.
+
+## Додайте команду
+
+`commands[].name` відповідає назві вихідного файлу. Помістіть це в `src/hello.ts`:
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+Ключ команди — `hello_enconvo|hello`. Параметри середовища виконання та параметри запиту об’єднуються в тілі запиту.
+
+## Додайте маршрут Local API
+
+Файли в `src/api/` виявляються під час збирання й не потребують запису в `commands[]`. Помістіть це в `src/api/echo.ts`:
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+Це стає `hello_enconvo/echo`. Каталог на кшталт `src/api/items/list.ts` стає `hello_enconvo/items/list`. Точні форми запитів дивіться в установлених [схемах Local API](/uk/advanced/cli-local-api).
+
+## Збирання й тестування
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+Збирайте з каталогу плагіна. Успішне збирання закінчується рядком `ready - built extension successfully`. Якщо виводиться рядок `error`, виправте те, що він називає, і зберіть ще раз. Режим розробки стежить за файлами й перезбирає їх. Схеми API генеруються в каталозі `skills/` плагіна.
+
+Викличте маршрут, поки Enconvo запущено:
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+Перш ніж ділитися плагіном, перевірте привітання та некоректний ввід API. Саме по собі успішне збирання не перевіряє нативні операції чи кожен виклик провайдера.
+
+## Публікація в магазині плагінів
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### Перевірте плагін
+
+`plugin validate` перевіряє плагін на відповідність правилам магазину, нічого не вивантажуючи; [Validation Codes](/extensions/validation-codes) пояснює кожну повідомлену ним проблему. Після збирання він також показує, скільки файлів міститиме пакет і які файли буде виключено. Він перевіряє, що:
+
+- назва містить лише літери, цифри, крапки, дефіси та підкреслення
+- `version` має вигляд `1.2.3`
+- у плагіна є назва
+- піктограма — це PNG, JPEG, WebP або GIF розміром до 5 МБ
+
+Можна додати до 8 знімків екрана в теку `metadata/`; сторінка плагіна в магазині показує їх під описом у порядку назв файлів.
+
+### Вивантажте його на розгляд
+
+`plugin publish` збирає плагін і вивантажує його з обліковим записом Enconvo, у який ви ввійшли, тож Enconvo має бути запущено, а вхід виконано. Enconvo розглядає кожну версію, перш ніж вона з’явиться в магазині. Поки новий плагін не схвалено, його бачите лише ви; поки оновлення на розгляді, магазин і далі пропонує попередню версію.
+
+Збільшуйте `version` у `package.json` для кожного оновлення. Перш ніж щось збирати, `plugin publish` запитує в магазину, яку версію він випустив, і зупиняється з наступною версією для використання, якщо ваша не вища. Версію, яка на розгляді або була відхилена, можна подати знову як є; нове вивантаження її замінює.
+
+Пакет створюється зі зібраного плагіна. Файли `.env`, `node_modules`, теки керування версіями та архіви `.zip` виключаються, але перевірте, що в нього не потрапили інші облікові дані чи приватні файли.
+
+Рецензенти дотримуються [Plugin Store Guidelines](/uk/extensions/publishing-guidelines). Додайте до `package.json` об’єкт `review` із запитами, які вони мають спробувати, а дані для входу в демонстраційний обліковий запис передайте через `--review-notes`; їх бачать лише рецензенти.
+
+## Наступні кроки
+
+<CardGroup cols={2}>
+  <Card title="Плагіни моделей ШІ та голосів" icon="microchip" href="/extensions/provider-plugins">
+    Додайте власну модель ШІ або голос синтезу мовлення до засобів вибору Enconvo
+  </Card>
+  <Card title="Довідник API розширень" icon="book" href="/extensions/extension-api-reference">
+    Будівельні блоки SDK
+  </Card>
+  <Card title="Формати плагінів" icon="box" href="/extensions/plugin-formats">
+    Плагіни навичок і MCP, які також установлюються в Codex і Claude Code
+  </Card>
+  <Card title="Робочі процеси" icon="diagram-project" href="/uk/workflows/introduction">
+    Багаторазові багатокрокові процеси, яким не потрібен плагін
+  </Card>
+</CardGroup>

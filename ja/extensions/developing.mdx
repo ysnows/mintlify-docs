@@ -1,0 +1,210 @@
+---
+title: "拡張機能の開発"
+description: "TypeScript のコマンドと Local API のルートを持つ Enconvo プラグインを作成し、アプリで試して、プラグインストアに公開します。"
+---
+
+このガイドは、Enconvo に独自のコマンドを追加したい開発者向けです。コマンドと Local API のルートを 1 つずつ持つプラグインを作成し、Enconvo にビルドして、テストし、プラグインストアに公開します。
+
+Enconvo のプラグインは ESM パッケージで、メタデータを `package.json` に、コマンドを `src/` の下に、任意の API ルートを `src/api/` の下に置きます。コマンドは Enconvo の拡張機能ランタイムを通して実行されます。プラグインのコマンドは、`Command` インターフェースを実装するクラスではなく、デフォルトエクスポートされた関数です。
+
+## 始める前に
+
+Node.js 18 以降、npm などのパッケージマネージャー、そして Mac で Enconvo が起動していることが必要です。
+
+## クイックスタート
+
+新しいフォルダーにプラグインのプロジェクトを作成します。
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+プロジェクトには、コマンド（**Say Hello**）が 1 つ、Local API のルートが 1 つ、仮のアイコン、README が含まれます。`npm run dev` はプラグインを Enconvo にビルドし、保存のたびに再ビルドします。Enconvo で **Say Hello** を検索して実行します。
+
+プラグイン名はフォルダー名から付けられます。自分で指定するには、`--name`、`--title`、`--description`、`--author` を渡します。ビルドするとインストール済みのプラグインのファイルが置き換わるため、Enconvo にインストール済みのプラグインが使っていない名前を選んでください。`plugin create` は、そのような名前を拒否します。
+
+Codex や Claude Code にもインストールできるプラグインを作るには、代わりに `--template skills`（スキル）または `--template mcp`（MCP サーバー）から始めます。これらのパッケージについては[プラグインの形式](/extensions/plugin-formats)を、フォルダー、GitHub、マーケットプレイスからプラグインを試す方法は[プラグインのインストール](/ja/extensions/installing-plugins)をご覧ください。
+
+<Note>
+`plugin create`、`plugin validate`、レビュー用の公開には、0.1.173 より新しい `@enconvo/api` のリリースが必要です。お使いのバージョンにこれらがない場合は、以下の説明に従って手動でプロジェクトをセットアップしてください。
+</Note>
+
+## プロジェクトを手動でセットアップする
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+`package.json` を作成します。
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+`categories` の最初の項目が、プラグインページとストアでプラグインが表示されるセクションを決めます。Productivity、Communication、Developer Tools、Data & Analytics、Finance、Creativity、Business & Operations、Education & Research、Security のいずれかです。
+
+SDK をインストールし、ビルドツールを開発依存としてインストールします。
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build` は、プラグイン自身の `tsup` でコードをコンパイルします。これがないと、ビルドにコンパイルする手段がありません。新しい SDK ではエラーで停止し、古い SDK ではコマンドをビルドせずに終了します。
+
+`tsconfig.json` を作成します。
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+5 MB 以下の正方形の PNG、JPEG、WebP、GIF のアイコンを `assets/icon.png` に置きます。
+
+## コマンドを追加する
+
+`commands[].name` は、ソースのファイル名と一致します。次の内容を `src/hello.ts` に置きます。
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+コマンドキーは `hello_enconvo|hello` です。ランタイムの環境設定とリクエストパラメーターは、リクエストボディにマージされます。
+
+## Local API のルートを追加する
+
+`src/api/` のファイルはビルド中に検出され、`commands[]` のエントリは不要です。次の内容を `src/api/echo.ts` に置きます。
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+これは `hello_enconvo/echo` になります。`src/api/items/list.ts` のようなディレクトリは `hello_enconvo/items/list` になります。正確なリクエストの形については、インストール済みの [Local API スキーマ](/ja/advanced/cli-local-api)を使ってください。
+
+## ビルドとテスト
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+プラグインのディレクトリからビルドします。ビルドが成功すると、最後に `ready - built extension successfully` と表示されます。`error` の行が表示された場合は、示された内容を修正して、もう一度ビルドします。開発モードはファイルを監視して再ビルドします。API スキーマは、プラグインの `skills/` ディレクトリに生成されます。
+
+Enconvo が起動している間に、ルートを呼び出します。
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+プラグインを共有する前に、あいさつと、無効な API 入力をテストしてください。ビルドが成功しただけでは、ネイティブ操作やすべてのプロバイダー呼び出しはテストされません。
+
+## プラグインストアに公開する
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### プラグインを確認する
+
+`plugin validate` は、何もアップロードせずに、ストアのルールに照らしてプラグインを確認します。報告される各問題については、[検証コード](/extensions/validation-codes)で説明しています。ビルドのあとには、パッケージに含まれるファイル数と、除外されるファイルも表示されます。次の点を確認します。
+
+- 名前に、英字、数字、ドット、ダッシュ、アンダースコアのみが使われていること
+- `version` が `1.2.3` の形式であること
+- プラグインにタイトルがあること
+- アイコンが、5 MB 以下の PNG、JPEG、WebP、GIF であること
+
+`metadata/` フォルダーにスクリーンショットを最大 8 枚追加できます。ストアのプラグインのページでは、説明の下にファイル名順で表示されます。
+
+### レビュー用にアップロードする
+
+`plugin publish` はプラグインをビルドし、サインインしている Enconvo アカウントでアップロードします。そのため、Enconvo が起動していて、サインインしている必要があります。Enconvo は、すべてのバージョンをレビューしてからストアに掲載します。新しいプラグインが承認されるまでは、自分だけが見られます。アップデートのレビュー中は、ストアは以前のバージョンを提供し続けます。
+
+アップデートのたびに、`package.json` の `version` を上げてください。`plugin publish` は、何かをビルドする前に、ストアが公開したバージョンを問い合わせ、指定したバージョンがそれより高くない場合は、次に使うバージョンを示して停止します。レビュー中、または却下されたバージョンは、そのまま再提出できます。新しいアップロードがそれを置き換えます。
+
+パッケージは、ビルド済みのプラグインから作られます。`.env` ファイル、`node_modules`、バージョン管理のフォルダー、`.zip` アーカイブは除外されますが、他の認証情報や非公開のファイルが含まれていないか確認してください。
+
+レビュー担当者は、[プラグインストアのガイドライン](/ja/extensions/publishing-guidelines)に従います。`package.json` に、試してほしいプロンプトを入れた `review` オブジェクトを追加し、デモアカウントのサインイン情報は `--review-notes` で渡してください。これらはレビュー担当者にのみ表示されます。
+
+## 次のステップ
+
+<CardGroup cols={2}>
+  <Card title="AI モデルと音声のプラグイン" icon="microchip" href="/extensions/provider-plugins">
+    Enconvo のピッカーに、独自の AI モデルやテキスト読み上げの音声を追加します
+  </Card>
+  <Card title="拡張機能 API リファレンス" icon="book" href="/extensions/extension-api-reference">
+    SDK の構成要素
+  </Card>
+  <Card title="プラグインの形式" icon="box" href="/extensions/plugin-formats">
+    Codex や Claude Code にもインストールできる、スキルと MCP のプラグイン
+  </Card>
+  <Card title="ワークフロー" icon="diagram-project" href="/ja/workflows/introduction">
+    プラグイン不要で使える、再利用可能な複数ステップのプロセス
+  </Card>
+</CardGroup>

@@ -1,0 +1,50 @@
+---
+title: "Azure OpenAI"
+description: "Chatte in Enconvo mit deinen Azure-OpenAI-Deployments."
+---
+
+Nutze die OpenAI-Modelle, die deine Organisation in Azure bereitstellt. Enconvo spricht direkt mit deiner Azure-Ressource, daher richten sich Zugriff, Kontingente und Abrechnung nach deinem Azure-Abonnement.
+
+## Bevor du beginnst
+
+Du brauchst eine Azure-OpenAI-Ressource mit mindestens einem Modell-Deployment. Kopiere im Azure-Portal den **Schlüssel** der Ressource, ihren **Endpunkt** und den **Deployment-Namen**, den du dem Modell gegeben hast. Siehe [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), falls du noch keine eingerichtet hast.
+
+## Verbinden
+
+<Steps>
+  <Step title="Zugangsdaten hinzufügen">
+    Öffne **Einstellungen → KI-Modell → Azure OpenAI**. Fülle unter **Authentifizierung** **API-Schlüssel**, **Endpoint** und **API Version** aus und klicke dann auf **Validieren**. Der Endpunkt sieht so aus: `https://<resource>.cognitiveservices.azure.com/`.
+  </Step>
+  <Step title="Deployment festlegen">
+    Gib deinen Deployment-Namen in **Azure OpenAI Api Deployment Name** ein. Verwende den Namen aus deiner Azure-Ressource, der sich vom Namen des Modells unterscheiden kann.
+  </Step>
+  <Step title="Testen">
+    Sende eine kurze Nachricht. Kommt eine Antwort, funktioniert die Verbindung.
+  </Step>
+</Steps>
+
+## Modelle und Optionen
+
+| Einstellung | Was sie bewirkt |
+| --- | --- |
+| **Azure OpenAI Api Deployment Name** | Das Deployment, das dieser Anbieter aufruft. |
+| **Streaming** | Zeigt die Antwort an, während sie geschrieben wird. Standardmäßig an; schalte es aus, wenn dein Deployment kein Streaming unterstützt. |
+| **API Version** | In den Zugangsdaten. Der Standard ist `2025-01-01-preview`. |
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| **Validieren** schlägt fehl | Prüfe, ob Schlüssel und **Endpoint** aus derselben Azure-Ressource stammen. |
+| Das Deployment wird nicht gefunden | Kopiere den Deployment-Namen exakt aus dem Azure-Portal. |
+| Die Antwort erscheint nie | Schalte **Streaming** aus und versuche es erneut. |
+| Fehler wegen Rate oder Kontingent | Erhöhe das Kontingent des Deployments in Azure oder wechsle vorerst zu einem anderen Anbieter. |
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="OpenAI" icon="robot" href="/de/providers/openai">Nutze stattdessen die eigene API von OpenAI.</Card>
+  <Card title="Zugangsdaten und Profile" icon="key" href="/de/configuration/credentials">Behalte mehrere Schlüssel und sieh, was ein gemeinsamer Schlüssel betrifft.</Card>
+  <Card title="Modell auswählen" icon="list-check" href="/de/ai/model-selection-guide">Wähle ein Modell nach Aufgabe und sieh, wo Standards festgelegt werden.</Card>
+  <Card title="Anbieterkatalog" icon="table" href="/de/providers/catalog">Alle Anbieter, gruppiert nach der Funktion, die sie antreiben.</Card>
+</CardGroup>

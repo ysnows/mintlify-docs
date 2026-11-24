@@ -1,0 +1,54 @@
+---
+title: "OpenAI"
+description: "在 Enconvo 中使用 OpenAI API 金鑰或你的 ChatGPT 方案與 OpenAI 模型聊天。"
+---
+
+在聊天、代理程式和 AI 指令中使用 OpenAI 的 GPT 模型。你可以用 OpenAI API 金鑰連接（OpenAI 依每次請求計費），也可以登入你的 ChatGPT 方案並使用其額度。
+
+## 連接
+
+<Steps>
+  <Step title="取得 API 金鑰">
+    在 [OpenAI 平台](https://platform.openai.com/api-keys)建立金鑰。
+  </Step>
+  <Step title="加入 Enconvo">
+    開啟**設定 → AI 模型 → OpenAI**。在**身分驗證**下選擇 **API 金鑰**，貼上金鑰，然後按一下**驗證**。
+  </Step>
+  <Step title="選擇模型">
+    在**模型名稱**中選擇一個模型，並傳送一則簡短訊息。收到回覆就代表連線成功。
+  </Step>
+</Steps>
+
+<Tip>
+有 ChatGPT 方案嗎？請改在**身分驗證**下選擇 **ChatGPT Subscription**，然後按一下**連接**。請參閱 [ChatGPT Subscription](/zh-hant/providers/openai_subscription)。
+</Tip>
+
+若要另外保存第二把 OpenAI 金鑰（例如工作用的金鑰），請按一下**新增供應商**並建立另一個設定檔。
+
+## 模型與選項
+
+| 設定 | 作用 |
+| --- | --- |
+| **模型名稱** | 此供應商使用的模型。旁邊的**重新整理**會重新載入清單；**管理模型**（齒輪圖示）可新增或還原模型。 |
+| **API Type** | 位於憑證中。可選 **Responses API**（預設）或 **Completions API**。除非相容服務需要 Completions，否則請維持 Responses。 |
+| **API 基礎網址** | 位於憑證中。預設為 `https://api.openai.com/v1`。僅在使用與 OpenAI 相容的服務時才需要更改。 |
+
+同一個 OpenAI 設定檔也供 OpenAI 的嵌入、文字轉語音、圖片生成和語音轉寫使用，因此更改它的金鑰也會影響這些功能。若只想在某個聊天中使用不同的模型，請從該聊天的模型選擇器中選取。
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| **驗證**失敗 | 重新貼上完整的金鑰，並確認它在 OpenAI 平台上已啟用且已設定付款方式。 |
+| 找不到某個模型 | 按一下**模型名稱**旁的**重新整理**。若要自行新增模型，請使用**管理模型**。 |
+| 相容服務無法使用 | 檢查 **API 基礎網址**，然後試著把 **API Type** 改為 **Completions API**。 |
+| 出現速率或用量限制錯誤 | 到 OpenAI 平台檢查用量與限制，或暫時改用其他供應商。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="ChatGPT Subscription" icon="user-check" href="/zh-hant/providers/openai_subscription">使用你的 ChatGPT 方案，而不是 API 金鑰。</Card>
+  <Card title="憑證與設定檔" icon="key" href="/zh-hant/configuration/credentials">保存多把金鑰，並了解共用金鑰會影響哪些功能。</Card>
+  <Card title="選擇模型" icon="list-check" href="/zh-hant/ai/model-selection-guide">依任務挑選模型，並查看預設值的設定位置。</Card>
+  <Card title="供應商目錄" icon="table" href="/zh-hant/providers/catalog">所有供應商，依其提供的功能分組。</Card>
+</CardGroup>

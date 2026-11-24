@@ -1,0 +1,521 @@
+---
+title: "Competenze"
+description: "Insegna agli Agenti di Enconvo un compito ripetibile con una competenza: istruzioni, riferimenti e script facoltativi in un'unica cartella."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Una competenza racchiude istruzioni, risorse e script facoltativi, così Enconvo può seguire un flusso di lavoro in modo affidabile. Creane una quando continui a spiegare la stessa procedura, come il modo di rivedere il codice o di formattare gli appunti di una riunione. Puoi condividere le competenze con il tuo team o con la community.
+
+<Note>
+Le competenze usano la **divulgazione progressiva** per gestire il contesto in modo efficiente: Enconvo parte dai metadati di ogni competenza (nome, descrizione, percorso del file). Le istruzioni complete vengono caricate solo quando una competenza viene attivata.
+</Note>
+
+Questo video tratta le Competenze, poi i Server MCP, i Plugin e l'Extension Store.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="How to Use Skills, MCP and Plugins in Enconvo | Step-by-Step Tutorial" />
+
+## Gestisci le tue competenze
+
+Apri **Impostazioni → Competenze**. Ogni Agente condivide queste competenze, e ogni Agente può aggiungere le proprie nelle sue impostazioni.
+
+- Le schede in alto contano **Tutte le competenze**, quelle **Attive, mai usate**, quelle **In più cartelle** e quelle **Disattivato**. Clicca una scheda per elencare solo quelle.
+- Ogni riga mostra la **Posizione** (integrata, oppure la cartella o l'app da cui proviene) e il suo **Ultimo uso**. Disattiva le competenze che i tuoi Agenti non usano con l'interruttore a fine riga, oppure selezionane diverse e disattivale insieme.
+- **Aggiungi da GitHub** installa una competenza da un repository, e **Importa** ne aggiunge una da una cartella del tuo Mac. Vedi [Installa le competenze](#installa-le-competenze).
+- **I tuoi skill** elenca le competenze che hai creato, in base a come sono nate: **Registrato**, **Appreso**, **Script**, **Scritta** o **Installato**. Cliccane una per vedere i suoi **Passaggi**, le sue **Attenzioni** e la sua **Cronologia**. Vedi [Competenze con passaggi salvati](#competenze-con-passaggi-salvati).
+
+Nella Finestra di chat puoi anche aprire le Competenze direttamente nella finestra da **Plugin** nella barra delle icone.
+
+## Come si presenta una competenza
+
+Una competenza è una cartella con un file `SKILL.md`, più script e riferimenti facoltativi.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### Formato di SKILL.md
+
+`SKILL.md` deve iniziare con un blocco di frontmatter che contiene un `name` e una `description`:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo sceglie una competenza in base alla sua `description`, quindi dalle un ambito e dei confini chiari. Indica **quando** usare la competenza e **quando no**.
+</Tip>
+
+## Usa una competenza
+
+Puoi richiamare una competenza per nome, oppure lasciare che Enconvo ne scelga una che corrisponde alla tua richiesta.
+
+### Richiama una competenza per nome
+
+Scrivi `/` seguito dal nome della competenza in SmartBar o in chat:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+È il modo più affidabile: ottieni esattamente la competenza che vuoi. Per elencare solo le competenze, scrivi `$`.
+
+Anche le competenze dei plugin che hai installato sono nei menu `/` e `$`, con il nome `plugin:skill` come in Claude Code.
+
+### Lascia scegliere a Enconvo
+
+Quando non nomini una competenza, Enconvo abbina la tua richiesta alla competenza più pertinente in base alla sua `description`:
+
+1. Scrivi: "Riassumi questi appunti della riunione in azioni da svolgere"
+2. Enconvo analizza tutte le descrizioni delle competenze disponibili
+3. La competenza `meeting-notes` corrisponde ("...format raw meeting transcripts into structured notes with action items...")
+4. La competenza viene attivata e le sue istruzioni guidano la risposta
+
+L'abbinamento avviene per significato, non solo per parole chiave in comune, quindi una richiesta formulata in modo diverso dalla descrizione, o scritta in un'altra lingua, trova comunque la competenza. Per essere sicuro che un Agente veda sempre una competenza, fissala nelle impostazioni **Strumenti e competenze** dell'Agente; vedi [Agenti](/it/ai/agents).
+
+### Scrivi descrizioni che corrispondano bene
+
+Un buon abbinamento dipende da una `description` ben scritta:
+
+| Qualità | Esempio |
+|---------|---------|
+| **Troppo vaga** | "Aiuta con il codice" |
+| **Troppo ampia** | "Fa qualsiasi cosa legata alla programmazione" |
+| **Buona** | "Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code." |
+
+Una buona descrizione ha tre parti:
+
+- **Cosa fa**: "Review code for bugs, security issues, and best practices"
+- **Quando attivarla**: "Use when the user asks for a code review"
+- **Quando non attivarla**: "Do not use for code generation or writing new code"
+
+## Dove si trovano le competenze
+
+Enconvo legge le competenze da più posizioni, ciascuna con il proprio ambito:
+
+| Ambito | Posizione | A cosa serve |
+|-------|----------|------------|
+| **Progetto** | `$PROJECT/.agents/skills/` (anche `.enconvo/skills/`, `.claude/skills/` e `.codex/skills/`) | Competenze per un solo progetto o area di lavoro |
+| **Utente** | `~/.agents/skills/` (anche `~/.enconvo/skills/`, `~/.claude/skills/` e `~/.codex/skills/`) | Competenze personali per tutti i tuoi progetti |
+| **Sistema** | Incluse in Enconvo | Competenze integrate disponibili a tutti |
+
+Ogni Agente può anche portare con sé le proprie competenze: aggiungile in **Competenze** nelle impostazioni dell'Agente.
+
+Se due competenze in posizioni diverse hanno lo stesso nome, restano disponibili entrambe; Enconvo non le unisce. **Impostazioni → Competenze** elenca queste competenze in **In più cartelle**.
+
+### Competenze di progetto
+
+Le competenze di progetto si trovano dentro la cartella del tuo progetto e sono disponibili solo quando quel progetto è attivo:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+Usale per le competenze che dipendono dalle convenzioni, dalla struttura dei file o dagli strumenti di un progetto.
+
+### Competenze utente
+
+Le competenze utente in `~/.agents/skills/` sono disponibili in ogni progetto. Usale per le competenze personali che non appartengono a un solo progetto:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## Crea una competenza
+
+### Con il creatore di competenze
+
+Il modo più rapido per creare una competenza è il creatore integrato:
+
+```
+/skill-creator
+```
+
+Il creatore ti guida attraverso:
+
+1. Cosa fa la competenza
+2. Quando deve attivarsi
+3. Se deve contenere solo istruzioni o includere anche script
+
+Solo istruzioni è l'impostazione predefinita e l'approccio consigliato. Aggiungi script solo quando ti serve un comportamento deterministico o strumenti esterni.
+
+### A mano
+
+Crea una cartella con un file `SKILL.md`:
+
+<Steps>
+  <Step title="Crea la cartella della competenza">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="Scrivi SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Controlla che compaia">
+    Enconvo rileva automaticamente le modifiche alle competenze. Se la nuova competenza non compare, riavvia Enconvo.
+  </Step>
+</Steps>
+
+### Scrivi le istruzioni
+
+Il corpo di `SKILL.md`, sotto il frontmatter, contiene le istruzioni che l'IA segue. Scrivile come passaggi chiari e all'imperativo:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### Consigli per competenze efficaci
+
+- **Mantieni ogni competenza focalizzata.** Una competenza svolge un solo compito. Una competenza che fa troppe cose è più difficile da attivare correttamente e da mantenere. Se stai scrivendo 10 o più passaggi che coprono più compiti, dividila in competenze separate.
+- **Sii preciso sugli input.** Indica esattamente da dove arriva l'input: "Leggi il testo selezionato", "Analizza il file allegato", "Usa l'URL del messaggio dell'utente".
+- **Definisci il formato dell'output.** Includi un esempio concreto di come deve apparire l'output, così i risultati restano coerenti.
+- **Gestisci i casi limite.** Aggiungi istruzioni per i casi limite più comuni: "Se non viene trovato alcun commit, segnala che l'intervallo è vuoto" oppure "Se l'input non è un JSON valido, chiedi all'utente di controllare il formato".
+- **Scrivi passaggi all'imperativo.** Sii esplicito su input, passaggi e output attesi. Istruzioni vaghe portano a risultati incoerenti.
+- **Preferisci le istruzioni agli script.** Le istruzioni in linguaggio naturale sono più facili da scrivere, correggere e modificare. Usa gli script solo quando ti serve un comportamento deterministico o strumenti esterni.
+- **Usa confini chiari.** Nella descrizione, indica sia ciò che la competenza deve gestire sia ciò che non deve gestire.
+- **Prova le descrizioni di attivazione.** Prova prompt diversi per confermare che la competenza si attivi, e non si attivi, quando deve.
+- **Versiona le tue competenze.** Tieni le competenze condivise dal team sotto controllo di versione (git), così puoi tracciare le modifiche, tornare indietro e collaborare.
+
+## Aggiungi script
+
+Per le competenze che hanno bisogno di logica eseguibile, aggiungi una cartella `scripts/`:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Richiama gli script nel tuo `SKILL.md`:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### Quando usare gli script
+
+| Usa gli script quando | Usa solo le istruzioni quando |
+|-----------------|---------------------------|
+| Ti serve un output deterministico (formati esatti, calcoli) | Il compito riguarda soprattutto ragionamento e linguaggio |
+| Interagisci con API o database esterni | Il compito usa solo le capacità integrate dell'IA |
+| Devi elaborare o trasformare dati in modo programmatico | Il compito consiste nello scrivere, riassumere o analizzare |
+| Ti servono autenticazione o gestione delle credenziali | Le sole istruzioni sono sufficienti |
+
+## Aggiungi riferimenti
+
+Includi documentazione o file di contesto che la competenza può consultare:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Richiamali nelle istruzioni:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+I riferimenti sono utili per:
+
+- La documentazione delle API che la competenza deve seguire
+- Guide di stile o linee guida del marchio
+- Esempi di codice e modelli
+- Conoscenze specifiche di un settore
+
+## Installa le competenze
+
+Usa `/skill-installer` per installare una competenza dallo store delle competenze di Enconvo o da GitHub. Può installare anche da Skills.sh, ClawHub e URL ZIP diretti.
+
+### Dallo store delle competenze di Enconvo
+
+Cerca una competenza per nome e installala:
+
+```
+/skill-installer pdf
+```
+
+Questo cerca nello store delle competenze di Enconvo e installa la competenza corrispondente. Enconvo rileva automaticamente le competenze appena installate.
+
+### Da GitHub
+
+Installa una competenza direttamente dall'URL di un repository GitHub:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+L'URL può puntare a una sottocartella, così puoi installare una sola competenza da un repository più grande senza clonarlo tutto.
+
+### Da una cartella del tuo Mac
+
+1. Apri **Impostazioni → Competenze** e clicca **Importa**.
+2. Scegli una cartella che contiene sottocartelle di competenze, ciascuna con un `SKILL.md`.
+
+Enconvo aggiunge la cartella ai luoghi da cui legge le competenze, e le sue competenze sono condivise da tutti gli Agenti. Per smettere di usare la cartella, sceglila nel menu delle fonti, poi **Rimuovi cartella**. La cartella resta sul disco.
+
+## Competenze con passaggi salvati
+
+Ogni Flusso di lavoro salvato è anche una competenza con il proprio `SKILL.md`, e una competenza può conservare i passaggi di un compito che ha già svolto. Quando esegui una competenza del genere, i suoi passaggi salvati vengono eseguiti per primi, senza il modello principale, il che è più veloce ed economico. Un passaggio che non è più adatto, come un pulsante che si è spostato, viene riparato a partire dalle note e dalle schermate della competenza stessa. Solo quando questo fallisce, un Agente svolge il compito a partire da `SKILL.md`.
+
+In **I tuoi skill**, una competenza contrassegnata con **Esegue prima i passaggi salvati** ha dei passaggi; una contrassegnata con **Solo istruzioni** no. La **Cronologia** di ogni competenza mostra come sono andate le sue esecuzioni e cosa ha appreso, e puoi ripristinare una versione precedente.
+
+### Trasforma una registrazione in una competenza
+
+Puoi trasformare la registrazione di un compito che hai svolto in una competenza. Ogni azione registrata diventa un passaggio verificato, e la sua schermata viene conservata per le riparazioni. La competenza resta una **Bozza** finché una sua esecuzione non funziona.
+
+### Esegui uno script come passaggio
+
+Una competenza può conservare uno script di [Code Mode](/it/configuration/code-mode) nella propria cartella `scripts` ed eseguirlo come uno dei suoi passaggi, così un compito che fa molte chiamate a strumenti viene eseguito come un unico passaggio.
+
+## Lascia che le competenze imparino come lavori
+
+Le competenze possono imparare come ti piace che vengano svolti i compiti, come le Memorie imparano i fatti. Apri **Impostazioni → Memoria** e attiva **Impara i procedimenti**:
+
+- Quando correggi il modo in cui è stato svolto un compito, o un passaggio ha dovuto essere riparato, la competenza lo apprende subito. La chat mostra una nota **Appreso** con **Annulla**.
+- Quando un compito si ripresenta una seconda volta, diventa una nuova competenza.
+- Anche Memory Review e Riordino della Memoria si occupano delle competenze.
+
+In **Quando cambia i passaggi**, scegli **Usa subito**, oppure **Chiedimi prima** così una modifica ai passaggi di una competenza attende che tu clicchi **Applica** sulla sua nota. Le attenzioni vengono comunque inserite subito in entrambi i casi. Pagamenti, invii ed eliminazioni chiedono sempre prima a te, e chiavi e password non vengono mai apprese.
+
+## Gestisci le competenze
+
+### Vedi le tue competenze
+
+**Impostazioni → Competenze** elenca le competenze condivise da tutti gli Agenti. Scegli una vista in alto:
+
+| Vista | Mostra |
+| --- | --- |
+| **Tutte le competenze** | Ogni competenza una sola volta, anche quando più cartelle ne hanno una copia |
+| **Attive, mai usate** | Competenze offerte agli Agenti in ogni chat, ma che non hanno usato |
+| **In più cartelle** | Competenze con una copia in più di una cartella, per esempio per Claude Code e Codex |
+| **Disattivato** | Competenze che gli Agenti non ricevono |
+
+Cerca, filtra per fonte (**Tutte le fonti**, **Integrato**, **Dai plugin** o una cartella), oppure ordina per **Nome dalla A alla Z** o **Ultimo uso**.
+
+### Aggiorna le competenze
+
+- **Competenze dello store**: esegui di nuovo `/skill-installer` per controllare se c'è una versione più recente.
+- **Competenze di GitHub**: esegui di nuovo l'installer con lo stesso URL.
+- **Le tue competenze**: modifica direttamente il file `SKILL.md`. Enconvo rileva automaticamente la modifica.
+
+### Disattiva una competenza
+
+Puoi disattivare una competenza senza eliminarla:
+
+1. Apri **Impostazioni → Competenze**.
+2. Trova la competenza.
+3. Disattiva il suo interruttore.
+
+Gli Agenti non possono usare una competenza disattivata, né per nome né per abbinamento, finché non la riattivi. Un profilo di app che fissa la competenza può comunque usarla.
+
+## Competenze di esempio
+
+### Revisore di codice
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Appunti di riunione
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Messaggio di commit git
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### Generatore di documentazione API
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Dai a un Agente le sue competenze e i suoi strumenti.</Card>
+  <Card title="Integrazione MCP" icon="plug" href="/it/features/mcp">Combina le competenze con gli strumenti MCP.</Card>
+  <Card title="Enconvo GitHub" icon="github" href="https://github.com/enconvo">Sfoglia le estensioni e le competenze open source.</Card>
+  <Card title="Discord della community" icon="discord" href="https://discord.gg/jYsdVRRK2k">Condividi competenze e ricevi aiuto dalla community.</Card>
+</CardGroup>

@@ -1,0 +1,99 @@
+---
+title: "Pesquisa na Web"
+description: "Deixe o seu Agente pesquisar na Web informação atual e citar as suas fontes."
+---
+
+A Pesquisa na Web dá aos seus Agentes resultados atuais da Web. Todos os Agentes podem pesquisar; o serviço de pesquisa que usam é escolhido por si, separadamente do modelo que escreve a resposta.
+
+## Escolher um fornecedor de pesquisa
+
+1. Abra **Definições → Pesquisa na Web**.
+2. Escolha um fornecedor. As opções do Enconvo Cloud não precisam de chave de API; para a maioria das outras, adicione a sua chave desse serviço.
+3. Clique em **Definir como predefinido**.
+
+| Fornecedor | Notas |
+| --- | --- |
+| **Automático** | Pesquisa com a pesquisa Web do próprio modelo de conversa e recorre a outro fornecedor quando o modelo não tem nenhuma. Consulte [Pesquisar com a pesquisa do próprio modelo](#pesquisar-com-a-pesquisa-do-próprio-modelo). |
+| **Enconvo Cloud** | Gratuito para todas as contas com sessão iniciada, sem chave de API |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search através do Enconvo Cloud, gratuito para todas as contas com sessão iniciada |
+| **Gemini** | Grounding com a Pesquisa Google através de um modelo Gemini |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Pesquisa com a sua própria chave desse serviço |
+| **Parallel** | O índice de pesquisa de IA da Parallel, que devolve as passagens mais relevantes de cada página, com a sua chave de API da Parallel |
+| **PipeLLM** | Resultados do Google através da sua chave [PipeLLM](/pt/providers/pipellm) |
+| **DeepSeek** | DeepSeek Search com a sua chave de API da DeepSeek |
+| **xAI X Search** | Pesquisa publicações, perfis e conversas do X, com uma chave de API da xAI ou um início de sessão na xAI |
+| **xAI X Search (Enconvo Cloud)** | Pesquisa no X através do Plano Enconvo Cloud |
+
+A lista de fornecedores assinala as opções gratuitas. Consulte o [Catálogo de fornecedores](/pt/providers/catalog) para a lista completa. Alguns modelos também têm opções de grounding ou de pesquisa integradas nas definições do seu próprio fornecedor.
+
+## Pesquisar com a pesquisa do próprio modelo
+
+Com **Automático**, cada pesquisa corre na pesquisa Web do modelo que a conversa usa, quando esse modelo tem uma: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai e OpenRouter. Usa a chave ou o início de sessão que ligou para esse modelo, e é o fabricante do modelo que a fatura.
+
+Quando o modelo não tem pesquisa própria, ou a sua pesquisa falha, o Automático usa a **Pesquisa alternativa**, que é o **Enconvo Cloud**, a menos que escolha outro fornecedor.
+
+| Definição | O que faz |
+| --- | --- |
+| **Rota de pesquisa** | Mostra qual a pesquisa que corre para o modelo de conversa e o que acontece em caso de falha. |
+| **Preferir a pesquisa do próprio modelo** | Ativada por predefinição. Desative-a para usar sempre a pesquisa alternativa. |
+| **Pesquisa alternativa** | O fornecedor usado quando o modelo não tem pesquisa ou esta falha. |
+
+Na conversa, cada passo de pesquisa na Web indica qual a pesquisa que respondeu e por que razão o Automático recorreu à alternativa, quando isso aconteceu.
+
+## Usar a Parallel
+
+1. Obtenha uma chave de API na [Parallel](https://platform.parallel.ai).
+2. Adicione-a em **Definições → Gestão de credenciais → Parallel**.
+3. Em **Definições → Pesquisa na Web**, escolha **Parallel** e selecione um **Modo de pesquisa**:
+
+| Modo de pesquisa | Para que serve |
+| --- | --- |
+| **Turbo** | As respostas mais rápidas. Lê apenas consultas em inglês e japonês. |
+| **Rápido** | A maioria das pesquisas. A predefinição. |
+| **Básico** | Passagens mais longas de cada página. |
+| **Avançado** | A pesquisa mais profunda. Demora cerca de 3 segundos e custa mais. |
+
+A Parallel cobra cada pesquisa na sua conta Parallel.
+
+## Pesquisar com um Agente
+
+1. Faça uma pergunta específica. Inclua um intervalo de datas ou um local quando for relevante.
+2. O Agente pesquisa e responde com ligações para as suas fontes.
+3. Abra as fontes citadas e verifique se sustentam a resposta.
+
+Experimente:
+
+> Encontre as notas de lançamento oficiais da última versão estável desta biblioteca e resuma as alterações incompatíveis com ligações.
+
+## Escolher a capacidade Web certa
+
+| Necessidade | Usar |
+| --- | --- |
+| Descobrir fontes relevantes | Pesquisa na Web |
+| Ler um URL conhecido | [Obter conteúdo da Web](/pt/ai/web-fetch) |
+| Abrir resultados no navegador | [Links rápidos](/pt/features/quick-links) |
+| Interagir com um site com sessão iniciada | [Utilização do navegador](/pt/features/browser-control) |
+| Pesquisar publicações, perfis ou conversas do X | Fornecedor **xAI X Search** |
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| A resposta não tem fontes | Verifique se o Agente pesquisou em vez de responder apenas com o modelo. Peça-lhe que pesquise na Web. |
+| O fornecedor comunica um erro | Verifique a credencial do fornecedor e a quota da sua conta nesse serviço. |
+| O Automático usou a pesquisa alternativa | O modelo de conversa não tem pesquisa Web própria, ou a sua pesquisa falhou. O passo de pesquisa na conversa indica qual. |
+| O resultado está atrás de um início de sessão ou numa página interativa | Use um fluxo de navegador suportado, como a [Utilização do navegador](/pt/features/browser-control). Obter um URL público não dá acesso à sua sessão iniciada. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Obter conteúdo da Web" icon="link" href="/pt/ai/web-fetch">
+    Leia uma página cujo URL já tem.
+  </Card>
+  <Card title="Utilização do navegador" icon="globe" href="/pt/features/browser-control">
+    Trabalhe com sites interativos e com sessão iniciada.
+  </Card>
+  <Card title="Catálogo de fornecedores" icon="list" href="/pt/providers/catalog">
+    Todos os fornecedores de pesquisa na Web que o Enconvo suporta.
+  </Card>
+</CardGroup>

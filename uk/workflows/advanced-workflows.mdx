@@ -1,0 +1,363 @@
+---
+title: "Розширені робочі процеси"
+description: "Розгалужуйте, зациклюйте, повторюйте спроби, отримуйте структуровані результати, перемикайте моделі для окремих кроків і складайте робочі процеси разом, з повними прикладами для копіювання."
+---
+
+Користуйтеся цими можливостями, коли простого списку кроків замало: виконуйте крок лише за виконання умови, повторюйте крок для кожного елемента списку, продовжуйте запуск, коли один крок зазнав невдачі, отримуйте структуровані результати й викликайте один робочий процес з іншого. Повні приклади робочих процесів наведено наприкінці. Якщо ви вперше бачите формат `agent-workflow/v1`, почніть із [Створення робочих процесів](/uk/workflows/creating-workflows).
+
+Шляхи до оболонки та наявність інструментів чи провайдерів мають відповідати вашому Mac, перш ніж ви запустите ці приклади.
+
+<Tip>
+У Візуальному редакторі писати це вручну не потрібно: розділ [Поведінка](/uk/workflows/creating-workflows) в інспекторі кроку задає `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs` і схему вихідних даних через вибір простими словами.
+</Tip>
+
+## Розгалуження
+
+### Виконання кроку лише за істинної умови (`if`)
+
+Додайте `if:`, щоб виконувати крок лише тоді, коли умова істинна. Коли умова хибна, крок і все, що йде за ним, пропускаються:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+Умови — це шаблонні вирази, що перевіряються на істинність, наприклад `inputs.score >= 60`, `steps.check.output.exitCode == 0` або просто булеве вхідне значення.
+
+### Виконання іншої гілки (`else_of`)
+
+`else_of:` виконує крок лише тоді, коли названий ним крок було пропущено через його умову. Це гілка «інакше» для `if`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### Об’єднання та прибирання (`run_when: always`)
+
+Крок із `needs` зазвичай пропускається, якщо будь-яку залежність пропущено, а запуск зупиняється, якщо обов'язкова залежність зазнала невдачі. `run_when: always` скасовує обидва правила: крок виконується, щойно його залежності завершилися, чи то успішно, чи пропущені, чи невдало. Використовуйте це для об'єднання й прибирання:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### Вимкнення кроку (`enabled: false`)
+
+`enabled: false` залишає крок у робочому процесі, але пропускає його під час кожного запуску. На відміну від пропущеної умови, вимкнений крок не змушує пропускати те, що йде далі:
+
+- Залежні від нього кроки все одно виконуються, а все, що читає його вихідні дані, отримує порожнє значення.
+- Його крок `else_of` теж пропускається.
+
+Приберіть ключ (або задайте `true`), щоб знову ввімкнути крок. У редакторі скористайтеся **Вимкнути крок** в інспекторі.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## Цикли
+
+### Повторення для кожного елемента списку (`foreach`)
+
+`foreach:` виконує крок по одному разу для кожного елемента. Усередині `{{ item }}` — поточний елемент, а `{{ index }}` — його позиція. Подальші кроки отримують зібраний масив вихідних даних:
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` також приймає вбудований масив і працює з кожним видом кроку: `foreach` викликів `tool:`, підпроцесів тощо. Порожній список дає порожній результат, а подальші кроки все одно виконуються. Коли один елемент зазнає невдачі, крок не запускає нових елементів, якщо його не позначено `required: false`.
+
+### Повторення, доки не виконається умова (`loop`)
+
+`loop:` повторює крок. `until:` перевіряється після кожного раунду щодо `output` — результату цього раунду. `{{ round }}` — номер раунду, а `{{ last }}` — вихідні дані попереднього раунду. Якщо `maxRounds` вичерпається раніше, ніж виконається `until`, крок зазнає невдачі.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+Пропустіть `until`, щоб виконати цикл фіксовану кількість разів:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## Надійність
+
+| Поле | Що воно робить |
+| --- | --- |
+| `retries` | Повторює крок, що зазнав невдачі. Вкажіть кількість (`retries: 2`) або об'єкт (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | Невдача цього кроку не перериває запуск; подальші кроки тривають. |
+| `timeoutMs` | Зупиняє крок оболонки, що виконується надто довго. |
+
+Крок, який мовчить 20 хвилин, зупиняється й запускається ще раз. Запуск, який ви зупинили, має стан **Скасовано**, а не невдалий.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## Контракти вихідних даних
+
+Додайте `output_schema` (об'єкт JSON Schema) до кроку `prompt` або `agent`, щоб примусово задати форму відповіді. Описувати формат JSON у тексті промпту не потрібно: запитувану форму передають моделі, а відповідь розбирається й перевіряється, перш ніж її використають подальші кроки. Задайте `retries`, щоб повторити невдалий крок; відповідь, яка все одно не проходить перевірку, завершує крок невдачею.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## Перевизначення моделі для окремих кроків
+
+Кроки `prompt` і `agent` приймають необов'язкові `provider:` та `model:`, щоб перемкнути модель лише для цього кроку. Перемикання діє протягом запуску; ваша збережена конфігурація моделі не змінюється. Використовуйте дешеву модель для масових кроків і потужнішу там, де це важливо.
+
+Задайте для `provider` назву команди інстальованого провайдера, а для `model` — ідентифікатор моделі, який цей провайдер показує у вашій поточній збірці. Наприклад, скопіюйте обидва значення з вашої робочої конфігурації провайдера в крок prompt. Наявність моделей і дозволи залежать від облікового запису; приклади на цій сторінці використовують налаштовану вами модель за замовчуванням.
+
+<Note>
+`provider` — це команда провайдера (наприклад, `enconvo_ai`, `open_ai` або `ollama`), а `model` — ідентифікатор моделі цього провайдера. Обидва дійсні лише для кроків `prompt` і `agent`.
+</Note>
+
+## Підпроцеси
+
+Складайте робочі процеси за допомогою `uses: workflow`, або через `workflowId:` (збережений робочий процес), або з вбудованим блоком `workflow:`. Вихідні дані кроку — це результат дочірнього запуску. До вихідних даних кроків дочірнього процесу звертайтеся через `output.outputs['job.step']`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## Довідник шаблонів
+
+| Посилання | Де |
+|---|---|
+| `{{ inputs.x }}` | Будь-де: вхідні дані робочого процесу |
+| `{{ steps.<id>.output }}` | Будь-де: попередній крок у тому самому завданні |
+| `{{ jobs.<job>.<step>.output }}` | Завершений крок у завданні-залежності |
+| `{{ item }}` / `{{ index }}` | Усередині кроку `foreach` |
+| `{{ round }}` / `{{ last }}` | Усередині кроку `loop` |
+| `{{ now }}` | Поточна мітка часу |
+| `{{ env.HOME }}` | Змінні середовища процесу |
+
+Шаблони підтримують фільтри Nunjucks (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}` та інші), за допомогою яких ви змінюєте форму даних між кроками.
+
+## Повні приклади
+
+### Дослідити, підсумувати й створити звіт
+
+Знайти в інтернеті, підсумувати результати та скласти звіт у Markdown. Кроки виконуються по порядку в одному завданні, тож зв'язувати їх через `needs` не потрібно:
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### Умовна маршрутизація
+
+Схвалити або відхилити за оцінкою, а потім завжди записати підсумковий звіт:
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### Цикл до збіжності
+
+Багаторазово вдосконалювати чернетку, доки самоперевірка її не схвалить, обмеживши кількість раундів:
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## Дивіться також
+
+<CardGroup cols={2}>
+  <Card title="Створення робочих процесів" icon="pen-to-square" href="/uk/workflows/creating-workflows">
+    Редактор, асистент редагування та кожен тип кроку.
+  </Card>
+  <Card title="Робочі процеси" icon="book-open" href="/uk/workflows/introduction">
+    Завдання, кроки та як запускаються робочі процеси.
+  </Card>
+</CardGroup>

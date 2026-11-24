@@ -1,0 +1,131 @@
+---
+title: "Crie o seu primeiro fluxo de trabalho"
+description: "Siga um vídeo narrado para criar um fluxo de trabalho a partir de um modelo, adicionar etapas à mão e com o assistente, e depois executá-lo e ler a saída de cada etapa."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Os fluxos de trabalho encadeiam prompts, agentes e ferramentas numa só execução repetível. Este tutorial cria um do princípio ao fim: crie-o a partir do modelo **Tour pelos tipos de etapa**, adicione uma etapa à mão, deixe o assistente de fluxos de trabalho adicionar outra e depois execute-o e leia a saída de todas as etapas.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+O vídeo tem 2 minutos e 24 segundos. Os passos escritos abaixo seguem a mesma ordem, com a marca temporal correspondente a cada passo.
+
+## O que vai criar
+
+O modelo **Tour pelos tipos de etapa** já funciona de imediato. Ao longo do tutorial, cresce até se tornar um pequeno pipeline de conteúdo:
+
+| Etapa | Tipo | O que faz |
+| --- | --- | --- |
+| Get today's date | Shell | Imprime a data de hoje |
+| List saved workflows | Ferramenta | Lista os seus fluxos de trabalho existentes (é executada em paralelo com a data) |
+| Ask the model for an idea | Prompt | Sugere uma nova automatização sobre a entrada `topic` |
+| Let the agent expand it | Agente | Transforma a ideia num plano de três passos |
+| Write a tweet | Prompt | Adicionada à mão: transforma o plano num tweet marcante |
+| Translate the tweet into Japanese | Prompt | Adicionada pelo assistente: traduz o tweet |
+
+## Acompanhe o tutorial
+
+<Steps>
+  <Step title="Criar um fluxo de trabalho (0:07)">
+    Abra **Definições → Fluxos de trabalho → Gerir** e selecione **Novo fluxo de trabalho**. Em **Ou comece com um modelo**, escolha **Tour pelos tipos de etapa**. O fluxo de trabalho é criado e o editor abre no modo **Visual**. O vídeo foi gravado antes de existir a caixa de diálogo **Novo fluxo de trabalho**, pelo que aí o modelo inicial se chama *Starter Workflow*.
+  </Step>
+  <Step title="Ler o grafo (0:18)">
+    Leia o grafo a partir do topo. O nó **Entradas** declara o que uma execução precisa; aqui é um único `topic`. As duas primeiras etapas ficam lado a lado porque pertencem a tarefas separadas, pelo que são executadas em paralelo. Cada resultado flui depois para as etapas abaixo, que são executadas por ordem.
+  </Step>
+  <Step title="Editar uma etapa (0:28)">
+    Selecione uma etapa para a abrir no inspetor, onde pode alterar o respetivo ID, título e prompt. As chavetas duplas puxam valores para uma etapa: `{{ inputs.topic }}` lê uma entrada da execução e `{{ steps.idea.output }}` lê o resultado de uma etapa anterior. É assim que as etapas comunicam entre si.
+  </Step>
+  <Step title="Adicionar uma etapa (0:37)">
+    Selecione o **+** por baixo da última etapa e escolha um tipo de etapa, como Prompt, Agente, Shell ou Ferramenta. Dê à nova etapa Prompt o ID `tweet`, o título "Write a tweet" e este prompt:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    Depois de mudar o nome do ID de uma etapa, prima Return antes de passar ao campo seguinte.
+    </Tip>
+  </Step>
+  <Step title="Ou peça ao assistente de fluxos de trabalho (0:57)">
+    Em vez de editar à mão, selecione **Assistente** na barra de ferramentas e descreva a alteração no painel que abre ao lado da tela:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    O assistente edita o grafo e lista as etapas que alterou. Selecione **Reverter** na resposta dele se não gostar do resultado. No vídeo, adiciona uma etapa `translate_ja` cujo prompt lê `{{ steps.tweet.output }}`. Reveja a nova etapa antes de guardar: as edições do assistente ficam por guardar até selecionar **Guardar**.
+  </Step>
+  <Step title="Ver o YAML (1:16)">
+    Selecione **YAML** na barra de ferramentas para ver o mesmo fluxo de trabalho como código-fonte. Cada fluxo de trabalho é um simples ficheiro, guardado em `~/.enconvo/workflows/<id>.yaml`, pelo que é fácil de ler, comparar e partilhar. Selecione **Visual** para voltar ao grafo. O ficheiro completo está em [O fluxo de trabalho concluído](#o-fluxo-de-trabalho-concluído) abaixo.
+  </Step>
+  <Step title="Executá-lo e verificar a saída (1:28)">
+    Selecione **Entradas**, defina os valores da execução (o vídeo utiliza `{"topic": "matcha"}`) e escolha **Executar**. As etapas em execução brilham a azul e as concluídas ficam verdes. A etapa Agente demora mais do que as outras.
+
+    Quando a execução termina, selecione qualquer etapa e abra o respetivo separador **Saída** para ver exatamente o que produziu. A última etapa recolheu o tweet e traduziu-o, sem copiar e colar.
+  </Step>
+  <Step title="Encontrar execuções anteriores (2:05)">
+    Todas as execuções ficam guardadas em **Execuções** na barra de ferramentas, para poder voltar a qualquer resultado mais tarde.
+  </Step>
+</Steps>
+
+<Note>
+Executar um fluxo de trabalho chama modelos e ferramentas reais. Pode consumir créditos do fornecedor, e as etapas Shell ou Ferramenta atuam com as permissões da conta do seu Mac. Reveja as etapas de um fluxo de trabalho antes de o executar.
+</Note>
+
+## O fluxo de trabalho concluído
+
+Aqui está o fluxo de trabalho criado no vídeo, escrito em YAML. A vista **YAML** pode formatá-lo de forma ligeiramente diferente.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+A tarefa `ideate` espera por `date` e `catalog` através de `needs`, pelo que pode ler os respetivos resultados com `jobs.<job>.<step>.output`. Dentro de uma tarefa, as etapas posteriores leem as anteriores com `steps.<id>.output`.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Fluxos de trabalho" icon="diagram-project" href="/pt/workflows/introduction">Tarefas, etapas e todos os tipos de etapa.</Card>
+  <Card title="Criar fluxos de trabalho" icon="pen-to-square" href="/pt/workflows/creating-workflows">O editor Visual, o YAML e o assistente de edição em pormenor.</Card>
+  <Card title="Fluxos de trabalho avançados" icon="code-branch" href="/pt/workflows/advanced-workflows">Condições, ciclos, novas tentativas, esquemas de saída e subfluxos de trabalho.</Card>
+  <Card title="Tarefas agendadas" icon="clock" href="/pt/workflows/scheduled-jobs">Execute um fluxo de trabalho ou uma instrução de Agente a uma hora definida.</Card>
+</CardGroup>

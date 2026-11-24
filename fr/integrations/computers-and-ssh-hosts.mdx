@@ -1,0 +1,116 @@
+---
+title: "Ordinateurs et hôtes SSH"
+description: "Laissez vos agents travailler sur vos autres ordinateurs et sur des serveurs accessibles en SSH, et contrôlez qui peut accéder à ce Mac."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Vos agents peuvent travailler ailleurs que sur ce Mac. Ajoutez un serveur auquel vous vous connectez en SSH, mentionnez-le dans une discussion et posez votre demande, comme pour votre propre Mac : l’Agent y exécute les commandes et répond ici. Rien n’est installé sur le serveur. Vos autres ordinateurs qui exécutent Enconvo peuvent être associés de la même façon.
+
+La vidéo ci-dessous ajoute un hôte SSH à partir de votre configuration SSH, demande à l’Agent de lire un journal dessus et montre qui peut accéder à ce Mac.
+
+<YouTubePlayer videoId="ojtTTtqTod4" title="Computers and SSH Hosts in Enconvo" />
+
+## Avant de commencer
+
+- Il vous faut un serveur auquel vous pouvez vous connecter avec `ssh` depuis ce Mac : un hôte dans `~/.ssh/config`, ou une adresse que vous pouvez saisir sous la forme `user@host`. Enconvo utilise le `ssh` et les clés de ce Mac. Si le serveur demande un mot de passe ou une phrase secrète, `ssh` la demande via Enconvo, et Enconvo n’en conserve rien.
+- Pour un serveur de votre réseau local, autorisez Enconvo dans **Réglages Système → Confidentialité et sécurité → Réseau local**.
+
+## Ce que liste Connexions
+
+Ouvrez **Réglages → Connexions**. Il comporte trois listes :
+
+| Liste | Ce qu’elle contient |
+| --- | --- |
+| **Téléphones** | Les apps iPhone et Android associées à ce Mac. Consultez [App iPhone](/fr/integrations/iphone-app). |
+| **Ordinateurs** | Vos autres ordinateurs qui exécutent Enconvo, associés à ce Mac. Chacun apparaît une seule fois, avec le sens dans lequel il contrôle. Cliquez sur **Associer un ordinateur** pour en ajouter un. Consultez [Vos autres ordinateurs](/fr/integrations/other-computers). |
+| **Hôtes SSH** | Les serveurs que vos agents atteignent en SSH, sans rien d’installé dessus. |
+
+Cliquez sur un téléphone ou un ordinateur pour ouvrir sa propre page, avec ce qu’il peut faire sur ce Mac.
+
+Vous pouvez aussi ajouter un hôte, associer un ordinateur ou associer un téléphone depuis la Fenêtre de chat : cliquez sur le sélecteur d’appareil en bas de la barre latérale, puis sur **Ajouter un appareil**.
+
+## Ajouter un hôte SSH
+
+1. Ouvrez **Réglages → Connexions** et, sous **Hôtes SSH**, cliquez sur **Ajouter un hôte**.
+2. La liste affiche les hôtes de votre `~/.ssh/config`. Choisissez-en un, comme `build-server`, ou saisissez `user@host` (ou `user@host:port`).
+3. Cliquez sur **Connecter**. Enconvo teste la connexion : il atteint l’hôte, vérifie la clé d’hôte, se connecte et exécute une commande.
+4. Sous **Avant chaque commande**, choisissez comment l’Agent demande avant d’exécuter une commande sur l’hôte :
+   - **Suivre la conversation** : demande selon le Permission mode de la discussion. Consultez [Approuver les actions](/fr/ai/agents).
+   - **Toujours demander** : demande avant chaque commande.
+5. Cliquez sur **Ajouter l’hôte**.
+
+L’hôte apparaît désormais sous **Hôtes SSH**, et dans le menu `@` de chaque discussion.
+
+La première fois qu’Enconvo voit la clé d’hôte d’un serveur, vérifiez la clé auprès de la personne qui gère le serveur, puis cliquez sur **Faire confiance et se connecter**. Sur un serveur Linux, la boîte de dialogue propose aussi **Installer aussi Enconvo dessus**, ce qui associe le serveur comme ordinateur. Laissez cette option désactivée pour ne rien installer.
+
+## Demander à l’Agent de travailler sur un hôte
+
+1. Dans une discussion, saisissez `@` et le début du nom de l’hôte. Vos ordinateurs et vos hôtes SSH sont listés sous **Ordinateurs**.
+2. Choisissez l’hôte. Il s’insère dans le message sous forme de pastille.
+3. Demandez ce que vous voulez y faire, puis envoyez. Par exemple :
+
+   ```text
+   @build-server What errors are in ~/app/logs/app.log? Just read it, don't change anything.
+   ```
+
+L’Agent exécute les commandes sur l’hôte en SSH, en demandant d’abord comme vous l’avez choisi pour cet hôte. Chaque étape de commande nomme l’hôte sur lequel elle s’est exécutée. La réponse revient dans la discussion.
+
+Pour voir ce qu’il a exécuté, cliquez sur **Worked for** au-dessus de la réponse. Le volet déplié liste chaque commande.
+
+Vous pouvez mentionner un ordinateur associé de la même façon. L’Agent confie la tâche à l’agent propre à cet ordinateur, ou y exécute des commandes lorsque cet ordinateur autorise Terminal pour ce Mac.
+
+Dans la discussion, une commande exécutée sur un hôte ou un autre ordinateur s’affiche comme **commande exécutée**, et chaque étape nomme la machine.
+
+## Laisser les agents travailler sur un ordinateur associé
+
+Dans **Réglages → Connexions**, cliquez sur un ordinateur sous **Ordinateurs** pour ouvrir sa page. Deux interrupteurs décident de ce que les agents des discussions d’ici peuvent faire avec lui :
+
+| Interrupteur | Ce qu’il fait |
+| --- | --- |
+| **Agents** | Ajouter ses agents aux Projets, ou lui confier une discussion. La tâche s’exécute sur cet ordinateur, et tout ce que son agent veut faire vous est d’abord demandé là-bas. |
+| **Commandes** | Les agents des discussions d’ici peuvent y exécuter des commandes, en demandant selon le Permission mode de la discussion. |
+
+Un interrupteur grisé signifie que l’autre ordinateur ne l’a pas autorisé : activez **Agents** ou **Terminal** pour ce Mac sur cet ordinateur. Désactiver **Commandes** arrête aussi les commandes passant par un hôte SSH pour le même ordinateur.
+
+Pour que les agents d’un autre ordinateur utilisent directement l’écran et le navigateur de ce Mac, activez **Contrôle par agent** sur la page de cet ordinateur ici. Consultez [Vos autres ordinateurs](/fr/integrations/other-computers).
+
+## Modifier les réglages d’un hôte
+
+Sous **Hôtes SSH**, cliquez sur un hôte pour ouvrir sa page :
+
+| Réglage | Ce qu’il fait |
+| --- | --- |
+| **Les agents peuvent l’utiliser** | Désactivé, l’hôte reste dans la liste mais hors de toutes les discussions. |
+| **Avant chaque commande** | **Suivre la conversation** ou **Toujours demander**. |
+| **Copier des fichiers** | Permet aux agents de copier des fichiers vers l’hôte et depuis celui-ci avec `scp`. |
+| **Démarre dans** | Le dossier dans lequel les commandes démarrent. Vide, il s’agit du dossier de connexion. |
+
+Le menu **⋯** de la page propose **Tester la connexion** et **Supprimer l’hôte…**. Supprimer un hôte l’oublie dans Enconvo. Votre `~/.ssh/config` et le serveur restent tels quels.
+
+## Voir qui peut accéder à ce Mac
+
+**Qui peut accéder à ce Mac**, dans **Réglages → Connexions**, indique combien de téléphones et d’ordinateurs peuvent accéder à ce Mac.
+
+Pour tous les couper d’un coup, cliquez sur **Couper tout accès** et confirmez. Vos téléphones et vos autres ordinateurs ne peuvent plus accéder à aucun de vos Mac, et ce qu’ils y exécutent s’arrête. Cliquez sur **Réactiver l’accès** quand vous voulez les rétablir.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Le test n’atteint pas un serveur de votre réseau local | macOS retient la connexion à cause de l’autorisation Réseau local. Cliquez sur **Autoriser le réseau local pour Enconvo**, ou activez Enconvo dans **Réglages Système → Confidentialité et sécurité → Réseau local**, puis réessayez. |
+| Le test indique que le serveur a refusé votre clé | Vérifiez `IdentityFile` pour l’hôte dans `~/.ssh/config`, ou ajoutez la clé avec `ssh-add`. |
+| Le serveur a répondu avec une clé d’hôte différente | Il a peut-être été reconstruit, ou quelque chose s’interpose entre vous et lui. S’il a été reconstruit, supprimez l’ancienne clé dans Terminal avec `ssh-keygen -R` suivi de l’adresse du serveur, puis réessayez. |
+| L’hôte n’apparaît pas dans le menu `@` | Ouvrez la page de l’hôte et activez **Les agents peuvent l’utiliser**. |
+| Mot de passe ou phrase secrète incorrect | La boîte se rouvre et indique que cela n’a pas fonctionné. Saisissez-le à nouveau. |
+| Un ordinateur a deux hôtes SSH | Le premier hôte reste lié à l’ordinateur, et sa page affiche celui-là. En le supprimant, vous liez l’autre. |
+| `~/.ssh/config` ne contient aucun hôte | Saisissez l’adresse sous la forme `user@host` dans **Ajouter un hôte**. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Vos autres ordinateurs" icon="laptop" href="/fr/integrations/other-computers">Associez un ordinateur et utilisez ses discussions, son écran et ses fichiers.</Card>
+  <Card title="App iPhone" icon="mobile" href="/fr/integrations/iphone-app">Associez un téléphone, la première liste de Connexions.</Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">Les Permission modes et la façon dont l’Agent demande avant d’agir.</Card>
+  <Card title="Utilisation de l’ordinateur" icon="computer-mouse" href="/fr/features/computer-use">Laissez l’Agent utiliser les apps de ce Mac.</Card>
+</CardGroup>

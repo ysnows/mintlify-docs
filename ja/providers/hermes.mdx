@@ -1,0 +1,207 @@
+---
+title: "Hermes Agent"
+description: "Hermes Agent を Enconvo で OpenAI 互換のモデルとして使います"
+---
+
+Hermes Agent は、Nous Research が開発するオープンソースの AI エージェントです。ツール、メモリ、スキル、ターミナルアクセス、メッセージング連携を備えた、ローカルまたはサーバーでホストされるエージェントランタイムとして動作します。
+
+Enconvo では、Hermes Agent を OpenAI 互換の API サーバー経由で使います。Hermes ゲートウェイが起動していれば、Enconvo はチャット、Enconvo のエージェント、モデルを使う機能で、Hermes を他の AI モデルと同じように使えます。
+
+<Tip>
+  Hermes は初めてですか？ まず [Hermes Agent クイックスタート](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)から始め、その後ここに戻って Enconvo に接続してください。
+</Tip>
+
+API リファレンス: [Hermes Agent API サーバーのドキュメント](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server)。ソース: [Hermes Agent の GitHub リポジトリ](https://github.com/NousResearch/hermes-agent)。
+
+## 始める前に
+
+- Hermes Agent がインストールされ、設定済みであること
+- API サーバーを有効にした Hermes ゲートウェイが起動していること
+- `~/.hermes/.env` の `API_SERVER_KEY` にある API サーバートークン
+- Hermes Agent の AI モデルプロバイダーが有効な Enconvo
+
+Hermes は、`/v1/models`、`/v1/chat/completions`、`/v1/responses` などの OpenAI 互換のエンドポイントを公開します。Enconvo の Hermes プロバイダーは Chat Completions API（`/v1/chat/completions`）を使います。
+
+Enconvo は、このプロバイダーで Hermes の Responses API を使いません。Hermes は OpenAI 互換の Chat Completions プロバイダーとして設定してください。
+
+## 自動でセットアップする
+
+**設定 → AI モデル → Hermes Agent** を開きます。セットアップカードで、ローカルの Hermes API サーバーの起動、停止、設定を行えます。
+
+Hermes が Enconvo と同じ Mac にインストールされている場合は、**自動セットアップ** を使います。Enconvo は次の処理を行います。
+
+<Steps>
+  <Step title="Hermes を探す">
+    この Mac に `hermes` CLI があることを確認します。
+  </Step>
+  <Step title="API サーバーを有効にする">
+    `~/.hermes/.env` に `API_SERVER_ENABLED=true` を書き込み、`API_SERVER_KEY` がなければ追加します。
+  </Step>
+  <Step title="ゲートウェイを起動する">
+    Hermes ゲートウェイサービスを起動します。
+  </Step>
+  <Step title="API を確認する">
+    `/v1/health` と `/v1/models` でローカルの API サーバーに接続を試みます。
+  </Step>
+  <Step title="認証情報を保存">
+    ベース URL と API サーバーキーを、Enconvo の Hermes の認証情報に保存します。
+  </Step>
+</Steps>
+
+セットアップカードには、**実行中** や **停止しました** などのランタイムバッジが表示されます。カードが表示されている間、Enconvo はこの状態を定期的に更新し、カードが表示されなくなると更新を止めます。
+
+## ベース URL と API キーを取得する
+
+Enconvo が Hermes と同じ Mac で動作している場合は、次のベース URL を使います。
+
+```text
+http://127.0.0.1:8642/v1
+```
+
+API サーバートークンは `~/.hermes/.env` から読み取ります。
+
+```bash
+awk -F= '/^API_SERVER_KEY=/{print $2}' ~/.hermes/.env
+```
+
+Enconvo はこの値を次の形式で送信します。
+
+```http
+Authorization: Bearer <API_SERVER_KEY>
+```
+
+OpenAI 互換のエンドポイントを直接テストするには、次のようにします。
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer <API_SERVER_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      { "role": "user", "content": "Hello!" }
+    ]
+  }'
+```
+
+`/v1/chat/completions` までの完全なエンドポイントではなく、`/v1` で終わるベース URL を使ってください。
+
+## Hermes を手動で接続する
+
+**設定 → AI モデル → Hermes Agent** を開き、認証情報プロバイダーを設定します。
+
+| 設定 | 値 |
+|---------|-------|
+| **Hermes Base URL** | `http://127.0.0.1:8642/v1` |
+| **API Server Key** | `~/.hermes/.env` の `API_SERVER_KEY` |
+
+ベース URL とトークンを入力したら、**検証** をクリックします。
+
+## リクエストと添付ファイルの扱い
+
+Enconvo は、OpenAI 互換の Chat Completions で Hermes にリクエストを送ります。
+
+```http
+POST /v1/chat/completions
+```
+
+`hermes-agent`、または Hermes の `/v1/models` エンドポイントが示すモデル名を使ってください。
+
+Enconvo は、画像の添付ファイルを Hermes に送信しません。上流の Hermes API サーバーが画像入力に対応していると示していても、Enconvo では Hermes プロバイダーをテキスト／チャット用のプロバイダーとして扱ってください。画像を扱うワークフローでは、ビジョン対応のモデルプロバイダーを使うか、Hermes にテキストを送る前に OCR や画像解析を実行してください。
+
+## Hermes を AI モデルとして使う
+
+設定が済むと、Hermes がモデルセレクターに表示されます。**Hermes Agent** を選び、示されたモデル（通常は `hermes-agent`）を選択します。
+
+通常の Enconvo のインターフェースのまま、Enconvo の会話、コマンド、機能を Hermes Agent 経由で実行したいときに、このモードを使います。
+
+<Steps>
+  <Step title="モデルピッカーを開く">
+    チャットなど、モデルを使う Enconvo の機能で、現在のモデル名をクリックします。
+  </Step>
+  <Step title="Hermes Agent を選ぶ">
+    プロバイダーのリストで **Hermes Agent** を選択します。
+  </Step>
+  <Step title="Hermes のモデルを選ぶ">
+    `hermes-agent`、または Hermes API サーバーが示すモデル名を選びます。
+  </Step>
+  <Step title="機能を通常どおり実行する">
+    質問するか、Enconvo の機能を実行します。モデルの呼び出しは Hermes が裏で処理します。
+  </Step>
+</Steps>
+
+Enconvo は、Hermes の `/v1/models` エンドポイントから Hermes のモデルを読み込みます。Hermes が起動していない場合やエンドポイントを利用できない場合、Enconvo は `hermes-agent` にフォールバックします。
+
+## Hermes 用のエージェントを作成する
+
+Hermes Agent を取りまとめる Enconvo のエージェントを作成することもできます。Hermes のエージェントランタイムを、Enconvo 側のワークフロー、ツールセット、プロンプトで包みたいときに便利です。
+
+<Steps>
+  <Step title="エージェントの作成を開く">
+    SmartBar を開き、**エージェントを作成** を検索します。
+  </Step>
+  <Step title="エージェントに名前を付ける">
+    `Hermes Agent` など、分かりやすいタイトルを付けます。
+  </Step>
+  <Step title="コーディネーター用の指示を書く">
+    Enconvo のエージェントに、Hermes とどう連携して動くかを説明する指示を与えます。
+
+    ```markdown
+    You coordinate Hermes Agent for the user.
+
+    Use Hermes for agentic work, automation, terminal-backed tasks, and requests that should run through the user's Hermes setup.
+    Summarize what Hermes did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Hermes のモデルを選ぶ">
+    エージェントのモデル設定で **Hermes Agent** を選び、`hermes-agent` を選択します。
+  </Step>
+  <Step title="エージェントを保存して使う">
+    新しい Enconvo のエージェントと会話を始めます。設定した Enconvo のエージェントのインターフェースとツールはそのままに、Hermes が使われます。
+  </Step>
+</Steps>
+
+## ネットワーク経由で接続する
+
+Hermes が別のマシンで動作している場合は、Enconvo にそのホストマシンの LAN IP を指定します。
+
+```text
+http://<hermes-host-lan-ip>:8642/v1
+```
+
+<Warning>
+  LAN からアクセスする場合は、強力な `API_SERVER_KEY` を使ってください。Hermes API サーバーは、信頼できるネットワークでのみ公開してください。
+</Warning>
+
+## トラブルシューティング
+
+<AccordionGroup>
+  <Accordion title="Hermes Agent がモデルピッカーに表示されない">
+    **設定 → AI モデル** で Hermes プロバイダーが有効になっていることを確認します。モデルリストが空の場合は、`hermes gateway status` でゲートウェイが起動していることを確認します。
+  </Accordion>
+  <Accordion title="検証が unauthorized で失敗する">
+    `~/.hermes/.env` の `API_SERVER_KEY` をもう一度確認します。Enconvo はこの値を想定し、Bearer トークンとして送信します。
+  </Accordion>
+  <Accordion title="接続に失敗する">
+    `curl http://127.0.0.1:8642/v1/health` で API サーバーが正常か確認します。Enconvo が別のデバイスで動作している場合は、ホストの LAN IP を使い、Hermes がネットワークアクセス用にバインドされていることを確認します。
+  </Accordion>
+  <Accordion title="起動には成功したが、状態の更新に少し時間がかかる">
+    サービスマネージャーは、API サーバーの準備が整う前に応答を返すことがあります。数秒待ってからセットアップカードのランタイムバッジをもう一度確認するか、`hermes gateway status` を実行して `curl http://127.0.0.1:8642/v1/health` をテストします。
+  </Accordion>
+  <Accordion title="画像の添付ファイルが無視される">
+    Enconvo の Hermes プロバイダーは現在、テキストのみに対応しています。Enconvo は画像の添付ファイルを Hermes に送信しません。画像を直接入力するには、ビジョン対応のプロバイダーを選んでください。
+  </Accordion>
+  <Accordion title="ベース URL が違う">
+    `http://<gateway-host>:8642/v1` を入力します。Enconvo のベース URL の項目に `/chat/completions` を含めないでください。
+  </Accordion>
+  <Accordion title="ゲートウェイのログが必要">
+    Hermes ゲートウェイのログは `tail -f ~/.hermes/logs/gateway.log`、エラーは `tail -f ~/.hermes/logs/gateway.error.log` で読み取れます。
+  </Accordion>
+</AccordionGroup>
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="OpenClaw" icon="server" href="/ja/providers/openclaw">別のエージェントゲートウェイを同じ方法で接続します。</Card>
+  <Card title="エージェント" icon="robot" href="/ja/ai/agents">エージェントに指示とツールを与えます。</Card>
+</CardGroup>

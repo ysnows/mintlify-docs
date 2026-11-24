@@ -1,0 +1,99 @@
+---
+title: "Windows(베타)"
+description: "Windows에 Enconvo 베타를 설치하고, 로그인하고, 최신 상태로 유지하고, 어떤 기능을 쓸 수 있는지 확인하세요."
+tag: "BETA"
+---
+
+<Note>
+Windows용 Enconvo는 베타이며 **베타** 업데이트 채널로 제공됩니다. 일상적으로 쓸 수 있도록 만들었지만, 빌드마다 내용이 바뀔 수 있습니다. 문제가 생기면 [피드백 사이트](https://feedback.enconvo.com)에 알려 주세요.
+</Note>
+
+**현재 베타: 2.5.13 베타 3**(`2.5.13-beta-3`). 사용 중인 버전은 **설정 → 일반 → 업데이트**에서 확인할 수 있습니다.
+
+## 요구 사항
+
+- **Windows 10 버전 2004(빌드 19041) 이상 또는 Windows 11.**
+- **64비트 Intel/AMD(x64).** 아직 Arm용 Windows 빌드는 없습니다.
+- **Microsoft Edge WebView2 런타임.** Enconvo의 창은 이 런타임에서 실행됩니다. Windows 11에는 기본으로 들어 있습니다. Windows 10에서 창이 빈 화면으로 남는다면 [문제 해결](#문제-해결)을 참고하세요.
+
+## 베타 다운로드
+
+베타는 `Enconvo-<version>-win32-x64-setup.exe` 설치 프로그램으로 제공됩니다. 파일 이름에 베타 버전 번호가 들어 있습니다.
+
+현재 베타인 2.5.13 베타 3은 [Enconvo-2.5.13-beta-3-win32-x64-setup.exe](https://file.enconvo.com/win32-x64/beta/Enconvo-2.5.13-beta-3-win32-x64-setup.exe)에서 받으세요.
+
+항상 최신 베타를 받으려면 PowerShell에서 아래 명령을 실행하세요. 베타 피드를 읽고, 설치 프로그램을 다운로드 폴더에 받은 다음, 파일이 온전히 도착했는지 확인합니다.
+
+```powershell
+$feed = "https://file.enconvo.com/win32-x64/beta"
+$latest = Invoke-RestMethod "$feed/latest.json"
+$file = $latest.files.exe.url
+$out = "$env:USERPROFILE\Downloads\$file"
+$ProgressPreference = "SilentlyContinue"   # downloads much faster in Windows PowerShell
+Invoke-WebRequest "$feed/$file" -OutFile $out
+if ((Get-FileHash $out -Algorithm SHA256).Hash -eq $latest.files.exe.sha256) {
+  "Downloaded Enconvo $($latest.version) to $out"
+} else {
+  "The download is damaged. Delete it and run this again."
+}
+```
+
+## 설치하기
+
+<Steps>
+  <Step title="설치 프로그램 실행">
+    다운로드한 `.exe`를 여세요. **Windows의 PC 보호**가 표시되면 **자세한 정보**를 클릭한 다음 **그래도 실행**을 클릭하세요. SmartScreen은 아직 알려지지 않은 앱에 이 화면을 표시합니다.
+  </Step>
+  <Step title="폴더 선택">
+    Enconvo는 내 계정에만 설치되며 관리자 권한이 필요하지 않습니다. 기본 폴더는 `%LOCALAPPDATA%\Programs\Enconvo`입니다. 다른 폴더를 고르면 비어 있거나 이미 Enconvo가 들어 있는 폴더여야 합니다.
+  </Step>
+  <Step title="Enconvo 열기">
+    마지막 페이지에서 **Enconvo 열기**를 선택해 둔 채로 두거나, 나중에 시작 메뉴에서 **Enconvo**를 여세요. 아이콘은 작업 표시줄의 알림 영역에 나타납니다.
+  </Step>
+  <Step title="로그인">
+    Enconvo 계정으로 로그인한 다음 [빠른 시작](/ko/quickstart)으로 이어가세요.
+  </Step>
+</Steps>
+
+설치할 때 Enconvo가 실행 중이면 설치 프로그램이 먼저 종료해도 되는지 묻습니다.
+
+## Windows에서 작동하는 기능
+
+| 기능 | Windows |
+| --- | --- |
+| 채팅 창, 설정 | 예 |
+| 에이전트, 도구, 파일, 문서, 아티팩트 | 예 |
+| 브라우저 사용, 컴퓨터 사용 | 예 |
+| 지식 베이스, 메모리, 예약 작업, 워크플로 | 예 |
+| Enconvo Cloud 모델, 웹 검색, OCR, 이미지 생성, 음성 | 예 |
+| 전역 단축키, 받아쓰기, 음성 메모, 녹음, 화면 낙서, Appshots, 알림 | 예 |
+| 클립보드 기록, 스니펫 | 예 |
+| [SmartBar](/ko/features/smartbar), [PopBar](/ko/features/popbar), [Dynamic Island](/ko/features/dynamic-island), 음성 명령 | 예 |
+| [아바타](/ko/features/avatar), [데스크톱 펫](/ko/features/pet) | 예 |
+| GGUF 파일로 쓰는 로컬 채팅 모델 | 예 |
+| 앱 사이드바, Live Talk, 자막 | 아니요 |
+| MLX 모델 | 아니요: Mac이 필요합니다 |
+
+## 업데이트
+
+베타 빌드는 베타 채널에 머뭅니다. 바꾸려면 **설정 → 일반**을 열고 **업데이트 채널**을 설정하세요. [업데이트](/ko/configuration/updates)를 참고하세요.
+
+Enconvo는 새 버전을 스스로 확인합니다. 준비되면 채팅 창에서 **업데이트**를 클릭하세요. **설정 → 일반 → 업데이트**에서 지금 바로 확인할 수도 있습니다.
+
+업데이트는 제자리에서 설치됩니다. Enconvo가 종료되고, 설치 프로그램의 진행 상황이 표시된 뒤, 새 버전으로 다시 열립니다.
+
+## 문제 해결
+
+| 증상 | 해결 방법 |
+| --- | --- |
+| 설치 프로그램을 열 때 **Windows의 PC 보호**가 표시됩니다 | **자세한 정보**를 클릭한 다음 **그래도 실행**을 클릭하세요 |
+| **Enconvo needs 64-bit Windows** | Enconvo는 32비트 Windows에서 실행되지 않습니다 |
+| 설치 프로그램이 선택한 폴더를 사용하지 않습니다 | 비어 있는 폴더나 Enconvo가 이미 있는 폴더를 고르세요 |
+| Enconvo의 창이 빈 화면으로 남거나 열리지 않습니다 | [Microsoft Edge WebView2 런타임](https://developer.microsoft.com/microsoft-edge/webview2/)을 설치한 다음 Enconvo를 다시 여세요 |
+| Enconvo 알림을 클릭해도 아무 일도 일어나지 않습니다 | **관리자 권한으로 실행**하지 말고 Enconvo를 평소처럼 여세요 |
+
+## Enconvo 제거
+
+**설정 → 앱 → 설치된 앱**(Windows 10에서는 **설정 → 앱 → 앱 및 기능**)을 열고 **Enconvo**를 찾아 **제거**를 선택하세요.
+
+설정과 채팅은 사용자 폴더의 `.config\enconvo` 폴더(`%USERPROFILE%\.config\enconvo`)에 남습니다. 이 폴더를 삭제하면 함께 지워집니다.

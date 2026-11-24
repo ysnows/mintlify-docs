@@ -1,0 +1,116 @@
+---
+title: "Computadores e anfitriões SSH"
+description: "Deixe os seus agentes trabalhar nos seus outros computadores e em servidores a que acede por SSH, e controle quem pode aceder a este Mac."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Os seus agentes podem trabalhar em mais do que este Mac. Adicione um servidor onde inicia sessão com SSH, mencione-o numa conversa e peça, como pediria sobre o seu próprio Mac: o Agente executa lá os comandos e responde aqui. Nada é instalado no servidor. Os seus outros computadores com o Enconvo podem ser emparelhados da mesma forma.
+
+O vídeo abaixo adiciona um anfitrião SSH a partir da sua configuração SSH, pede ao Agente que leia um registo nele e mostra quem pode aceder a este Mac.
+
+<YouTubePlayer videoId="ojtTTtqTod4" title="Computers and SSH Hosts in Enconvo" />
+
+## Antes de começar
+
+- Precisa de um servidor onde consiga iniciar sessão com `ssh` a partir deste Mac: um anfitrião em `~/.ssh/config`, ou um endereço que possa escrever como `user@host`. O Enconvo usa o `ssh` e as chaves deste Mac. Se o servidor pedir uma palavra-passe ou uma frase de acesso, o `ssh` pede-a através do Enconvo, e o Enconvo não guarda nada disso.
+- Para um servidor na sua rede local, permita o Enconvo em **Definições do Sistema → Privacidade e segurança → Rede local**.
+
+## O que as Ligações listam
+
+Abra **Definições → Ligações**. Tem três listas:
+
+| Lista | O que contém |
+| --- | --- |
+| **Telemóveis** | As apps para iPhone e Android emparelhadas com este Mac. Consulte [App para iPhone](/pt/integrations/iphone-app). |
+| **Computadores** | Os seus outros computadores com o Enconvo, emparelhados com este Mac. Cada um aparece uma só vez, com o sentido em que controla. Clique em **Emparelhar um computador** para adicionar um. Consulte [Os seus outros computadores](/pt/integrations/other-computers). |
+| **Anfitriões SSH** | Servidores a que os seus agentes acedem por SSH, sem nada instalado neles. |
+
+Clique num telemóvel ou num computador para abrir a respetiva página, com o que ele pode fazer neste Mac.
+
+Também pode adicionar um anfitrião, emparelhar um computador ou emparelhar um telemóvel a partir da Janela de chat: clique no seletor de dispositivos na parte inferior da barra lateral e depois em **Adicionar um dispositivo**.
+
+## Adicionar um anfitrião SSH
+
+1. Abra **Definições → Ligações** e, em **Anfitriões SSH**, clique em **Adicionar um anfitrião**.
+2. A lista mostra os anfitriões do seu `~/.ssh/config`. Escolha um, como `build-server`, ou escreva `user@host` (ou `user@host:port`).
+3. Clique em **Ligar**. O Enconvo testa a ligação: chega ao anfitrião, verifica a chave do anfitrião, inicia sessão e executa um comando.
+4. Em **Antes de cada comando**, escolha como o Agente pergunta antes de executar um comando lá:
+   - **Seguir o chat**: pergunta conforme o modo de permissões do chat. Consulte [Aprovar ações](/pt/ai/agents).
+   - **Perguntar sempre**: pergunta antes de cada comando.
+5. Clique em **Adicionar anfitrião**.
+
+O anfitrião aparece agora em **Anfitriões SSH** e no menu `@` de todas as conversas.
+
+Na primeira vez que o Enconvo vê a chave de anfitrião de um servidor, verifique a chave com quem gere o servidor e depois clique em **Confiar e ligar**. Num servidor Linux, a caixa de diálogo também oferece **Instalar também o Enconvo lá**, que emparelha o servidor como um computador. Deixe-a desativada para não instalar nada.
+
+## Pedir ao Agente que trabalhe num anfitrião
+
+1. Numa conversa, escreva `@` e o início do nome do anfitrião. Os seus computadores e anfitriões SSH são listados em **Computadores**.
+2. Escolha o anfitrião. Entra na mensagem como uma etiqueta.
+3. Peça o que quer que seja feito lá e envie. Por exemplo:
+
+   ```text
+   @build-server What errors are in ~/app/logs/app.log? Just read it, don't change anything.
+   ```
+
+O Agente executa os comandos no anfitrião por SSH, perguntando primeiro conforme escolheu para esse anfitrião. Cada passo de comando indica o anfitrião em que foi executado. A resposta volta à conversa.
+
+Para ver o que executou, clique em **Trabalhou durante** acima da resposta. A secção lista cada comando.
+
+Pode mencionar um computador emparelhado da mesma forma. O Agente entrega a tarefa ao agente próprio desse computador, ou executa lá comandos quando esse computador permite o Terminal a este Mac.
+
+Na conversa, um comando executado num anfitrião ou noutro computador aparece como **comando executado**, e cada passo indica a máquina.
+
+## Deixar os agentes trabalhar num computador emparelhado
+
+Em **Definições → Ligações**, clique num computador em **Computadores** para abrir a respetiva página. Dois interruptores decidem o que os agentes das conversas aqui podem fazer com ele:
+
+| Interruptor | O que faz |
+| --- | --- |
+| **Agentes** | Adiciona os seus agentes a Projetos, ou entrega uma conversa a um deles. A tarefa é executada nesse computador, e tudo o que o respetivo agente quiser fazer pergunta-lhe primeiro lá. |
+| **Comandos** | Os agentes das conversas aqui podem executar comandos nele, perguntando conforme o modo de permissões da conversa. |
+
+Um interruptor esbatido significa que o outro computador não o permitiu: ative **Agentes** ou **Terminal** para este Mac nesse computador. Desativar **Comandos** também impede comandos através de um anfitrião SSH para o mesmo computador.
+
+Para deixar os agentes de outro computador usar diretamente o ecrã e o navegador deste Mac, ative **Controle por agentes** na página desse computador aqui. Consulte [Os seus outros computadores](/pt/integrations/other-computers).
+
+## Alterar as definições de um anfitrião
+
+Em **Anfitriões SSH**, clique num anfitrião para abrir a respetiva página:
+
+| Definição | O que faz |
+| --- | --- |
+| **Os agentes podem usá-lo** | Desativado mantém o anfitrião na lista, mas fora de todas as conversas. |
+| **Antes de cada comando** | **Seguir o chat** ou **Perguntar sempre**. |
+| **Copiar ficheiros** | Permite que os agentes copiem ficheiros de e para o anfitrião com `scp`. |
+| **Começa em** | A pasta em que os comandos começam. Vazio significa a pasta de início de sessão. |
+
+O menu **⋯** da página tem **Testar a ligação** e **Remover anfitrião…**. Remover um anfitrião esquece-o no Enconvo. O seu `~/.ssh/config` e o servidor ficam como estão.
+
+## Ver quem pode aceder a este Mac
+
+**Quem pode aceder a este Mac**, em **Definições → Ligações**, mostra quantos telemóveis e computadores podem aceder a este Mac.
+
+Para cortá-los todos de uma vez, clique em **Parar todo o acesso** e confirme. Os seus telemóveis e outros computadores deixam de poder aceder a qualquer um dos seus Macs, e o que têm em execução aí pára. Clique em **Voltar a ativar o acesso** quando os quiser de volta.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| O teste não consegue chegar a um servidor na sua rede local | O macOS está a reter a ligação por causa da permissão de Rede local. Clique em **Permitir a rede local ao Enconvo**, ou ative o Enconvo em **Definições do Sistema → Privacidade e segurança → Rede local**, e tente de novo. |
+| O teste diz que o servidor recusou a sua chave | Verifique o `IdentityFile` do anfitrião em `~/.ssh/config`, ou adicione a chave com `ssh-add`. |
+| O servidor respondeu com uma chave de anfitrião diferente | Pode ter sido reconstruído, ou algo pode estar entre si e ele. Se foi reconstruído, remova a chave antiga no Terminal com `ssh-keygen -R` seguido do endereço do servidor e tente de novo. |
+| O anfitrião não está no menu `@` | Abra a página do anfitrião e ative **Os agentes podem usá-lo**. |
+| Palavra-passe ou frase de acesso errada | A caixa abre-se de novo e diz que não funcionou. Escreva-a outra vez. |
+| Um computador tem dois anfitriões SSH | O primeiro anfitrião fica associado ao computador, e a respetiva página mostra esse. Removê-lo associa o outro. |
+| O `~/.ssh/config` não tem anfitriões | Escreva o endereço como `user@host` em **Adicionar um anfitrião**. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Os seus outros computadores" icon="laptop" href="/pt/integrations/other-computers">Emparelhe um computador e use as suas conversas, o ecrã e os ficheiros.</Card>
+  <Card title="App para iPhone" icon="mobile" href="/pt/integrations/iphone-app">Emparelhe um telemóvel, a primeira lista em Ligações.</Card>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">Modos de permissões e como o Agente pergunta antes de agir.</Card>
+  <Card title="Utilização do computador" icon="computer-mouse" href="/pt/features/computer-use">Deixe o Agente usar apps neste Mac.</Card>
+</CardGroup>

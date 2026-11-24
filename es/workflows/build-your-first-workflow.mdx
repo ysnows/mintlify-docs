@@ -1,0 +1,131 @@
+---
+title: "Crea tu primer flujo de trabajo"
+description: "Sigue un vídeo narrado para crear un flujo de trabajo a partir de una plantilla, añadir pasos a mano y con el asistente, y luego ejecutarlo y leer la salida de cada paso."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Los flujos de trabajo encadenan prompts, agentes y herramientas en una sola ejecución repetible. Este tutorial crea uno de principio a fin: créalo a partir de la plantilla **Recorrido por los tipos de pasos**, añade un paso a mano, deja que el asistente de flujos de trabajo añada otro, y luego ejecútalo y lee la salida de cada paso.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+El vídeo dura 2 minutos y 24 segundos. Los pasos escritos siguientes siguen el mismo orden, con la marca de tiempo correspondiente a cada paso.
+
+## Qué vas a crear
+
+La plantilla **Recorrido por los tipos de pasos** ya funciona desde el primer momento. A lo largo del tutorial, se convierte en una pequeña cadena de producción de contenido:
+
+| Paso | Tipo | Qué hace |
+| --- | --- | --- |
+| Get today's date | Shell | Imprime la fecha de hoy |
+| List saved workflows | Herramienta | Lista tus flujos de trabajo existentes (se ejecuta en paralelo con la fecha) |
+| Ask the model for an idea | Prompt | Sugiere una nueva automatización sobre la entrada `topic` |
+| Let the agent expand it | Agente | Convierte la idea en un plan de tres pasos |
+| Write a tweet | Prompt | Añadido a mano: convierte el plan en un tuit contundente |
+| Translate the tweet into Japanese | Prompt | Añadido por el asistente: traduce el tuit |
+
+## Sigue el tutorial
+
+<Steps>
+  <Step title="Crea un flujo de trabajo (0:07)">
+    Abre **Ajustes → Flujos de trabajo → Gestionar** y selecciona **Nuevo flujo de trabajo**. En **O empieza con una plantilla**, elige **Recorrido por los tipos de pasos**. Se crea el flujo de trabajo y el editor se abre en modo **Visual**. El vídeo se grabó antes de que existiera el diálogo **Nuevo flujo de trabajo**, por lo que allí el punto de partida se llama *Starter Workflow*.
+  </Step>
+  <Step title="Lee el grafo (0:18)">
+    Lee el grafo desde arriba. El nodo **Entradas** declara lo que necesita una ejecución; aquí es un único `topic`. Los dos primeros pasos están uno junto al otro porque pertenecen a trabajos distintos, así que se ejecutan en paralelo. Cada resultado fluye después hacia los pasos de debajo, que se ejecutan en orden.
+  </Step>
+  <Step title="Edita un paso (0:28)">
+    Selecciona un paso para abrirlo en el inspector, donde puedes cambiar su ID, su título y su prompt. Las llaves dobles incorporan valores a un paso: `{{ inputs.topic }}` lee una entrada de la ejecución y `{{ steps.idea.output }}` lee el resultado de un paso anterior. Así es como los pasos se comunican entre sí.
+  </Step>
+  <Step title="Añade un paso (0:37)">
+    Selecciona el **+** debajo del último paso y elige un tipo de paso, como Prompt, Agente, Shell o Herramienta. Dale al nuevo paso Prompt el ID `tweet`, el título "Write a tweet" y este prompt:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    Después de renombrar el ID de un paso, pulsa Retorno antes de pasar al siguiente campo.
+    </Tip>
+  </Step>
+  <Step title="O pídeselo al asistente de flujos de trabajo (0:57)">
+    En lugar de editar a mano, selecciona **Asistente** en la barra de herramientas y describe el cambio en el panel que se abre junto al lienzo:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    El asistente edita el grafo y lista los pasos que cambió. Selecciona **Revertir** en su respuesta si no te gusta el resultado. En el vídeo añade un paso `translate_ja` cuyo prompt lee `{{ steps.tweet.output }}`. Revisa el paso nuevo antes de guardar: las ediciones del asistente quedan sin guardar hasta que seleccionas **Guardar**.
+  </Step>
+  <Step title="Mira el YAML (1:16)">
+    Selecciona **YAML** en la barra de herramientas para ver el mismo flujo de trabajo como código fuente. Cada flujo de trabajo es un archivo de texto simple, guardado en `~/.enconvo/workflows/<id>.yaml`, así que es fácil de leer, comparar y compartir. Selecciona **Visual** para volver al grafo. El archivo completo está en [El flujo de trabajo terminado](#el-flujo-de-trabajo-terminado) más abajo.
+  </Step>
+  <Step title="Ejecútalo y comprueba la salida (1:28)">
+    Selecciona **Entradas**, establece los valores de la ejecución (el vídeo usa `{"topic": "matcha"}`) y elige **Ejecutar**. Los pasos en ejecución brillan en azul y los pasos terminados se ponen en verde. El paso Agente tarda más que los demás.
+
+    Cuando la ejecución termina, selecciona cualquier paso y abre su pestaña **Salida** para ver exactamente lo que produjo. El último paso tomó el tuit y lo tradujo, sin copiar y pegar.
+  </Step>
+  <Step title="Encuentra ejecuciones anteriores (2:05)">
+    Cada ejecución se conserva en **Ejecuciones** en la barra de herramientas, así que puedes volver a cualquier resultado más tarde.
+  </Step>
+</Steps>
+
+<Note>
+Ejecutar un flujo de trabajo llama a modelos y herramientas reales. Puede consumir créditos del proveedor, y los pasos Shell o Herramienta actúan con los permisos de la cuenta de tu Mac. Revisa los pasos de un flujo de trabajo antes de ejecutarlo.
+</Note>
+
+## El flujo de trabajo terminado
+
+Este es el flujo de trabajo creado en el vídeo, escrito como YAML. La vista **YAML** puede darle un formato ligeramente distinto.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+El trabajo `ideate` espera a `date` y `catalog` mediante `needs`, así que puede leer sus resultados con `jobs.<job>.<step>.output`. Dentro de un trabajo, los pasos posteriores leen los anteriores con `steps.<id>.output`.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Flujos de trabajo" icon="diagram-project" href="/es/workflows/introduction">Trabajos, pasos y todos los tipos de paso.</Card>
+  <Card title="Crear flujos de trabajo" icon="pen-to-square" href="/es/workflows/creating-workflows">El editor visual, YAML y el asistente de edición en detalle.</Card>
+  <Card title="Flujos de trabajo avanzados" icon="code-branch" href="/es/workflows/advanced-workflows">Condiciones, bucles, reintentos, esquemas de salida y subflujos de trabajo.</Card>
+  <Card title="Tareas programadas" icon="clock" href="/es/workflows/scheduled-jobs">Ejecuta un flujo de trabajo o una instrucción de Agente a una hora determinada.</Card>
+</CardGroup>

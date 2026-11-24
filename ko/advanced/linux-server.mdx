@@ -1,0 +1,159 @@
+---
+title: "Linux 서버에서 Enconvo 설정하기"
+description: "Linux 서버에서 실행되는 Enconvo의 모델, 에이전트, 플러그인을 웹 UI, 명령줄 또는 Mac에서의 동기화로 선택하세요."
+---
+
+이 페이지는 Mac에서 **설정 → 연결**에 Linux 서버를 추가하고 그곳에 Enconvo를 설치한 경우를 위한 문서입니다. 서버는 화면 없이 Enconvo를 실행하며, Mac에서는 서버의 채팅은 열 수 있지만 설정은 열 수 없습니다. 서버는 웹 UI, 명령줄, Mac 설정 동기화의 세 가지 방법으로 설정할 수 있습니다.
+
+## Mac이 서버와 공유하는 것
+
+페어링하면 Mac에서 서버의 채팅, 에이전트, 파일을 사용할 수 있습니다. 설정은 공유되지 않습니다. 서버는 자체 모델, 에이전트, 플러그인, API 키를 따로 보관하며 Mac에서 복사해 오지 않습니다.
+
+- 설정과 API 키는 Mac에서 열 수 없습니다. 서버에서 변경하세요.
+- 기본 상태에서 서버의 에이전트는 기본 모델을 사용합니다. 새로 설치하면 서버가 로그인한 계정의 Enconvo Cloud이므로, 서버의 채팅은 Cloud 포인트를 사용합니다.
+- 에이전트 하나의 모델을 빠르게 바꾸려면 Mac에서 서버 채팅의 모델 선택기를 사용하세요. 서버에 있는 해당 에이전트의 모델, 추론 강도, 속도가 설정됩니다. API 키가 필요한 제공업체는 먼저 서버에 해당 키가 있어야 합니다.
+
+## 서버의 웹 UI 열기
+
+서버는 채팅 창과 설정을 웹사이트로 제공할 수 있으므로, Mac의 브라우저에서 설정을 사용할 수 있습니다. Mac에서 설치할 때는 웹 UI가 켜지지 않으므로, SSH로 한 번 켜 주세요.
+
+<Steps>
+  <Step title="웹 UI 켜기">
+    `ssh`로 서버에 접속해 다음을 실행하세요.
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    웹 UI를 켠 상태로 Enconvo 서비스를 다시 작성하고 재시작합니다. `127.0.0.1`에서만 수신하므로 서버 밖에서는 접근할 수 없습니다. `enconvo service install`을 다시 실행하면 서비스는 새로 실행한 옵션만으로 동작합니다.
+  </Step>
+  <Step title="Mac에서 터널 열기">
+    Mac의 터미널에서 `ssh`에 쓰는 것과 같은 호스트 이름을 사용하세요.
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    웹 UI를 사용하는 동안 계속 실행해 두세요. 닫으려면 Control-C를 누르세요.
+  </Step>
+  <Step title="웹 UI 열기">
+    Mac의 브라우저에서 `http://127.0.0.1:54580`을 여세요. 설정은 Mac에서와 같이 동작합니다. **설정 → AI 모델**에서 모델을 고르고, **설정 → 플러그인**에서 플러그인을 추가하며, API 키도 여기에서 입력하세요.
+  </Step>
+</Steps>
+
+서버에서 `enconvo service url`을 실행하면 웹 UI의 주소가 출력됩니다.
+
+### 터널 없이 접속하기
+
+SSH 없이 다른 컴퓨터에서 웹 UI를 열려면 네트워크에 바인딩하세요.
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+그러면 웹 UI에 연결 토큰이 필요합니다. `enconvo service url`을 실행하면 `?tkn=`으로 끝나는, 토큰이 포함된 주소가 출력됩니다. 이 링크를 한 번 열면 브라우저가 토큰을 보관합니다. 리버스 프록시 뒤에서는 프록시가 제공하는 주소로 `--web-url https://enconvo.example.com`을 추가하거나, 서버에 접속하는 다른 이름이 있다면 `--web-host <name>`을 추가하세요. 둘 다 토큰이 필요합니다.
+
+<Warning>
+  토큰이 있으면 누구든 서버의 Enconvo 계정과 해당 사용자가 읽을 수 있는 모든 파일에 접근할 수 있습니다. 링크를 비공개로 유지하고, 포트는 방화벽이나 VPN 뒤에 두며, 가능하면 SSH 터널을 사용하세요. 토큰을 교체하려면 서버에서 `~/.config/enconvo/.support/windows-shell/web-token`을 삭제하고 `systemctl --user restart enconvo`를 실행하세요.
+</Warning>
+
+## 명령줄에서 설정하기
+
+설치된 모든 플러그인의 라우트는 서버에서 `enconvo` 명령으로 쓸 수 있습니다. `enconvo <plugin> <route> --flags`로 실행하거나, 요청 전체를 `--input-json`으로 전달하세요. 어느 단계에서든 `-h`를 붙이면 사용 가능한 항목이 표시됩니다.
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+`'agent|main'`처럼 `|`가 들어 있는 키는 따옴표로 감싸세요. 따옴표가 없으면 셸이 `|`를 파이프로 해석합니다.
+
+### 모델
+
+서버의 모델 제공업체를 나열합니다. 각 제공업체의 `commandKey`(예: `llm|enconvo_ai`)가 설정할 값입니다.
+
+```bash
+enconvo llm list_providers
+```
+
+기본 모델을 설정합니다. 기본값으로 설정된 모든 에이전트가 이 모델을 사용합니다.
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+에이전트 하나의 모델을 설정합니다. 메인 에이전트는 `agent|main`이며, 다른 에이전트의 `command_key`는 `enconvo agent list`에서 확인할 수 있습니다.
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+값을 `default`로 설정하면 다시 기본 모델을 따릅니다. `enconvo config preferences 'agent|main'`은 에이전트가 가진 모든 설정을 나열합니다.
+
+설정 하나만 되돌리려면 그 설정을 지정하세요.
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  `--keys` 없이 `enconvo config reset`을 실행하면 해당 키의 모든 설정이 초기화되며, 에이전트나 명령의 경우 작업 공간 데이터도 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+</Warning>
+
+`config get`은 저장된 API 키와 토큰을 `[hidden]`으로 표시합니다. API 키가 셸 기록에 남지 않도록 `config set` 대신 웹 UI의 설정에서 입력하세요.
+
+### 플러그인
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install`은 GitHub `owner/repo`, git URL, `.zip`으로 연결되는 `https` 링크, `npm:<package>`, 폴더 또는 `<plugin>@<marketplace>`를 받습니다. 화면이 필요한 플러그인은 서버에서 숨겨집니다.
+
+### 에이전트
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+`enconvo agent -h`는 에이전트 삭제나 일시 중지 같은 나머지 명령을 나열합니다.
+
+## 동기화로 Mac의 설정 사용하기
+
+동기화는 Enconvo 계정을 통해 Mac의 설정을 서버로 복사합니다. Enconvo Cloud 요금제와 평생 라이선스에 포함된 기능입니다.
+
+1. Mac에서 **설정 → 동기화**를 열고 **컴퓨터 간 동기화**를 켠 다음, **저장 공간**에서 **Enconvo 계정**을 선택하세요. Linux 서버는 iCloud에 접근할 수 없습니다.
+2. 서버의 웹 UI에서 **설정 → 동기화**를 열고 **컴퓨터 간 동기화**를 켜세요.
+3. **동기화 항목**에서 두 컴퓨터 모두 가져올 항목(예: **설정**, **플러그인**, **스킬**)을 선택하세요.
+4. API 키도 가져오려면 두 컴퓨터 모두 **API 키**를 켜세요. 기본값은 꺼짐입니다. 그러면 Mac에 코드가 표시되며, 서버에 같은 코드가 표시되는지 확인한 뒤 **허용**을 클릭하세요.
+
+한 컴퓨터에 속한 항목은 그대로 그 컴퓨터에 남습니다. 단축키, 폴더 경로와 작업 폴더, 로그인, 예약 작업, 메시징 봇이 해당합니다. 각 선택이 다루는 범위는 [Mac 동기화](/ko/configuration/account)를 참고하세요.
+
+## 문제 해결
+
+| 문제 | 해결 방법 |
+| --- | --- |
+| `enconvo: command not found` | 새 SSH 세션을 여세요. 설치하면 셸 프로필의 `PATH`에 Enconvo 폴더가 추가되는데, 설치 전에 열려 있던 세션은 이를 읽지 않았습니다. |
+| `enconvo service url`이 주소를 출력하지 않음 | Enconvo가 실행 중이 아니거나 웹 UI 없이 실행 중입니다. `enconvo service install --web 127.0.0.1:54580`을 다시 실행하세요. |
+| 브라우저에서 `127.0.0.1:54580`이 열리지 않음 | 터널이 아직 열려 있는지 확인한 다음, `systemctl --user status enconvo`로 서비스를, `journalctl --user -u enconvo`로 로그를 확인하세요. |
+| 웹 UI가 연결 토큰을 요구함 | `enconvo service url`이 출력하는, 끝에 `?tkn=`이 붙은 전체 링크를 여세요. |
+| `service install`이 이 사용자로 Enconvo가 이미 실행 중이라고 함 | 서버가 로그아웃 후에 사용자 서비스를 유지하지 않으면 Mac이 Enconvo를 백그라운드 프로세스로 시작합니다. `sudo loginctl enable-linger $USER`를 실행하고, `enconvo service install --web 127.0.0.1:54580`을 다시 실행한 다음, 서비스가 이어받도록 서버를 재시작하세요. |
+| `service install`이 systemd를 사용할 수 없다고 함 | 대신 직접 사용하는 프로세스 관리자에서 `enconvo --headless --web 127.0.0.1:54580`을 실행하세요. |
+| 채팅이 Mac과 다른 모델을 사용함 | 서버에는 자체 모델이 있습니다. `enconvo config get llm --includes selected`를 확인하거나 동기화를 켜세요. |
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="CLI 및 Local API" icon="terminal" href="/ko/advanced/cli-local-api">
+    터미널과 스크립트에서 Enconvo 명령 실행하기
+  </Card>
+  <Card title="계정 및 동기화" icon="rotate" href="/ko/configuration/account">
+    모든 컴퓨터에서 설정을 똑같이 유지하기
+  </Card>
+</CardGroup>

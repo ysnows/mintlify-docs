@@ -1,0 +1,363 @@
+---
+title: "進階工作流程"
+description: "分支、迴圈、重試、取得結構化結果、逐步驟切換模型，以及組合工作流程，並附有可直接複製的完整範例。"
+---
+
+當單純的步驟清單不夠用時，就用這些功能：只在條件成立時才執行某個步驟、對清單重複執行某個步驟、在某個步驟失敗時讓執行繼續、取得結構化結果，以及從一個工作流程呼叫另一個工作流程。完整的範例工作流程在最後。如果你剛接觸 `agent-workflow/v1` 格式，請先閱讀[建立工作流程](/zh-hant/workflows/creating-workflows)。
+
+執行這些範例前，Shell 路徑以及工具或供應商的可用性必須與你的 Mac 相符。
+
+<Tip>
+在視覺化編輯器中，你不需要手動撰寫這些內容：步驟檢查器的[行為](/zh-hant/workflows/creating-workflows)區段，可以透過白話選項來設定 `if`、`else_of`、`run_when`、`foreach`、`loop`、`retries`、`required`、`needs` 和輸出結構描述。
+</Tip>
+
+## 分支
+
+### 只在條件為真時執行步驟 (`if`)
+
+加上 `if:`，步驟只會在條件為真時執行。條件為假時，該步驟及其下游的所有步驟都會略過：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+條件是以真值來判斷的範本運算式，例如 `inputs.score >= 60`、`steps.check.output.exitCode == 0`，或單純的布林輸入。
+
+### 執行另一個分支 (`else_of`)
+
+`else_of:` 只會在它所指名的步驟因條件而被略過時，才執行該步驟。它是 `if` 的「else」那一側：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### 合併與清理 (`run_when: always`)
+
+帶有 `needs` 的步驟，通常會在任一相依項被略過時跟著略過，而且當必要的相依項失敗時，執行就會停止。`run_when: always` 會同時覆寫這兩項：只要相依項已經結束，不論成功、略過或失敗，該步驟都會執行。可用於合併與清理：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### 關閉步驟 (`enabled: false`)
+
+`enabled: false` 會讓步驟保留在工作流程中，但每次執行都會略過它。與因條件而略過不同，被關閉的步驟不會使後面的步驟跟著略過：
+
+- 依賴它的步驟仍會執行，而讀取其輸出的內容會得到空值。
+- 它的 `else_of` 步驟也會略過。
+
+移除該鍵（或設為 `true`）即可重新開啟步驟。在編輯器中，使用檢查器裡的 **關閉步驟**。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## 迴圈
+
+### 對清單中的每個項目重複執行 (`foreach`)
+
+`foreach:` 會對每個項目執行一次步驟。在步驟內，`{{ item }}` 是目前的元素，`{{ index }}` 是它的位置。下游步驟會收到收集起來的輸出陣列：
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` 也接受行內陣列，而且適用於每一種步驟：對 `tool:` 呼叫、對子工作流程等等使用 `foreach`。空清單會產生空結果，下游步驟仍會執行。當某個項目失敗時，除非該步驟標記為 `required: false`，否則步驟不會再開始新的項目。
+
+### 重複直到條件成立 (`loop`)
+
+`loop:` 會重複執行步驟。`until:` 會在每一輪之後，針對 `output`（該輪的結果）進行檢查。`{{ round }}` 是輪數，`{{ last }}` 是上一輪的輸出。如果在滿足 `until` 之前 `maxRounds` 已用完，步驟就會失敗。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+省略 `until` 即可迴圈固定的次數：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## 可靠性
+
+| 欄位 | 作用 |
+| --- | --- |
+| `retries` | 重試失敗的步驟。可使用次數 (`retries: 2`) 或物件 (`retries: { maxAttempts: 3, delayMs: 500 }`)。 |
+| `required: false` | 此步驟失敗時不會中止執行；下游步驟會繼續。 |
+| `timeoutMs` | 停止執行過久的 shell 步驟。 |
+
+沉默 20 分鐘的步驟會被停止並再執行一次。你停止的執行會顯示 **已取消**，而不是失敗。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## 輸出約定
+
+在 `prompt` 或 `agent` 步驟上加上 `output_schema`（JSON Schema 物件），即可強制規定回覆的格式。你不需要在提示詞文字中描述 JSON 格式：所要求的格式會提供給模型，而回覆在下游步驟使用之前，會先經過解析和驗證。設定 `retries` 可重試失敗的步驟；如果回覆仍然無法通過驗證，該步驟就會失敗。
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## 逐步驟覆寫模型
+
+`prompt` 和 `agent` 步驟接受選用的 `provider:` 和 `model:`，只為該步驟切換模型。切換只在該次執行期間有效；你儲存的模型設定不會被更動。大量處理的步驟可使用便宜的模型，重要的地方則使用更強的模型。
+
+將 `provider` 設為已安裝的供應商指令名稱，並將 `model` 設為該供應商在你目前版本中顯示的模型 ID。例如，從你可正常運作的供應商設定中複製這兩個值到提示詞步驟。模型的可用性和權限因帳號而異；本頁的範例使用你設定的預設模型。
+
+<Note>
+`provider` 是供應商指令（例如 `enconvo_ai`、`open_ai` 或 `ollama`），`model` 是該供應商的模型 ID。兩者只在 `prompt` 和 `agent` 步驟上有效。
+</Note>
+
+## 子工作流程
+
+使用 `uses: workflow` 組合工作流程，可以用 `workflowId:`（已儲存的工作流程），或使用行內的 `workflow:` 區塊。步驟的輸出是子執行的結果。使用 `output.outputs['job.step']` 來參照子工作流程的步驟輸出：
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## 範本參考
+
+| 參照 | 可用位置 |
+|---|---|
+| `{{ inputs.x }}` | 任何位置：工作流程輸入 |
+| `{{ steps.<id>.output }}` | 任何位置：同一個 job 中的前一個步驟 |
+| `{{ jobs.<job>.<step>.output }}` | 相依 job 中已完成的步驟 |
+| `{{ item }}` / `{{ index }}` | `foreach` 步驟內 |
+| `{{ round }}` / `{{ last }}` | `loop` 步驟內 |
+| `{{ now }}` | 目前的時間戳記 |
+| `{{ env.HOME }}` | 處理程序環境變數 |
+
+範本支援 Nunjucks 篩選器（`| trim`、`| int`、`| dump`、`| default(...)`、`{% for %}` 等），你可以藉此在步驟之間重塑資料。
+
+## 完整範例
+
+### 研究、摘要與報告
+
+搜尋網路、摘要發現的內容，並組合成 Markdown 報告。這些步驟在同一個 job 中依序執行，因此不需要接上 `needs`：
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### 條件式路由
+
+依據分數核准或拒絕，然後一律寫出最終報告：
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### 迴圈直到收斂
+
+反覆修改草稿，直到自我檢查通過為止，並限制輪數上限：
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="建立工作流程" icon="pen-to-square" href="/zh-hant/workflows/creating-workflows">
+    編輯器、編輯助理，以及每一種步驟類型。
+  </Card>
+  <Card title="工作流程" icon="book-open" href="/zh-hant/workflows/introduction">
+    Job、步驟，以及工作流程如何執行。
+  </Card>
+</CardGroup>

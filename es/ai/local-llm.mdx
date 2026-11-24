@@ -1,0 +1,56 @@
+---
+title: "Modelos locales"
+description: "Ejecuta modelos en tu propio hardware y mantén una tarea completa en tu Mac."
+---
+
+Ejecuta modelos en tu Mac, o en otro ordenador tuyo, cuando quieras que los chats sean privados o que funcionen sin una cuenta de proveedor. Enconvo tiene un motor integrado y también se conecta a Ollama y LM Studio.
+
+## Elige un entorno de ejecución
+
+| Entorno | Ideal para | Configuración |
+| --- | --- | --- |
+| [Local LLM (MLX)](/es/providers/mlx) | Ejecutar modelos dentro de Enconvo en un Mac con Apple Silicon y macOS 15 o posterior | Elige y descarga un modelo en Ajustes |
+| [Ollama](/es/providers/ollama) | Modelos que ya gestionas con Ollama, en este Mac o en un servidor | Inicia Ollama e indica su dirección |
+| [LM Studio](/es/providers/lm-studio) | Modelos que ya usas en LM Studio, en este Mac o en un servidor | Inicia el servidor de LM Studio e indica su dirección |
+
+## Empieza poco a poco
+
+1. Configura el entorno de ejecución y descarga o carga un modelo.
+2. Envía un mensaje de texto corto.
+3. Cuando eso funcione, añade documentos o herramientas.
+4. Vigila el uso de memoria y la velocidad antes de probar un modelo más grande. **Ajustes → Modelos locales** muestra los modelos de este Mac y cuánta memoria usan.
+
+El tamaño del modelo, la cuantización, la longitud del contexto y otras tareas en ejecución afectan a la memoria. Usa el tamaño que muestra el selector de modelos en lugar de una regla fija.
+
+## Mantén toda la tarea en local
+
+Un modelo de chat local por sí solo no mantiene todo en tu Mac. El reconocimiento de voz, la síntesis de voz, el OCR, el análisis de documentos, los embeddings, la reordenación, la búsqueda y las herramientas MCP usan cada uno su propio proveedor. Enconvo tiene proveedores locales para varios de ellos; el [catálogo de proveedores](/es/providers/catalog) los enumera.
+
+**Ajustes → Modelos locales** muestra qué funciones se ejecutan en este Mac y cuáles en la nube. La búsqueda web y otros servicios en línea siguen necesitando internet, y un modelo local aún puede llamar a herramientas que envían contenido fuera de tu Mac.
+
+## Usa un servidor de modelos en otro ordenador
+
+Configura el servidor para que acepte conexiones de red y establece la **BaseUrl** de Enconvo con la dirección de ese ordenador. `localhost` siempre se refiere al Mac que ejecuta Enconvo. Si macOS bloquea la conexión, activa Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Red local**.
+
+## Usa otro servidor de modelos
+
+Para un servidor como llama.cpp, vLLM, KoboldCpp o text-generation-webui, haz clic en **Añadir nuevo proveedor** al final de **Ajustes → Modelo de IA** y elige **Compatible con OpenAI**. Pega la dirección del servidor como URL base; Enconvo la acepta con o sin `/v1`, y también con el endpoint completo. Deja vacía la clave de API cuando el servidor no la compruebe.
+
+## Chats largos con un contexto pequeño
+
+Los servidores locales suelen ejecutar un modelo con un contexto menor que el que el modelo permite. Enconvo lee el contexto con el que de verdad se ejecutan Ollama, llama.cpp, LM Studio, KoboldCpp y text-generation-webui, y compacta el chat para que quepa. Con un contexto pequeño, resume un chat largo por partes. Para dar más espacio al modelo, aumenta la longitud del contexto en los ajustes del propio servidor.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| El modelo olvida el principio de un chat largo | El servidor ejecuta un contexto pequeño. Aumenta la longitud del contexto en los ajustes del servidor o empieza un chat nuevo. |
+| El modelo ignora las herramientas o las imágenes | No las admite, así que Enconvo responde sin ellas. Elige un modelo que admita llamadas a herramientas o imágenes como entrada. |
+| Falla la conexión | Lee el error: Enconvo muestra el mensaje del propio servidor y nombra la causa. Comprueba que el servidor está en marcha y que la dirección y el puerto son correctos. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/es/providers/mlx">El motor integrado de Enconvo.</Card>
+  <Card title="Privacidad y seguridad" icon="shield" href="/es/configuration/privacy-security">Adónde van tus datos, función por función.</Card>
+</CardGroup>

@@ -1,0 +1,521 @@
+---
+title: "技能"
+description: "用技能教 Enconvo 的代理程式執行可重複的任務：把說明、參考資料和選用的指令碼放在同一個資料夾中。"
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+技能會把說明、資源和選用的指令碼打包在一起，讓 Enconvo 能可靠地遵循工作流程。當你一再解釋同樣的流程時，例如如何審查程式碼或如何整理會議記錄，就可以製作一個技能。你可以與團隊或社群分享技能。
+
+<Note>
+技能採用**漸進式揭露**來有效管理上下文：Enconvo 一開始只讀取每個技能的中繼資料（名稱、描述、檔案路徑），只有在技能被啟用時，才會載入完整的說明。
+</Note>
+
+這部影片依序介紹技能、MCP 伺服器、外掛程式和擴充功能商店。
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="How to Use Skills, MCP and Plugins in Enconvo | Step-by-Step Tutorial" />
+
+## 管理你的技能
+
+開啟 **設定 → 技能**。每個代理程式都共用這些技能，而每個代理程式也可以在自己的設定中加入專屬的技能。
+
+- 頂端的卡片會分別統計 **全部技能**、**已開啟，從未使用** 的技能、**在多個資料夾中** 的技能，以及 **關閉** 的技能。點一下卡片即可只列出該類技能。
+- 每一列都會顯示 **所在位置**（內建，或它來自的資料夾或 App）和 **上次使用** 的時間。用列尾的開關關閉代理程式不需要的技能，也可以選取多個一起關閉。
+- **從 GitHub 加入** 會從儲存庫安裝技能，**匯入** 則從你 Mac 上的資料夾加入技能。請參閱[安裝技能](#安裝技能)。
+- **我的 Skill** 依來源列出你製作的技能：**已錄製**、**已學會**、**指令碼**、**手寫的** 或 **已安裝**。點一下其中一個即可查看它的 **步驟**、**注意事項** 和 **歷史記錄**。請參閱[附帶已儲存步驟的技能](#附帶已儲存步驟的技能)。
+
+在聊天視窗中，你也可以從圖示列的 **外掛程式** 直接在視窗內開啟技能。
+
+## 技能長什麼樣子
+
+技能是一個含有 `SKILL.md` 檔案的資料夾，另外可有選用的指令碼和參考資料。
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### SKILL.md 格式
+
+`SKILL.md` 必須以包含 `name` 和 `description` 的 frontmatter 區塊開頭：
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo 依據 `description` 來挑選技能，因此請給它明確的範圍和界線。說明**何時**使用該技能，以及**何時不要**使用。
+</Tip>
+
+## 使用技能
+
+你可以用名稱呼叫技能，也可以讓 Enconvo 挑選符合你需求的技能。
+
+### 用名稱呼叫技能
+
+在 SmartBar 或聊天中輸入 `/`，後面接技能名稱：
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+這是最可靠的方式：你會得到你想要的那個技能。若只想列出技能，請輸入 `$`。
+
+你安裝的外掛程式所帶的技能也會出現在 `/` 和 `$` 選單中，名稱格式與 Claude Code 相同，為 `plugin:skill`。
+
+### 讓 Enconvo 挑選
+
+當你沒有指名技能時，Enconvo 會依據 `description`，把你的需求對應到最相關的技能：
+
+1. 你輸入：「把這些會議記錄整理成待辦事項」
+2. Enconvo 掃描所有可用技能的描述
+3. `meeting-notes` 技能相符（「……把原始會議逐字稿整理成含待辦事項的結構化記錄……」）
+4. 該技能被啟用，並由它的說明引導回應
+
+比對是依據語意，而不只是相同的關鍵字，所以即使你的說法與描述不同，或是用另一種語言寫的，仍然找得到該技能。若要確保代理程式一定看得到某個技能，請在代理程式的 **工具和技能** 設定中釘選它；請參閱[代理程式](/zh-hant/ai/agents)。
+
+### 撰寫容易比對的描述
+
+比對得好不好，取決於寫得好的 `description`：
+
+| 品質 | 範例 |
+|---------|---------|
+| **太籠統** | 「協助處理程式碼」 |
+| **太廣泛** | 「處理任何與程式設計有關的事」 |
+| **良好** | 「審查程式碼中的錯誤、安全問題和最佳做法。當使用者要求程式碼審查或想提升程式碼品質時使用。不要用於產生程式碼或撰寫新的程式碼。」 |
+
+好的描述有三個部分：
+
+- **它的作用**：「審查程式碼中的錯誤、安全問題和最佳做法」
+- **何時觸發**：「當使用者要求程式碼審查時使用」
+- **何時不觸發**：「不要用於產生程式碼或撰寫新的程式碼」
+
+## 技能存放的位置
+
+Enconvo 會從多個位置讀取技能，每個位置各有其範圍：
+
+| 範圍 | 位置 | 適用於 |
+|-------|----------|------------|
+| **專案** | `$PROJECT/.agents/skills/`（也包括 `.enconvo/skills/`、`.claude/skills/` 和 `.codex/skills/`） | 單一專案或工作區的技能 |
+| **使用者** | `~/.agents/skills/`（也包括 `~/.enconvo/skills/`、`~/.claude/skills/` 和 `~/.codex/skills/`） | 適用於你所有專案的個人技能 |
+| **系統** | 隨 Enconvo 一起提供 | 所有人都可使用的內建技能 |
+
+每個代理程式也可以攜帶自己的技能：在代理程式設定的 **技能** 下加入即可。
+
+如果不同位置的兩個技能同名，兩者都會保留可用；Enconvo 不會合併它們。**設定 → 技能** 會把這些技能列在 **在多個資料夾中** 底下。
+
+### 專案技能
+
+專案技能放在你的專案資料夾內，只有在該專案啟用時才可使用：
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+適用於依賴專案慣例、檔案結構或工具的技能。
+
+### 使用者技能
+
+`~/.agents/skills/` 中的使用者技能在每個專案中都可使用。適用於不屬於某個特定專案的個人技能：
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## 建立技能
+
+### 使用技能建立工具
+
+建立技能最快的方式是使用內建的建立工具：
+
+```
+/skill-creator
+```
+
+建立工具會引導你完成：
+
+1. 技能的作用
+2. 它應該在何時觸發
+3. 它是只有說明，還是包含指令碼
+
+只有說明是預設，也是建議的做法。只有在需要確定性的行為或外部工具時，才加入指令碼。
+
+### 手動建立
+
+建立一個含有 `SKILL.md` 檔案的資料夾：
+
+<Steps>
+  <Step title="建立技能目錄">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="撰寫 SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="確認它已出現">
+    Enconvo 會自動偵測技能的變更。如果新技能沒有出現，請重新啟動 Enconvo。
+  </Step>
+</Steps>
+
+### 撰寫說明
+
+`SKILL.md` 中 frontmatter 之下的內文，包含 AI 要遵循的說明。請把它們寫成清楚的祈使句步驟：
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### 寫出好技能的訣竅
+
+- **讓每個技能保持專注。** 一個技能只做一件事。做太多事的技能更難正確觸發，也更難維護。如果你寫了 10 個以上涵蓋多項任務的步驟，請把它拆成不同的技能。
+- **明確說明輸入。** 確切說明輸入來自哪裡：「讀取所選文字」、「解析附加的檔案」、「使用使用者訊息中的 URL」。
+- **定義輸出格式。** 附上輸出應有樣子的具體範例，讓結果保持一致。
+- **處理邊界情況。** 為常見的邊界情況加入說明：「如果找不到任何提交，回報該範圍是空的」，或「如果輸入不是有效的 JSON，請使用者檢查格式」。
+- **撰寫祈使句步驟。** 明確寫出輸入、步驟和預期的輸出。含糊的說明會導致不一致的結果。
+- **優先使用說明而非指令碼。** 用平實語言寫成的說明更容易撰寫、除錯和修改。只有在需要確定性的行為或外部工具時才使用指令碼。
+- **設下清楚的界線。** 在描述中，同時說明技能該處理什麼，以及不該處理什麼。
+- **測試你的觸發描述。** 嘗試不同的提示詞，確認技能在該觸發時會觸發，在不該觸發時不會觸發。
+- **為你的技能做版本控制。** 把團隊共用的技能放在版本控制（git）中，這樣就能追蹤變更、回復並協作。
+
+## 加入指令碼
+
+對於需要可執行邏輯的技能，請加入 `scripts/` 資料夾：
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+在 `SKILL.md` 中引用這些指令碼：
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### 何時使用指令碼
+
+| 在這些情況下使用指令碼 | 在這些情況下只用說明 |
+|-----------------|---------------------------|
+| 你需要確定性的輸出（精確的格式、計算） | 任務主要是推理和語言 |
+| 你要與外部 API 或資料庫互動 | 任務只用到 AI 的內建能力 |
+| 你需要以程式方式處理或轉換資料 | 任務是撰寫、摘要或分析 |
+| 你需要驗證或處理憑證 | 光靠說明就已足夠 |
+
+## 加入參考資料
+
+加入技能可以查閱的文件或上下文檔案：
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+在說明中引用它們：
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+參考資料適用於：
+
+- 技能必須遵循的 API 文件
+- 風格指南或品牌準則
+- 程式碼範例和範本
+- 特定領域的知識
+
+## 安裝技能
+
+使用 `/skill-installer` 從 Enconvo 技能商店或 GitHub 安裝技能。它也可以從 Skills.sh、ClawHub 和直接的 ZIP URL 安裝。
+
+### 從 Enconvo 技能商店
+
+依名稱搜尋技能並安裝：
+
+```
+/skill-installer pdf
+```
+
+這會搜尋 Enconvo 技能商店，並安裝相符的技能。Enconvo 會自動偵測新安裝的技能。
+
+### 從 GitHub
+
+直接從 GitHub 儲存庫 URL 安裝技能：
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+URL 可以指向子資料夾，因此你可以從較大的儲存庫中只安裝一個技能，而不必複製整個儲存庫。
+
+### 從你 Mac 上的資料夾
+
+1. 開啟 **設定 → 技能**，點一下 **匯入**。
+2. 選擇一個包含技能子資料夾的資料夾，每個子資料夾都要有 `SKILL.md`。
+
+Enconvo 會把該資料夾加入它讀取技能的位置，其中的技能由所有代理程式共用。若要停止使用該資料夾，請在來源選單中選擇它，然後選擇 **移除資料夾**。資料夾本身會保留在磁碟上。
+
+## 附帶已儲存步驟的技能
+
+每個已儲存的工作流程也是一個技能，有自己的 `SKILL.md`，而技能可以保存它先前做過的任務步驟。執行這類技能時，它已儲存的步驟會先執行，不需要主模型，因此更快也更省。不再適用的步驟，例如已經移動的按鈕，會根據技能自己的筆記和螢幕截圖進行修復。只有在修復失敗時，才會由代理程式依據 `SKILL.md` 來完成任務。
+
+在 **我的 Skill** 中，標示為 **先跑儲存的步驟** 的技能含有步驟；標示為 **只有說明** 的則沒有。每個技能的 **歷史記錄** 會顯示它的執行情況和學到的內容，你也可以還原較早的版本。
+
+### 把錄製內容變成技能
+
+你可以把你做過的任務的錄製內容變成技能。每個錄製的動作都會成為一個經過檢查的步驟，並保留它的螢幕截圖以供修復。在技能的某次執行成功之前，它會維持為 **草擬**。
+
+### 把指令碼當作步驟執行
+
+技能可以把[程式碼模式](/zh-hant/configuration/code-mode)指令碼存放在自己的 `scripts` 資料夾中，並將它作為步驟之一執行，因此需要大量工具呼叫的任務可以作為單一步驟執行。
+
+## 讓技能學習你的工作方式
+
+技能可以學習你喜歡的任務做法，就像記憶學習事實一樣。開啟 **設定 → 記憶**，並開啟 **學習做法**：
+
+- 當你糾正任務的做法，或某個步驟必須修復時，技能會立刻學會。聊天中會顯示一則 **已學會** 的備註，並附有 **還原**。
+- 當同一項任務第二次出現時，它會成為新的技能。
+- 記憶審查和記憶整理也會照顧技能。
+
+在 **改動步驟時** 下，選擇 **直接生效**，或選擇 **先問我**，讓技能步驟的變更等你點一下它備註上的 **套用**。無論哪種方式，注意事項仍會立刻加入。付款、傳送和刪除一律會先詢問你，而金鑰和密碼絕不會被學習。
+
+## 管理技能
+
+### 查看你的技能
+
+**設定 → 技能** 會列出所有代理程式共用的技能。在頂端選擇檢視方式：
+
+| 檢視 | 顯示 |
+| --- | --- |
+| **全部技能** | 每個技能只顯示一次，即使有多個資料夾各有一份副本 |
+| **已開啟，從未使用** | 在每個聊天中都提供給代理程式、但尚未被使用的技能 |
+| **在多個資料夾中** | 在多個資料夾中都有副本的技能，例如給 Claude Code 和 Codex 的 |
+| **關閉** | 不提供給代理程式的技能 |
+
+你可以搜尋、依來源篩選（**全部來源**、**內建**、**來自外掛** 或某個資料夾），或依 **名稱 A 到 Z** 或 **上次使用** 排序。
+
+### 更新技能
+
+- **商店技能**：再次執行 `/skill-installer` 以檢查是否有較新的版本。
+- **GitHub 技能**：使用相同的 URL 再次執行安裝程式。
+- **你自己的技能**：直接編輯 `SKILL.md` 檔案。Enconvo 會自動偵測變更。
+
+### 關閉技能
+
+你可以在不刪除技能的情況下將它關閉：
+
+1. 開啟 **設定 → 技能**。
+2. 找到該技能。
+3. 把它的開關關閉。
+
+技能關閉時，代理程式無法使用它，無論是用名稱或比對，直到你重新開啟為止。釘選該技能的 App 設定檔仍可使用它。
+
+## 範例技能
+
+### 程式碼審查者
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### 會議記錄
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Git 提交訊息
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### API 文件產生器
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="代理程式" icon="robot" href="/zh-hant/ai/agents">為代理程式提供它自己的技能和工具。</Card>
+  <Card title="MCP 整合" icon="plug" href="/zh-hant/features/mcp">把技能與 MCP 工具結合使用。</Card>
+  <Card title="Enconvo GitHub" icon="github" href="https://github.com/enconvo">瀏覽開源擴充功能和技能。</Card>
+  <Card title="社群 Discord" icon="discord" href="https://discord.gg/jYsdVRRK2k">分享技能，並從社群獲得協助。</Card>
+</CardGroup>

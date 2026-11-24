@@ -1,0 +1,186 @@
+---
+title: "So funktionieren Wissensdatenbanken"
+description: "Erfahre, wie Enconvo deine Wissensdatenbanken speichert, aufteilt, indiziert und durchsucht und wie du die Suchergebnisse gut hältst."
+---
+
+Diese Seite ist für alle, die wissen wollen, was mit einem Dokument passiert, nachdem es in eine Wissensdatenbank gelangt ist: wo Enconvo es ablegt, wie es aufgeteilt und indiziert wird und wie die Suche Ergebnisse auswählt. Nutze sie, um eine Sammlung abzustimmen, schlechte Ergebnisse zu beheben oder Wissensdatenbanken aus eigenem Code aufzurufen. Wenn du mit Wissensdatenbanken neu anfängst, beginne mit [Wissensdatenbank](/de/ai/knowledge-base).
+
+Kurz gesagt: Enconvo liest den Text jedes Elements, teilt ihn in Chunks auf, wandelt jeden Chunk in einen Vektor um und speichert die Chunks in einer lokalen LanceDB-Datenbank. Eine Suche sucht Chunks gleichzeitig nach Bedeutung und nach exakten Wörtern und mischt dann beides.
+
+## Wo die Daten liegen
+
+| Was | Wo |
+|---|---|
+| Chunks, Vektoren und der Volltextindex | Eine LanceDB-Datenbank unter `~/.config/enconvo/.support/knowledge_base/vector/knowledge_base/` |
+| Wissensdatenbanken, Elemente und ihre Details | Eine SQLite-Datenbank (Drizzle ORM) unter `~/.config/enconvo/.support/knowledge_base/db` |
+
+Alle Wissensdatenbanken teilen sich die eine LanceDB-Datenbank, und jede Wissensdatenbank ist darin eine Tabelle. Wenn Enconvo den Index einer Wissensdatenbank neu aufbaut, schreibt es eine neue Tabelle neben die alte und schaltet um, sobald die neue bereit ist. Die Suche funktioniert also während des Neuaufbaus weiter.
+
+Jede Wissensdatenbank hat eine ID. Die APIs nehmen sie als `knowledge_base_id`, und Enconvo führt die Wissensdatenbank als Befehl `knowledge_base|<id>` aus. Um die ID einer Wissensdatenbank zu kopieren, öffne in ihrer Kopfzeile die **Wissensdatenbank-Einstellungen** und gehe zu **Erweitert**.
+
+Der Speicherbedarf hängt von den Original-Assets, dem extrahierten Text, der Anzahl der Chunks und den Embedding-Dimensionen ab. Beobachte die tatsächliche Festplattennutzung deiner Sammlung, statt sie nur anhand der Anzahl der Dokumente zu schätzen. Bewahre Quelldateien und Backups unabhängig vom Suchindex auf.
+
+## Wie Inhalte hineinkommen
+
+### Lesen
+
+Enconvo liest jede Art von Element mit dem Werkzeug, das dazu passt:
+
+| Inhalt | Gelesen von |
+|---|---|
+| **PDF** | Dem Plugin Document Parser. Es nutzt den Text der PDF und führt deinen OCR-Anbieter nur bei gescannten Seiten aus |
+| **Word, PowerPoint, Excel, EPUB, CSV** | Dem Plugin Document Parser |
+| **Text und Markdown** | Unverändert gelesen |
+| **Bilder** | Deinem OCR-Anbieter |
+| **Audio und Video** | Deinem Transkriptionsanbieter |
+| **Webseiten** | Deinem Web-Fetch-Anbieter |
+| **Ganze Websites** | Einem Website-Crawler, Seite für Seite |
+| **YouTube** | Dem Transkript des Videos |
+
+### In Chunks aufteilen
+
+Enconvo teilt den Text in Chunks auf, deren Größe zur Sprache passt, in der er geschrieben ist:
+
+| Text | Chunk-Größe | Überlappung |
+|---|---|---|
+| Überwiegend lateinische Schrift, etwa Englisch | 1.500 Zeichen | 200 Zeichen |
+| Überwiegend Chinesisch, Japanisch oder Koreanisch | 560 Zeichen | 80 Zeichen |
+| Eine Mischung | Dazwischen, nach dem Anteil jeder Sprache | Dazwischen |
+
+Es trennt an der natürlichsten Grenze, bei der ein Chunk in seiner Größe bleibt, und probiert diese Reihenfolge:
+
+1. Absätze
+2. Zeilen
+3. Sätze
+4. Satzteile
+5. Wörter
+6. Ein harter Schnitt (letzter Ausweg)
+
+Tabellen werden etwa mit einer Zeile pro Chunk aufgeteilt, sodass eine Suche nach einer Zeile genau diese Zeile findet. Diese Größen sind fest eingebaut; es gibt keine Einstellung dafür.
+
+### Embedding
+
+Jede Wissensdatenbank verwendet dasselbe Embedding-Modell, EmbeddingGemma 300M. Wähle unter **Einstellungen → Erinnerungen → Embedding-Modell**, wo es läuft:
+
+- **Dieser Mac**: kostenlos, und nichts verlässt deinen Mac, aber es nutzt die GPU, während neue Inhalte indiziert werden. Es braucht einen Mac mit Apple Silicon.
+- **Enconvo Cloud**: kostenlos mit deinem Enconvo-Konto. Der Text, der indiziert oder durchsucht wird, wird dorthin gesendet.
+
+Beide führen dasselbe Modell aus, daher bleibt dein Suchindex beim Wechseln erhalten. Enconvo erzeugt Embeddings für Chunks stapelweise.
+
+### Speichern
+
+Jeder Chunk ist eine Zeile in der Tabelle der Wissensdatenbank:
+
+| Feld | Enthält |
+|---|---|
+| `text` | Den Text des Chunks |
+| `vector` | Sein Embedding |
+| `id` | Die ID des Chunks |
+| `attachment_id` | Das Element, aus dem der Chunk stammt |
+| `type`, `url`, `title`, `ext`, `loc` | Typ, Adresse, Titel und Dateiendung des Elements und die Stelle darin, an der der Chunk sitzt |
+| `metadata` | Weitere Details zum Element |
+
+Enconvo führt außerdem einen Volltextindex von `text`, der aus kurzen Zeichenfolgen aufgebaut ist, sodass er exakte Namen, Zahlen, Code und CJK-Wörter findet.
+
+## Wie die Suche funktioniert
+
+Jede Suche führt bis zu drei Abfragen gleichzeitig über die Chunks der Wissensdatenbank aus:
+
+1. **Nach Bedeutung**: Die Anfrage wird mit demselben Modell eingebettet, und die nächstgelegenen Vektoren werden gefunden.
+2. **Nach Wörtern**: Eine Volltextsuche (BM25) für jedes Wort der Anfrage, ohne gängige englische Wörter.
+3. **Nach Titel**: Elemente, deren Titel zur Anfrage passt, jeweils mit ihrem Chunk, der der Anfrage am nächsten liegt.
+
+Enconvo mischt sie dann. Die Werte jeder Liste werden auf 0 bis 1 skaliert, und der Wert eines Chunks ist 0,6 seines Bedeutungswerts plus 0,4 seines Wortwerts. Ein Element, dessen Titel passt, oder ein Chunk, der die ganze Anfrage enthält, steht weiter oben. Von einem einzelnen Element werden nur wenige Chunks behalten, damit ein langes Dokument den Rest nicht verdrängt, und jeder Chunk kommt mit dem Text um ihn herum zurück.
+
+Die Suche in Wissensdatenbanken hat keinen separaten Reranking-Schritt.
+
+## Den Index gesund halten
+
+Enconvo erstellt den Volltextindex und räumt die Tabellen selbst auf. Es baut außerdem den Index einer Wissensdatenbank neu auf, wenn sie mit einem älteren Chunker oder einem anderen Embedding-Modell erstellt wurde, und zwar aus dem Text, den es schon hat, ohne die Dateien erneut zu lesen.
+
+Um von Hand neu aufzubauen:
+
+- **Die ganze Wissensdatenbank**: Öffne in ihrer Kopfzeile die **Wissensdatenbank-Einstellungen**, gehe zu **Index & Suche** und klicke neben **Den ganzen Index neu aufbauen** auf **Neu indizieren…**. Suchen funktionieren währenddessen weiter.
+- **Ein Element**: Klicke es mit der rechten Maustaste an und wähle **Neu indizieren**.
+
+Die **Wissensdatenbank-Einstellungen** haben fünf Bereiche: **Allgemein** (Name und Beschreibung), **Index & Suche** (Zustand, Elemente, die Aufmerksamkeit brauchen, das Suchmodell und das Neuindizieren), **Quellen & Erfassung** (verknüpfte Ordner und Erfassungswerkzeuge), **KI-Clients (MCP)** und **Erweitert** (die ID und das Löschen der Wissensdatenbank).
+
+Lösche Wissensdatenbanken, die du nicht mehr brauchst, um Speicherplatz freizugeben.
+
+### Verknüpfte Ordner
+
+Prüfe bei einem fehlenden Element zuerst den Import- und Synchronisierungsstatus des Quellordners. Unter **Quellen & Erfassung** zeigt jeder verknüpfte Ordner, ob er gerade synchronisiert, wann er zuletzt synchronisiert hat oder dass sein Quellordner nicht gefunden wird, mit **Jetzt synchronisieren**, **Erneut verknüpfen…** und **Automatische Synchronisierung**.
+
+Prüfe dann den Status der Inhaltsextraktion und den Embedding-Status des Elements getrennt: Die **Pipeline** des Elements zeigt **Inhaltsanalyse** und **Suchindex** als zwei Stufen, und lesbarer extrahierter Text garantiert nicht, dass die Vektorindizierung abgeschlossen ist. Indiziere das Element neu, nachdem du den Fehler seines Anbieters oder Dateizugriffs behoben hast.
+
+Der Quellordner bleibt die maßgebliche Quelle für verknüpfte Dateien. Halte die Wiederherstellung eines Offline-Laufwerks vom Löschen von Dateien getrennt: Wenn ein Quellordner nicht gefunden wird, behält die Wissensdatenbank ihre Elemente. Prüfe die Zahl der übersprungenen Dateien, bevor du einen Import als abgeschlossen betrachtest.
+
+## Mehrere Wissensdatenbanken organisieren
+
+Jede Wissensdatenbank hat eigene Dokumente, einen eigenen Index und eine eigene Tabelle. Teile deine Inhalte so auf, wie du sie durchsuchst:
+
+| Strategie | Beschreibung | Beispiel |
+|----------|-------------|---------|
+| **Nach Projekt** | Eine Wissensdatenbank pro Projekt | `project-alpha`, `project-beta` |
+| **Nach Typ** | Getrennte Wissensdatenbanken nach Inhaltstyp | `code-docs`, `meeting-notes`, `research` |
+| **Nach Team** | Teamspezifisches Wissen | `engineering`, `marketing`, `support` |
+| **Nach Umfang** | Persönlich vs. gemeinsam | `personal-notes`, `company-wiki` |
+
+Um mehrere gleichzeitig zu durchsuchen, hänge sie mit der Kontextauswahl an oder lege die angehängten Wissensdatenbanken des Agenten fest. Eine Suche, die keine Wissensdatenbank nennt, durchsucht alle deine außer Erinnerungen.
+
+## Wissensdatenbanken aus Code verwenden
+
+Das Plugin Wissensdatenbank stellt seine Routen in der [Local API](/de/advanced/cli-local-api) bereit, sodass andere Plugins, Workflows und Skripte sie aufrufen können. Die wichtigsten:
+
+| Route | Zweck |
+|---|---|
+| `knowledge_base/create` | Eine Wissensdatenbank erstellen |
+| `knowledge_base/delete` | Eine Wissensdatenbank und alle ihre Daten entfernen |
+| `knowledge_base/add`, `knowledge_base/add_attachments` | Dateien, Text, Links oder Medien hinzufügen |
+| `knowledge_base/search` | Eine oder mehrere Wissensdatenbanken durchsuchen |
+| `knowledge_base/list` | Die Wissensdatenbanken auflisten |
+| `knowledge_base/get_attachments` | Die Elemente einer Wissensdatenbank auflisten |
+| `knowledge_base/delete_attachments` | Elemente aus einer Wissensdatenbank entfernen |
+| `knowledge_base/reindex` | Den Index einer Wissensdatenbank oder eines Elements neu aufbauen |
+| `knowledge_base/summarize` | Ein Element zusammenfassen |
+
+Öffne **Einstellungen → APIs** für die Parameter jeder Route in deiner installierten Version.
+
+Schritte der Wissensdatenbank passen in Workflows und Automatisierungen, zum Beispiel:
+
+```
+Trigger: New file in ~/Documents/research/
+  → Add to Knowledge Base "research"
+  → Search for related content
+  → Generate summary
+  → Save summary to notes
+```
+
+Für einen anderen KI-Client verwende [Knowledge Base MCP](/de/advanced/knowledge-base-mcp). Es stellt ausgewählte Wissensdatenbanken über einen lokalen, schreibgeschützten Dienst bereit; es exportiert weder Agent-Erinnerungen noch Aufnahmen.
+
+## Fehlerbehebung
+
+| Problem | Was zu tun ist |
+|---|---|
+| Die Suche liefert irrelevante Ergebnisse | Prüfe, ob die Stufe **Suchindex** des Elements abgeschlossen ist, und indiziere dann die Wissensdatenbank neu. Suche mit den Wörtern, die das Dokument verwendet: Exakte Namen und Zahlen werden über den Volltextindex gefunden |
+| Das Indizieren ist langsam | Große Dokumente brauchen länger. Mit **Dieser Mac** nutzt das Indizieren die GPU; stelle das **Embedding-Modell** auf **Enconvo Cloud** um, damit dein Mac frei bleibt |
+| Neue Elemente sind bei Enconvo Cloud nicht durchsuchbar | Melde dich in deinem Enconvo-Konto an. Bis dahin werden neue Inhalte nicht indiziert, und die Suche findet nur passende Wörter |
+| Ein Dateityp wird nicht unterstützt | Konvertiere ihn in PDF, TXT oder MD und füge ihn dann erneut hinzu |
+| Eine Wissensdatenbank wird über ihre ID nicht gefunden | Kopiere die ID aus **Wissensdatenbank-Einstellungen → Erweitert** und übergib sie als `knowledge_base_id` |
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Grundlagen der Wissensdatenbank" icon="book" href="/de/ai/knowledge-base">
+    Erste Schritte mit Wissensdatenbanken
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/de/advanced/knowledge-base-mcp">
+    Deine Wissensdatenbanken von einem anderen KI-Client aus durchsuchen
+  </Card>
+  <Card title="Erinnerungen" icon="brain" href="/de/ai/memory">
+    Das Suchmodell und woran sich Agenten erinnern
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/de/workflows/introduction">
+    Aufgaben der Wissensdatenbank automatisieren
+  </Card>
+</CardGroup>

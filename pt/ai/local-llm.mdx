@@ -1,0 +1,56 @@
+---
+title: "Modelos locais"
+description: "Execute modelos no seu próprio hardware e mantenha uma tarefa inteira no seu Mac."
+---
+
+Execute modelos no seu Mac, ou noutro computador que seja seu, quando quiser que os chats se mantenham privados ou funcionem sem uma conta de fornecedor. O Enconvo tem um motor integrado e também se liga ao Ollama e ao LM Studio.
+
+## Escolher um ambiente de execução
+
+| Ambiente de execução | Ideal para | Configuração |
+| --- | --- | --- |
+| [Local LLM (MLX)](/pt/providers/mlx) | Executar modelos dentro do Enconvo num Mac com Apple Silicon e macOS 15 ou posterior | Escolher e transferir um modelo nas Definições |
+| [Ollama](/pt/providers/ollama) | Modelos que já gere com o Ollama, neste Mac ou num servidor | Iniciar o Ollama e definir o respetivo endereço |
+| [LM Studio](/pt/providers/lm-studio) | Modelos que já usa no LM Studio, neste Mac ou num servidor | Iniciar o servidor do LM Studio e definir o respetivo endereço |
+
+## Comece por pouco
+
+1. Configure o ambiente de execução e transfira ou carregue um modelo.
+2. Envie uma mensagem de texto curta.
+3. Quando isso funcionar, adicione documentos ou ferramentas.
+4. Observe a utilização de memória e a velocidade antes de experimentar um modelo maior. **Definições → Modelos locais** mostra os modelos neste Mac e a memória que utilizam.
+
+O tamanho do modelo, a quantização, o comprimento do contexto e as outras tarefas em execução afetam todos a memória. Use o tamanho que o seletor de modelos mostra, em vez de uma regra fixa.
+
+## Manter a tarefa inteira local
+
+Um modelo de chat local, por si só, não mantém tudo no seu Mac. O reconhecimento de voz, a conversão de texto em voz, o OCR, a análise de documentos, os embeddings, a reordenação, a pesquisa e as ferramentas MCP usam, cada um, o seu próprio fornecedor. O Enconvo tem fornecedores locais para vários deles; o [catálogo de fornecedores](/pt/providers/catalog) apresenta-os.
+
+**Definições → Modelos locais** mostra que funcionalidades são executadas neste Mac e quais são executadas na nuvem. A pesquisa na Web e outros serviços online continuam a precisar da internet, e um modelo local ainda pode chamar ferramentas que enviam conteúdo para fora do seu Mac.
+
+## Usar um servidor de modelos noutro computador
+
+Configure o servidor para aceitar ligações de rede e defina o **BaseUrl** do Enconvo com o endereço desse computador. `localhost` significa sempre o Mac em que o Enconvo está a funcionar. Se o macOS bloquear a ligação, ative o Enconvo em **Definições do Sistema → Privacidade e Segurança → Rede local**.
+
+## Usar outro servidor de modelos
+
+Para um servidor como o llama.cpp, o vLLM, o KoboldCpp ou o text-generation-webui, clique em **Adicionar novo fornecedor** na parte inferior de **Definições → Modelo de IA** e escolha **Compatível com OpenAI**. Cole o endereço do servidor como URL base; o Enconvo aceita-o com ou sem `/v1`, e também com o endpoint completo colado. Deixe a chave de API vazia quando o servidor não verifica nenhuma.
+
+## Chats longos num contexto pequeno
+
+Os servidores locais executam muitas vezes um modelo com um contexto mais pequeno do que o modelo permite. O Enconvo lê o contexto com que o Ollama, o llama.cpp, o LM Studio, o KoboldCpp e o text-generation-webui realmente funcionam e compacta o chat para caber. Num contexto pequeno, resume um chat longo por partes. Para dar mais espaço ao modelo, aumente o comprimento do contexto nas definições do próprio servidor.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| O modelo esquece o início de um chat longo | O servidor usa um contexto pequeno. Aumente o comprimento do contexto nas definições do servidor ou inicie um novo chat. |
+| O modelo ignora as ferramentas ou as imagens | Não as aceita, pelo que o Enconvo responde sem elas. Escolha um modelo que suporte chamadas de ferramentas ou entrada de imagens. |
+| A ligação falha | Leia o erro: o Enconvo mostra a mensagem do próprio servidor e indica a causa. Verifique se o servidor está em execução e se o endereço e a porta estão corretos. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/pt/providers/mlx">O motor integrado do Enconvo.</Card>
+  <Card title="Privacidade e segurança" icon="shield" href="/pt/configuration/privacy-security">Para onde vão os seus dados, funcionalidade a funcionalidade.</Card>
+</CardGroup>

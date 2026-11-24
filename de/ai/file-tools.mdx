@@ -1,0 +1,53 @@
+---
+title: "Dateien und Ordner"
+description: "Lass einen Agenten die Dateien auf deinem Mac finden, lesen und bearbeiten."
+---
+
+Mit den Dateiwerkzeugen kann ein Agent Dateien finden, darin suchen, sie lesen und bearbeiten. Verweise den Agenten auf einen Ordner oder eine Datei und frage in einfachen Worten; er wählt das passende Werkzeug und zeigt dir, was er verwendet hat.
+
+## Bevor du loslegst
+
+- **Arbeitsordner:** Der **Arbeitsordner** eines Agenten, im Teil **Definition** seiner Einstellungen, ist der Ausgangspunkt für relative Pfade.
+- **Genehmigungen:** Der Chip **Berechtigungen** im Chat legt fest, wann der Agent vorher fragt. Mit **Um Genehmigung bitten** fragt er, bevor er Dateien außerhalb des Arbeitsordners bearbeitet. Lesen und Suchen fragen nie. Siehe [Aktionen genehmigen](/de/ai/agents).
+
+## Mit einer Aufgabe nur zum Lesen beginnen
+
+1. Prüfe in den Einstellungen des Agenten seine Dateiwerkzeuge und seinen **Arbeitsordner**.
+2. Nenne im Chat einen Ordner oder hänge die Datei an, die du verwenden möchtest.
+3. Stelle eine begrenzte Frage, etwa: „Finde Markdown-Dateien in diesem Projekt und fasse die README zusammen.“
+4. Sieh dir die Dateien und die Werkzeugausgabe an, die der Agent verwendet hat, bevor du ihn bittest, etwas zu ändern.
+
+## Was jedes Werkzeug tut
+
+| Werkzeug | Was es tut |
+| --- | --- |
+| Glob | Findet Dateien nach Pfadmuster, etwa `**/*.md`, die neuesten zuerst |
+| Grep | Durchsucht den Text in Dateien, mit Dateimustern und Zeilennummern |
+| Read File | Liest Textdateien, extrahiert den Text aus Dokumenten und liest Bilder, Audio und Video |
+| Edit File | Ersetzt exakten Text in einer Datei und meldet die geänderten Zeilen |
+| Write File | Erstellt eine Datei oder ersetzt ihren gesamten Inhalt |
+
+<Warning>
+Write File kann eine vorhandene Datei ohne Warnung überschreiben. Bewahre bei wichtigen Dokumenten eine Kopie auf oder nutze eine Versionsverwaltung und prüfe das Ziel und die Änderung, bevor du genehmigst. Die Dateien, die ein Agent in einem Chat ändert, stehen im Tab **Änderungen** des Seitenbereichs, mit **Rückgängig**.
+</Warning>
+
+## Dokumente und Medien
+
+Das Lesen eines PDFs, eines Office-Dokuments, eines Bildes, einer Audiodatei oder eines Videos kann Parsing, OCR oder Transkription ausführen, statt rohe Bytes zurückzugeben. Bei Audio und Video liest der Agent das Transkript. In einer Tabelle wird eine Formelzelle als ihr Wert gelesen oder als die Formel selbst, wenn sie nie berechnet wurde. Welche Formate funktionieren, hängt von den installierten Werkzeugen und den eingerichteten Anbietern ab. Siehe [OCR](/de/ai/ocr), [Transkription](/de/features/transcription) und [Wissensdatenbank](/de/ai/knowledge-base).
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Ein Zugriffsfehler | Prüfe den **Arbeitsordner** des Agenten, den Chip **Berechtigungen** und die macOS-Berechtigungen |
+| Ein Dokument wird als leer gelesen | Prüfe den Dateityp und ob er geparst werden kann. Ein gescanntes PDF braucht womöglich OCR |
+| Eine Bearbeitung findet den zu ersetzenden Text nicht | Bitte den Agenten, die aktuelle Datei erneut zu lesen, bevor er bearbeitet |
+
+## Weiterführend
+
+<CardGroup cols={2}>
+  <Card title="Code Runner" icon="terminal" href="/de/ai/code-runner">Code und Shell-Befehle ausführen. Dateiwerkzeuge prüfen und bearbeiten ohne Shell.</Card>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Lege die Werkzeuge eines Agenten fest und wann er vorher fragt.</Card>
+  <Card title="OCR" icon="font" href="/de/ai/ocr">Lies den Text in Bildern und Scans.</Card>
+  <Card title="Wissensdatenbank" icon="book" href="/de/ai/knowledge-base">Durchsuche deine eigenen Dokumente.</Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "LM Studio"
+description: "Converse com modelos que o LM Studio serve no seu Mac ou noutro computador."
+---
+
+Use o LM Studio para executar modelos no seu próprio hardware, neste Mac ou noutro computador da sua rede. O Enconvo envia os chats para o servidor do LM Studio, pelo que não é necessária nenhuma conta de fornecedor.
+
+## Ligar neste Mac
+
+<Steps>
+  <Step title="Iniciar o LM Studio">
+    No [LM Studio](https://lmstudio.ai/), carregue um modelo e inicie o respetivo servidor de API local.
+  </Step>
+  <Step title="Apontar o Enconvo para ele">
+    Abra **Definições → Modelo de IA → LM Studio**. Em **Autenticação**, mantenha o **BaseUrl** em `http://127.0.0.1:1234/v1`, a menos que tenha alterado a porta do LM Studio.
+  </Step>
+  <Step title="Escolher um modelo">
+    Escolha um modelo em **Nome do modelo** e envie uma mensagem curta. Se receber uma resposta, a ligação funciona.
+  </Step>
+</Steps>
+
+## Ligar a outro computador
+
+1. No outro computador, configure o LM Studio para aceitar ligações da sua rede, e não apenas dele próprio.
+2. No Enconvo, defina o **BaseUrl** com o endereço de rede desse computador, mantendo a porta e o caminho. `127.0.0.1` e `localhost` significam sempre o Mac em que o Enconvo está a funcionar.
+3. Se o macOS bloquear a ligação, ative o Enconvo em **Definições do Sistema → Privacidade e Segurança → Rede local**.
+
+Abra o servidor apenas a redes em que confie.
+
+## Modelos e opções
+
+| Definição | O que faz |
+| --- | --- |
+| **Nome do modelo** | O modelo que este fornecedor usa. **Atualizar**, ao lado, volta a carregar a lista a partir do servidor. |
+| **Response Timeout** | Quanto tempo esperar que o servidor inicie ou continue uma resposta. A predefinição é **Sem limite**; os prompts longos podem demorar muitos minutos no seu próprio hardware antes da primeira palavra. |
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Ligação recusada | Verifique se o LM Studio está em execução e se o **BaseUrl** tem o endereço e a porta corretos. Para outro computador, verifique se aceita ligações de rede. |
+| Rede inacessível | Verifique a rede e a permissão **Rede local** nas Definições do Sistema. |
+| A lista de modelos está vazia | Carregue ou transfira um modelo no LM Studio e depois clique em **Atualizar**. |
+| Uma resposta é abandonada a meio | Defina **Response Timeout** com um valor mais longo ou **Sem limite**. |
+| As ferramentas ou as imagens falham | Escolha um modelo que suporte chamadas de ferramentas ou entrada de imagens. |
+| Memória insuficiente | Escolha um modelo mais pequeno ou encurte a entrada. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Modelos locais" icon="microchip" href="/pt/ai/local-llm">Mantenha uma tarefa inteira no seu Mac, não apenas o modelo de chat.</Card>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/pt/providers/mlx">Execute modelos no próprio Enconvo, sem servidor.</Card>
+  <Card title="Ollama" icon="server" href="/pt/providers/ollama">Use modelos servidos pelo Ollama.</Card>
+  <Card title="Permissões" icon="shield" href="/pt/configuration/permissions">Rede local e outras permissões do macOS.</Card>
+</CardGroup>

@@ -1,0 +1,230 @@
+---
+title: "Projekte und das Board"
+description: "Halte Chats, Ideen und Team eines Projekts an einem Ort zusammen, gib Aufgaben an Agenten und Coding-Agents und verfolge jede Aufgabe auf dem Board."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Ein Projekt hält die Chats, Ideen und das Team für einen Ordner zusammen. Du schreibst als Idee auf, was du willst, der Lead des Projekts plant es mit dem Team, und jede Aufgabe wandert über das Board, bis sie erledigt ist. Nutze ein Projekt für laufende Arbeit, etwa eine Website oder eine App, bei der du auf einen Blick sehen willst, was läuft und was dich braucht.
+
+Das Video unten öffnet ein Projekt, fügt eine Idee hinzu, die einen Teil der Arbeit an Claude Code übergibt, verfolgt sie auf dem Board und archiviert und stellt das Projekt wieder her.
+
+<YouTubePlayer videoId="sDHMeGn6iX0" title="Projects and the Board in Enconvo" />
+
+## Bevor du loslegst
+
+Du brauchst ein Projekt. Klicke in der Seitenleiste des Chatfensters neben **Projekte** auf **+** und wähle einen Ordner: siehe [Ein Projekt erstellen](/de/ai/agent-orchestrator). Um Aufgaben an einen Coding-Agent wie Claude Code oder Codex zu übergeben, installiere ihn und melde dich zuerst an: siehe [Coding-Agents](/de/ai/coding-agents).
+
+## Ein Projekt öffnen
+
+Klicke in der Seitenleiste auf das Projekt. Seine Seite hat drei Tabs:
+
+| Tab | Was er zeigt |
+| --- | --- |
+| **Chat** | Den Chat des Projekts mit seinem Lead und ein Fenster mit dem, was [dich braucht](#sehen-was-dich-braucht). |
+| **Board** | Die Ideen des Projekts, von **Nicht gestartet** über **In Planung** und **In Bearbeitung** bis **Fertig**. |
+| **Team & Einstellungen** | Wer im Team ist und wann das Team [bei dir nachfragt](#festlegen-wann-das-team-bei-dir-nachfragt). |
+
+Die Gesichter des Teams, zuerst der Lead, erscheinen oben links. Die Aufgaben eines Projekt-Chats erscheinen außerdem unter seiner Zeile in der Seitenleiste.
+
+## Eine Idee hinzufügen
+
+Eine Idee ist etwas, das das Projekt tun soll.
+
+1. Öffne den Tab **Board** und klicke auf **Neue Idee**.
+2. Schreibe, was du willst, so wie du es sagen würdest. Du kannst Screenshots oder Dateien anhängen oder auf das Mikrofon klicken und sprechen.
+3. Lege bei Bedarf eine **Priorität** fest. Enconvo errät die **Art** aus deinen Worten: **Funktion**, **Bug**, **Verbesserung**, **Dokumente** oder **Recherche**. Ändere sie, wenn die Vermutung falsch ist.
+4. Klicke auf **Idee hinzufügen**.
+
+Die Idee erscheint als Karte unter **Nicht gestartet**, mit einem kurzen, aus deinen Worten geschriebenen Titel und einer roten, orangefarbenen oder blauen Flagge für ihre Priorität. Der Lead beginnt sofort mit der Planung und verschiebt sie nach **In Planung**. Die angehängten Dateien erreichen den Lead, wenn die Idee startet. Um nur eine Art von Ideen zu sehen, nutze **Nach Art filtern**.
+
+Ideen können auch von selbst hereinkommen. Gib einer [geplanten Aufgabe](/de/workflows/scheduled-jobs) die Aktion **Zu Ideas hinzufügen**, und jedes GitHub-Issue, jede Discord- oder Telegram-Nachricht, E-Mail oder jeder Webhook, den sie empfängt, wird zu einer Idee auf dem Board des Projekts. Der Lead reproduziert einen Bug und plant die Korrektur oder recherchiert eine Anfrage und schließt sie mit einer Begründung ab oder plant sie, und fragt dich, bevor sich etwas ändert.
+
+Wenn der Plan bereit ist, zeigt er jede Aufgabe, wer sie erledigt und mit welchem Modell. Prüfe ihn und klicke dann auf **Starten**. Die Idee wandert nach **In Bearbeitung**. Der Lead plant anhand des **Ziels** und der Zeile **Fertig, wenn** der Idee, und die Idee wandert erst nach **Fertig**, wenn der Lead das Ziel für erreicht hält.
+
+## Einer Idee folgen
+
+Klicke auf eine Idee, um ihre Seite zu öffnen. Auf der einen Seite ist dein Chat mit dem Lead, auf der anderen der Plan, die Aufgaben, die Worte, die Dateien und das Ziel der Idee. **Stand** zeigt **Arbeit planen**, **Arbeit erledigen** und **Review & Test**, mit dem jeweiligen Fortschritt und wer es erledigt.
+
+Um an einer abgeschlossenen Idee erneut zu arbeiten, klicke auf **Wieder öffnen**.
+
+Eine Idee mit Aufgaben hat oben zwei Ansichten: **Aufgaben** zeigt nur ihre Aufgaben als Board, und **Chat mit** und der Name des Leads, etwa **Chat mit Mavis**, öffnet den Chat, in dem sie geplant wurde.
+
+## Eine Aufgabe an einen Coding-Agent übergeben
+
+Nenne den Agenten und, wenn du eines möchtest, das Modell in der Idee oder im Chat des Projekts. Du kannst auch nur ein Modell nennen, etwa Opus 5.5, und der Lead erledigt diese Aufgabe damit. Das funktioniert auch in einem Projekt ohne Mitglieder. Zum Beispiel:
+
+```text
+Add a dark mode switch to the settings page. Have Claude Code on Opus 5.5 write the dark styles.
+```
+
+Der Lead plant den genannten Teil als Aufgabe für diesen Agenten mit diesem Modell, auch wenn der Agent kein Mitglied des Projekts ist, und kann den Rest selbst erledigen. Der Plan und das Board zeigen das Modell neben dem, der die Aufgabe erledigt. Wenn der Name mehrere Modelle oder keines bedeuten könnte, fragt der Lead nach.
+
+Wenn der Coding-Agent fertig ist, wartet seine Aufgabe unter **Zu prüfen** auf dem Board **Aufgaben** der Idee auf dein Review. In einem Projekt, dessen Ordner kein Git-Repository ist, geht sie direkt nach **Fertig**. Jede Coding-Aufgabe arbeitet in einer eigenen Kopie des Codes, und die Ergebniskarte des Plans hat **Mergen**, wenn du bereit bist. Mitglieder können nicht selbst pushen oder mergen.
+
+Jede Aufgabe, die du dem Lead gibst, im Tab Chat oder in Ideen, erscheint auf dem Board, gruppiert nach Idee oder nach Chat. Wähle einen Chat im Chatfilter des Boards oder **Gruppieren nach** **Chat**, um einer Unterhaltung zu folgen.
+
+Auch Arbeit, die du in den Chats des Projekts erledigst, erscheint auf dem Board: Wenn ein Chat Dateien ändert oder einen Befehl ausführt, folgt ihm eine Karte nach **Fertig** mit einer kurzen Zusammenfassung und den geänderten Dateien. Klicke auf die Karte, um den Chat zu öffnen. Der Lead sieht diese Karten und hält seine eigenen Aufgaben von denselben Dateien fern.
+
+## Fertige Arbeit mergen
+
+Klicke bei einer Aufgabe oder auf der Ergebniskarte des Plans auf **Mergen**, um sie in den **Basis-Branch** des Projekts zu mergen. Nicht committete Änderungen an anderen Zeilen derselben Datei verhindern einen Merge nicht. Ist Git beschäftigt, wartet Mergen einen Moment darauf und nennt die Sperrdatei, wenn eine übrig geblieben ist.
+
+Um ohne Klicken zu mergen, schalte **Bestandene Arbeit zusammenführen** in **Projekteinstellungen → Board** ein. Dafür ist ein **Basis-Branch** nötig, der unter **Worktrees** festgelegt wird. Jede Aufgabe wird dann von selbst gemergt, sobald ihre Prüfung und ein Review durch den Agenten eines anderen Anbieters bestanden sind. Wähle unter **Besteht, wenn** zwischen **Keine blockierenden Befunde**, **Reviewer stimmt zu** und **Nur Prüfung**. Eine Aufgabe mit einem Konflikt geht zurück an ihr Mitglied. Kann der Reviewer nicht laufen, pausieren alle Merges, statt übersprungen zu werden.
+
+### Projekte außerhalb von Git
+
+In einem Projekt, dessen Ordner kein Git-Repository ist, speichert jeder Lead-Chat seine Arbeitspläne in seinem eigenen Chat-Ordner, sodass zwei Lead-Chats gleichzeitig Pläne ausführen können. Die Karte des Plans zeigt **Speichert in** und den Ordner, und **Auch geändert** listet Dateien auf, die eine Aufgabe außerhalb davon berührt hat.
+
+## Den Lead auf andere Weise fragen
+
+Im Lead-Chat eines Projekts:
+
+- **Antworten vergleichen** stellt zwei bis sechs Agenten dieselbe Frage, und der Lead vergleicht, was sie sagen.
+- **Stil verwenden** legt fest, wie der Lead seine Antworten schreibt.
+
+Damit Codex, Claude Code oder ein anderer deiner Agenten die aktuelle Arbeit prüft oder testet, frage einfach. In einem Projekt startet der Lead diesen Agenten als Unteragenten und bringt das Ergebnis in denselben Chat zurück. Der Lead kann außerdem Unteragenten für seine eigene Arbeit starten, neben den Aufgaben, die er den Mitgliedern des Projekts gibt.
+
+Um eine Aufgabe über einen der Workflows des Projekts auszuführen, gib `@` ein und wähle den Workflow, oder klicke im Tab **Team & Einstellungen** daneben auf **Im Chat verwenden**. Siehe [Eigene Workflows verwenden](#eigene-workflows-verwenden).
+
+## Sehen, was dich braucht
+
+Öffne den Tab **Chat**. Das Fenster über dem Nachrichtenfeld hat drei Spalten:
+
+| Spalte | Was sie auflistet |
+| --- | --- |
+| **Braucht dich** | Aufgaben, die auf deine Antwort, Freigabe oder dein Review warten. |
+| **In Arbeit** | Aufgaben, die gerade laufen. |
+| **Neue Ergebnisse** | Abgeschlossene Aufgaben, die du noch nicht geöffnet hast. |
+
+Klicke auf eine Zeile, um ihre Idee zu öffnen.
+
+## Das Board für alles nutzen
+
+**Board** im Menü **···** auf der Symbolleiste der Seitenleiste des Chatfensters zeigt die Aufgaben aller Chats, Projekte und Teams an einem Ort. Um es auf der Leiste zu behalten, wähle in diesem Menü **Seitenleiste anpassen…**. Siehe [Chatfenster](/de/ai/chat).
+
+Um nur einige Projekte zu sehen, klicke oben links auf den Filter (**Alle Boards**) und wähle die gewünschten aus. Die weiteren Steuerelemente des Boards findest du unter [Dem Board folgen](/de/ai/agent-orchestrator).
+
+## Das Team einrichten
+
+Öffne den Tab **Team & Einstellungen**. Oben stehen der Lead und jedes Mitglied, mit **Mitglied hinzufügen**, um einen weiteren Agenten hinzuzuholen. Klicke oben links auf die Gesichter des Teams, um das ganze Team auf einmal zu sehen: den Lead mit **Ändern** und jedes Mitglied mit einer Rolle, die du direkt bearbeiten kannst.
+
+Der Lead kann einer deiner Agenten oder ein Coding-Agent sein: Claude Code, Codex, Grok Build oder Antigravity. Ein Coding-Agent als Lead plant die Arbeit der Mitglieder in einem Arbeitsplan und liest ihre Ergebnisse, wie jeder andere Lead.
+
+Mitglieder können Agenten auf deinen [anderen gekoppelten Computern](/de/integrations/other-computers) sein. Der Lead übergibt ihnen Aufgaben, die diesen Computer brauchen, und die Antwort kommt als Ergebnis der Aufgabe zurück. Hat dieser Computer in deinem Konto keinen Gerätezugriff, sagt die Aufgabe das und verweist auf **Geräte verwalten**.
+
+### Wie das Team arbeitet
+
+Jedes Ziel, das du dem Lead gibst, aus dem Chat oder aus Ideen, läuft über **Standard**: **Arbeit planen**, **Arbeit erledigen**, dann **Review & Test**. Lege fest, wer jeden Schritt übernimmt. Gib die Planung an ein Mitglied, und dieses Mitglied schreibt den Plan, wenn du darum bittest; der Lead schlägt seine Aufgaben dann als Arbeitsplan vor, der auf dein **Starten** wartet. Du kannst außerdem die Prüfung ein- oder ausschalten und die **Korrekturrunden** festlegen, also wie oft eine Aufgabe zur Korrektur zurückgeht.
+
+### Eigene Workflows verwenden
+
+**Eigene Workflows** im Tab **Team & Einstellungen** ist ausgeschaltet, bis du es einschaltest. Solange es aus ist, läuft jedes Ziel über **Standard**. Schalte es ein, um Ziele oder einzelne Aufgaben über [Workflows](/de/workflows/introduction) auszuführen:
+
+- **Oder jedes Ziel mit einem Workflow ausführen** listet Team-Workflows auf. Zeige auf einen und klicke auf **Für jedes Ziel verwenden**, oder klicke auf **Neuer Team-Workflow**, um einen eigenen zu erstellen.
+- **Aufgaben-Workflows** listet Workflows auf, die der Lead einer einzelnen Aufgabe geben kann, etwa dem Beheben eines Bugs. Klicke auf **Im Chat verwenden**, um einen im Lead-Chat zu nennen, oder auf **Neuer Workflow**, um einen zu erstellen.
+
+Die integrierten Workflows:
+
+| Workflow | Was er macht |
+| --- | --- |
+| **Ship** | Macht aus einer Idee eine Spezifikation, ein Design und einen Plan, die du freigibst, baut jede Aufgabe mit Tests, Prüfungen, Review und Verifizierung und prüft dann den gesamten Branch. |
+| **Planer** | Macht aus einer Idee eine Spezifikation, ein Design und Aufgaben, die du freigibst, und übergibt die Aufgaben als Arbeitsplan an den Lead. |
+| **Sprint** | Baut eine geplante Aufgabe mit Tests, Prüfungen, Review und Verifizierung. |
+| **Compound** | Wendet die Lektionen, die du behalten hast, auf die Dokumentation und Regeln des Repositorys an. |
+| **Verify setup** | Ermittelt, wie das Projekt geprüft und ausgeführt wird, schreibt ein Verifizierungs-Runbook, das du freigibst, und belegt es, indem es es ausführt. |
+
+Jede Zeile zeigt das Symbol des Workflows, die Gesichter der Mitglieder, die ihn ausführen, und wie viele Läufe er hatte und wie viele fehlgeschlagen sind. Fehlt einem Workflow ein Mitglied, klicke in seiner Zeile auf **Agenten wählen…**. Klicke auf eine Zeile, um den Workflow zu öffnen und seine Schritte oder die Ausführenden zu ändern.
+
+Änderungen, die du an einem Workflow in einem Projekt speicherst, bleiben ein **Entwurf**: Neue Pläne nutzen weiter die veröffentlichte Version, bis du auf **Veröffentlichen** klickst. **Auf die vorherige Version zurücksetzen** bringt die Version davor zurück. Der Workflow einer Aufgabe zeigt die Tokens und Kosten jedes Schritts, mit einer Summe zu API-Preisen.
+
+### Den Prüfbefehl festlegen
+
+Der Prüfbefehl läuft in der Kopie des Codes einer abgeschlossenen Aufgabe, bevor sie zum Review geht. Eine fehlschlagende Prüfung geht zur Korrektur an das Mitglied der Aufgabe zurück.
+
+1. Klicke im Tab **Team & Einstellungen** auf **Projekteinstellungen** und dann auf **Board**.
+2. Klicke neben **Prüfbefehl** auf **Finden**. Enconvo liest den Befehl aus den Dateien des Projekts und trägt ihn nur ein, wenn er besteht.
+3. Findet es keinen, klicke auf **Mavis bitten, es einzurichten** (die Schaltfläche trägt den Namen deines Leads). Der Lead findet oder ergänzt den Befehl in seinem Chat.
+
+Ein Projekt ohne Prüfbefehl zeigt seinen Prüfschritt als **Nicht geprüft**.
+
+### Worktrees aufräumen
+
+Jeder Chat und jede Aufgabe in einem Git-Projekt arbeitet in einem eigenen Worktree. Um Speicherplatz freizugeben, archiviert Enconvo die Worktrees, mit denen du fertig bist, und entfernt ihre Ordner. In **Projekteinstellungen → Worktrees**:
+
+| Einstellung | Was sie macht |
+| --- | --- |
+| **Gemergte Worktrees archivieren** | Archiviert einen Worktree, sobald seine Arbeit im Basis-Branch ist und nichts nicht committet oder nicht gepusht ist. |
+| **Worktrees ohne Chats archivieren** | Archiviert einen Worktree, sobald keiner seiner Chats mehr in der Chatliste ist. |
+| **Inaktive Worktrees archivieren** | Archiviert einen Worktree mit seinen Chats, nachdem sie so viele Tage ohne Aktivität waren, wie du unter **Archivieren nach Inaktivität von** wählst: 3, 7, 14 oder 30. |
+
+Ein Worktree mit nicht committeten Änderungen bleibt immer erhalten. **Wiederherstellen** bringt einen archivierten Worktree zurück.
+
+## Festlegen, wann das Team bei dir nachfragt
+
+Öffne den Tab **Team & Einstellungen**.
+
+Unter **Wann bei dir nachgefragt wird**:
+
+| Einstellung | Was sie macht |
+| --- | --- |
+| **Wenn ein Plan bereit ist** | **Smart**, die Standardeinstellung, startet den Plan sofort, wenn er das tut, worum du schon gebeten hast, und wartet auf dein **Starten**, wenn er weiter geht oder riskant ist. **Immer fragen** wartet jedes Mal auf **Starten**. **Immer starten** startet jeden Plan, sobald er bereit ist. |
+| **Planung starten, sobald ein To-do hinzugefügt wird** | An: Der Lead plant jede neue Idee sofort. Aus: Neue Ideen warten unter **Nicht gestartet**, bis du sie startest. |
+
+Aktionen, die löschen, senden, veröffentlichen, bezahlen oder pushen, fragen immer nach, was du auch wählst. Ordner, Worktrees, Berechtigungen, Budget und Grenze findest du in den **Projekteinstellungen**.
+
+## Den Lead handeln lassen, während du weg bist
+
+In einem Projekt mit **Voller Zugriff** kann der Lead die Arbeit am Laufen halten, wenn eine Aufgabe sich zurückmeldet und niemand im Chat ist. Schalte **Lead handelt, während du weg bist** in **Projekteinstellungen → Board** ein.
+
+Der Lead korrigiert, wiederholt und mergt dann von selbst, innerhalb von 6 Durchgängen pro Stunde und 100.000 Punkten pro Tag. Er sendet, pusht, veröffentlicht, bezahlt oder löscht nie etwas außerhalb der eigenen Kopie des Codes einer Aufgabe.
+
+Wenn du zurückkommst, listet eine Karte **Während du weg warst** oben im Lead-Chat auf, was der Lead getan hat und welche Schritte er dir überlassen hat. Nach zwei fehlgeschlagenen Durchgängen in Folge oder bei einem Limit pausiert der Lead, und **Braucht dich** fragt, ob du **Fortsetzen** oder **Pausiert lassen** möchtest.
+
+## Ein Projekt archivieren
+
+Wenn ein Projekt abgeschlossen ist, archiviere es, um es aus der Seitenleiste zu entfernen, ohne etwas zu löschen.
+
+1. Zeige in der Seitenleiste auf das Projekt und klicke auf **⋯**.
+2. Wähle **Projekt archivieren**.
+
+Das Projekt und seine Chats verlassen die Seitenleiste, und seine geplanten Aufgaben pausieren. Ein Chat in einem archivierten Projekt kann keine Nachrichten annehmen, bis du ihn wiederherstellst.
+
+So holst du es zurück:
+
+1. Öffne **Einstellungen → Archiviert**.
+2. Klicke auf **Projekte**.
+3. Klicke neben dem Projekt auf **Wiederherstellen**.
+
+Das Projekt kehrt mit seinen Chats in die Seitenleiste zurück, und seine geplanten Aufgaben werden wieder eingeschaltet.
+
+## Projekte auf deinem iPhone
+
+Die iPhone-App öffnet auch deine Projekte: Ideen, das Board, Projekteinstellungen, **Neues Projekt** und die Arbeitsplan-Karte, auf der du eine Aufgabe beantwortest, mergst, startest oder wiederholst. Das Menü `@` dort listet die Mitglieder und Workflows des Projekts auf. Siehe [iPhone-App](/de/integrations/iphone-app).
+
+## Fehlerbehebung
+
+| Problem | Was zu tun ist |
+| --- | --- |
+| Eine neue Idee bleibt bei **Nicht gestartet** | Schalte in **Team & Einstellungen** **Planung starten, sobald ein To-do hinzugefügt wird** ein oder öffne die Idee und starte sie selbst. |
+| Ein Plan wartet, obwohl du **Smart** gewählt hast | Der Plan geht weiter als das, worum du gebeten hast, oder enthält einen riskanten Schritt. Prüfe ihn und klicke auf **Starten**. |
+| Die Aufgabe eines Coding-Agents startet nicht | Installiere den Coding-Agent und melde dich bei ihm an. |
+| Eine Aufgabe wartet als **Angehalten** mit einer Anmeldewarnung | Der Coding-Agent ist abgemeldet, oder seine Anmeldung läuft bald ab. Klicke auf **Erneut anmelden**. Angehaltene Aufgaben laufen weiter, sobald du dich anmeldest. |
+| Eine Board-Karte zeigt ein Problem in Orange | Es ist ein Einrichtungsproblem. Folge der Korrektur der Karte; der Lead versucht es nicht erneut. Ein Enconvo-Fehler sagt, dass ein erneuter Versuch sicher ist. |
+| Eine Aufgabe schlägt in einem Projekt fehl, das in iCloud liegt | Bei eingeschalteter Option „Mac-Speicher optimieren“ sind Dateien möglicherweise nicht auf deinem Mac. Wähle im Finder für den Projektordner **Geladen lassen**. |
+| Eine Aufgabe meldet, dass der Ordner des Projekts weg ist | Der Ordner wurde verschoben oder gelöscht. Verschiebe ihn zurück oder erstelle ein neues Projekt für den neuen Ort. |
+| Eine Aufgabe stoppt an der **Grenze** des Projekts | Klicke bei der Aufgabe auf **Grenze bearbeiten**, um zu erlauben, was sie braucht. Nur du änderst eine Grenze. |
+| Eine Aufgabe meldet einen halb abgeschlossenen Merge oder Rebase | Ihr Agent hat auf halbem Weg angehalten. Schließe den Merge oder Rebase ab oder mache ihn rückgängig, bevor du die Aufgabe mergst. |
+| Jeder Plan wartet auf **Starten** | Pläne warten, solange du bei Enconvo abgemeldet bist. Melde dich unter **Einstellungen → Konto** an. |
+| Ein Projekt fehlt in der Seitenleiste | Es ist möglicherweise archiviert. Sieh in **Einstellungen → Archiviert** unter **Projekte** nach. |
+| Eine Workflow-Aufgabe ist fehlgeschlagen | Öffne die Aufgabe. Sie sagt, was ihr Befehl zuletzt geschrieben hat und welcher Schritt welches Mitglieds fehlgeschlagen ist. |
+| Ein Ziel nutzt nicht den gewählten Team-Workflow | Schalte im Tab **Team & Einstellungen** **Eigene Workflows** ein. Solange es aus ist, läuft jedes Ziel über **Standard**. |
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Agent Orchestrator" icon="sitemap" href="/de/ai/agent-orchestrator">Arbeitspläne, die Steuerelemente des Boards und das Erstellen eines Projekts.</Card>
+  <Card title="Coding-Agents" icon="code" href="/de/ai/coding-agents">Claude Code, Codex und die anderen installieren und anmelden.</Card>
+  <Card title="Chatfenster" icon="message" href="/de/ai/chat">Chats, Projekte und die Seitenleiste.</Card>
+  <Card title="Arbeitsbereiche" icon="layer-group" href="/de/configuration/account">Halte die Chats und Erinnerungen eines Kunden getrennt von deinen.</Card>
+</CardGroup>

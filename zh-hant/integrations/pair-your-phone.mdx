@@ -1,0 +1,91 @@
+---
+title: "與你的手機配對"
+description: "將 Enconvo iPhone 或 Android App 與 Mac、Windows 電腦、Linux 桌面，或只有終端機的 Linux 伺服器配對。"
+---
+
+手機上的 Enconvo App 可與你的每台電腦配對，因此它們的專案和對話都會出現在手機上。你從手機開啟的對話會繼續在那台電腦上執行，使用它的檔案、App 和代理程式。手機透過 Enconvo 中繼連到電腦，訊息採用端對端加密。當手機與電腦在同一個網路時，App 會直接連到它，因此在家裡或辦公室連線和回應都更快。
+
+每台電腦各自與手機配對。將兩台電腦互相配對（例如 Linux 筆電與你的 Mac）並不會將任何一台加入手機：請將手機與你想從它使用的每台電腦分別配對。
+
+## 開始之前
+
+- **取得 App。** iPhone：[TestFlight](https://testflight.apple.com/join/MJQuEN28)。Android：Google Play，或 APK。電腦上 **設定 → 連線** 中的 **取得手機 App** 提供了各自的下載碼；行動隨行外掛程式的 **取得手機 App** 按鈕也會開啟它。
+- **使用同一個帳號。** 讓手機 App 和電腦登入同一個 Enconvo 帳號。只有你帳號下的手機才能配對。免費帳號也可以配對，並從手機使用電腦的對話和遠端螢幕。
+- **讓電腦保持開機並執行 Enconvo。** 手機只有在電腦上的 Enconvo 執行時才能連到它。
+
+## Mac、Windows 或 Linux 桌面
+
+三者的步驟都相同。
+
+<Steps>
+  <Step title="在電腦上顯示配對碼">
+    點擊側邊欄底部的裝置切換器，然後點擊 **加入裝置 → 配對手機**。或者開啟 **設定 → 連線** 並選擇 **顯示配對碼**。畫面會出現 QR code。它只能使用一次，有效期限為五分鐘。
+  </Step>
+  <Step title="用手機掃描">
+    在 Enconvo App 中開啟 **遠端**，點擊 **配對電腦**，並將相機對準代碼。你也可以用 iPhone 相機、Android 相機或 Google 智慧鏡頭掃描：代碼會開啟 Enconvo，你再於其中確認電腦。如果尚未安裝 App，代碼的連結會協助你先安裝再配對。
+  </Step>
+  <Step title="從手機使用電腦">
+    手機很快就會完成配對並顯示該電腦。已配對多台電腦時，可從 **遠端** 在它們之間切換。
+  </Step>
+</Steps>
+
+如果代碼過期，請選擇 **顯示新程式碼** 並重新掃描。
+
+## 只有終端機的 Linux 伺服器
+
+伺服器沒有可顯示代碼的視窗，因此由命令列印出它。這需要 Enconvo 2.5.15 Beta 1 或更新版本。請先依照[在伺服器上安裝](/zh-hant/getting-started/linux)操作。
+
+<Steps>
+  <Step title="登入伺服器">
+    ```bash
+    enconvo login
+    ```
+    在 `enconvo.com/device` 核准它印出的代碼。
+  </Step>
+  <Step title="保持 Enconvo 執行">
+    ```bash
+    enconvo service install
+    ```
+    手機只有在伺服器上的 Enconvo 執行時才能連到它。
+  </Step>
+  <Step title="印出配對碼">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    它會在終端機中畫出 QR code，下方附有連結，並說明何時過期。代碼只能使用一次，有效期限為五分鐘。
+  </Step>
+  <Step title="掃描或開啟連結">
+    用手機的相機掃描代碼，或在手機上開啟連結。在 Enconvo App 中確認後，伺服器就會出現在手機上。
+  </Step>
+</Steps>
+
+- **透過 SSH**：代碼畫在你自己的終端機中，所以透過 SSH 也能運作。如果畫面換行了，請拉寬視窗或改為開啟連結。
+- **登入方式**：在你自己的終端機中輸入時，該代碼也會讓手機 App 登入，因此請只傳送到你自己的手機。經由管線傳輸或儲存的輸出，或由代理程式執行的指令，只會印出連結，而這不會讓 App 登入：請先讓 App 登入同一個帳號。
+- **已過期**：再次執行 `enconvo companion pair --phone`。
+
+## 管理已配對的手機
+
+每台電腦上的 **設定 → 連線** 會列出它已配對的手機。
+
+| 要做的事 | 做法 |
+|---|---|
+| 配對另一支手機 | 顯示新的代碼，並用那支手機掃描。一台電腦最多可有 10 支已配對的手機。 |
+| 重新命名手機 | 點擊該手機，然後點擊名稱旁的 **重新命名手機**。 |
+| 移除手機 | 選擇它旁邊的 **移除**。那支手機就無法再連到這台電腦。 |
+| 重新開始 | 選擇 **重設連線**。所有手機都會被移除，必須重新配對。 |
+
+## 疑難排解
+
+| 問題 | 解決方式 |
+|---|---|
+| 電腦沒有出現在手機上 | 請將手機直接與那台電腦配對。與另一台電腦配對並不會將它加入。 |
+| **此代碼已過期** | 顯示新的代碼，或再次執行指令，並在五分鐘內掃描。 |
+| **登入後即可配對手機** | 讓電腦登入 Enconvo。在伺服器上，請執行 `enconvo login`。 |
+| 伺服器顯示尚未登入 | 執行 `enconvo login`，然後再次執行 `enconvo companion pair --phone`。 |
+| 手機顯示伺服器離線 | 檢查 Enconvo 是否在那裡執行：`enconvo service install`，如果在你登出時它會停止，請執行 `sudo loginctl enable-linger "$USER"`。 |
+
+## 後續步驟
+
+- [iPhone App](/zh-hant/integrations/iphone-app)：你可以從手機做什麼，附有影片教學。
+- [Linux（Beta）](/zh-hant/getting-started/linux)：在桌面或伺服器上安裝 Enconvo。
+- [你的其他電腦](/zh-hant/integrations/other-computers)：將你的電腦彼此配對。

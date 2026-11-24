@@ -1,0 +1,207 @@
+---
+title: "Hermes Agent"
+description: "Enconvo에서 Hermes Agent를 OpenAI 호환 모델로 사용하세요"
+---
+
+Hermes Agent는 Nous Research의 오픈 소스 AI 에이전트입니다. 도구, 메모리, 스킬, 터미널 접근, 메신저 연동을 갖춘 에이전트 런타임으로, 로컬이나 서버에서 실행됩니다.
+
+Enconvo에서는 Hermes Agent의 OpenAI 호환 API 서버를 통해 사용합니다. Hermes 게이트웨이를 실행하고 나면 Enconvo가 채팅, Enconvo 에이전트, 모델 기반 기능에서 Hermes를 다른 AI 모델처럼 사용할 수 있습니다.
+
+<Tip>
+  Hermes가 처음이라면 [Hermes Agent 퀵스타트](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)부터 시작한 다음, 여기로 돌아와 Enconvo에 연결하세요.
+</Tip>
+
+API 레퍼런스: [Hermes Agent API 서버 문서](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server). 소스: [Hermes Agent GitHub 저장소](https://github.com/NousResearch/hermes-agent).
+
+## 시작하기 전에
+
+- Hermes Agent가 이미 설치되고 구성되어 있어야 합니다
+- API 서버가 활성화된 상태로 Hermes 게이트웨이가 실행 중이어야 합니다
+- `~/.hermes/.env`의 `API_SERVER_KEY`에 있는 API 서버 토큰이 필요합니다
+- Hermes Agent AI 모델 제공업체가 활성화된 Enconvo가 필요합니다
+
+Hermes는 `/v1/models`, `/v1/chat/completions`, `/v1/responses` 같은 OpenAI 호환 엔드포인트를 제공합니다. Enconvo의 Hermes 제공업체는 Chat Completions API(`/v1/chat/completions`)를 사용합니다.
+
+Enconvo는 이 제공업체에서 Hermes Responses API를 사용하지 않습니다. Hermes를 OpenAI 호환 Chat Completions 제공업체로 구성하세요.
+
+## 자동으로 설정
+
+**설정 → AI 모델 → Hermes Agent**를 여세요. 설정 카드에서 로컬 Hermes API 서버를 시작, 중지, 구성할 수 있습니다.
+
+Hermes가 Enconvo와 같은 Mac에 설치되어 있다면 **자동 설정**을 사용하세요. Enconvo는 다음을 수행합니다.
+
+<Steps>
+  <Step title="Hermes 찾기">
+    이 Mac에 `hermes` CLI가 있는지 확인합니다.
+  </Step>
+  <Step title="API 서버 활성화">
+    `~/.hermes/.env`에 `API_SERVER_ENABLED=true`를 쓰고, `API_SERVER_KEY`가 없으면 함께 추가합니다.
+  </Step>
+  <Step title="게이트웨이 시작">
+    Hermes 게이트웨이 서비스를 시작합니다.
+  </Step>
+  <Step title="API 확인">
+    `/v1/health`와 `/v1/models`로 로컬 API 서버를 점검합니다.
+  </Step>
+  <Step title="자격 증명 저장">
+    기본 URL과 API 서버 키를 Enconvo의 Hermes 자격 증명에 저장합니다.
+  </Step>
+</Steps>
+
+설정 카드에는 **실행 중** 또는 **중지됨** 같은 런타임 배지가 표시됩니다. 카드가 보이는 동안 Enconvo는 이 상태를 주기적으로 새로 고치고, 카드가 보이지 않으면 새로 고침을 멈춥니다.
+
+## 기본 URL과 API 키 확인
+
+Enconvo가 Hermes와 같은 Mac에서 실행될 때는 다음 기본 URL을 사용하세요.
+
+```text
+http://127.0.0.1:8642/v1
+```
+
+`~/.hermes/.env`에서 API 서버 토큰을 읽으세요.
+
+```bash
+awk -F= '/^API_SERVER_KEY=/{print $2}' ~/.hermes/.env
+```
+
+Enconvo는 이 값을 다음과 같이 보냅니다.
+
+```http
+Authorization: Bearer <API_SERVER_KEY>
+```
+
+OpenAI 호환 엔드포인트를 직접 테스트하려면 다음과 같이 하세요.
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer <API_SERVER_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      { "role": "user", "content": "Hello!" }
+    ]
+  }'
+```
+
+전체 `/v1/chat/completions` 엔드포인트가 아니라 `/v1`로 끝나는 기본 URL을 사용하세요.
+
+## Hermes를 직접 연결
+
+**설정 → AI 모델 → Hermes Agent**를 연 다음 자격 증명 제공업체를 구성하세요.
+
+| 설정 | 값 |
+|---------|-------|
+| **Hermes Base URL** | `http://127.0.0.1:8642/v1` |
+| **API Server Key** | `~/.hermes/.env`의 `API_SERVER_KEY` |
+
+기본 URL과 토큰을 입력한 뒤 **검증**을 클릭하세요.
+
+## 요청과 첨부 파일의 처리 방식
+
+Enconvo는 OpenAI 호환 Chat Completions를 통해 Hermes에 요청을 보냅니다.
+
+```http
+POST /v1/chat/completions
+```
+
+`hermes-agent` 또는 Hermes의 `/v1/models` 엔드포인트가 알려 주는 모델 이름을 사용하세요.
+
+Enconvo는 이미지 첨부 파일을 Hermes에 보내지 않습니다. 상위 Hermes API 서버가 이미지 입력 지원을 알려 주더라도, Enconvo에서는 Hermes 제공업체를 텍스트/채팅 제공업체로 취급하세요. 이미지 작업에는 비전을 지원하는 모델 제공업체를 사용하거나, 텍스트를 Hermes에 보내기 전에 OCR이나 이미지 분석을 먼저 실행하세요.
+
+## Hermes를 AI 모델로 사용
+
+설정이 끝나면 Hermes가 모델 선택기에 나타납니다. **Hermes Agent**를 고르고, 보통 `hermes-agent`인 안내된 모델을 선택하세요.
+
+Enconvo의 일반 인터페이스를 유지하면서 대화, 명령, 기능을 Hermes Agent로 실행하고 싶을 때 이 방식을 사용하세요.
+
+<Steps>
+  <Step title="모델 선택기 열기">
+    채팅이나 모델 기반의 다른 Enconvo 기능에서 현재 모델 이름을 클릭하세요.
+  </Step>
+  <Step title="Hermes Agent 선택">
+    제공업체 목록에서 **Hermes Agent**를 선택하세요.
+  </Step>
+  <Step title="Hermes 모델 선택">
+    `hermes-agent` 또는 Hermes API 서버가 알려 주는 모델 이름을 고르세요.
+  </Step>
+  <Step title="기능을 평소처럼 실행">
+    질문하거나 Enconvo 기능을 실행하세요. 모델 호출은 Hermes가 내부에서 처리합니다.
+  </Step>
+</Steps>
+
+Enconvo는 Hermes의 `/v1/models` 엔드포인트에서 Hermes 모델을 불러옵니다. Hermes가 실행 중이 아니거나 엔드포인트를 사용할 수 없으면 Enconvo는 `hermes-agent`로 대체합니다.
+
+## Hermes용 에이전트 만들기
+
+Hermes Agent를 조율하는 Enconvo 에이전트를 만들 수도 있습니다. Hermes의 에이전트 런타임을 중심으로 Enconvo 쪽 워크플로, 도구 세트, 프롬프트를 두고 싶을 때 유용합니다.
+
+<Steps>
+  <Step title="에이전트 만들기 열기">
+    SmartBar를 열고 **에이전트 만들기**를 검색하세요.
+  </Step>
+  <Step title="에이전트 이름 정하기">
+    `Hermes Agent`처럼 알아보기 쉬운 제목을 지정하세요.
+  </Step>
+  <Step title="조율 지침 작성">
+    Enconvo 에이전트가 Hermes와 어떻게 일해야 하는지 설명하는 지침을 작성하세요.
+
+    ```markdown
+    You coordinate Hermes Agent for the user.
+
+    Use Hermes for agentic work, automation, terminal-backed tasks, and requests that should run through the user's Hermes setup.
+    Summarize what Hermes did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="Hermes 모델 선택">
+    에이전트의 모델 설정에서 **Hermes Agent**를 선택하고 `hermes-agent`를 고르세요.
+  </Step>
+  <Step title="저장하고 에이전트 사용">
+    새 Enconvo 에이전트와 대화를 시작하세요. 구성한 Enconvo 에이전트 인터페이스와 도구를 유지하면서 Hermes를 사용합니다.
+  </Step>
+</Steps>
+
+## 네트워크를 통해 연결
+
+Hermes가 다른 컴퓨터에서 실행 중이라면 Enconvo에서 호스트 컴퓨터의 LAN IP를 사용하세요.
+
+```text
+http://<hermes-host-lan-ip>:8642/v1
+```
+
+<Warning>
+  LAN 접근에는 강력한 `API_SERVER_KEY`를 사용해야 합니다. 신뢰할 수 있는 네트워크에서만 Hermes API 서버를 노출하세요.
+</Warning>
+
+## 문제 해결
+
+<AccordionGroup>
+  <Accordion title="모델 선택기에 Hermes Agent가 나타나지 않음">
+    **설정 → AI 모델**에서 Hermes 제공업체가 활성화되어 있는지 확인하세요. 모델 목록이 비어 있다면 `hermes gateway status`로 게이트웨이가 실행 중인지 확인하세요.
+  </Accordion>
+  <Accordion title="검증이 unauthorized로 실패함">
+    `~/.hermes/.env`의 `API_SERVER_KEY`를 다시 확인하세요. Enconvo는 이 값을 Bearer 토큰으로 보냅니다.
+  </Accordion>
+  <Accordion title="연결에 실패함">
+    `curl http://127.0.0.1:8642/v1/health`로 API 서버가 정상인지 확인하세요. Enconvo가 다른 기기에서 실행 중이라면 호스트의 LAN IP를 사용하고, Hermes가 네트워크 접근용으로 바인딩되어 있는지 확인하세요.
+  </Accordion>
+  <Accordion title="시작은 성공했지만 상태가 바뀌는 데 시간이 걸림">
+    서비스 관리자는 API 서버가 준비되기 전에 반환될 수 있습니다. 몇 초 기다렸다가 설정 카드의 런타임 배지를 다시 확인하거나, `hermes gateway status`를 실행하고 `curl http://127.0.0.1:8642/v1/health`로 테스트하세요.
+  </Accordion>
+  <Accordion title="이미지 첨부 파일이 무시됨">
+    Enconvo의 Hermes 제공업체는 현재 텍스트 전용입니다. Enconvo는 이미지 첨부 파일을 Hermes에 보내지 않으므로, 이미지를 직접 입력하려면 비전을 지원하는 제공업체를 고르세요.
+  </Accordion>
+  <Accordion title="기본 URL이 잘못됨">
+    `http://<gateway-host>:8642/v1`을 입력하세요. Enconvo 기본 URL 필드에 `/chat/completions`를 포함하지 마세요.
+  </Accordion>
+  <Accordion title="게이트웨이 로그가 필요함">
+    `tail -f ~/.hermes/logs/gateway.log`로 Hermes 게이트웨이 로그를, `tail -f ~/.hermes/logs/gateway.error.log`로 오류를 확인하세요.
+  </Accordion>
+</AccordionGroup>
+
+## 관련 문서
+
+<CardGroup cols={2}>
+  <Card title="OpenClaw" icon="server" href="/ko/providers/openclaw">다른 에이전트 게이트웨이를 같은 방식으로 연결합니다.</Card>
+  <Card title="에이전트" icon="robot" href="/ko/ai/agents">에이전트에 지침과 도구를 줍니다.</Card>
+</CardGroup>

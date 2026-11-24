@@ -1,0 +1,91 @@
+---
+title: "Emparelhar o telemóvel"
+description: "Emparelhe a app Enconvo para iPhone ou Android com um Mac, um PC Windows, um ambiente de trabalho Linux ou um servidor Linux só com terminal."
+---
+
+A app Enconvo no seu telemóvel emparelha com cada um dos seus computadores, para que os respetivos projetos e conversas estejam no telemóvel. Uma conversa que abre a partir do telemóvel continua a correr nesse computador, com os seus ficheiros, apps e agentes. O telemóvel acede ao computador através do relay do Enconvo, e as mensagens têm encriptação de ponta a ponta. Quando o telemóvel e o computador estão na mesma rede, a app liga-se diretamente a ele, pelo que liga e responde mais depressa em casa ou no escritório.
+
+Cada computador emparelha com o telemóvel por si. Emparelhar dois computadores entre si (por exemplo, um portátil Linux com o seu Mac) não adiciona nenhum deles ao telemóvel: emparelhe o telemóvel com cada computador que quer usar a partir dele.
+
+## Antes de começar
+
+- **Obtenha a app.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play, ou o APK. **Descarregar a app para telemóvel** em **Definições → Ligações** no seu computador tem um código de transferência para cada um; o botão **Descarregar a app para telemóvel** do plugin Mobile Companion também o abre.
+- **Use uma só conta.** Inicie sessão na app do telemóvel e no computador com a mesma conta do Enconvo. Só os telemóveis da sua conta podem emparelhar. Uma conta gratuita também pode emparelhar e usar, a partir do telemóvel, as conversas do computador e o Ecrã remoto.
+- **Mantenha o computador ligado e o Enconvo em execução.** O telemóvel só acede a um computador enquanto o Enconvo estiver a correr nele.
+
+## Mac, Windows ou um ambiente de trabalho Linux
+
+Os passos são iguais nos três.
+
+<Steps>
+  <Step title="Mostre o código de emparelhamento no computador">
+    Clique no seletor de dispositivos na parte inferior da barra lateral e depois em **Adicionar um dispositivo → Emparelhar um telemóvel**. Ou abra **Definições → Ligações** e selecione **Mostrar o código de emparelhamento**. Aparece um código QR. Funciona uma vez e dura cinco minutos.
+  </Step>
+  <Step title="Leia-o com o telemóvel">
+    Na app Enconvo, abra **Remoto**, toque em **Emparelhar um computador** e aponte a câmara para o código. Também o pode ler com a Câmara do iPhone, uma câmara Android ou o Google Lens: o código abre o Enconvo e confirma lá o computador. Se a app ainda não estiver instalada, a ligação do código ajuda-o a instalá-la e depois a emparelhar.
+  </Step>
+  <Step title="Use o computador a partir do telemóvel">
+    O telemóvel emparelha num instante e mostra o computador. Com mais de um computador emparelhado, alterne entre eles em **Remoto**.
+  </Step>
+</Steps>
+
+Se o código expirar, selecione **Mostrar um novo código** e leia de novo.
+
+## Um servidor Linux só com terminal
+
+Um servidor não tem janela para mostrar o código, pelo que a linha de comandos o imprime. Isto exige o Enconvo 2.5.15 Beta 1 ou posterior. Siga primeiro [Instalar num servidor](/pt/getting-started/linux).
+
+<Steps>
+  <Step title="Inicie sessão no servidor">
+    ```bash
+    enconvo login
+    ```
+    Aprove o código que imprime em `enconvo.com/device`.
+  </Step>
+  <Step title="Mantenha o Enconvo em execução">
+    ```bash
+    enconvo service install
+    ```
+    O telemóvel só acede ao servidor enquanto o Enconvo estiver a correr nele.
+  </Step>
+  <Step title="Imprima o código de emparelhamento">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Desenha um código QR no terminal, com uma ligação por baixo, e indica quando expira. O código funciona uma vez e dura cinco minutos.
+  </Step>
+  <Step title="Leia-o ou abra a ligação">
+    Leia o código com a câmara do telemóvel, ou abra a ligação no telemóvel. Confirme na app Enconvo e o servidor aparece no telemóvel.
+  </Step>
+</Steps>
+
+- **Por SSH**: o código é desenhado no seu próprio terminal, pelo que funciona também por SSH. Se quebrar linha, alargue a janela ou abra antes a ligação.
+- **Início de sessão**: escrito no seu próprio terminal, o código também inicia a sessão da app do telemóvel, por isso envie-o apenas para o seu próprio telemóvel. Uma saída redirecionada ou guardada, ou um comando executado por um agente, imprime apenas a ligação, que não inicia a sessão da app: inicie primeiro sessão na app com a mesma conta.
+- **Expirado**: execute `enconvo companion pair --phone` de novo.
+
+## Gerir os telemóveis emparelhados
+
+**Definições → Ligações** em cada computador lista os respetivos telemóveis emparelhados.
+
+| Para | Faça isto |
+|---|---|
+| Emparelhar outro telemóvel | Mostre um novo código e leia-o com esse telemóvel. Um computador pode ter até 10 telemóveis emparelhados. |
+| Mudar o nome de um telemóvel | Clique no telemóvel e depois em **Renomear telemóvel** junto ao nome. |
+| Remover um telemóvel | Selecione **Remover** junto a ele. Esse telemóvel deixa de poder aceder a este computador. |
+| Recomeçar | Selecione **Repor ligação**. Todos os telemóveis são removidos e têm de emparelhar de novo. |
+
+## Resolução de problemas
+
+| Problema | Solução |
+|---|---|
+| Um computador não está no telemóvel | Emparelhe o telemóvel com esse próprio computador. Emparelhá-lo com outro computador não o adiciona. |
+| **Este código expirou** | Mostre um novo código, ou execute o comando de novo, e leia no prazo de cinco minutos. |
+| **Inicie sessão para emparelhar um telemóvel** | Inicie sessão no Enconvo no computador. Num servidor, execute `enconvo login`. |
+| O servidor diz que não tem sessão iniciada | Execute `enconvo login` e depois `enconvo companion pair --phone` de novo. |
+| O telemóvel mostra o servidor como offline | Verifique se o Enconvo corre lá: `enconvo service install`, e `sudo loginctl enable-linger "$USER"` se parar quando termina a sessão. |
+
+## Passos seguintes
+
+- [App para iPhone](/pt/integrations/iphone-app): o que pode fazer a partir do telemóvel, com um vídeo tutorial.
+- [Linux (Beta)](/pt/getting-started/linux): instale o Enconvo num ambiente de trabalho ou num servidor.
+- [Os seus outros computadores](/pt/integrations/other-computers): emparelhe os seus computadores entre si.

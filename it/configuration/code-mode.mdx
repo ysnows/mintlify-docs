@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Lascia che un Agente scriva un breve script che fa molte chiamate a strumenti in una volta e legge solo il risultato."
+---
+
+Code Mode permette a un Agente di fare in un solo passaggio ciò che altrimenti ne richiederebbe molti: scrive un breve script che fa molte chiamate a strumenti, in parallelo o in sequenza, e legge solo il risultato. Usalo quando un compito ripete la stessa chiamata su molti elementi, come controllare un elenco di pagine o raccogliere risultati da più servizi, così il lavoro è più veloce e la chat non si riempie di ogni risultato intermedio.
+
+Non richiami Code Mode da solo. Quando è attivo, l'Agente lo usa ogni volta che un compito lo richiede, e la chat mostra una scheda con le chiamate fatte dallo script.
+
+## Configura Code Mode
+
+1. Apri **Impostazioni → Code Mode**. Puoi anche aprire **Code Mode** dalla scheda **Integrato** della pagina Plugin.
+2. In **Accesso degli script**, attiva ciò che uno script può chiamare. Ogni chiamata ti chiede comunque conferma, come stabilisce la [Modalità di autorizzazione](/it/ai/agents) della chat.
+3. Scegli quali modelli possono scrivere script, cosa mostra la chat e cosa succede quando uno script dura a lungo.
+
+## Impostazioni
+
+**Accesso degli script** elenca ciò che uno script può chiamare:
+
+| Accesso | Cosa consente | Predefinito |
+| --- | --- | --- |
+| **Plugin** | Ricerca, knowledge base, documenti e altre route dei plugin | Attivo |
+| **Connector e MCP** | I tuoi account collegati e gli strumenti MCP | Attivo |
+| **File** | Lettura e scrittura di file | Attivo |
+| **Comandi shell** | Esecuzione di comandi in un terminale | Attivo |
+| **Browser** | [Uso del browser](/it/features/browser-control), nel tuo browser | Attivo |
+| **App** | [Uso del computer](/it/features/computer-use), entro il suo elenco di accesso alle app | Attivo |
+| **Altri agenti** | Avvio di sottoagenti o invio di messaggi a loro | Disattivato |
+| **Chiamate ai modelli** | Un piccolo modello per riassumere o giudicare elementi | Attivo |
+
+Le altre opzioni:
+
+| Opzione | Scelte |
+| --- | --- |
+| **Usa con** | **Modelli che scrivono bene il codice** (gli altri fanno le loro chiamate una per una), oppure **Tutti i modelli**. |
+| **Mostra nella chat** | **Le chiamate**, oppure **Le chiamate e il codice**. |
+| **Quando uno script dura a lungo** | **Continua, fino a 2 ore** in background, oppure **Fermati dopo 10 minuti**. |
+
+## Code Mode fuori da una chat
+
+Quando uno script viene eseguito fuori da una chat, per esempio in un'attività programmata, chiama solo strumenti di lettura: ricerche e letture integrate, pagine web pubbliche, file ordinari e strumenti MCP che non dichiarano di modificare nulla. Enconvo ricontrolla ogni chiamata subito prima che venga eseguita.
+
+## Usa uno script in una Competenza
+
+Una Competenza può conservare uno script di Code Mode nella propria cartella `scripts` ed eseguirlo come uno dei suoi passaggi. Vedi [Competenze](/it/configuration/skills).
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| L'Agente fa le sue chiamate una per una | Controlla **Usa con**. Con **Modelli che scrivono bene il codice**, gli altri modelli non usano Code Mode. |
+| Uno script non riesce a raggiungere uno strumento | Attiva quel tipo di accesso in **Accesso degli script**. Fuori da una chat, gli script possono solo leggere. |
+| Uno script lungo si è fermato | Con **Fermati dopo 10 minuti**, gli script più lunghi terminano. Scegli **Continua, fino a 2 ore**. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Scegli gli strumenti e le autorizzazioni di un Agente.</Card>
+  <Card title="Competenze" icon="star" href="/it/configuration/skills">Salva un compito ripetibile, con i suoi script.</Card>
+  <Card title="Code Runner" icon="terminal" href="/it/ai/code-runner">Esegui codice e comandi shell.</Card>
+  <Card title="Server MCP" icon="plug" href="/it/features/mcp">Collega servizi esterni come strumenti.</Card>
+</CardGroup>

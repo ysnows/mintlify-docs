@@ -1,0 +1,53 @@
+---
+title: "File e cartelle"
+description: "Lascia che un Agente trovi, legga e modifichi i file sul tuo Mac."
+---
+
+Gli strumenti per i file permettono a un Agente di trovare file, cercare al loro interno, leggerli e modificarli. Indica all'Agente una cartella o un file e chiedi a parole semplici; sceglie lo strumento giusto e ti mostra cosa ha usato.
+
+## Prima di iniziare
+
+- **Cartella di lavoro:** la **Cartella di lavoro** di un Agente, nella parte **Definizione** delle sue impostazioni, è il punto da cui partono i percorsi relativi.
+- **Approvazioni:** il chip **Autorizzazioni** nella chat decide quando l'Agente chiede prima. Con **Chiedi l'approvazione**, chiede prima di modificare file fuori dalla cartella di lavoro. Leggere e cercare non chiede mai. Vedi [Approva le azioni](/it/ai/agents).
+
+## Inizia con un’attività di sola lettura
+
+1. Nelle impostazioni dell'Agente, controlla i suoi strumenti per i file e la sua **Cartella di lavoro**.
+2. Nella chat, indica una cartella oppure allega il file che vuoi usare.
+3. Fai una domanda circoscritta, come "Trova i file Markdown in questo progetto e riassumi il README."
+4. Guarda i file e l'output degli strumenti che l'Agente ha usato prima di chiedergli di cambiare qualcosa.
+
+## Cosa fa ogni strumento
+
+| Strumento | Cosa fa |
+| --- | --- |
+| Glob | Trova i file per schema di percorso, come `**/*.md`, dal più recente |
+| Grep | Cerca il testo all'interno dei file, con schemi di file e numeri di riga |
+| Read File | Legge i file di testo, estrae il testo dai documenti e legge immagini, audio e video |
+| Edit File | Sostituisce un testo esatto in un file e riporta le righe che ha cambiato |
+| Write File | Crea un file, oppure ne sostituisce l'intero contenuto |
+
+<Warning>
+Write File può sovrascrivere un file esistente senza avviso. Conserva una copia o usa il controllo di versione per i documenti importanti, e controlla la destinazione e la modifica prima di approvarla. I file che un Agente modifica in una chat sono elencati nella scheda **Modifiche** del pannello laterale, con **Annulla**.
+</Warning>
+
+## Documenti e contenuti multimediali
+
+Leggere un PDF, un documento Office, un'immagine, un file audio o un video può eseguire analisi, OCR o trascrizione invece di restituire byte grezzi. Per audio e video, l'Agente legge la trascrizione. In un foglio di calcolo, una cella con formula viene letta come il suo valore, oppure come la formula stessa quando non è mai stata calcolata. I formati che funzionano dipendono dagli strumenti installati e dai provider che hai configurato. Vedi [OCR](/it/ai/ocr), [Trascrizione](/it/features/transcription) e [Base di conoscenza](/it/ai/knowledge-base).
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Un errore di accesso | Controlla la **Cartella di lavoro** dell'Agente, il chip **Autorizzazioni** e i permessi di macOS |
+| Un documento risulta vuoto | Controlla il tipo di file e se può essere analizzato. Un PDF scansionato può richiedere l'OCR |
+| Una modifica non trova il testo da sostituire | Chiedi all'Agente di rileggere il file attuale prima di modificarlo |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Code Runner" icon="terminal" href="/it/ai/code-runner">Esegui codice e comandi della shell. Gli strumenti per i file ispezionano e modificano senza una shell.</Card>
+  <Card title="Agenti" icon="robot" href="/it/ai/agents">Imposta gli strumenti di un Agente e quando chiede prima.</Card>
+  <Card title="OCR" icon="font" href="/it/ai/ocr">Leggi il testo nelle immagini e nelle scansioni.</Card>
+  <Card title="Base di conoscenza" icon="book" href="/it/ai/knowledge-base">Cerca nei tuoi documenti.</Card>
+</CardGroup>

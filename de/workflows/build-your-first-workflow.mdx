@@ -1,0 +1,131 @@
+---
+title: "Erstelle deinen ersten Workflow"
+description: "Folge einem vertonten Video, um aus einer Vorlage einen Workflow zu erstellen, Schritte von Hand und mit dem Assistenten hinzuzufügen und ihn dann auszuführen und die Ausgabe jedes Schritts zu lesen."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Workflows verketten Prompts, Agenten und Tools zu einem wiederholbaren Lauf. Dieses Tutorial baut einen von Anfang bis Ende: Erstelle ihn aus der Vorlage **Rundgang durch die Schrittarten**, füge von Hand einen Schritt hinzu, lass den Workflow-Assistenten einen weiteren ergänzen und führe ihn dann aus und lies die Ausgabe jedes Schritts.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+Das Video ist 2 Minuten 24 Sekunden lang. Die schriftlichen Schritte unten folgen derselben Reihenfolge, mit dem passenden Zeitstempel für jeden Schritt.
+
+## Was du bauen wirst
+
+Die Vorlage **Rundgang durch die Schrittarten** läuft schon von Haus aus. Im Verlauf des Tutorials wächst sie zu einer kleinen Content-Pipeline:
+
+| Schritt | Typ | Was er macht |
+| --- | --- | --- |
+| Get today's date | Shell | Gibt das heutige Datum aus |
+| List saved workflows | Tool | Listet deine vorhandenen Workflows auf (läuft parallel zum Datum) |
+| Ask the model for an idea | Prompt | Schlägt eine neue Automatisierung zur Eingabe `topic` vor |
+| Let the agent expand it | Agent | Macht aus der Idee einen Plan in drei Schritten |
+| Write a tweet | Prompt | Von Hand hinzugefügt: macht aus dem Plan einen prägnanten Tweet |
+| Translate the tweet into Japanese | Prompt | Vom Assistenten hinzugefügt: übersetzt den Tweet |
+
+## Schritt für Schritt folgen
+
+<Steps>
+  <Step title="Einen Workflow erstellen (0:07)">
+    Öffne **Einstellungen → Workflows → Verwalten** und wähle **Neuer Workflow**. Wähle unter **Oder mit einer Vorlage beginnen** **Rundgang durch die Schrittarten**. Der Workflow wird erstellt, und der Editor öffnet sich im Modus **Visuell**. Das Video wurde aufgenommen, bevor es den Dialog **Neuer Workflow** gab, deshalb heißt der Starter dort *Starter Workflow*.
+  </Step>
+  <Step title="Den Graphen lesen (0:18)">
+    Lies den Graphen von oben. Der Knoten **Eingaben** deklariert, was ein Lauf braucht; hier ist es ein einziges `topic`. Die ersten beiden Schritte stehen nebeneinander, weil sie zu getrennten Jobs gehören und daher parallel laufen. Jedes Ergebnis fließt dann nach unten in die Schritte darunter, die der Reihe nach laufen.
+  </Step>
+  <Step title="Einen Schritt bearbeiten (0:28)">
+    Wähle einen Schritt, um ihn im Inspektor zu öffnen, wo du seine ID, seinen Titel und seinen Prompt ändern kannst. Doppelte geschweifte Klammern holen Werte in einen Schritt: `{{ inputs.topic }}` liest eine Eingabe des Laufs, und `{{ steps.idea.output }}` liest das Ergebnis eines früheren Schritts. So sprechen Schritte miteinander.
+  </Step>
+  <Step title="Einen Schritt hinzufügen (0:37)">
+    Wähle das **+** unter dem letzten Schritt und wähle eine Schrittart, etwa Prompt, Agent, Shell oder Tool. Gib dem neuen Prompt-Schritt die ID `tweet`, den Titel „Write a tweet“ und diesen Prompt:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    Nachdem du eine Schritt-ID umbenannt hast, drücke Return, bevor du zum nächsten Feld wechselst.
+    </Tip>
+  </Step>
+  <Step title="Oder den Workflow-Assistenten fragen (0:57)">
+    Statt von Hand zu bearbeiten, wähle in der Symbolleiste **Assistent** und beschreibe die Änderung in dem Bereich, der sich neben der Arbeitsfläche öffnet:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    Der Assistent bearbeitet den Graphen und listet die Schritte auf, die er geändert hat. Wähle bei seiner Antwort **Rückgängig machen**, wenn dir das Ergebnis nicht gefällt. Im Video fügt er einen Schritt `translate_ja` hinzu, dessen Prompt `{{ steps.tweet.output }}` liest. Prüfe den neuen Schritt, bevor du speicherst: Änderungen des Assistenten bleiben ungespeichert, bis du **Speichern** wählst.
+  </Step>
+  <Step title="Das YAML ansehen (1:16)">
+    Wähle in der Symbolleiste **YAML**, um denselben Workflow als Quelltext zu sehen. Jeder Workflow ist eine einfache Datei, gespeichert unter `~/.enconvo/workflows/<id>.yaml`, sodass er sich leicht lesen, vergleichen und teilen lässt. Wähle **Visuell**, um zum Graphen zurückzukehren. Die vollständige Datei findest du unten unter [Der fertige Workflow](#der-fertige-workflow).
+  </Step>
+  <Step title="Ausführen und die Ausgabe prüfen (1:28)">
+    Wähle **Eingaben**, lege die Werte für den Lauf fest (das Video verwendet `{"topic": "matcha"}`) und wähle **Ausführen**. Laufende Schritte leuchten blau, und fertige Schritte werden grün. Der Agent-Schritt braucht länger als die anderen.
+
+    Wenn der Lauf fertig ist, wähle einen beliebigen Schritt und öffne seinen Tab **Ausgabe**, um genau zu sehen, was er hervorgebracht hat. Der letzte Schritt hat den Tweet übernommen und übersetzt, ohne Kopieren und Einfügen.
+  </Step>
+  <Step title="Frühere Läufe finden (2:05)">
+    Jeder Lauf wird unter **Ausführungen** in der Symbolleiste aufbewahrt, sodass du später zu jedem Ergebnis zurückkehren kannst.
+  </Step>
+</Steps>
+
+<Note>
+Beim Ausführen eines Workflows werden echte Modelle und Tools aufgerufen. Das kann Guthaben bei Anbietern verbrauchen, und Shell- oder Tool-Schritte handeln mit den Berechtigungen deines Mac-Kontos. Prüfe die Schritte eines Workflows, bevor du ihn ausführst.
+</Note>
+
+## Der fertige Workflow
+
+Hier ist der im Video gebaute Workflow als YAML ausgeschrieben. Die Ansicht **YAML** formatiert ihn möglicherweise etwas anders.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+Der Job `ideate` wartet über `needs` auf `date` und `catalog`, sodass er ihre Ergebnisse mit `jobs.<job>.<step>.output` lesen kann. Innerhalb eines Jobs lesen spätere Schritte frühere mit `steps.<id>.output`.
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Workflows" icon="diagram-project" href="/de/workflows/introduction">Jobs, Schritte und jede Art von Schritt.</Card>
+  <Card title="Workflows erstellen" icon="pen-to-square" href="/de/workflows/creating-workflows">Der visuelle Editor, YAML und der Bearbeitungsassistent im Detail.</Card>
+  <Card title="Erweiterte Workflows" icon="code-branch" href="/de/workflows/advanced-workflows">Bedingungen, Schleifen, Wiederholungen, Ausgabeschemata und Subworkflows.</Card>
+  <Card title="Geplante Aufgaben" icon="clock" href="/de/workflows/scheduled-jobs">Einen Workflow oder eine Agenten-Anweisung zu einer festgelegten Zeit ausführen.</Card>
+</CardGroup>

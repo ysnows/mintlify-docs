@@ -1,0 +1,86 @@
+---
+title: "Workflows"
+description: "Verkette Prompts, Agenten, Shell-Befehle und Tools zu einem wiederholbaren Ablauf, den du ausführen, einsehen und planen kannst."
+---
+
+Ein Workflow ist ein wiederholbarer Ablauf, der als Schritte gespeichert ist: Informationen lesen, umwandeln, ein Modell fragen, Arbeit an einen Agenten übergeben oder ein installiertes Tool aufrufen. Nutze einen, wenn du dieselbe mehrstufige Aufgabe immer wieder erledigst und sehen willst, was jeder Schritt hervorgebracht hat. Öffne **Einstellungen → Workflows → Verwalten**, um deine Workflows und ihren Ausführungsverlauf zu durchsuchen.
+
+<Tip>
+Neu bei Workflows? Sieh dir das 2½-minütige Video-Tutorial [Erstelle deinen ersten Workflow](/de/workflows/build-your-first-workflow) an, um einen von Anfang bis Ende zu erstellen, zu bearbeiten und auszuführen.
+</Tip>
+
+## Das richtige Werkzeug wählen
+
+| Du möchtest | Nutze |
+| --- | --- |
+| Einen Prompt auf markiertem Text wiederverwenden | [KI-Befehle](/de/features/ai-commands) |
+| Einen Assistenten entscheiden lassen, welche Tools er nutzt | [Agenten](/de/ai/agents) |
+| Eine wiederholbare Abfolge mit einsehbaren Ausgaben definieren | Einen Workflow |
+| Eine Agenten-Anweisung, einen Workflow oder ein Skript zu einer festgelegten Zeit ausführen | [Geplante Aufgaben](/de/workflows/scheduled-jobs) |
+
+## Wie ein Workflow aufgebaut ist
+
+Ein Workflow hat drei Teile:
+
+- `inputs`: die Werte, die ein Lauf braucht, etwa ein Thema oder ein Text.
+- `jobs`: benannte Gruppen von Schritten. Jobs starten parallel, es sei denn, `needs` lässt einen Job auf einen anderen warten.
+- `steps`: die geordnete Liste innerhalb jedes Jobs. Schritte innerhalb eines Jobs laufen nacheinander.
+
+Aktuelle Workflows verwenden `version: agent-workflow/v1` mit einer `jobs`-Map, und jeder Job enthält eine `steps`-Liste:
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+Das alte Format `tasks` auf oberster Ebene wird nicht mehr akzeptiert. Verschiebe jede Abfolge nach `jobs.<name>.steps`, vergib den Schritten ausdrückliche IDs und verwende `steps.<id>.output` innerhalb eines Jobs oder `jobs.<job>.<step>.output` über Jobs hinweg.
+</Note>
+
+## Was ein Schritt tun kann
+
+Jeder Schritt tut genau eines davon:
+
+| Schritt | Felder | Ergebnis |
+| --- | --- | --- |
+| Shell | `command` oder `run` | Befehlsausgabe, einschließlich `stdout`, `stderr` und `exitCode` |
+| Prompt | `prompt` | Eine Modellantwort; nutze ein Ausgabeschema für strukturierte Daten |
+| Agent | `agent` und `message` | Die Antwort des gewählten Agenten |
+| Tool | `tool` und `with` | Das Ergebnis eines installierten Local-API-Endpunkts |
+| Transform | `uses: transform` und `value` | Ein Wert aus einer Vorlage |
+| Subworkflow | `uses: workflow` mit `workflowId` oder `workflow` | Das Ergebnis eines Laufs eines untergeordneten Workflows |
+| Approval | `uses: approval` und `message` | Deine Antwort: genehmigt oder abgelehnt, mit optionalem Feedback |
+| Judge | `uses: judge` und `question` | Ein Ja oder Nein von Jev, dem schnellen Entscheidungsmodell von Enconvo Cloud, mit seiner Wahrscheinlichkeit |
+| Classify | `uses: classify`, `question` und `options` | Die Option, die Jev gewählt hat, mit seiner Konfidenz |
+
+Ein Schritt kann außerdem nur laufen, wenn eine Bedingung gilt, über eine Liste wiederholt werden, es erneut versuchen oder strukturierte Daten zurückgeben. Siehe [Erweiterte Workflows](/de/workflows/advanced-workflows).
+
+## Einen Workflow ausführen
+
+- Öffne ihn in **Workflows**, lege die **Eingaben** fest und wähle **Ausführen**.
+- Suche in der SmartBar nach einem gespeicherten Workflow. Der Launcher-Text ist als `inputs.input_text` verfügbar.
+- Erwähne einen verfügbaren Workflow mit `@` im Chat, damit ein Agent ihn nutzen kann.
+- Führe ihn nach Zeitplan mit einer [geplanten Aufgabe](/de/workflows/scheduled-jobs) aus.
+
+## Wo Workflows gespeichert werden
+
+Jeder Workflow ist eine Datei unter `~/.enconvo/workflows/<id>.yaml`. Der Dateiname ist die Workflow-ID. Halte diese ID stabil, um die Verknüpfung mit dem Ausführungsverlauf zu erhalten.
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Erstelle deinen ersten Workflow" icon="play" href="/de/workflows/build-your-first-workflow">Ein Video-Tutorial von der Vorlage bis zum fertigen Lauf.</Card>
+  <Card title="Workflows erstellen" icon="pen-to-square" href="/de/workflows/creating-workflows">Der visuelle Editor, YAML, der Assistent und jede Schrittart.</Card>
+  <Card title="Erweiterte Workflows" icon="code-branch" href="/de/workflows/advanced-workflows">Bedingungen, Schleifen, Wiederholungen, Ausgabeschemata und Subworkflows.</Card>
+  <Card title="Geplante Aufgaben" icon="clock" href="/de/workflows/scheduled-jobs">Einen Workflow oder einen Agenten nach Zeitplan ausführen.</Card>
+</CardGroup>

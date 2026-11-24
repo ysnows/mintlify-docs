@@ -1,0 +1,106 @@
+---
+title: "CLI und Local API"
+description: "Führe die Befehle von Enconvo im Terminal aus und rufe die lokale HTTP-API aus Skripten, Agenten und anderen Apps auf."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Diese Seite richtet sich an Entwickler und Power-User, die Enconvo über das Terminal, ein Skript oder eine andere App steuern wollen. Der Befehl `enconvo` wird mit der Enconvo-Desktop-App geliefert, ohne separate Installation, und die App stellt die Routen jedes installierten Plugins über eine lokale HTTP-API bereit.
+
+Dieses Video behandelt die Seite „APIs“, die CLI-Anleitung und Hooks.
+
+<YouTubePlayer videoId="52s8NEIzxDo" title="How to Use Enconvo's APIs, CLI and Hooks | Step-by-Step Tutorial" />
+
+Lass Enconvo laufen, wenn du Befehle verwendest, die seine lokale Laufzeitumgebung nutzen.
+
+## Befehle finden
+
+```bash
+enconvo -h
+enconvo knowledge_base -h
+```
+
+Hänge `-h` an den Befehl an, den du dir ansehen willst, um seine aktuellen Unterbefehle und Optionen zu sehen.
+
+Öffne **Einstellungen → CLI-Anleitung**, um die installierten Erweiterungen zu sehen, die CLI-Befehle bereitstellen. Klicke auf einen Namen, um seinen Befehl `enconvo <name> -h` zu kopieren. Maßgeblich dafür, was deine App unterstützt, ist die Liste der installierten Erweiterungen.
+
+Wenn deine Shell `enconvo` nicht findet, öffne die CLI-Anleitung der App und prüfe die installierte App-Version und deine Kommandozeilen-Einrichtung.
+
+## Die Local API aufrufen
+
+Die App stellt jede Route unter `http://localhost:54535/api/<extension>/<route>` bereit. Sende einen `POST` mit einem JSON-Body:
+
+```bash
+curl -X POST http://localhost:54535/api/enconvo/extension/available_list \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Öffne **Einstellungen → APIs** und klicke auf **APIs prüfen**, um die verfügbaren Routen und Anfrageschemas samt je einem Beispiel anzusehen. Verwende beim Schreiben einer Integration das Schema deiner installierten Version. Routenparameter können sich ändern, wenn sich die Erweiterungen weiterentwickeln.
+
+## Einen Agenten oder KI-Befehl von außerhalb von Enconvo ausführen
+
+In den Einstellungen jedes Agenten und jedes KI-Befehls gibt es eine Zeile **Link, CLI und API**. Sie zeigt den Link, den Befehl `enconvo` und den Aufruf der Local API, die ihn mit deinem Text und deinen Dateien ausführen, zum Kopieren bereit.
+
+| Weg | Was er tut |
+| --- | --- |
+| Link | Öffnet einen neuen Chat und führt dort den Agenten oder KI-Befehl aus |
+| CLI | Führt ihn im Hintergrund aus und gibt die Antwort aus |
+| Local API | Führt ihn im Hintergrund aus und liefert die Antwort zurück |
+
+Ein Link hat diese Form:
+
+```text
+enconvo://<extension>/<command>?input_text=<text>&window=<window>&files=<path>
+```
+
+- `input_text` ist der Text, der gesendet wird.
+- `window` ist `chat_window` oder `dynamic_island`. Lässt du es weg, läuft es in der SmartBar.
+- `files` hängt die Datei unter einem absoluten Pfad oder einem Pfad mit `~/` an. Wiederhole es für mehrere Dateien, zum Beispiel um Bilder aus einer anderen App oder einem Skript zu senden.
+
+Im Terminal:
+
+```bash
+enconvo agent call "What's on my calendar today?"
+enconvo ai-command run 'writing_package|translate' --input-text "Bonjour" --files ~/Desktop/note.png
+enconvo writing_package convert_to_list "eggs, milk, bread"
+```
+
+Schreibbefehle wie Übersetzen, Zusammenfassen und In Liste umwandeln nehmen den Text als Argument und antworten, ohne einen Chat zu deinem Verlauf hinzuzufügen. `enconvo agent main` antwortet in einem neuen Chat, wenn der Agent in seinem letzten beschäftigt ist.
+
+Die passenden Routen der Local API sind `agent/call` (`agentId`, `message`, `context_files`) und `ai-command/run` (`command_key`, `input_text`, `files`).
+
+### Laufende Chats im Blick behalten
+
+- `agent/session/list` listet die Chats auf, die gerade laufen, über alle Agenten und Projekte hinweg, einschließlich Claude-Code- und Codex-Chats, mit Titel, Agent und Projekt jedes Chats. Übergib `filter: "waiting"` für die Chats, die auf deine Antwort warten, oder `"active"` für beides.
+- `agent/session/status` prüft einen Chat anhand seiner `sessionId`.
+- `agent/session/steer` fügt der Runde, die ein Chat gerade ausführt, eine Nachricht hinzu, ohne sie zu stoppen. Ein Chat, der nicht läuft, antwortet mit `not_running`. Starte stattdessen mit `agent/call` eine neue Runde. Ein Lauf unterhalb von Vollzugriff kann eine Enconvo-Runde nicht steuern.
+
+## Sicher verwenden
+
+Für einen KI-Client, der nur Abrufe aus der Wissensdatenbank braucht, verwende statt der allgemeinen Local API die dedizierte Verbindung [Knowledge Base MCP](/de/advanced/knowledge-base-mcp).
+
+Betrachte Zugriff auf die Local API und die Shell als mächtige Fähigkeiten: Befehle können je nach Implementierung lokale Daten lesen oder ändern. Halte Skripte ausdrücklich bei Befehl, Eingabe und Ziel.
+
+Gespeicherte API-Schlüssel kommen als `[hidden]` zurück, wenn ein Programm Einstellungen über die Local API liest, und nur die eigenen Fenster von Enconvo können ändern, wohin ein gespeicherter Schlüssel gesendet wird. Siehe [Zugangsdaten](/de/configuration/credentials).
+
+Ein Hotkey, den du über die Local API setzt, kann kurze Modifikatornamen (`cmd`, `ctrl`, `alt`, `opt`, `fn`) oder die Modifikatorsymbole verwenden. Ein Hotkey mit einem Wort, das Enconvo nicht kennt, wird nicht registriert, und eine Taste, die Text eingibt, braucht Command, Control, Option oder Fn.
+
+## Darauf aufbauen
+
+- [Erweiterungen entwickeln](/de/extensions/developing): Füge eigene Befehle und Routen hinzu. Eine Datei in `src/api/` eines Plugins wird hier zu einer Route.
+- [Extension API Reference](/extensions/extension-api-reference): die Einstiegspunkte des SDK.
+- [Hooks](/de/configuration/hooks): Führe eigene Befehle an festgelegten Punkten der Arbeit eines Agenten aus. Sie stammen aus deiner JSON-Konfiguration, und **Einstellungen → Hooks** listet die geladenen auf.
+- [Geplante Aufgaben](/de/workflows/scheduled-jobs): Führe Arbeit zu einem gewählten Zeitpunkt aus.
+- [Enconvo auf einem Linux-Server konfigurieren](/de/advanced/linux-server): Lege Modelle, Agenten und Plugins eines Servers fest, den dein Mac hinzugefügt hat, mit demselben Befehl `enconvo`.
+
+## Verwandt
+
+<CardGroup cols={2}>
+  <Card title="Erweiterungen entwickeln" icon="code" href="/de/extensions/developing">
+    Einen Befehl oder eine Route der Local API bauen
+  </Card>
+  <Card title="Knowledge Base MCP" icon="plug" href="/de/advanced/knowledge-base-mcp">
+    Einem anderen KI-Client deine Wissensdatenbanken geben
+  </Card>
+</CardGroup>

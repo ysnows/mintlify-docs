@@ -1,0 +1,86 @@
+---
+title: "Flussi di lavoro"
+description: "Concatena prompt, Agenti, comandi shell e strumenti in un processo ripetibile che puoi eseguire, ispezionare e pianificare."
+---
+
+Un flusso di lavoro è un processo ripetibile salvato come passaggi: leggere informazioni, trasformarle, interrogare un modello, affidare del lavoro a un Agente o chiamare uno strumento installato. Usane uno quando svolgi più e più volte lo stesso lavoro in più passaggi e vuoi vedere cosa ha prodotto ciascun passaggio. Apri **Impostazioni → Flussi di lavoro → Gestisci** per sfogliare i tuoi flussi di lavoro e la cronologia delle loro esecuzioni.
+
+<Tip>
+Sei nuovo ai flussi di lavoro? Guarda il video tutorial di 2 minuti e mezzo [Crea il tuo primo flusso di lavoro](/it/workflows/build-your-first-workflow) per crearne, modificarne ed eseguirne uno dall'inizio alla fine.
+</Tip>
+
+## Scegli lo strumento giusto
+
+| Vuoi | Usa |
+| --- | --- |
+| Riutilizzare un prompt sul testo selezionato | [Comandi IA](/it/features/ai-commands) |
+| Lasciare che un assistente decida quali strumenti usare | [Agenti](/it/ai/agents) |
+| Definire una sequenza ripetibile con output ispezionabili | Un flusso di lavoro |
+| Eseguire a un orario stabilito un'istruzione per un Agente, un flusso di lavoro o uno script | [Attività programmate](/it/workflows/scheduled-jobs) |
+
+## Come è organizzato un flusso di lavoro
+
+Un flusso di lavoro ha tre parti:
+
+- `inputs`: i valori di cui un'esecuzione ha bisogno, come un argomento o un pezzo di testo.
+- `jobs`: gruppi di passaggi con un nome. I job partono in parallelo, a meno che `needs` non faccia attendere un job per un altro.
+- `steps`: l'elenco ordinato dentro ogni job. I passaggi di un job vengono eseguiti uno dopo l'altro.
+
+I flussi di lavoro attuali usano `version: agent-workflow/v1` con una mappa `jobs`, e ogni job contiene un elenco `steps`:
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+Il vecchio formato `tasks` di primo livello non è più accettato. Sposta ogni sequenza in `jobs.<name>.steps`, assegna ai passaggi ID espliciti e usa `steps.<id>.output` all'interno di un job oppure `jobs.<job>.<step>.output` tra job diversi.
+</Note>
+
+## Cosa può fare un passaggio
+
+Ogni passaggio fa esattamente una di queste cose:
+
+| Passaggio | Campi | Risultato |
+| --- | --- | --- |
+| Shell | `command` o `run` | L'output del comando, inclusi `stdout`, `stderr` e `exitCode` |
+| Prompt | `prompt` | La risposta di un modello; usa uno schema di output per i dati strutturati |
+| Agente | `agent` e `message` | La risposta dell'Agente selezionato |
+| Strumento | `tool` e `with` | Il risultato di un endpoint della Local API installato |
+| Trasformazione | `uses: transform` e `value` | Un valore da modello |
+| Sottoflusso di lavoro | `uses: workflow` con `workflowId` o `workflow` | Il risultato dell'esecuzione di un flusso di lavoro figlio |
+| Approvazione | `uses: approval` e `message` | La tua risposta: approvato, oppure rifiutato con un feedback facoltativo |
+| Giudizio | `uses: judge` e `question` | Un sì o un no da Jev, il modello decisionale veloce di Enconvo Cloud, con la sua probabilità |
+| Classificazione | `uses: classify`, `question` e `options` | L'opzione scelta da Jev, con la sua confidenza |
+
+Un passaggio può anche essere eseguito solo quando vale una condizione, ripetersi su un elenco, riprovare o restituire dati strutturati. Vedi [Flussi di lavoro avanzati](/it/workflows/advanced-workflows).
+
+## Esegui un flusso di lavoro
+
+- Aprilo in **Flussi di lavoro**, imposta gli **Input** e scegli **Esegui**.
+- Cerca un flusso di lavoro salvato in SmartBar. Il testo del launcher è disponibile come `inputs.input_text`.
+- Menziona un flusso di lavoro disponibile con `@` in chat, così un Agente può usarlo.
+- Eseguilo in modo pianificato con un'[attività programmata](/it/workflows/scheduled-jobs).
+
+## Dove vengono salvati i flussi di lavoro
+
+Ogni flusso di lavoro è un file in `~/.enconvo/workflows/<id>.yaml`. Il nome del file è l'ID del flusso di lavoro. Mantieni stabile quell'ID per conservare il collegamento con la cronologia delle sue esecuzioni.
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Crea il tuo primo flusso di lavoro" icon="play" href="/it/workflows/build-your-first-workflow">Un video tutorial dal modello all'esecuzione completata.</Card>
+  <Card title="Creare flussi di lavoro" icon="pen-to-square" href="/it/workflows/creating-workflows">L'editor visuale, YAML, l'assistente e ogni tipo di passaggio.</Card>
+  <Card title="Flussi di lavoro avanzati" icon="code-branch" href="/it/workflows/advanced-workflows">Condizioni, cicli, nuovi tentativi, schemi di output e sottoflussi di lavoro.</Card>
+  <Card title="Attività programmate" icon="clock" href="/it/workflows/scheduled-jobs">Esegui un flusso di lavoro o un Agente in modo pianificato.</Card>
+</CardGroup>

@@ -1,0 +1,80 @@
+---
+title: "Code Runner"
+description: "Lass einen Agenten Shell-Befehle, Skripte, Builds und Entwicklungsserver in einem echten Terminal auf deinem Mac ausführen."
+---
+
+Der Code Runner gibt einem Agenten ein echtes Terminal auf deinem Mac. Nutze ihn für Builds, Tests, Skripte, Paketwerkzeuge und Entwicklungsserver. Die Programme, die du installiert hast, und die Berechtigungen deines Kontos entscheiden, was laufen kann.
+
+<Warning>
+Befehle laufen tatsächlich, mit dem Zugriff deines Kontos auf deine Dateien und das Netzwerk, es sei denn, du aktivierst die **Sandbox** des Agenten. Prüfe jeden Befehl, der Software installiert, Dateien ändert oder einen Online-Dienst betrifft, bevor er läuft.
+</Warning>
+
+## Bevor du loslegst
+
+- Aktiviere den Code Runner für den Agenten, den du verwendest.
+- Der Chip **Berechtigungen** im Chat legt fest, wann der Agent vorher fragt. **Um Genehmigung bitten** fragt, bevor er einen Befehl ausführt, und **Für mich genehmigen** fragt nur bei Aktionen, die unsicher aussehen. Siehe [Aktionen genehmigen](/de/ai/agents).
+- Um die Befehle des Agenten auf den Arbeitsordner zu beschränken und von deinen Schlüsseln und anderen Apps fernzuhalten, aktiviere **Sandbox** im selben Chip. Siehe [Agenten-Sandbox](/de/configuration/sandbox).
+
+## Einen Befehl ausführen
+
+Gib dem Agenten einen Ordner und eine konkrete Aufgabe:
+
+> Führe in meinem Beispielprojekt den vorhandenen Testbefehl aus und berichte das Ergebnis. Ändere keine Dateien.
+
+Der Agent zeigt die Ausgabe des Befehls und sagt dir, ob er beendet ist oder noch läuft. Zum Lesen, Bearbeiten und Durchsuchen von Dateien nutzt der Agent stattdessen die [Dateiwerkzeuge](/de/ai/file-tools).
+
+## Wie Befehle laufen
+
+Jeder Befehl läuft in einem Pseudo-Terminal, sodass ein Befehl, der nach Eingaben fragt, beantwortet werden kann, ohne einen neuen Prozess zu starten.
+
+| Modus | Wofür |
+| --- | --- |
+| **oneshot** | Befehle, die von selbst enden, etwa Tests, Builds oder ein Skript |
+| **long_running** | Server, Watcher und Prozesse, die auf ein äußeres Ereignis warten |
+| **interactive** | REPLs, Terminal-Apps und interaktive Kommandozeilensitzungen |
+
+Ein Ergebnis mit `status: running` und einer `session_id` bedeutet, dass der Prozess weiterläuft. Der Agent kann seine Ausgabe **lesen**, Eingaben an ihn **schreiben** oder ihn **stoppen**. Um eine Abfrage zu beantworten, schreibt der Agent in diese Sitzung; einen weiteren Befehl zu starten beantwortet sie nicht.
+
+## Auf etwas Fertiges warten
+
+Wenn eine Aufgabe warten muss, etwa darauf, dass ein Build seine Ausgabe schreibt oder ein Server startet, nutzt der Agent das Werkzeug **Wait For** statt einer Shell-Schleife. Es wartet auf eines der folgenden Dinge, ohne dass ein Befehl läuft:
+
+- Eine Datei, die erscheint
+- Eine Zeile in einer Logdatei
+- Ein Prozess oder die Sitzung eines Befehls, die endet
+- Ein Port, der sich öffnet, oder eine Adresse, die antwortet
+
+Das Warten erscheint in den Hintergrundaufgaben des Chats. Der Agent wird informiert, wenn es erfüllt ist, fehlschlägt oder abläuft, und kann in der Zwischenzeit andere Arbeit erledigen.
+
+## Arbeitsordner und Zeitlimits
+
+Befehle laufen in `workDir`, wenn der Agent es festlegt, andernfalls im Arbeitsordner des Chats. Sie nutzen deine Shell, mit deinem eingerichteten Projekt und deiner Python-Virtualenv. Getrennte Befehle teilen keine temporären Shell-Variablen, es sei denn, sie laufen in derselben Sitzung.
+
+Das erste Warten ist vom harten Zeitlimit des Befehls getrennt. Ein oneshot-Befehl wartet bis zu 30 Sekunden auf sein Ergebnis; läuft er dann noch, erhält der Agent die bisherige Ausgabe, während die Arbeit weitergeht. Der Befehl wird standardmäßig nach 30 Minuten gestoppt. Für einen Server oder Watcher nutze den Modus long_running, statt ihn als fehlgeschlagenen oneshot-Befehl zu behandeln.
+
+## Einstellungen
+
+Öffne **Einstellungen → Plugins → Code Runner**.
+
+| Einstellung | Was sie ändert |
+| --- | --- |
+| **Enable RTK** | Komprimiert lange Befehlsausgaben, bevor der Agent sie liest, sodass sie weniger Tokens verbrauchen. Standardmäßig an |
+
+Fehlt in der komprimierten Ausgabe ein Detail, das du brauchst, bitte um einen gezielteren Befehl oder den relevanten Teil des Logs. Abgeschnittene Ausgabe beweist nicht, dass der Befehl erfolgreich war.
+
+## Fehlerbehebung
+
+| Problem | Was du tun kannst |
+| --- | --- |
+| Command not found | Prüfe, ob das Programm installiert und in deiner Shell verfügbar ist |
+| Der Befehl wartet auf eine Eingabe | Lass den Agenten die Abfrage in derselben Sitzung beantworten. Ein Befehl, der auf eine Eingabe wartet, die niemand geben kann, endet sofort |
+| Permission denied | Prüfe den Zielpfad und die macOS-Berechtigungen. Klicke bei aktivierter Sandbox auf die Zeile unter dem Schritt, um zu sehen, was sie gestoppt hat |
+| Der Befehl hat das Zeitlimit überschritten | Lies die letzte Ausgabe und wähle den richtigen Modus, bevor du ihn erneut ausführst |
+| Ein Server läuft weiter | Lass den Agenten seine Sitzung stoppen, wenn du ihn nicht mehr brauchst |
+
+## Weiterführend
+
+<CardGroup cols={2}>
+  <Card title="Dateien und Ordner" icon="folder-open" href="/de/ai/file-tools">Lass einen Agenten Dateien finden, lesen und bearbeiten.</Card>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Lege die Werkzeuge eines Agenten fest und wann er vorher fragt.</Card>
+</CardGroup>

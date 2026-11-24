@@ -1,0 +1,222 @@
+---
+title: "OpenClaw"
+description: "Nutze OpenClaw-Agenten als OpenAI-kompatible Modelle in Enconvo"
+---
+
+OpenClaw ist eine selbst gehostete KI-Agenten-Plattform, auf der Assistenten über Chat, Messaging-Kanäle, Werkzeuge, Skills und Automatisierungen laufen.
+
+OpenClaw kann seine Agenten über ein OpenAI-kompatibles Gateway bereitstellen. Sobald du das Gateway aktivierst, kann Enconvo einen OpenClaw-Agenten wie jedes andere KI-Modell verwenden, auch im Chat, in Enconvo-Agenten und in modellgestützten Funktionen.
+
+Das Gateway von OpenClaw stellt OpenAI-kompatible Endpunkte wie `/v1/models`, `/v1/chat/completions` und `/v1/responses` bereit. Der OpenClaw-Anbieter von Enconvo nutzt die Chat Completions API (`/v1/chat/completions`).
+
+<Note>
+  Enconvo verwendet für diesen Anbieter nicht die OpenClaw Responses API. Konfiguriere OpenClaw über sein OpenAI-kompatibles Chat-Completions-Gateway.
+</Note>
+
+Neu bei OpenClaw? Beginne mit der [OpenClaw-Einstiegsanleitung](https://docs.openclaw.ai/start/getting-started) und komm dann hierher zurück, um es mit Enconvo zu verbinden.
+
+Die vollständige Referenz zu den Gateway-Endpunkten findest du in der [OpenClaw-Gateway-Dokumentation](https://docs.openclaw.ai/gateway#openai-compatible-endpoints).
+
+## Bevor du beginnst
+
+- OpenClaw ist auf dem Rechner installiert, der das Gateway ausführt
+- Das OpenClaw-Gateway läuft auf einem erreichbaren Host und Port
+- Der Chat-Completions-Gateway-Endpunkt ist aktiviert
+- Das Gateway-Token aus `~/.openclaw/openclaw.json`
+- Enconvo mit aktiviertem KI-Modell-Anbieter OpenClaw
+
+## Automatisch einrichten
+
+Öffne **Einstellungen → KI-Modell → OpenClaw**. Die Einrichtungskarte kann das lokale OpenClaw-Gateway für dich starten, stoppen und konfigurieren.
+
+Nutze **Automatische Einrichtung**, wenn OpenClaw auf demselben Mac wie Enconvo installiert ist. Enconvo geht dann so vor:
+
+<Steps>
+  <Step title="OpenClaw finden">
+    Prüft, ob die `openclaw`-CLI auf diesem Mac vorhanden ist.
+  </Step>
+  <Step title="Chat Completions aktivieren">
+    Führt `openclaw config set gateway.http.endpoints.chatCompletions.enabled true` aus.
+  </Step>
+  <Step title="Gateway-Token vorbereiten">
+    Liest `gateway.auth.token` aus `~/.openclaw/openclaw.json` oder erstellt eines, falls es fehlt.
+  </Step>
+  <Step title="Das Gateway starten">
+    Startet den OpenClaw-Gateway-Dienst oder startet ihn neu.
+  </Step>
+  <Step title="API prüfen">
+    Prüft das Gateway mit `/health` und `/v1/models`.
+  </Step>
+  <Step title="Zugangsdaten speichern">
+    Speichert die Basis-URL und das Gateway-Token in den OpenClaw-Zugangsdaten von Enconvo.
+  </Step>
+</Steps>
+
+Die Einrichtungskarte zeigt ein Status-Badge wie **Wird ausgeführt** oder **Gestoppt**. Solange die Karte sichtbar ist, aktualisiert Enconvo diesen Status regelmäßig und hört damit auf, sobald die Karte nicht mehr sichtbar ist.
+
+## Das OpenClaw-Gateway einschalten
+
+Du kannst OpenClaw bitten, die Gateway-Details für dich vorzubereiten:
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+Verwende die zurückgegebene Basis-URL und das Token in den Zugangsdaten-Einstellungen von OpenClaw in Enconvo.
+
+<Steps>
+  <Step title="Chat Completions aktivieren">
+    Aktiviere den OpenAI-kompatiblen Chat-Completions-Endpunkt einmalig:
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="Bind-Modus wählen">
+    Für reinen lokalen Zugriff behalte das standardmäßige Loopback-Binding. Damit ein anderes Gerät in deinem LAN das Gateway erreicht, binde es an das LAN:
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="Gateway neu starten">
+    Übernimm die Konfigurationsänderung:
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="Gateway-Status prüfen">
+    Prüfe, ob das Gateway läuft:
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## OpenClaw manuell verbinden
+
+Öffne **Einstellungen → KI-Modell → OpenClaw** und konfiguriere dann den Zugangsdaten-Anbieter.
+
+| Einstellung | Wert |
+|---------|-------|
+| **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
+| **Gateway Token** | `gateway.auth.token` aus `~/.openclaw/openclaw.json` |
+
+Enconvo verwendet für OpenClaw automatisch die Chat Completions API.
+
+Verwende die Basis-URL, die auf `/v1` endet, nicht den vollständigen Endpunkt `/v1/chat/completions`. Lautet dein Endpunkt zum Beispiel `http://192.168.1.18:18789/v1/chat/completions`, gib `http://192.168.1.18:18789/v1` ein.
+
+So liest du das Gateway-Token aus der standardmäßigen OpenClaw-Konfigurationsdatei:
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo sendet diesen Wert als:
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+Klicke auf **Validieren**, nachdem du Basis-URL und Token eingegeben hast.
+
+## So funktionieren Anfragen und Anhänge
+
+Enconvo sendet OpenClaw-Anfragen über OpenAI-kompatible Chat Completions:
+
+```http
+POST /v1/chat/completions
+```
+
+Verwende `openclaw:main` oder einen anderen Modellnamen aus der Agentenliste von OpenClaw.
+
+<Warning>
+  Bildanhänge sendet Enconvo nicht an OpenClaw. Behandle den OpenClaw-Anbieter in Enconvo als Text-/Chat-Anbieter. Nutze für Bild-Workflows einen Modell-Anbieter mit Vision-Fähigkeit oder führe OCR bzw. Bildanalyse aus, bevor du Text an OpenClaw sendest.
+</Warning>
+
+## OpenClaw als KI-Modell verwenden
+
+Nach der Konfiguration erscheint OpenClaw in der Modellauswahl. Wähle **OpenClaw** und das agentengestützte Modell, etwa `openclaw:main`.
+
+Nutze diesen Modus, wenn eine Enconvo-Unterhaltung, ein Befehl oder eine Funktion über einen OpenClaw-Agenten laufen soll, während die gewohnte Enconvo-Oberfläche erhalten bleibt.
+
+<Steps>
+  <Step title="Modellauswahl öffnen">
+    Klicke im Chat oder in einer anderen modellgestützten Enconvo-Funktion auf den Namen des aktuellen Modells.
+  </Step>
+  <Step title="OpenClaw wählen">
+    Wähle **OpenClaw** in der Anbieterliste.
+  </Step>
+  <Step title="OpenClaw-Agentenmodell auswählen">
+    Wähle `openclaw:main` oder einen anderen OpenClaw-Agenten aus der Modellliste.
+  </Step>
+  <Step title="Funktion wie gewohnt ausführen">
+    Stelle deine Frage oder führe die Enconvo-Funktion aus. Der gewählte OpenClaw-Agent übernimmt den Modellaufruf im Hintergrund.
+  </Step>
+</Steps>
+
+Enconvo lädt die OpenClaw-Modelle aus `openclaw agents list`. Ist die OpenClaw-CLI lokal nicht verfügbar, greift Enconvo auf `openclaw:main` zurück.
+
+## Einen Agenten für OpenClaw erstellen
+
+Du kannst auch einen Enconvo-Agenten erstellen, der einen OpenClaw-Agenten koordiniert. Das ist nützlich, wenn du einen Workflow, einen Werkzeugsatz oder einen Prompt von Enconvo aus um einen bestimmten OpenClaw-Agenten legen möchtest.
+
+<Steps>
+  <Step title="Agent erstellen öffnen">
+    Öffne die SmartBar und suche nach **Agent erstellen**.
+  </Step>
+  <Step title="Agenten benennen">
+    Vergib einen klaren Titel, zum Beispiel `OpenClaw Main`.
+  </Step>
+  <Step title="Anweisungen für die Koordination schreiben">
+    Gib dem Enconvo-Agenten Anweisungen, die erklären, wie er mit OpenClaw zusammenarbeiten soll.
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="OpenClaw-Modell wählen">
+    Wähle in den Modelleinstellungen des Agenten **OpenClaw** und dann `openclaw:main`.
+  </Step>
+  <Step title="Agenten speichern und nutzen">
+    Starte eine Unterhaltung mit dem neuen Enconvo-Agenten. Er nutzt das gewählte OpenClaw-Agentenmodell und behält dabei die Agenten-Oberfläche von Enconvo und die Werkzeuge, die du konfiguriert hast.
+  </Step>
+</Steps>
+
+## Fehlerbehebung
+
+<AccordionGroup>
+  <Accordion title="OpenClaw erscheint nicht in der Modellauswahl">
+    Stelle sicher, dass der OpenClaw-Anbieter unter **Einstellungen → KI-Modell** aktiviert ist. Ist die Modellliste leer, prüfe, ob `openclaw agents list` lokal funktioniert, oder verwende das Standardmodell `openclaw:main`.
+  </Accordion>
+  <Accordion title="Die Validierung schlägt mit „unauthorized“ fehl">
+    Prüfe das Gateway-Token noch einmal. Enconvo erwartet den Wert aus `gateway.auth.token` und sendet ihn als Bearer-Token.
+  </Accordion>
+  <Accordion title="Die Verbindung schlägt fehl">
+    Prüfe mit `openclaw gateway status`, ob das Gateway läuft. Befindet sich Enconvo auf einem anderen Gerät, setze `gateway.bind` auf `lan`, starte das Gateway neu und verwende die LAN-IP des Hosts in der Basis-URL.
+  </Accordion>
+  <Accordion title="Der Start gelingt, aber Enconvo meldet kurz, dass es Aufmerksamkeit braucht">
+    OpenClaw kann melden, dass der LaunchAgent neu gestartet wurde, bevor das HTTP-Gateway bereit ist. Warte ein paar Sekunden und sieh dir das Status-Badge der Einrichtungskarte erneut an. Du kannst auch direkt mit `openclaw gateway status` und `curl http://127.0.0.1:18789/health` prüfen.
+  </Accordion>
+  <Accordion title="Das Gateway läuft, aber `/v1/models` schlägt fehl">
+    Stelle sicher, dass Enconvo dasselbe Token wie `gateway.auth.token` in `~/.openclaw/openclaw.json` verwendet. Der Einrichtungsstatus kann ein laufendes Gateway weiterhin über `/health` erkennen, aber die Modellvalidierung erfordert das Bearer-Token.
+  </Accordion>
+  <Accordion title="Bildanhänge werden ignoriert">
+    Der OpenClaw-Anbieter in Enconvo unterstützt derzeit nur Text. Enconvo sendet keine Bildanhänge an OpenClaw; wähle für direkte Bildeingabe einen Anbieter mit Vision-Fähigkeit.
+  </Accordion>
+  <Accordion title="Falsche Basis-URL">
+    Gib `http://<gateway-host>:<port>/v1` ein. Nimm `/chat/completions` nicht in das Feld für die Basis-URL in Enconvo auf.
+  </Accordion>
+</AccordionGroup>
+
+## Verwandte Themen
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/de/providers/hermes">Verbinde ein weiteres Agenten-Gateway auf die gleiche Weise.</Card>
+  <Card title="Agenten" icon="robot" href="/de/ai/agents">Gib einem Agenten Anweisungen und Werkzeuge.</Card>
+</CardGroup>

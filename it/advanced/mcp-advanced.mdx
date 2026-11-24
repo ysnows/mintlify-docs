@@ -1,0 +1,107 @@
+---
+title: "Creare un server MCP"
+description: "Scrivi un piccolo server MCP locale, collegalo a Enconvo e dai al tuo agente i suoi strumenti."
+---
+
+Questa pagina è per gli sviluppatori che vogliono dare a un agente di Enconvo strumenti propri. Un server MCP personalizzato espone strumenti che un agente di Enconvo può richiamare. Parti da un piccolo server locale, verifica i suoi input e il risultato, poi aggiungi il lavoro specifico del servizio di cui hai bisogno.
+
+Per installare un server creato da qualcun altro, vedi [Server MCP](/it/features/mcp). Per distribuire il tuo server in modo che si installi anche in Codex e Claude Code, impacchettalo come plugin con `--template mcp` (vedi [Plugin Formats](/extensions/plugin-formats#one-package-for-enconvo-codex-and-claude-code)).
+
+## Prima di iniziare
+
+Ti servono Node.js e npm. Questo esempio usa l'**API JavaScript 1.x** dell'SDK TypeScript, fissata alla versione 1.29.0. Le versioni principali dell'SDK possono usare importazioni e configurazioni diverse; consulta la [guida ufficiale ai server MCP](https://modelcontextprotocol.io/docs/develop/build-server) quando scegli un'altra versione.
+
+## Scrivere un server locale minimo
+
+```sh
+mkdir hello-mcp
+cd hello-mcp
+npm init -y
+npm install @modelcontextprotocol/sdk@1.29.0 zod@3
+```
+
+Salva questo come `server.mjs`:
+
+```javascript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({ name: "hello-enconvo", version: "1.0.0" });
+
+server.registerTool("greet", {
+  description: "Return a greeting for the supplied name.",
+  inputSchema: { name: z.string().min(1).describe("Name to greet") },
+}, async ({ name }) => ({
+  content: [{ type: "text", text: `Hello, ${name}!` }],
+}));
+
+await server.connect(new StdioServerTransport());
+```
+
+Un server stdio attende messaggi del protocollo; avviarlo in un terminale non mostra un'interfaccia di chat. Tieni la diagnostica su stderr (ad esempio con `console.error`) perché stdout trasporta i messaggi del protocollo MCP. La [guida ufficiale](https://modelcontextprotocol.io/docs/develop/build-server) spiega questo requisito del trasporto.
+
+## Collegarlo a Enconvo
+
+<Steps>
+  <Step title="Aggiungi il server">
+    Apri **Impostazioni → Server MCP** e fai clic su **Aggiungi server**. Dagli un **Nome del server**, ad esempio `hello-mcp`.
+  </Step>
+  <Step title="Imposta come si avvia">
+    Scegli **STDIO**. In **Comando**, inserisci `node`. In **Argomenti**, inserisci il percorso assoluto di `server.mjs`. Se Enconvo non riesce a trovare Node, usa il percorso assoluto del suo eseguibile.
+  </Step>
+  <Step title="Salva e controlla">
+    Fai clic su **Salva**. Verifica che il server si connetta ed esponga `greet`.
+  </Step>
+  <Step title="Provalo">
+    Rendilo disponibile al tuo agente e chiedigli di salutare «Ada». Il risultato atteso dello strumento è `Hello, Ada!`.
+  </Step>
+</Steps>
+
+Configurazione equivalente:
+
+```json
+{
+  "command": "node",
+  "args": ["/absolute/path/to/hello-mcp/server.mjs"]
+}
+```
+
+Sostituisci il percorso di esempio con il percorso effettivo del tuo file.
+
+## Progettare strumenti utili
+
+- Dai a ogni strumento un'azione e una descrizione specifiche.
+- Convalida l'input al confine dello strumento e restituisci messaggi di errore utili.
+- Separa la lettura dei dati dalle modifiche, come l'invio o l'eliminazione.
+- Restituisci un risultato compatto che l'agente possa interpretare.
+- Tieni le credenziali nella configurazione appropriata del server, fuori dagli esempi di codice sorgente e dai log.
+
+## Server remoti e autenticazione
+
+Per un server remoto, usa il trasporto HTTP o SSE indicato nelle istruzioni di configurazione e il modulo corrispondente di Enconvo (**HTTP** o **SSE** invece di **STDIO**). L'URL del server deve essere l'endpoint MCP e non l'URL di un normale sito web. Completa l'eventuale flusso di autorizzazione supportato e verifica la connessione prima di abilitare i suoi strumenti.
+
+Il trasporto remoto, il rilevamento dell'autenticazione e il comportamento delle sessioni dipendono dal server e dalla versione del protocollo. Usa la documentazione ufficiale dell'SDK e del protocollo per i dettagli di implementazione, invece di inventare un manifest `auth` che Enconvo non utilizza.
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| Il processo termina subito | Controlla il percorso dell'eseguibile, le dipendenze, gli errori di sintassi e stderr |
+| Connesso ma non compare nessuno strumento | Controlla la registrazione dello strumento, che sia abilitato e l'agente selezionato |
+| Risposta di protocollo non valida | Cerca log accidentali su stdout, oppure il programma sbagliato avviato |
+| Errore di convalida dello schema | Confronta la forma effettiva dell'input con la versione dell'SDK che usi |
+| Errore di connessione remota | Controlla l'URL dell'endpoint, il trasporto, l'autenticazione e l'accesso alla rete |
+
+Per esporre i documenti di Enconvo a un altro client IA, usa il [server Knowledge Base MCP](/it/advanced/knowledge-base-mcp) integrato; un server personalizzato non è necessario.
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Server MCP" icon="plug" href="/it/features/mcp">
+    Installa e gestisci i server MCP in Enconvo
+  </Card>
+  <Card title="Plugin Formats" icon="box" href="/extensions/plugin-formats">
+    Impacchetta un server come plugin per Enconvo, Codex e Claude Code
+  </Card>
+</CardGroup>

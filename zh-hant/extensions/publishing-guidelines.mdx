@@ -1,0 +1,213 @@
+---
+title: "外掛商店規範"
+description: "讓外掛準備好上架 Enconvo 商店：審核人員會檢查什麼、需要附上的審核資料，以及如何從同一個資料夾提交到 OpenAI 的入口網站。"
+---
+
+本頁寫給即將向 Enconvo 外掛商店提交外掛的開發者。內容包含審核人員會檢查的項目、每個版本需要附上的審核資料、執行 `plugin publish` 前的檢查清單，以及提交之後會發生什麼事。
+
+Enconvo 會先審核提交到外掛商店的每個版本，其他人才能安裝。這些規範適用於商店接受的所有外掛類型：Enconvo、Codex、Claude Code 與可攜式外掛，包括只由技能組成的外掛。規範遵循 [OpenAI 的外掛規範](https://developers.openai.com/apps-sdk/app-submission-guidelines)，因此符合規範的外掛也已接近可提交到 OpenAI 外掛入口網站的狀態。
+
+## 先檢查你的外掛
+
+提交之前，請執行：
+
+```sh
+npx -p @enconvo/api enconvo plugin validate            # the store's rules
+npx -p @enconvo/api enconvo plugin validate --openai   # also OpenAI's portal rules
+npx -p @enconvo/api enconvo plugin scan                # starts the MCP server and checks its tools
+```
+
+`validate` 會找出可自動檢查的問題，`scan` 則檢查附有 MCP 伺服器的外掛所提供的工具；[Validation Codes](/extensions/validation-codes) 說明它們回報的每一種問題。其餘項目由審核人員手動檢查，如下所述。
+
+## 用途與品質
+
+- 外掛要能做到 Enconvo 本身做不到的實用功能，而且功能完整。僅有佔位內容、只供展示或試用的版本會被退回。
+- 行為可預期。發生網路錯誤、缺少權限或輸入不正確等狀況時，會說明發生了什麼事，而不是無聲無息地失敗。
+- 只使用你擁有或已獲授權的程式碼、名稱、圖示與內容。不得冒充其他產品，也不得暗示 Enconvo 或任何人為其背書。
+
+## 名稱、描述與上架資訊
+
+- **名稱與標題**：清楚且具體。避免只用一個籠統的詞，也不要在公司名稱後加上「MCP」、「MCP Server」或「Plugin」。
+- **描述**：準確說明外掛的功能。不要與其他產品比較，不要做無法佐證的宣稱，也不要提到價格、折扣或免費試用優惠。
+- **圖示與螢幕截圖**：圖示為不超過 5 MB 的 PNG、JPEG、WebP 或 GIF。最多 8 張螢幕截圖放在 `metadata/` 資料夾中，並依檔名順序顯示。截圖須如實呈現外掛的實際運作。
+- **支援**：提供讓使用者聯絡你的方式：`interface.websiteURL` 與 `interface.supportURL`，網站也可以改用 `homepage` 或 `repository`。Claude Code 外掛可改用 `supportUrl` 與 `documentationUrl`。商店頁面會在使用者安裝外掛之前顯示這些連結。
+- **版本**：每次更新都要提高版本號。更新審核期間，商店會繼續提供前一個版本。`plugin publish` 會在建置或上傳任何內容之前，先向商店詢問已發布的版本，若你的版本號沒有更高，就會停止並告訴你下一個可用的版本號。
+
+## MCP 工具
+
+外掛若附帶 MCP 伺服器，審核人員會以 AI 模型的角度來閱讀它的工具。
+
+- **名稱**使用簡單的動詞來說明工具的功能，例如 `get_order_status`，而且在伺服器內不可重複。不要使用行話或未加說明的縮寫。
+- **描述**要說明工具做什麼、會變更什麼、不能做什麼，並與其輸入結構描述及實際行為一致。描述中不得要求模型優先選用此外掛、呼叫其他外掛，或在所有情況下都呼叫此工具。
+- **每個工具只做一件事**，且各自有獨立的輸入結構描述。
+- **註解**必須明確設定在每個工具上：
+
+| 註解 | 工具符合下列情況時為 `true` | 符合下列情況時為 `false` |
+|---|---|---|
+| `readOnlyHint` | 只讀取、計算或預覽 | 會變更任何內容：寫入、儲存檔案、傳送、發布、上傳、排入工作或啟動作業 |
+| `destructiveHint` | 刪除、覆寫、取消或傳送無法收回的內容，即使使用者可以復原也一樣 | 只會新增 |
+| `openWorldHint` | 觸及公開或開放式的內容（例如網頁搜尋），或傳送到任何位址 | 僅限於有界限的帳號、工作區或目錄，即使它託管在其他地方 |
+
+Enconvo 會依賴這些註解。標記為 `readOnlyHint: true` 的工具會在不詢問使用者的情況下執行，並可與其他讀取操作同時進行。標記為 `destructiveHint: true` 的工具會先詢問使用者，除非使用者已授予代理程式完整存取權。會變更內容卻宣稱唯讀的工具會被退回。
+
+`enconvo plugin scan` 會啟動外掛的 MCP 伺服器，列出各工具及其註解，並指出缺少註解的每個工具（[`annotations_required`](/extensions/validation-codes#mcp-server-scan)）。
+
+若工具會顯示自己的介面，須在 `_meta.ui.resourceUri` 中指定它的檢視（一個 `ui://` 資源），而該檢視要在 `_meta.ui.csp`（`connectDomains`、`resourceDomains`、`frameDomains`）中宣告它會連線的網域。這些是所有主機都會讀取的 MCP Apps 金鑰。Enconvo 也會讀取 ChatGPT 的 `_meta["openai/outputTemplate"]` 與 `_meta["openai/widgetCSP"]`，並為專為 ChatGPT 撰寫的檢視（`text/html+skybridge`，或只以 `openai/outputTemplate` 指定的工具）提供其所呼叫的 `window.openai` API，因此為 ChatGPT 打造的外掛無須修改就能在 Enconvo 中顯示介面。請同時設定 MCP Apps 金鑰，讓其他主機也能顯示。`scan` 會以 Enconvo 的方式讀取每個檢視，並在只以 OpenAI 方式設定時提醒你。
+
+## 資料與隱私
+
+- **只索取任務所需的內容。**工具輸入要針對任務。不要為了「以防萬一」而索取整段對話、先前的訊息或大範圍的個人資料。
+- **只回傳能回答請求的內容。**不要在工具結果中帶出內部 ID、追蹤資料或除錯輸出。
+- **絕不透過工具輸入蒐集**付款卡資料、健康紀錄、社會安全號碼等政府核發的身分證號，或密碼、API 金鑰與一次性驗證碼。憑證請放在外掛的偏好設定中，由 Enconvo 負責保管。
+- **隱私權政策。**會將資料傳送到伺服器的外掛，須有已公開的隱私權政策，說明蒐集了什麼、為什麼蒐集、誰會收到、保留多久，以及使用者如何刪除。請將其網址填入 `interface.privacyPolicyURL`，如有服務條款，則填入 `interface.termsOfServiceURL`。商店頁面會連結這兩者。
+- **不得追蹤**使用者、其查詢或使用情形，除非是外掛運作所需，且已在隱私權政策中揭露。
+- **不要把機密放進套件。**任何人都可以下載套件。`.env` 檔案會自動排除，但請確認沒有其他金鑰或私人檔案被包進去。
+
+## 登入與測試帳號
+
+若外掛需要帳號，登入流程必須明確，且只要求所需的權限。審核人員需要在不建立帳號、也不接收雙重驗證碼的情況下試用，所以請提供附有範例資料的示範帳號：
+
+```sh
+npx -p @enconvo/api enconvo plugin publish --review-notes "Sign in as review@example.com with the password …"
+```
+
+審核備註只會送給 Enconvo 的審核人員，不屬於套件或商店上架資訊的一部分。
+
+## 商業行為
+
+外掛可以搭配使用者原本就在付費的帳號，也可以說明某項功能需要其他方案。若外掛會銷售商品或收款，請在審核資料中說明（下方的 `commerce` 與 `commerce_description`）：賣的是什麼，以及使用者在哪裡付款。使用者在你自己的網站上付款；外掛不得隱藏收費，也不得向 Enconvo 使用者收取高於其他人的費用。
+
+OpenAI 的入口網站更為嚴格。它只接受銷售實體商品的外掛，不接受訂閱、點數或其他數位商品。提交到該處之前，請先查看其[商業規則](https://developers.openai.com/apps-sdk/app-submission-guidelines)。
+
+## 安全
+
+- 外掛適合一般大眾使用，包括青少年，且不以 13 歲以下兒童為對象。
+- 只做使用者要求的事，不多做其他事：不得有無關內容、重新導向或廣告。
+- 外掛的描述、提示詞與技能，絕不可索取機密、未經使用者同意就轉移金錢或資料、試圖繞過 Enconvo 的防護機制，或隱瞞外掛的實際行為，包括透過編碼過的指令。
+- 不得違反網站條款而抓取網站內容或包裝其他服務，也不得規避其速率限制與存取控制。
+- 不得銷售或啟用 OpenAI [禁止的商品與服務](https://developers.openai.com/apps-sdk/app-submission-guidelines)清單中的任何項目，例如武器、毒品、賭博、成人內容、惡意軟體或金融詐欺。
+
+## 審核資料
+
+審核資料會告訴審核人員要試什麼：外掛應該能處理的提示詞、外掛應該略過的提示詞，以及一段簡短的示範影片。它們隨每個版本儲存，只有審核人員看得到。
+
+在 Codex、Claude Code 或可攜式外掛中，審核資料放在 OpenAI 入口網站讀取的位置，也就是其中一個 `plugin.json` 的 `extensions["com.openai"]` 之下。外掛若有 `.codex-plugin/plugin.json`（如 `enconvo plugin create` 所產生的），OpenAI 就從該檔案匯入；若根目錄的 `plugin.json` 自己帶有 `extensions["com.openai"]`，或外掛沒有 Codex manifest，則從根目錄的 `plugin.json` 匯入；只為 Claude Code 製作的外掛則從 `.claude-plugin/plugin.json` 匯入。請不要只為了這些資料就在根目錄的 `plugin.json` 加入 `extensions["com.openai"]`：這樣 Codex 會忽略 `.codex-plugin/plugin.json` 中的上架資訊。`enconvo plugin validate --openai` 會指出它們應該放在哪個 manifest。
+
+```json
+{
+  "name": "notes",
+  "version": "1.2.0",
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Finds a note by topic",
+              "prompt": "Find my notes about the Q3 launch",
+              "tools_triggered": "search_notes, read_note",
+              "expected_behavior": "Lists the matching notes and quotes the most relevant one"
+            }
+          ],
+          "negative": [
+            { "description": "Unrelated question", "prompt": "What's the weather in Paris?" }
+          ]
+        },
+        "demo_recording_url": "https://example.com/notes-demo.mp4",
+        "commerce": false
+      },
+      "publication": {
+        "release_notes": "Search now matches note titles."
+      }
+    }
+  }
+}
+```
+
+在 Enconvo 外掛中，同樣的 `review` 物件放在 `package.json` 的最上層。
+
+| 欄位 | 內容 |
+|---|---|
+| `test_cases.positive` | 外掛應該能處理的提示詞，每個都包含 `description`、`prompt`、`expected_behavior` 與 `tools_triggered`。選填：`file_attachment_urls` 與 `expected_output_url`。 |
+| `test_cases.negative` | 外掛應該交給其他工具處理的提示詞，每個都包含 `description` 與 `prompt`。 |
+| `demo_recording_url` | 展示主要提示詞與工具的影片。 |
+| `commerce`、`commerce_description` | 外掛是否銷售商品，以及賣什麼、在哪裡賣。 |
+| `publication.release_notes` | 更新內容。除非你傳入 `-m`，否則 `plugin publish` 會將它作為商店的更新日誌。 |
+
+每個清單最多可放 20 個案例。文字欄位最多 4,000 個字元，且每個位址都必須是審核人員能開啟的 `https://` 位址。`validate` 與 `publish` 會拒絕違反這些限制的資料。
+
+登入資訊絕不能放進套件，因為任何人都可以下載。`validate` 與 `publish` 會拒絕含有 `test_credentials` 或 `reviewer_instructions` 的 `review`；請改用 `--review-notes` 傳入，或填寫 OpenAI 儀表板中的 Review details 表單。
+
+在 `plugin.json` 中，`publication` 也可以放入 OpenAI 入口網站為上架頁面匯入的內容，`validate --openai` 會以入口網站的方式檢查。Enconvo 會以介面語言顯示已安裝外掛，以及從來源安裝前的外掛的 `translations`；Enconvo 商店頁面目前還不會使用它們：
+
+| 欄位 | 內容 |
+|---|---|
+| `countries` | 外掛可使用的地區，以大寫國碼表示，例如 `["US", "GB"]`。`[]` 代表所有地區皆可使用。 |
+| `translations` | 依地區設定區分的上架文字，例如 `{"fr-FR": {"subtitle": "…", "description": "…"}}`。副標題為單行，最多 30 個字元；描述最多 4,000 個字元。 |
+
+設為 `null` 的欄位會保留 OpenAI 儀表板中已儲存的值。外掛層級的測試案例只適用於恰好有一個 MCP 伺服器的外掛。
+
+OpenAI 對含有 MCP 伺服器或 App 的外掛進行最終提交時，需要恰好 5 個正向案例與 3 個反向案例、一段示範錄影與更新說明；只有技能的外掛則只需要更新說明。`validate --openai` 會以警告列出缺少的項目，因為入口網站的上傳接受沒有這些資料的外掛，只在最終提交時才會要求。
+
+## 提交檢查清單
+
+執行 `plugin publish` 之前：
+
+- `plugin validate` 沒有回報錯誤，而且你已讀過它的警告。
+- `version` 高於你上一次發布的版本，且套件中的每個 manifest 都使用相同的名稱與版本。
+- 若是更新，請用前一個版本的 zip 執行 `plugin validate --previous`，確認沒有出現你不想要的結果：更新會取代整個外掛，所以漏掉的技能或 MCP 伺服器會被移除（`plugin_components_removed`）。
+- 標題、描述與圖示都清楚說明外掛的功能，螢幕截圖也展示了它的實際運作。
+- 已設定首頁或支援位址，而且若外掛會將資料傳送到任何地方，也已連結隱私權政策。
+- 每個 MCP 工具都有清楚的名稱與描述，並設定了 `readOnlyHint`、`destructiveHint` 與 `openWorldHint`，且 `plugin scan` 列出它們時沒有問題。
+- 技能在 `description` 中說明何時該使用它們。
+- 必要的設定（例如 API 金鑰）已宣告為設定項目，而不是在對話中索取。
+- 資料夾中沒有金鑰、權杖或私人檔案。
+- 審核資料列出了要試的提示詞與要略過的提示詞，若需要登入，也已備妥可用於 `--review-notes` 的示範帳號。
+- 你已從套件的資料夾安裝它（`plugin install .`），並在 Enconvo 中試過測試案例。
+
+## 提交之後會發生什麼事
+
+1. `plugin publish` 會檢查外掛，並確認其版本高於商店已發布的版本，然後上傳並提交該版本進行審核。新外掛在通過核准之前，只有你看得到。
+2. 審核人員會閱讀上架資訊、套件中的檔案（連同自已發布版本以來的變更）、審核資料與你的備註，並試跑測試案例。
+3. 通過核准的版本會出現在商店中，已安裝的副本也會收到更新通知。若版本被退回，你會收到說明原因的電子郵件。請修正問題、提高版本號後再次發布。
+
+Enconvo 也會調查關於已發布外掛的檢舉。若外掛被發現違反這些規範（包括先前已通過核准的外掛），可能會從商店下架，並以電子郵件告知開發者原因。
+
+## 同時提交到 OpenAI
+
+同一個資料夾也可以提交到 OpenAI 的外掛入口網站：
+
+```sh
+npx -p @enconvo/api enconvo plugin validate --openai
+npx -p @enconvo/api enconvo plugin scan --openai
+npx -p @enconvo/api enconvo plugin pack --openai
+```
+
+`pack --openai` 會產生入口網站所接受的 zip。給 OpenAI 審核人員的憑證要填在入口網站的提交表單中，絕不能放進套件。也請不要讓你自己的金鑰進到套件裡：`pack` 與 `publish` 會排除 `.env` 檔案，而 `validate` 會對看起來像私密金鑰或登入資訊的檔案發出警告（`archive_member_secret`）。
+
+### 外掛名稱
+
+入口網站的外掛 `name` 只接受字母、數字、`-` 與 `_`，OpenAI 則建議使用小寫字母、數字與單一連字號。Codex、Claude Code 與 Enconvo 也能安裝像 `acme.tools` 這樣含點的名稱，但 `validate --openai` 與 `pack --openai` 會拒絕它（`plugin_name_format`），所以打算提交的外掛請命名為 `acme-tools`。
+
+### MCP 伺服器與網域
+
+上傳之後，入口網站會連線到外掛的 MCP 伺服器並掃描其工具；伺服器有變動時，請在入口網站重新掃描。它只能連到公開的 `https://` URL，因此在使用者電腦上執行的伺服器必須先部署；`scan --openai` 會對此發出警告（`mcp_server_not_remote`）。最終提交時，入口網站會要求每個工具都具備三項註解。它已不再要求你為這些註解提出說明；若其自動審核標記了某項註解，你可以附上說明提出申訴。檢視中嵌入網頁的外掛，仍須為每個嵌入的頁面提出說明：它的用途、外掛為何要嵌入它，以及誰控制其網域。來自 MCP 伺服器本身可註冊網域的頁面是允許的，共用主機上的不同租戶則視為不同網域。`scan --openai` 會列出你的檢視所嵌入的網域（`frame_domain_explanation_required`）。
+
+在你能提交外掛之前，入口網站會驗證你是否控制 MCP 伺服器的網域：它會給你一組權杖，請以純文字形式放在伺服器主機或上層網域的 `/.well-known/openai-apps-challenge` 路徑下。`scan --openai` 會顯示這些 URL 的回應內容，而 `scan --challenge-token <token>` 會在你選取 **Verify Domain** 之前，檢查其中一個是否正好回傳該權杖；請參閱 [Domain verification](/extensions/validation-codes#domain-verification)。
+
+OpenAI 的入口網站每個外掛只會連線一個 MCP 伺服器進行掃描與審核，所以 `validate --openai` 會對含有更多伺服器的外掛發出警告。同一個伺服器若在 `mcp.json` 中為 Codex 宣告、又在 `.mcp.json` 中為 Claude Code 宣告，只算一個。
+
+### 更新已發布的外掛
+
+要更新你在該處發布的外掛，請上傳完整的 ZIP，版本要更高，並包含你打算保留的所有內容。若你沒有保留已發布版本的 zip，可在入口網站該版本的 **…** 選單中使用 **Download release ZIP** 取得；請用 `validate --openai --previous <zip>` 對照新版本。入口網站無法為原本沒有 MCP 伺服器的已發布外掛新增 MCP 伺服器，也無法變更已發布伺服器的 URL（請向 OpenAI 支援團隊提出），`--previous` 會回報這兩種情況；請參閱 [Updates](/extensions/validation-codes#updates)。
+
+### 最終提交
+
+OpenAI 的最終提交對上架資訊的要求比上傳時更多，`validate --openai` 會針對每個缺漏發出警告：
+
+- `interface.longDescription` 與 `interface.category`；若沒有 category，目錄會將外掛列在「Other」之下。
+- 對於含有 MCP 伺服器的外掛，需要 `websiteURL`、`supportURL`、`privacyPolicyURL` 與 `termsOfServiceURL`，每個都是不超過 1,024 個字元的 `https://` 位址。
+- 你自己撰寫的上架資訊。只有 `.claude-plugin/plugin.json` 的 Claude Code 外掛，入口網站會以預設值幫它填寫（`claude_format_normalized`），所以請加入帶有 `interface` 的 `.codex-plugin/plugin.json`，自行撰寫。
+- 螢幕截圖只在 MCP 伺服器有自己的介面時才需要：每個起始提示詞各一張 PNG 或 JPEG，寬度必須剛好 706 像素，高度為 400 至 860 像素。入口網站依掃描結果判斷，所以當沒有任何工具顯示介面時，`scan --openai` 會拒絕螢幕截圖（`screenshots_not_allowed`）。OpenAI 的目錄已不再顯示螢幕截圖，而是以起始提示詞來介紹外掛，所以請用心撰寫。
+
+目錄顯示的是你已驗證之 OpenAI 身分的開發者名稱，不論 `interface.developerName` 寫了什麼。相關代碼請參閱 [OpenAI's final submission](/extensions/validation-codes#openai’s-final-submission)。

@@ -1,0 +1,131 @@
+---
+title: "Создайте свой первый сценарий"
+description: "Следуйте видео с озвучкой, чтобы создать рабочий процесс из шаблона, добавить шаги вручную и с помощью ассистента, затем запустить его и прочитать вывод каждого шага."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Рабочие процессы объединяют запросы, агентов и инструменты в один повторяемый запуск. В этом уроке рабочий процесс создаётся от начала до конца: создайте его из шаблона **Обзор типов шагов**, добавьте шаг вручную, позвольте ассистенту рабочих процессов добавить ещё один, затем запустите его и прочитайте вывод каждого шага.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+Видео длится 2 минуты 24 секунды. Письменные шаги ниже идут в том же порядке, с соответствующей отметкой времени для каждого шага.
+
+## Что вы создадите
+
+Шаблон **Обзор типов шагов** уже работает сразу. В ходе урока он вырастает в небольшой конвейер для контента:
+
+| Шаг | Тип | Что делает |
+| --- | --- | --- |
+| Get today's date | Shell | Выводит сегодняшнюю дату |
+| List saved workflows | Tool | Перечисляет ваши существующие рабочие процессы (выполняется параллельно с датой) |
+| Ask the model for an idea | Prompt | Предлагает одну новую автоматизацию по входному параметру `topic` |
+| Let the agent expand it | Agent | Превращает идею в план из трёх шагов |
+| Write a tweet | Prompt | Добавлен вручную: превращает план в один яркий твит |
+| Translate the tweet into Japanese | Prompt | Добавлен ассистентом: переводит твит |
+
+## Следуйте по шагам
+
+<Steps>
+  <Step title="Создайте рабочий процесс (0:07)">
+    Откройте **Настройки → Рабочие процессы → Управление** и выберите **Новый рабочий процесс**. В разделе **Или начните с шаблона** выберите **Обзор типов шагов**. Рабочий процесс создаётся, и редактор открывается в режиме **Визуальный**. Видео записано до появления диалога **Новый рабочий процесс**, поэтому там стартовый шаблон называется *Starter Workflow*.
+  </Step>
+  <Step title="Прочитайте граф (0:18)">
+    Читайте граф сверху. Узел **Входные данные** объявляет, что нужно запуску; здесь это единственный `topic`. Первые два шага расположены рядом, потому что принадлежат разным заданиям, и поэтому выполняются параллельно. Затем каждый результат передаётся вниз, в шаги под ним, которые выполняются по порядку.
+  </Step>
+  <Step title="Измените шаг (0:28)">
+    Выберите шаг, чтобы открыть его в инспекторе, где можно изменить его ID, название и запрос. Двойные фигурные скобки подставляют значения в шаг: `{{ inputs.topic }}` читает входной параметр запуска, а `{{ steps.idea.output }}` — результат предыдущего шага. Так шаги общаются друг с другом.
+  </Step>
+  <Step title="Добавьте шаг (0:37)">
+    Выберите **+** под последним шагом и выберите тип шага, например Prompt, Agent, Shell или Tool. Задайте новому шагу Prompt ID `tweet`, название "Write a tweet" и такой запрос:
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    После переименования ID шага нажмите Return, прежде чем переходить к следующему полю.
+    </Tip>
+  </Step>
+  <Step title="Или попросите ассистента рабочих процессов (0:57)">
+    Вместо редактирования вручную выберите **Ассистент** на панели инструментов и опишите изменение в панели, которая откроется рядом с холстом:
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    Ассистент изменяет граф и перечисляет изменённые шаги. Если результат не нравится, выберите **Вернуть** под его ответом. В видео он добавляет шаг `translate_ja`, запрос которого содержит `{{ steps.tweet.output }}`. Проверьте новый шаг перед сохранением: правки ассистента остаются несохранёнными, пока вы не выберете **Сохранить**.
+  </Step>
+  <Step title="Посмотрите YAML (1:16)">
+    Выберите **YAML** на панели инструментов, чтобы увидеть тот же рабочий процесс в виде исходного кода. Каждый рабочий процесс — это один простой файл, сохранённый как `~/.enconvo/workflows/<id>.yaml`, поэтому его легко читать, сравнивать и передавать. Выберите **Визуальный**, чтобы вернуться к графу. Полный файл приведён в разделе [Готовый рабочий процесс](#готовый-рабочий-процесс) ниже.
+  </Step>
+  <Step title="Запустите и проверьте вывод (1:28)">
+    Выберите **Входные данные**, задайте значения запуска (в видео используется `{"topic": "matcha"}`) и выберите **Запустить**. Выполняющиеся шаги светятся синим, а завершённые становятся зелёными. Шаг Agent занимает больше времени, чем остальные.
+
+    Когда запуск завершится, выберите любой шаг и откройте его вкладку **Вывод**, чтобы увидеть, что именно он выдал. Последний шаг взял твит и перевёл его, без копирования и вставки.
+  </Step>
+  <Step title="Найдите прошлые запуски (2:05)">
+    Каждый запуск сохраняется в **Запуски** на панели инструментов, так что к любому результату можно вернуться позже.
+  </Step>
+</Steps>
+
+<Note>
+Запуск рабочего процесса обращается к реальным моделям и инструментам. Он может расходовать кредиты провайдера, а шаги Shell или Tool действуют с правами вашей учётной записи Mac. Проверяйте шаги рабочего процесса, прежде чем запускать его.
+</Note>
+
+## Готовый рабочий процесс
+
+Вот рабочий процесс, созданный в видео, записанный в виде YAML. В представлении **YAML** форматирование может немного отличаться.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+Задание `ideate` ждёт `date` и `catalog` через `needs`, поэтому может читать их результаты через `jobs.<job>.<step>.output`. Внутри задания последующие шаги читают предыдущие через `steps.<id>.output`.
+
+## См. также
+
+<CardGroup cols={2}>
+  <Card title="Рабочие процессы" icon="diagram-project" href="/ru/workflows/introduction">Задания, шаги и все типы шагов.</Card>
+  <Card title="Создание рабочих процессов" icon="pen-to-square" href="/ru/workflows/creating-workflows">Визуальный редактор, YAML и ассистент редактирования подробно.</Card>
+  <Card title="Расширенные рабочие процессы" icon="code-branch" href="/ru/workflows/advanced-workflows">Условия, циклы, повторы, схемы вывода и вложенные рабочие процессы.</Card>
+  <Card title="Автоматизации" icon="clock" href="/ru/workflows/scheduled-jobs">Запускайте рабочий процесс или инструкцию агента в заданное время.</Card>
+</CardGroup>

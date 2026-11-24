@@ -1,0 +1,53 @@
+---
+title: "Anthropic"
+description: "在 Enconvo 中使用 Anthropic API 金鑰或你的 Claude 方案與 Claude 模型聊天。"
+---
+
+在聊天、代理程式和 AI 指令中使用 Anthropic 的 Claude 模型。你可以用 Anthropic API 金鑰連接（Anthropic 依每次請求計費），也可以登入你的 Claude 方案。
+
+## 連接
+
+<Steps>
+  <Step title="取得 API 金鑰">
+    在 [Anthropic Console](https://console.anthropic.com/) 建立金鑰。
+  </Step>
+  <Step title="加入 Enconvo">
+    開啟**設定 → AI 模型 → Anthropic**。在**身分驗證**下選擇 **API 金鑰**，貼上金鑰，然後按一下**驗證**。
+  </Step>
+  <Step title="選擇模型">
+    在**模型名稱**中選擇一個模型，並傳送一則簡短訊息。收到回覆就代表連線成功。
+  </Step>
+</Steps>
+
+<Tip>
+有 Claude 方案嗎？請改在**身分驗證**下選擇 **Claude Subscription**，然後按一下**連接**。請參閱 [Claude Subscription](/zh-hant/providers/anthropic_subscription)。
+</Tip>
+
+若要另外保存第二把 Anthropic 金鑰，請按一下**新增供應商**並建立另一個設定檔。
+
+## 模型與選項
+
+| 設定 | 作用 |
+| --- | --- |
+| **模型名稱** | 此供應商使用的模型。旁邊的**重新整理**會重新載入清單；**管理模型**（齒輪圖示）可新增或還原模型。 |
+| **API 基礎網址** | 位於憑證中。預設為 `https://api.anthropic.com`。僅在使用與 Anthropic 相容的服務時才需要更改。 |
+
+聊天中的推理控制項會依你選擇的模型而不同。Claude Fable 5.2 是 Anthropic 能力最強的模型，推理強度可從**低**調到 **Max**，使用 API 金鑰時還提供快速模式。可處理最多 1M 個 token 的 Claude 模型，預設從 500K 的上下文開始；你可以在**管理模型**中調高。若只想在某個聊天中使用不同的模型，請從該聊天的模型選擇器中選取。
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| **驗證**失敗 | 重新貼上完整的金鑰，並確認它在 Anthropic Console 中已啟用。 |
+| 找不到某個模型 | 按一下**模型名稱**旁的**重新整理**。若要自行新增模型，請使用**管理模型**。 |
+| 出現速率或用量限制錯誤 | 到 Anthropic Console 檢查用量與限制，或暫時改用其他供應商。 |
+| 回覆很慢 | 試試較小的模型、較短的輸入，或較低的推理強度。 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="Claude Subscription" icon="user-check" href="/zh-hant/providers/anthropic_subscription">使用你的 Claude 方案，而不是 API 金鑰。</Card>
+  <Card title="憑證與設定檔" icon="key" href="/zh-hant/configuration/credentials">保存多把金鑰，並了解共用金鑰會影響哪些功能。</Card>
+  <Card title="選擇模型" icon="list-check" href="/zh-hant/ai/model-selection-guide">依任務挑選模型，並查看預設值的設定位置。</Card>
+  <Card title="供應商目錄" icon="table" href="/zh-hant/providers/catalog">所有供應商，依其提供的功能分組。</Card>
+</CardGroup>

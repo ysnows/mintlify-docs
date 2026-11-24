@@ -1,0 +1,86 @@
+---
+title: "工作流程"
+description: "把提示詞、代理程式、shell 指令和工具串成可重複的流程，讓你可以執行、檢視並排程。"
+---
+
+工作流程是以步驟儲存的可重複流程：讀取資訊、轉換它、詢問模型、把工作交給代理程式，或呼叫已安裝的工具。當你一再做同樣的多步驟工作，並想看到每個步驟產生了什麼時，就適合使用它。開啟 **設定 → 工作流程 → 管理**，即可瀏覽你的工作流程及其執行紀錄。
+
+<Tip>
+剛接觸工作流程嗎？請觀看 2 分半鐘的影片教學[建立你的第一個工作流程](/zh-hant/workflows/build-your-first-workflow)，從頭到尾建立、編輯並執行一個工作流程。
+</Tip>
+
+## 選擇合適的工具
+
+| 你想要 | 使用 |
+| --- | --- |
+| 對所選文字重複使用提示詞 | [AI 指令](/zh-hant/features/ai-commands) |
+| 讓助理決定要使用哪些工具 | [代理程式](/zh-hant/ai/agents) |
+| 定義輸出可檢視的可重複流程 | 工作流程 |
+| 在指定時間執行代理程式指示、工作流程或指令碼 | [排程工作](/zh-hant/workflows/scheduled-jobs) |
+
+## 工作流程如何組成
+
+工作流程有三個部分：
+
+- `inputs`：一次執行所需的值，例如主題或一段文字。
+- `jobs`：具名的步驟群組。工作會平行啟動，除非 `needs` 讓某個工作等待另一個。
+- `steps`：每個工作內的有序清單。工作內的步驟會一個接一個執行。
+
+目前的工作流程使用 `version: agent-workflow/v1`，搭配 `jobs` 對應表，每個工作各有一份 `steps` 清單：
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+舊的最上層 `tasks` 格式已不再接受。請把每個序列移到 `jobs.<name>.steps`，為步驟指定明確的 ID，並在工作內使用 `steps.<id>.output`，跨工作時使用 `jobs.<job>.<step>.output`。
+</Note>
+
+## 步驟可以做什麼
+
+每個步驟恰好做以下其中一件事：
+
+| 步驟 | 欄位 | 結果 |
+| --- | --- | --- |
+| Shell | `command` 或 `run` | 指令輸出，包含 `stdout`、`stderr` 和 `exitCode` |
+| 提示詞 | `prompt` | 模型的回覆；若要結構化資料，請使用輸出結構描述 |
+| 代理程式 | `agent` 和 `message` | 所選代理程式的回覆 |
+| 工具 | `tool` 和 `with` | 已安裝的 Local API 端點的結果 |
+| 轉換 | `uses: transform` 和 `value` | 範本化的值 |
+| 子工作流程 | `uses: workflow` 搭配 `workflowId` 或 `workflow` | 子工作流程的執行結果 |
+| 核准 | `uses: approval` 和 `message` | 你的答覆：核准，或拒絕並附上選用的意見 |
+| 判斷 | `uses: judge` 和 `question` | 來自 Jev（Enconvo Cloud 的快速決策模型）的是或否，以及它的機率 |
+| 分類 | `uses: classify`、`question` 和 `options` | Jev 選出的選項，以及它的信心程度 |
+
+步驟也可以只在條件成立時執行、對清單重複執行、重試，或回傳結構化資料。請參閱[進階工作流程](/zh-hant/workflows/advanced-workflows)。
+
+## 執行工作流程
+
+- 在 **工作流程** 中開啟它，設定 **輸入**，然後選擇 **執行**。
+- 在 SmartBar 中搜尋已儲存的工作流程。啟動器文字可用作 `inputs.input_text`。
+- 在聊天中用 `@` 提及可用的工作流程，讓代理程式可以使用它。
+- 以[排程工作](/zh-hant/workflows/scheduled-jobs)依排程執行它。
+
+## 工作流程儲存在哪裡
+
+每個工作流程都是位於 `~/.enconvo/workflows/<id>.yaml` 的一個檔案。檔名就是工作流程的 ID。請保持該 ID 不變，以保留它與執行紀錄的連結。
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="建立你的第一個工作流程" icon="play" href="/zh-hant/workflows/build-your-first-workflow">從範本到完成執行的影片教學。</Card>
+  <Card title="建立工作流程" icon="pen-to-square" href="/zh-hant/workflows/creating-workflows">視覺化編輯器、YAML、助理，以及每一種步驟類型。</Card>
+  <Card title="進階工作流程" icon="code-branch" href="/zh-hant/workflows/advanced-workflows">條件、迴圈、重試、輸出結構描述和子工作流程。</Card>
+  <Card title="排程工作" icon="clock" href="/zh-hant/workflows/scheduled-jobs">依排程執行工作流程或代理程式。</Card>
+</CardGroup>

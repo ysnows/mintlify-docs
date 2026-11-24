@@ -1,0 +1,78 @@
+---
+title: "圖片生成"
+description: "請代理程式使用你選擇的圖片供應商建立圖片，或修改你附上的圖片。"
+---
+
+在聊天中請代理程式製作圖片，或修改你附上的圖片。Enconvo 會將請求傳送給你在**設定 → 圖片生成**中設定的圖片供應商，它與你用來聊天的模型是分開的。
+
+## 開始之前
+
+1. 開啟**設定 → 圖片生成**並選擇一個供應商。
+2. 設定它的**憑證供應商**（它所使用的金鑰或帳號）與**模型名稱**。
+3. 點按**設為預設**。
+
+Enconvo Cloud 的供應商 **OpenAI (Enconvo Cloud)** 與 **Google Gemini (Enconvo Cloud)** 不需要你自己的 API 金鑰。
+
+## 建立圖片
+
+1. 在與代理程式的聊天中，描述主體、構圖、風格，以及圖片的用途。
+2. 只有在模型支援時，才要求尺寸、長寬比或品質。
+3. 等待圖片生成。生成的時間可能比文字回覆更長。
+4. 點按圖片即可在聊天旁將它開啟，你可以在那裡繼續編輯。
+
+範例：
+
+```text
+Create a square illustration for a guide to organizing research.
+Show three labeled folders on a tidy desk, with a warm neutral palette.
+Leave the top third clear for a title.
+```
+
+你也可以在新聊天的訊息輸入框下方選擇**圖片**。模型、其設定與**避免**會以標籤的形式顯示在訊息輸入框下方，因此你可以在送出前先設定好。若要使用收錄你所有作品、已儲存的主體與一鍵修正的資料庫，請使用[媒體](/zh-hant/features/media)。
+
+## 編輯圖片
+
+1. 將來源圖片附加到你的訊息，或點按代理程式製作的圖片，在圖片編輯器中開啟它。
+2. 描述具體的變更，並說明哪些部分應該保持不變。
+3. 檢查結果中是否有你沒有要求的變動。
+
+請使用支援圖片編輯或參考圖片的模型。
+
+在圖片編輯器中，設定面板只會顯示所選模型能接受的項目：
+
+| 設定 | 變更的內容 |
+| --- | --- |
+| 解析度、長寬比與品質 | 下一個版本的大小與細節 |
+| **避免** | 要排除的內容，適用於接受負面提示詞的模型 |
+| 變化版本 | 每次請求產生多少個版本；你可以保留想要的 |
+| **編輯區域**與**標註** | 在圖片上塗繪以僅變更該部分，或繪製標記來引導變更 |
+| GIF 與**影格** | 根據你的文字製作的動態圖片 |
+
+每次編輯都是一個新版本，而每張圖片都會保存在[媒體](/zh-hant/features/media)與 `~/Enconvo/Media` 中。若要讓圖片動起來，請點按**製作影片**。
+
+### GPT Image 2.6
+
+GPT Image 2.6 Flare 與 Sunburst 可透過 OpenAI、Enconvo Cloud、PipeLLM 與 OpenRouter 使用。它們新增了複雜度設定（低、中或高）、以你繪製的標記引導的編輯，以及 SVG 或動態 GIF 輸出。SVG 與 GIF 會根據你的文字製作新的圖片；它們不會編輯目前的圖片。
+
+## 供應商
+
+[圖片供應商目錄](/zh-hant/providers/catalog)包含 OpenAI、Gemini、xAI、OpenRouter、PipeLLM、Pollinations、Kie.ai、Topview、Azure、Together，以及有提供時它們的 Enconvo Cloud 版本。OpenAI 供應商也可以使用你的 ChatGPT 登入作為憑證。供應商能做什麼取決於模型：僅憑供應商的名稱，並不保證它支援所有的編輯模式。
+
+## 疑難排解
+
+| 問題 | 處理方式 |
+| --- | --- |
+| 圖片沒有生成 | 檢查供應商的存取權限與模型，然後閱讀供應商的錯誤訊息 |
+| 編輯忽略了你的圖片 | 確認模型接受圖片輸入，且檔案已附加到訊息中 |
+| 輸入檔案被拒絕 | 確認供應商支援該檔案的格式 |
+| 使用 ChatGPT 登入時沒有提供 GPT Image 2.6 | OpenAI 不會向 ChatGPT 方案提供它；請使用 OpenAI API 金鑰或 Enconvo Cloud |
+| 編輯器中沒有你想要的設定 | 所選模型不支援它；請選擇其他模型 |
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="媒體" icon="images" href="/zh-hant/features/media">每一張圖片、影片與音訊片段集中在一處。</Card>
+  <Card title="影片生成" icon="film" href="/zh-hant/ai/video-generation">將提示詞或圖片變成影片片段。</Card>
+  <Card title="媒體工具" icon="photo-film" href="/zh-hant/features/media-tools">壓縮圖片、影片與音訊。</Card>
+  <Card title="供應商目錄" icon="list" href="/zh-hant/providers/catalog">每個圖片供應商及其設定。</Card>
+</CardGroup>

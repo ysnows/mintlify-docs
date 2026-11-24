@@ -1,0 +1,115 @@
+---
+title: "手機聊天記錄"
+description: "在 iPhone 本身與 AI 模型對話：選擇預設模型、新增供應商和金鑰，或使用 ChatGPT、Grok、Le Chat、GitHub Copilot 或 Antigravity 登入。"
+---
+
+手機聊天是 iPhone App 自己的對話。它們在手機上執行，而不是在你的 Mac 上，因此沒有配對的 Mac 也能使用。每個手機對話會透過 Enconvo Cloud 點數、你自己的 API 金鑰，或你在 iPhone 上登入的方案來使用模型。手機聊天和個人指示會透過你的 Enconvo 帳號同步。
+
+若要繼續在你 Mac 上執行的對話，請參閱 [iPhone App](/zh-hant/integrations/iphone-app)。
+
+## 選擇預設模型
+
+1. 在 iPhone 上，開啟 **設定 → AI 模型**。
+2. 點一下 **預設模型** 並挑選一個模型。新的對話會以它開始。
+3. 若要變更單一對話的模型，請使用該對話中的模型選擇器。
+
+當 Mac 有該供應商時，Mac 上的 Enconvo 會以相同的模型開始。如果 Mac 的模型在 iPhone 上無法使用，頁面會在 **預設模型** 下說明，並建議要新增或登入什麼。
+
+## 新增金鑰或供應商
+
+**AI 模型** 會列出 Enconvo Cloud 和你可以在手機上使用的每個供應商，包含 PipeLLM。
+
+1. 點一下供應商，然後點一下 **新增 API 金鑰**，並貼上你在供應商網站上建立的金鑰。
+2. 若要新增清單中沒有的供應商，請點一下 **新增供應商**，並挑選一個供應商、**相容 OpenAI** 或 **相容 Anthropic**。相容的供應商需要一台使用 OpenAI 的 Chat Completions 或 Responses API，或 Anthropic 的 Messages API 的伺服器位址。
+3. 如果供應商沒有列出你需要的模型，請點一下它頁面上的 **依 ID 新增模型**。
+
+金鑰會保留在你的 iCloud 鑰匙圈中，且只會傳送給它所屬的供應商。
+
+## 使用方案登入
+
+有五個供應商讓手機聊天可以使用你已經付費的方案，不需要 API 金鑰，也不會用到 Cloud 點數：
+
+| 供應商 | 方案 | 按鈕 |
+| --- | --- | --- |
+| OpenAI | ChatGPT | **使用 ChatGPT 登入** |
+| xAI | Grok | **使用 Grok 登入** |
+| Mistral | Le Chat | **使用 Mistral 登入** |
+| GitHub Copilot | Copilot | **使用 GitHub 登入** |
+| Antigravity | Antigravity (Google) | **使用 Google 登入** |
+
+<Steps>
+  <Step title="開啟供應商">
+    在 **設定 → AI 模型** 中，點一下該供應商。對於 OpenAI、xAI 和 Mistral，請在 **身分驗證** 下選擇該方案的卡片。另一張卡片是 **API 金鑰**，而 **使用中** 標示手機聊天目前使用的那一個。
+  </Step>
+  <Step title="登入">
+    點一下登入按鈕，並在開啟的頁面上完成登入。請使用擁有該方案的帳號。
+  </Step>
+  <Step title="檢查結果">
+    回到供應商的頁面，你會看到你的方案、你的帳號，以及你的方案中有多少個模型。挑選一個模型，或點一下 **設為預設** 讓新對話以它開始。
+  </Step>
+</Steps>
+
+方案的登入狀態只會留在這支 iPhone 上。它不會同步到 iCloud 或你的 Mac，而 Mac 則保有它自己的登入。該方案本身的使用限額仍然適用。
+
+### GitHub Copilot
+
+點選 **使用 GitHub 登入** 後，App 會顯示一組 GitHub 代碼。**繼續** 會複製代碼並開啟 GitHub 的頁面，你在那裡貼上代碼並授權 Enconvo。GitHub 頁面開啟期間，代碼會留在畫面上，因此你可以再次複製。
+
+模型清單只會顯示你的 Copilot 方案可以使用的模型。Copilot Free 提供的模型比付費方案少。
+
+### Antigravity
+
+每次登入之前，App 都會顯示 **登入 Antigravity 之前**。Enconvo 使用 Antigravity App 自己的 Google 用戶端登入，而 Google 可能會停用被發現在 Antigravity 之外使用的 Antigravity 帳號。請使用你承擔得起失去的帳號。**同意** 會繼續前往 Google 的登入，**取消** 則讓一切維持原樣。
+
+Antigravity 提供你方案中的 Gemini 和 Claude 模型，每個都附有 Antigravity 為它提供的推理強度等級。
+
+### ChatGPT 用量
+
+OpenAI 的頁面會顯示你的 ChatGPT 方案的 5 小時與每週限額還剩多少、每個限額何時重設，以及方案何時續訂。點一下帳號選單中的 **重新整理用量** 即可更新。當限額用完時，頁面會說明，直到它重設為止。
+
+### 登出
+
+開啟供應商，並選擇帳號選單中的 **登出**。登出之後，使用該方案的對話需要改用其他模型。對於 Mistral，登入時建立的金鑰會留在你的 Mistral 工作區中。
+
+## 離開 App 後仍持續回覆
+
+使用 Enconvo Cloud 模型時，回覆可以在你離開 App 或鎖定手機後繼續進行。在訊息框的 **Cloud 工具** 中，開啟 **在雲端執行**。使用你自己金鑰的對話一律在手機上回答。
+
+## 在電腦上繼續
+
+將手機對話移到已配對的電腦，在那裡以該電腦的代理程式、檔案和工具繼續進行。即使回覆仍在執行中也可以這樣做。
+
+1. 開啟對話的選單，或在側邊欄中按住該對話，並選擇 **在電腦上繼續**。選單會標明預設會送往哪台電腦。
+2. 挑選電腦和代理程式，並確認。
+
+對話會移到那台電腦並在那裡繼續。開啟共享對話的連結時，也會詢問要在哪裡繼續。
+
+## 從動作按鈕進行語音對話
+
+當動作按鈕開始語音對話時，動態島會詢問 **要讓 Enconvo 看螢幕嗎？** 請選擇 **只說話**，或 **看螢幕**，讓 Enconvo 看到你正在閱讀的內容。通話控制項中的 **分享螢幕** 按鈕可在通話中開始或停止分享。
+
+## 推理強度
+
+當你挑選會思考的模型時，選擇器會繼續顯示它的推理強度。你為某個模型挑選的強度會顯示在對話標頭中它的供應商旁邊，並套用到使用該模型的每個對話。方案的頁面只會列出你的方案提供的等級。
+
+## 長對話
+
+當長對話接近其模型的上下文視窗時，同一個模型會摘要較舊的訊息，與在 Mac 上相同。對話會保留每一則訊息，**上下文已壓縮** 標記會顯示摘要從哪裡開始。這項功能一律開啟。
+
+## 疑難排解
+
+| 你看到的 | 處理方式 |
+| --- | --- |
+| **ChatGPT 登入未完成**（或 Grok、Mistral、GitHub Copilot、Antigravity） | 點一下 **重新登入**，並在開啟的頁面上完成登入。 |
+| **你的方案不提供** 某個模型 | 從該方案的清單中選擇另一個模型。在 Copilot Free 中，只提供部分模型。 |
+| **正在列出模型…** 一直沒有完成 | 檢查 iPhone 的網路連線，然後離開供應商的頁面再重新開啟。 |
+| Mac 的預設模型不在 iPhone 上 | 依照 **預設模型** 下的提示，新增供應商的金鑰，或登入它的方案。 |
+
+## 後續步驟
+
+<CardGroup cols={2}>
+  <Card title="iPhone App" icon="mobile" href="/zh-hant/integrations/iphone-app">將 iPhone 與你的 Mac 配對並繼續它的對話。</Card>
+  <Card title="ChatGPT 訂閱" icon="key" href="/zh-hant/providers/openai_subscription">Mac 上的 ChatGPT 登入。</Card>
+  <Card title="GitHub Copilot" icon="github" href="/zh-hant/providers/github-copilot">Mac 上的 Copilot 登入。</Card>
+  <Card title="Antigravity" icon="google" href="/zh-hant/providers/antigravity">Mac 上的 Antigravity 登入。</Card>
+</CardGroup>

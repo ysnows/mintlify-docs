@@ -1,0 +1,62 @@
+---
+title: "Code Mode"
+description: "Deixe um Agente escrever um pequeno script que faz muitas chamadas de ferramentas de uma só vez e lê de volta apenas o resultado."
+---
+
+O Code Mode permite a um Agente fazer num só passo o que de outro modo exigiria muitos: escreve um pequeno script que faz muitas chamadas de ferramentas, em paralelo ou por ordem, e lê de volta apenas o resultado. Recorra a ele quando uma tarefa repete a mesma chamada sobre muitos itens, como verificar uma lista de páginas ou reunir resultados de vários serviços, para que o trabalho seja mais rápido e a conversa não se encha com todos os resultados intermédios.
+
+Não precisa de chamar o Code Mode. Quando está ativado, o Agente utiliza-o sempre que uma tarefa se adequa, e a conversa mostra um cartão com as chamadas que o script fez.
+
+## Configurar o Code Mode
+
+1. Abra **Definições → Code Mode**. Também pode abrir o **Code Mode** a partir do separador **Integrado** da página de Plugins.
+2. Em **Acesso dos scripts**, ative o que um script pode chamar. Cada chamada continua a pedir-lhe autorização, conforme o [Modo de permissões](/pt/ai/agents) da conversa.
+3. Escolha que modelos podem escrever scripts, o que a conversa mostra e o que acontece quando um script demora.
+
+## Definições
+
+O **Acesso dos scripts** lista o que um script pode chamar:
+
+| Acesso | O que permite | Predefinição |
+| --- | --- | --- |
+| **Plugins** | Pesquisa, base de conhecimento, documentos e outras rotas de plugins | Ativado |
+| **Connectors e MCP** | As suas contas associadas e as ferramentas MCP | Ativado |
+| **Ficheiros** | Ler e escrever ficheiros | Ativado |
+| **Comandos de shell** | Executar comandos num terminal | Ativado |
+| **Navegador** | [Utilização do navegador](/pt/features/browser-control), no seu próprio navegador | Ativado |
+| **Apps** | [Utilização do computador](/pt/features/computer-use), dentro da respetiva lista de Acesso a apps | Ativado |
+| **Outros agentes** | Iniciar subagentes ou enviar-lhes mensagens | Desativado |
+| **Chamadas a modelos** | Um modelo pequeno para resumir ou avaliar itens | Ativado |
+
+As outras opções:
+
+| Opção | Escolhas |
+| --- | --- |
+| **Usar com** | **Modelos que escrevem bem código** (os outros fazem as suas chamadas uma a uma) ou **Todos os modelos**. |
+| **Mostrar no chat** | **As chamadas** ou **As chamadas e o código**. |
+| **Quando um script demora** | **Continuar, até 2 horas** em segundo plano, ou **Parar após 10 minutos**. |
+
+## Code Mode fora de uma conversa
+
+Quando um script é executado fora de uma conversa, como numa automatização, só chama ferramentas que leem: pesquisas e leituras integradas, páginas web públicas, ficheiros comuns e ferramentas MCP que não indicam alterar nada. O Enconvo verifica cada chamada novamente mesmo antes de ser executada.
+
+## Utilizar um script numa Competência
+
+Uma Competência pode guardar um script do Code Mode na sua própria pasta `scripts` e executá-lo como um dos seus passos. Consulte [Competências](/pt/configuration/skills).
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| O Agente faz as suas chamadas uma a uma | Verifique **Usar com**. Com **Modelos que escrevem bem código**, os outros modelos não utilizam o Code Mode. |
+| Um script não consegue alcançar uma ferramenta | Ative esse tipo de acesso em **Acesso dos scripts**. Fora de uma conversa, os scripts só leem. |
+| Um script longo parou | Com **Parar após 10 minutos**, os scripts mais longos terminam. Escolha **Continuar, até 2 horas**. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">Escolha as ferramentas e as permissões de um Agente.</Card>
+  <Card title="Competências" icon="star" href="/pt/configuration/skills">Guarde uma tarefa repetível, com os seus próprios scripts.</Card>
+  <Card title="Code Runner" icon="terminal" href="/pt/ai/code-runner">Execute código e comandos de shell.</Card>
+  <Card title="Servidores MCP" icon="plug" href="/pt/features/mcp">Ligue serviços externos como ferramentas.</Card>
+</CardGroup>

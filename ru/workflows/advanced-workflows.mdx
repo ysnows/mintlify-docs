@@ -1,0 +1,363 @@
+---
+title: "Расширенные рабочие процессы"
+description: "Ветвление, циклы, повторные попытки, структурированные результаты, смена модели для отдельного шага и композиция рабочих процессов, с полными примерами для копирования."
+---
+
+Эти возможности нужны, когда простого списка шагов недостаточно: выполнить шаг только при выполнении условия, повторить шаг для каждого элемента списка, продолжить запуск при сбое одного шага, получить структурированные результаты и вызвать один рабочий процесс из другого. Полные примеры рабочих процессов приведены в конце. Если вы только знакомитесь с форматом `agent-workflow/v1`, начните со страницы [Создание рабочих процессов](/ru/workflows/creating-workflows).
+
+Пути оболочки и доступность инструментов и провайдеров должны соответствовать вашему Mac, прежде чем вы запустите эти примеры.
+
+<Tip>
+В визуальном редакторе писать это вручную не нужно: раздел [Поведение](/ru/workflows/creating-workflows) в инспекторе шага задаёт `if`, `else_of`, `run_when`, `foreach`, `loop`, `retries`, `required`, `needs` и схему вывода через простые варианты выбора.
+</Tip>
+
+## Ветвление
+
+### Выполнить шаг только при истинном условии (`if`)
+
+Добавьте `if:`, чтобы выполнять шаг только при истинном условии. Если условие ложно, шаг и всё, что идёт после него, пропускаются:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+```
+
+Условия — это шаблонные выражения, которые проверяются на истинность, например `inputs.score >= 60`, `steps.check.output.exitCode == 0` или простое логическое входное значение.
+
+### Выполнить другую ветку (`else_of`)
+
+`else_of:` выполняет шаг только тогда, когда указанный в нём шаг был пропущен из-за своего условия. Это сторона «иначе» для `if`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: deploy
+      if: inputs.ready
+      command: ./deploy.sh
+    - id: notify_skip
+      else_of: deploy
+      command: osascript -e 'display notification "deploy skipped"'
+```
+
+### Объединение и очистка (`run_when: always`)
+
+Шаг с `needs` обычно пропускается, если пропущена любая его зависимость, а запуск останавливается, если обязательная зависимость завершилась сбоем. `run_when: always` отменяет и то и другое: шаг выполняется, как только его зависимости завершены, будь то успех, пропуск или сбой. Используйте это для объединения и очистки:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build
+      command: ./build.sh
+    - id: cleanup
+      needs:
+      - build
+      run_when: always
+      uses: transform
+      value: Build finished; inspect its status in Runs.
+```
+
+### Выключить шаг (`enabled: false`)
+
+`enabled: false` оставляет шаг в рабочем процессе, но пропускает его при каждом запуске. В отличие от пропуска по условию, выключенный шаг не заставляет пропускать то, что идёт после него:
+
+- Зависящие от него шаги всё равно выполняются, а всё, что читает его вывод, получает пустое значение.
+- Его шаг `else_of` тоже пропускается.
+
+Удалите ключ (или задайте `true`), чтобы снова включить шаг. В редакторе используйте **Выключить шаг** в инспекторе.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: draft
+      command: ./draft.sh
+    - id: notify
+      enabled: false
+      command: ./notify.sh
+    - id: publish
+      command: ./publish.sh
+```
+
+## Циклы
+
+### Повторить для каждого элемента списка (`foreach`)
+
+`foreach:` выполняет шаг по одному разу для каждого элемента. Внутри `{{ item }}` — текущий элемент, а `{{ index }}` — его позиция. Последующие шаги получают собранный массив результатов:
+
+```yaml
+inputs:
+  questions:
+    type: array
+    default:
+    - What is it?
+    - Why does it matter?
+jobs:
+  main:
+    steps:
+    - id: answer
+      foreach: '{{ inputs.questions }}'
+      prompt: 'Answer in one sentence: {{ item }}'
+    - id: digest
+      uses: transform
+      value: '{% for a in steps.answer.output %}- {{ a }}
+
+        {% endfor %}'
+```
+
+`foreach` также принимает встроенный массив и работает с любым типом шага: `foreach` по вызовам `tool:`, по подпроцессам и так далее. Пустой список даёт пустой результат, а последующие шаги всё равно выполняются. Если один элемент завершился сбоем, шаг не запускает новые элементы, если только он не помечен `required: false`.
+
+### Повторять, пока не выполнится условие (`loop`)
+
+`loop:` повторяет шаг. `until:` проверяется после каждого раунда по `output` — результату этого раунда. `{{ round }}` — номер раунда, а `{{ last }}` — вывод предыдущего раунда. Если `maxRounds` исчерпан до выполнения `until`, шаг завершается сбоем.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: poll
+      run: curl -s -o /dev/null -w '%{http_code}' https://example.com/status
+      loop:
+        until: output.stdout | trim == '200'
+        maxRounds: 10
+```
+
+Опустите `until`, чтобы повторить фиксированное число раз:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: retry_build
+      command: ./build.sh
+      loop:
+        maxRounds: 3
+```
+
+## Надёжность
+
+| Поле | Что делает |
+| --- | --- |
+| `retries` | Повторяет неудавшийся шаг. Задайте число (`retries: 2`) или объект (`retries: { maxAttempts: 3, delayMs: 500 }`). |
+| `required: false` | Сбой этого шага не прерывает запуск; последующие шаги продолжаются. |
+| `timeoutMs` | Останавливает шаг оболочки, который выполняется слишком долго. |
+
+Шаг, который молчит 20 минут, останавливается и запускается ещё один раз. Остановленный вами запуск отображается как **Отменено**, а не как неудачный.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: flaky_fetch
+      tool: web_fetch/web_fetch
+      params:
+        link_url: '{{ inputs.url }}'
+      retries:
+        maxAttempts: 3
+        delayMs: 1000
+    - id: optional_enrich
+      run: ./enrich.sh || exit 1
+      required: false
+```
+
+## Контракты вывода
+
+Добавьте `output_schema` (объект JSON Schema) к шагу `prompt` или `agent`, чтобы обеспечить форму ответа. Описывать формат JSON в тексте промпта не нужно: запрошенная форма передаётся модели, а ответ разбирается и проверяется до того, как его используют последующие шаги. Задайте `retries`, чтобы повторить неудавшийся шаг; ответ, который всё равно не проходит проверку, приводит к сбою шага.
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: extract
+      prompt: 'Extract the invoice details from: {{ inputs.text }}'
+      output_schema:
+        type: object
+        required:
+        - payer
+        - amount
+        - date
+        properties:
+          payer:
+            type: string
+          amount:
+            type: number
+          date:
+            type: string
+    - id: record
+      uses: transform
+      value: '{{ steps.extract.output.payer }} paid {{ steps.extract.output.amount }}'
+```
+
+## Смена модели для отдельного шага
+
+Шаги `prompt` и `agent` принимают необязательные `provider:` и `model:`, чтобы сменить модель только для этого шага. Смена действует на время запуска; ваша сохранённая конфигурация модели не меняется. Используйте недорогую модель для массовых шагов и более сильную там, где это важно.
+
+Задайте в `provider` имя команды установленного провайдера, а в `model` — ID модели, который этот провайдер показывает в вашей текущей сборке. Например, скопируйте оба значения из своей рабочей конфигурации провайдера в шаг-промпт. Доступность моделей и права зависят от учётной записи; в примерах на этой странице используется ваша настроенная модель по умолчанию.
+
+<Note>
+`provider` — это команда провайдера (например, `enconvo_ai`, `open_ai` или `ollama`), а `model` — ID модели этого провайдера. Оба допустимы только в шагах `prompt` и `agent`.
+</Note>
+
+## Подпроцессы
+
+Составляйте рабочие процессы с помощью `uses: workflow`: либо через `workflowId:` (сохранённый рабочий процесс), либо через встроенный блок `workflow:`. Вывод шага — результат дочернего запуска. Результаты шагов дочернего процесса читаются через `output.outputs['job.step']`:
+
+```yaml
+jobs:
+  main:
+    steps:
+    - id: build_each
+      foreach: '{{ inputs.targets }}'
+      uses: workflow
+      inputs:
+        target: '{{ item }}'
+      workflow:
+        version: agent-workflow/v1
+        title: Build target
+        description: Build and package one target.
+        jobs:
+          main:
+            steps:
+            - id: compile
+              run: make {{ inputs.target }}
+            - id: package
+              run: tar czf {{ inputs.target }}.tgz build/
+    - id: summary
+      uses: transform
+      value: '{% for r in steps.build_each.output %}{{ r.status }} {% endfor %}'
+```
+
+## Справочник по шаблонам
+
+| Ссылка | Где |
+|---|---|
+| `{{ inputs.x }}` | Везде: входные данные рабочего процесса |
+| `{{ steps.<id>.output }}` | Везде: предыдущий шаг в том же задании |
+| `{{ jobs.<job>.<step>.output }}` | Завершённый шаг в задании-зависимости |
+| `{{ item }}` / `{{ index }}` | Внутри шага `foreach` |
+| `{{ round }}` / `{{ last }}` | Внутри шага `loop` |
+| `{{ now }}` | Текущая метка времени |
+| `{{ env.HOME }}` | Переменные окружения процесса |
+
+Шаблоны поддерживают фильтры Nunjucks (`| trim`, `| int`, `| dump`, `| default(...)`, `{% for %}` и другие), с помощью которых вы преобразуете данные между шагами.
+
+## Полные примеры
+
+### Исследование, краткое изложение и отчёт
+
+Найдите информацию в интернете, кратко изложите находки и соберите отчёт в формате Markdown. Шаги выполняются по порядку в одном задании, поэтому связывать их через `needs` не нужно:
+
+```yaml
+version: agent-workflow/v1
+title: Research Brief
+description: Search the web on a topic and produce a short Markdown brief.
+inputs:
+  topic:
+    type: string
+    default: coffee brewing
+jobs:
+  main:
+    steps:
+    - id: search
+      tool: web_search/web_search
+      params:
+        search_query: '{{ inputs.topic }} latest'
+        limit: 5
+    - id: summarize
+      prompt: 'Summarize the key points from these results in 4 bullets.
+
+        Results: {{ steps.search.output }}
+
+        '
+    - id: report
+      uses: transform
+      value: "# {{ inputs.topic }} \u2014 brief ({{ now }})\n{{ steps.summarize.output }}\n"
+```
+
+### Условная маршрутизация
+
+Одобрите или отклоните по оценке, а затем всегда формируйте итоговый отчёт:
+
+```yaml
+version: agent-workflow/v1
+title: Lead Router
+description: Route a lead by score, reporting the outcome either way.
+inputs:
+  score:
+    type: number
+    default: 42
+jobs:
+  main:
+    steps:
+    - id: approve
+      if: inputs.score >= 60
+      uses: transform
+      value: approved
+    - id: reject
+      else_of: approve
+      uses: transform
+      value: rejected
+    - id: report
+      needs:
+      - approve
+      - reject
+      run_when: always
+      uses: transform
+      value: 'outcome: {{ steps.approve.output | default('''') }}{{ steps.reject.output | default('''')
+        }}'
+```
+
+### Цикл до сходимости
+
+Дорабатывайте черновик, пока самопроверка его не одобрит, ограничив число раундов:
+
+```yaml
+version: agent-workflow/v1
+title: Refine Until Good
+description: Improve a draft until a self-check approves it.
+inputs:
+  brief:
+    type: string
+    default: A tweet announcing our new feature.
+jobs:
+  main:
+    steps:
+    - id: refine
+      prompt: 'Improve this draft. Return the improved draft and whether it is ready.
+
+        Previous attempt: {{ last | default(inputs.brief) }}
+
+        '
+      output_schema:
+        type: object
+        required:
+        - draft
+        - approved
+        properties:
+          draft:
+            type: string
+          approved:
+            type: boolean
+      loop:
+        until: output.approved == true
+        maxRounds: 4
+    - id: publish
+      uses: transform
+      value: '{{ steps.refine.output.draft }}'
+```
+
+## Связанные материалы
+
+<CardGroup cols={2}>
+  <Card title="Создание рабочих процессов" icon="pen-to-square" href="/ru/workflows/creating-workflows">
+    Редактор, ассистент редактирования и все типы шагов.
+  </Card>
+  <Card title="Рабочие процессы" icon="book-open" href="/ru/workflows/introduction">
+    Задания, шаги и как выполняются рабочие процессы.
+  </Card>
+</CardGroup>

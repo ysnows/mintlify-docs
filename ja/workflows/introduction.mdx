@@ -1,0 +1,86 @@
+---
+title: "ワークフロー"
+description: "プロンプト、エージェント、シェルコマンド、ツールをつなげて、実行、確認、スケジュールができる繰り返しのプロセスにします。"
+---
+
+ワークフローは、ステップとして保存された繰り返し可能なプロセスです。情報を読み取る、変換する、モデルに尋ねる、エージェントに作業を任せる、インストール済みのツールを呼び出す、といったステップで構成されます。複数のステップからなる同じ仕事を何度も行い、各ステップが何を生み出したかを確認したいときに使います。**設定 → ワークフロー → 管理**を開くと、ワークフローとその実行履歴を一覧できます。
+
+<Tip>
+ワークフローは初めてですか？ 2 分半の動画チュートリアル[最初のワークフローを作成](/ja/workflows/build-your-first-workflow)で、作成、編集、実行までを最初から最後まで確認できます。
+</Tip>
+
+## 適したツールを選ぶ
+
+| やりたいこと | 使うもの |
+| --- | --- |
+| 選択したテキストにプロンプトを再利用する | [AI コマンド](/ja/features/ai-commands) |
+| アシスタントに使うツールを判断させる | [エージェント](/ja/ai/agents) |
+| 出力を確認できる、繰り返し可能な手順を定義する | ワークフロー |
+| エージェントへの指示、ワークフロー、スクリプトを決まった時刻に実行する | [予約タスク](/ja/workflows/scheduled-jobs) |
+
+## ワークフローの構成
+
+ワークフローは 3 つの部分からなります。
+
+- `inputs`：実行に必要な値（トピックやテキストなど）。
+- `jobs`：名前を付けたステップのグループ。`needs` で別のジョブを待たせない限り、ジョブは並行して始まります。
+- `steps`：各ジョブの中の順序付きの一覧。ジョブ内のステップは 1 つずつ順に実行されます。
+
+現在のワークフローは、`jobs` マップを持つ `version: agent-workflow/v1` を使い、各ジョブに `steps` の一覧を持たせます。
+
+```yaml
+version: agent-workflow/v1
+title: Quick Summary
+description: Summarize supplied text into three bullets.
+inputs:
+  text:
+    type: string
+    default: "A sample paragraph to summarize."
+jobs:
+  main:
+    steps:
+      - id: summarize
+        prompt: "Summarize in three bullets: {{ inputs.text }}"
+```
+
+<Note>
+以前の最上位の `tasks` 形式は、受け付けられなくなりました。各シーケンスを `jobs.<name>.steps` に移し、ステップに明示的な ID を付け、ジョブ内では `steps.<id>.output`、ジョブをまたぐ場合は `jobs.<job>.<step>.output` を使ってください。
+</Note>
+
+## ステップでできること
+
+各ステップは、次のうちちょうど 1 つを行います。
+
+| ステップ | フィールド | 結果 |
+| --- | --- | --- |
+| シェル | `command` または `run` | `stdout`、`stderr`、`exitCode` を含むコマンドの出力 |
+| プロンプト | `prompt` | モデルの返信。構造化データには出力スキーマを使います |
+| エージェント | `agent` と `message` | 選んだエージェントの返信 |
+| ツール | `tool` と `with` | インストール済みの Local API エンドポイントの結果 |
+| 変換 | `uses: transform` と `value` | テンプレートで生成された値 |
+| サブワークフロー | `uses: workflow` と、`workflowId` または `workflow` | 子ワークフローの実行結果 |
+| 承認 | `uses: approval` と `message` | あなたの回答：承認、または任意のフィードバック付きの辞退 |
+| 判定 | `uses: judge` と `question` | Enconvo Cloud の高速な判断モデルである Jev による、はい・いいえの答えとその確率 |
+| 分類 | `uses: classify`、`question`、`options` | Jev が選んだ選択肢と、その確信度 |
+
+ステップは、条件が成り立つときだけ実行する、リストに対して繰り返す、再試行する、構造化データを返す、といったこともできます。[高度なワークフロー](/ja/workflows/advanced-workflows)をご覧ください。
+
+## ワークフローを実行する
+
+- **ワークフロー**で開き、**入力**を設定して、**実行**を選びます。
+- SmartBar で保存したワークフローを検索します。ランチャーのテキストは `inputs.input_text` として使えます。
+- チャットで `@` を使って利用可能なワークフローをメンションすると、エージェントが使えます。
+- [予約タスク](/ja/workflows/scheduled-jobs)でスケジュール実行します。
+
+## ワークフローの保存場所
+
+各ワークフローは、`~/.enconvo/workflows/<id>.yaml` の 1 つのファイルです。ファイル名がワークフローの ID です。実行履歴とのリンクを保つため、この ID は変えないでください。
+
+## 関連ページ
+
+<CardGroup cols={2}>
+  <Card title="最初のワークフローを作成" icon="play" href="/ja/workflows/build-your-first-workflow">テンプレートから実行完了までを紹介する動画チュートリアル。</Card>
+  <Card title="ワークフローを作成する" icon="pen-to-square" href="/ja/workflows/creating-workflows">ビジュアルエディタ、YAML、アシスタント、すべてのステップの種類。</Card>
+  <Card title="高度なワークフロー" icon="code-branch" href="/ja/workflows/advanced-workflows">条件、ループ、再試行、出力スキーマ、サブワークフロー。</Card>
+  <Card title="予約タスク" icon="clock" href="/ja/workflows/scheduled-jobs">ワークフローやエージェントをスケジュールで実行します。</Card>
+</CardGroup>

@@ -1,0 +1,73 @@
+---
+title: "Soniox"
+description: "Enconvo の音声入力、録音、ファイルの文字起こしで、Soniox の音声認識を使います。"
+---
+
+Soniox は、多くの言語で、リアルタイムの音声とファイルの音声をテキストに変換し、録音中にはライブ字幕を翻訳することもできます。キーなしで Enconvo Cloud 経由で使うか、ご自身の Soniox API キーで使います。
+
+<Note>
+**Soniox (Enconvo Cloud)** には API キーは不要です。また、Soniox による音声入力は、Cloud プラン、Lifetime、トライアルのメンバーは無料です。
+</Note>
+
+## 接続
+
+<Tabs>
+  <Tab title="Enconvo Cloud">
+    <Steps>
+      <Step title="プロバイダーを選ぶ">
+        **設定 → 音声入力モデル** を開き、**Soniox (Enconvo Cloud)** を選びます。
+      </Step>
+      <Step title="テストする">
+        短い文を声に出して入力してみます。話すのに合わせてテキストが表示されるはずです。
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="ご自身の API キー">
+    <Steps>
+      <Step title="API キーを取得">
+        [Soniox Console](https://console.soniox.com) でプロジェクトを開き、API キーを作成します。
+      </Step>
+      <Step title="Enconvo に追加">
+        **設定 → 音声入力モデル** を開き、**Soniox** を選びます。キーを Soniox の認証情報に貼り付け、**検証** をクリックします。
+      </Step>
+      <Step title="テストする">
+        短い文を声に出して入力してみます。話すのに合わせてテキストが表示されるはずです。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+録音やファイルでも Soniox を使うには、**設定 → 録音モデル** または **設定 → 文字起こしモデル** で選びます。各ページで選択は別々に保持されます。
+
+## モデルとオプション
+
+| 設定 | 内容 |
+| --- | --- |
+| **モデル** | Soniox のモデルです。**Soniox STT Realtime v5**（デフォルト）などのリアルタイムモデルは、話すのに合わせてテキストを書き出します。**Soniox STT Async v5** などの非同期モデルは、完成したファイルを文字起こしします。[Soniox のモデル](https://soniox.com/docs/stt/models)をご覧ください。 |
+| **Language Hints** | 優先する言語です。デフォルトは英語と中国語です。話しながら言語を切り替える場合は、複数追加します。 |
+| **リアルタイム翻訳** | 録音中にライブ字幕を翻訳します。保存された録音には、元の言語の文字起こしが残ります。デフォルトではオフです。 |
+| **翻訳元** | 音声の言語です。**自動** にすると Soniox が検出します。 |
+| **翻訳先** | 翻訳された字幕の言語です。 |
+| **Speak Translation** | 翻訳された字幕を、デフォルトの音声で読み上げます。デフォルトではオフです。 |
+
+Soniox には、ご自身のキーまたは Enconvo Cloud で使えるテキスト読み上げプロバイダーもあります。**設定 → テキスト読み上げ** にあります。
+
+Soniox は音声をクラウドで処理します。音声を Mac の中にとどめるには、代わりに Parakeet MLX、Qwen3 MLX、Whisper MLX などのローカルプロバイダーを使ってください。
+
+## トラブルシューティング
+
+| 問題 | 対処 |
+| --- | --- |
+| **検証** に失敗する | Soniox Console から、余分なスペースが入らないようにキーをもう一度コピーし、正しいプロジェクトのものか確認します。 |
+| 話している間にテキストが表示されない | リアルタイムモデルを選び、もう一度音声入力を開始します。 |
+| 違う言語で文字になる | **Language Hints** を、実際に話す言語に設定します。 |
+| ファイルの文字起こしが得られない | MP3、WAV、FLAC、M4A などの一般的な形式を試し、Soniox の使用量と課金を確認します。 |
+
+## 関連
+
+<CardGroup cols={2}>
+  <Card title="音声認識" icon="microphone" href="/ja/ai/speech-recognition">Soniox を他の音声認識プロバイダーと比較します。</Card>
+  <Card title="音声入力" icon="keyboard" href="/ja/features/dictation">どのアプリでも声で入力できます。</Card>
+  <Card title="リアルタイム字幕" icon="closed-captioning" href="/ja/features/live-captioning">再生中の音声に字幕と翻訳を付けます。</Card>
+  <Card title="会議の録音" icon="record-vinyl" href="/ja/features/meeting-recording">ライブ字幕付きで会議を録音します。</Card>
+</CardGroup>

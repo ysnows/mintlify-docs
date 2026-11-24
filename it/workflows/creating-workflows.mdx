@@ -1,0 +1,450 @@
+---
+title: "Creare workflow"
+description: "Crea, modifica, esegui e condividi workflow nell'editor visivo o in YAML, con un assistente che costruisce e corregge i passaggi per te."
+---
+
+Questa guida copre tutto ciò che fai nell'editor dei workflow: avviare un workflow, costruirlo sulla tela o in YAML, farlo modificare all'assistente, eseguirlo e leggerne i risultati. Le ultime sezioni sono un riferimento per il formato del file e per ogni tipo di passaggio.
+
+Per aprire l'editor, seleziona **Flussi di lavoro** nella barra laterale della Finestra di chat, oppure apri **Impostazioni → Flussi di lavoro → Gestisci**. Poi seleziona **Nuovo workflow**, oppure apri un workflow esistente con **Modifica**. Nella Finestra di chat, passare a una chat e tornare indietro mantiene aperto il workflow che stavi modificando.
+
+Questa pagina tratta, nell'ordine:
+
+- Per iniziare: [i concetti chiave](#concetti-chiave), [l'elenco dei tuoi workflow](#gestire-i-workflow) e [come avviare un nuovo workflow](#avviare-un-nuovo-workflow).
+- Costruire: [l'editor visivo](#costruire-con-l’editor-visivo), [il comportamento dei passaggi](#comportamento-dei-passaggi) e [l'assistente di modifica](#usare-l’assistente-di-modifica).
+- Eseguire: [eseguire un workflow e leggerne i risultati](#esegui-e-controlla).
+- Riferimento: [il file YAML](#modificare-l’yaml), [leggere i risultati precedenti](#fare-riferimento-ai-risultati-precedenti) e [ogni tipo di passaggio](#tipi-di-passaggio).
+
+## Concetti chiave
+
+- Un workflow dichiara i propri **Input**, poi una o più attività, ciascuna con un elenco ordinato di passaggi. Per una panoramica, vedi [Flussi di lavoro](/it/workflows/introduction).
+- I passaggi di un'attività vengono eseguiti dall'alto verso il basso. Le attività vengono eseguite in parallelo, a meno che una non ne attenda un'altra.
+- Un passaggio legge gli input dell'esecuzione e i risultati precedenti con i template `{{ }}`, come `{{ inputs.topic }}` o `{{ steps.fetch.output }}`.
+- Modificare un workflow ed eseguirlo sono azioni distinte. Il salvataggio scrive il file; l'esecuzione chiama modelli e strumenti reali.
+
+## Gestire i workflow
+
+L'elenco dei workflow è il punto in cui li apri, li esegui, li ordini, li cerchi e li elimini.
+
+### L’elenco dei workflow
+
+Ogni riga mostra il numero di passaggi del workflow, quando è stato modificato l'ultima volta e come è andata la sua ultima esecuzione.
+
+- Seleziona l'ultima esecuzione per aprire il workflow con i risultati di quell'esecuzione sulla tela.
+- Seleziona il pulsante di riproduzione per aprire il workflow ed eseguirlo subito. Se servono input che non hai compilato, si apre prima il pannello **Input**. Mentre il workflow è in esecuzione, il pulsante di riproduzione diventa un pulsante di arresto; selezionalo per interrompere l'esecuzione senza aprire il workflow.
+- Un workflow con una pianificazione mostra quando sarà la prossima esecuzione, oppure **Pianificazione in pausa** quando tutte le sue attività programmate sono disattivate. Selezionalo per aprire il workflow con le sue pianificazioni nel pannello Esecuzioni.
+- Seleziona il pulsante di copia per duplicare un workflow con un nuovo titolo, così puoi modificare la copia senza toccare l'originale. L'elenco scorre fino alla copia e la evidenzia.
+- Usa il menu di ordinamento sopra l'elenco per ordinare i workflow per **Modificati di recente**, **Eseguiti di recente** o **Nome**. La tua scelta viene ricordata.
+
+L'elenco si aggiorna da solo quando ci torni e quando parte un'esecuzione programmata.
+
+### Trovare un workflow
+
+Scrivi in **Cerca workflow**: l'elenco si aggiorna mentre digiti. Il pulsante di cancellazione o Esc mostra di nuovo tutti i workflow.
+
+Seleziona un tag su una riga per mostrare solo i workflow con quel tag; funziona insieme a **Cerca workflow**. Una riga mostra fino a quattro tag; seleziona **+N** per vedere gli altri. Per mostrare di nuovo tutti i workflow, seleziona di nuovo il tag, seleziona la × accanto ad esso sopra l'elenco, oppure premi Esc in **Cerca workflow**.
+
+| Tasto | Nell'elenco dei workflow |
+| --- | --- |
+| **⌘F** o **/** | Vai a **Cerca workflow** |
+| ↓ in **Cerca workflow** | Vai al primo workflow |
+| ↑ e ↓ | Passa da un workflow all'altro |
+| Invio | Apri il workflow selezionato |
+| Elimina | Elimina il workflow selezionato |
+
+### Rinominare o eliminare un workflow
+
+Per rinominare un workflow, seleziona il suo nome in alto nell'editor, scrivi il nuovo nome e premi Invio. Esc mantiene il vecchio nome.
+
+Eliminare un workflow ne interrompe prima l'esecuzione, se è in corso. Le [attività programmate](/it/workflows/scheduled-jobs) che lo eseguono vengono messe in pausa e conservate, così puoi assegnare loro un altro workflow o eliminarle. La conferma indica quante sono prima di eliminare.
+
+## Avviare un nuovo workflow
+
+Seleziona **Nuovo workflow** per aprire una finestra con diversi modi per iniziare. Per prima cosa scegli che tipo di workflow è:
+
+- **Flusso di lavoro per attività**: come si svolge un certo tipo di attività.
+- **Flusso di lavoro del team**: come un obiettivo passa dal piano al completamento, con più membri. I suoi template includono **Pianifica, realizza, rivedi** e **Un membro**.
+
+Quando non hai ancora nessun workflow, l'elenco offre gli stessi modi per iniziare direttamente lì: **Descrivi cosa deve fare**, **Flusso di lavoro vuoto** e i template.
+
+| Inizio | Come |
+| --- | --- |
+| Descrivilo | Scrivi cosa deve fare il workflow, ad esempio "Traduci un testo in giapponese e spagnolo contemporaneamente", e seleziona **Crea** (oppure premi **⌘↩**). Il workflow si apre con l'assistente che lo sta già costruendo. Controlla i suoi passaggi e seleziona **Salva** quando ti sembrano giusti. |
+| Parti da un template | Scegli **Vuoto**, **Ricerca un argomento**, **Riassumi una pagina web**, **Appunti da un video di YouTube**, **Scrivi e leggi ad alta voce** o **Panoramica dei tipi di passaggio** (un comando shell, uno strumento, un prompt e un agente, con due attività eseguite in parallelo). Ogni template è un workflow completo che puoi eseguire subito. |
+| Importa un file | Seleziona **Scegli file…**, oppure trascina un file di workflow `.yaml`, `.yml` o `.json` in un punto qualsiasi della finestra, ad esempio uno condiviso da un collega. Viene salvato come nuovo workflow, quindi non ne sostituisce mai uno che hai già. Se il suo titolo coincide con uno del tuo elenco, prende un nome da copia, come "News copia". Se il file non è un workflow valido, la finestra resta aperta e ti spiega perché. |
+| Incollalo | Incolla nel campo della descrizione il YAML o il JSON di un workflow, ad esempio uno condiviso in una chat. **Crea** diventa **Importa** e il workflow viene creato esattamente come incollato. |
+
+### Workflow integrati
+
+I workflow che vengono con Enconvo si aprono in sola lettura. Per modificarne uno, seleziona **Crea una copia** e modifica la copia.
+
+### Condividere un workflow
+
+Per condividere un workflow o conservarne una copia, seleziona il pulsante di condivisione (l'icona di download) sulla sua riga nell'elenco dei workflow, oppure nella barra degli strumenti dell'editor:
+
+- **Esporta come file YAML…** salva un file `.yaml` dove scegli. Importalo con **Nuovo workflow** > **Scegli file…** su qualsiasi Mac.
+- **Copia YAML** copia il workflow, pronto da incollare in una chat o nel campo di descrizione di **Nuovo workflow**, che lo importa.
+
+Entrambi includono le modifiche non ancora salvate quando li usi dall'editor.
+
+## Costruire con l’editor visivo
+
+<Frame caption="L'editor visivo mostra attività parallele, passaggi sequenziali e la configurazione del passaggio selezionato.">
+  <img src="/images/guides/workflow-visual.jpg" alt="Grafo reale di un workflow Enconvo con due attività parallele e un ispettore dei passaggi" />
+</Frame>
+
+L'editor offre due modi di vedere lo stesso workflow:
+
+- **Visivo**: i passaggi come schede su una tela, con le attività parallele affiancate.
+- **Passaggi**: i passaggi elencati dall'alto verso il basso con le loro condizioni, ripetizioni e passaggi paralleli. Usa il menu **Aggiungi** tra due passaggi per inserirne uno in quel punto.
+
+Seleziona **Guida** nell'intestazione per una spiegazione in parole semplici del workflow, nella tua lingua.
+
+1. Seleziona **Visivo** nella barra degli strumenti dell'editor.
+2. Usa **Aggiungi un passaggio qui** tra i nodi per inserire un passaggio, oppure **Aggiungi un'attività parallela** per un ramo separato. L'elenco dei passaggi si apre con **Usati di recente**, gli ultimi passaggi e strumenti che hai scelto, così quelli che aggiungi spesso sono a un clic. Un plugin con molti strumenti ne elenca i primi otto; seleziona **Mostra altri N** per vedere gli altri, oppure scrivi per cercare.
+3. Seleziona un passaggio per aprirne l'ispettore. Modifica il suo ID, il titolo e le impostazioni dell'esecutore, e apri **Comportamento** per cambiare come viene eseguito.
+4. Seleziona il nodo **Input** per configurare gli input dichiarati del workflow: un nome, un tipo (testo, numero, vero/falso, elenco o oggetto), una descrizione, un valore predefinito e se un'esecuzione richiede un valore. Sotto ogni nome, il pannello mostra come i passaggi leggono l'input, ad esempio `{{ inputs.topic }}`, e quanti lo fanno. Rinominare un input aggiorna quei passaggi con il nuovo nome. Un nome può usare lettere, cifre e trattini bassi, non può iniziare con una cifra e non deve coincidere con un altro input.
+5. Controlla il grafo e usa **Annulla** o **Ripeti** durante la modifica.
+6. Seleziona **Salva** dopo aver controllato le modifiche.
+
+### Leggere la scheda di un passaggio
+
+Ogni scheda di passaggio mostra il nome del passaggio e, sotto, ciò che fa: lo strumento o il tipo di passaggio, poi l'inizio della sua impostazione principale, come *Ricerca web · ‹topic› news* o le prime parole di un prompt. I valori che legge dagli input e dai passaggi precedenti compaiono tra ‹ › con il loro nome. Un passaggio senza nome mostra il proprio ID in parole; passa il puntatore su una scheda per vederne l'ID.
+
+La scheda di un passaggio con strumento mostra l'icona del suo plugin. Piccoli contrassegni sulla scheda indicano come viene eseguito il passaggio: solo quando una condizione è vera, una volta per ogni elemento di un elenco, in ripetizione, con nuovi tentativi se non riesce, eseguito anche dopo che un passaggio precedente non è riuscito, oppure lasciando proseguire il workflow se non riesce. Passa il puntatore su un contrassegno per leggerne il significato; modificalo nella sezione **Comportamento** del passaggio.
+
+### Scegliere un passaggio
+
+Il selettore dei passaggi cerca tra i passaggi integrati, gli strumenti installati e gli strumenti MCP. Esclude gli strumenti che si limitano ad aprire una finestra di Enconvo o a elencare i modelli e le voci di un provider; un workflow può comunque chiamarli per nome nel suo YAML.
+
+Se non sei sicuro di quale ti serva, scrivi cosa deve fare il passaggio, ad esempio "riassumi l'articolo in tre punti", e seleziona **Chiedi all'assistente di aggiungerlo** in fondo al selettore (**⌘↩**). Quando nulla corrisponde, Invio fa la stessa cosa. L'assistente aggiunge il passaggio esattamente dove hai aperto il selettore, prima o dopo il passaggio vicino oppure come nuova attività parallela, e puoi annullarlo come qualsiasi altra risposta dell'assistente.
+
+### Modificare un passaggio
+
+L'ispettore ha le schede **Configurazione** e **Output**. **Esegui passaggio** esegue il passaggio selezionato; può effettuare vere chiamate a strumenti o comandi shell. Controlla che i valori a monte richiesti esistano prima di eseguire un singolo passaggio.
+
+La scheda **Configurazione** inizia con il **Nome** del passaggio, che la scheda del passaggio mostra, e con l'**id del passaggio**, che gli altri passaggi usano per leggerne il risultato. **Cosa fa** indica lo strumento o il tipo del passaggio.
+
+Per far fare al passaggio qualcos'altro, seleziona **Modifica** e scegli un altro strumento o tipo di passaggio, oppure descrivi cosa deve fare e seleziona **Chiedi all'assistente di modificarlo**:
+
+- Il passaggio mantiene il proprio ID, quindi i passaggi che ne leggono il risultato continuano a funzionare.
+- Mantiene quando e come viene eseguito: la condizione, la ripetizione, i nuovi tentativi e ciò che attende.
+- Le impostazioni del nuovo strumento partono vuote. Un prompt che diventa un agente, o un agente che diventa un prompt, mantiene testo, modello e schema di output.
+- Un nome assegnato dall'editor al passaggio segue il nuovo strumento; un nome scritto da te resta.
+
+Seleziona **Annulla** per tornare indietro.
+
+### Duplicare, riordinare o disattivare un passaggio
+
+Per riutilizzare un passaggio, seleziona **Duplica** nell'ispettore, oppure sulla scheda del passaggio quando ci passi sopra il puntatore. La copia mantiene tutte le impostazioni del passaggio, compare subito dopo l'originale e riceve il successivo ID libero, come `fetch_2`.
+
+I passaggi di un'attività vengono eseguiti dall'alto verso il basso. Per cambiare l'ordine, trascina la scheda di un passaggio in su o in giù all'interno della sua attività; le altre schede si spostano per mostrare dove andrà a finire. Puoi anche selezionare un passaggio e scegliere **Sposta su** o **Sposta giù** nell'ispettore, oppure premere **⌥↑** o **⌥↓**. Premi **⌘Z** per annullare uno spostamento. Se un passaggio finisce sopra un passaggio di cui legge il risultato, la sua scheda mostra un avviso finché non lo rimetti più in basso.
+
+Per escludere un passaggio per ora senza eliminarlo, selezionalo e scegli **Disattiva passaggio**. La sua scheda sbiadisce e mostra **Disattivato**, le esecuzioni lo saltano e i passaggi successivi vengono comunque eseguiti. Scegli **Attiva passaggio** per riattivarlo.
+
+### Lavorare con più passaggi
+
+Per modificare più passaggi insieme, tieni premuto ⌘ o Maiusc e fai clic sulle loro schede. Una barra in alto sulla tela mostra quanti passaggi sono scelti, con **Disattiva** (o **Attiva**) ed **Elimina** per tutti. Premi Esc o fai clic su un punto vuoto della tela per annullare la selezione, e **⌘Z** per annullare.
+
+Se un'eliminazione danneggerebbe altri passaggi o svuoterebbe un'attività, Enconvo chiede prima conferma. La conferma elenca ogni passaggio che dipende da quelli che stai eliminando e perché, ad esempio **Usa il suo output** o **Attende che finisca**. Selezionane uno per annullare l'eliminazione e aprire quel passaggio, così puoi correggerlo prima. Lo stesso accade quando elimini un singolo passaggio.
+
+Per copiare dei passaggi, selezionane uno (o sceglierne più d'uno) e premi **⌘C**, oppure seleziona **Copia** nella barra; **⌘X** li taglia. Poi seleziona il passaggio dopo cui devono andare e premi **⌘V**:
+
+- Le copie vengono inserite subito dopo quel passaggio, oppure alla fine dell'attività quando è selezionata un'attività, e mantengono le loro impostazioni.
+- Una copia il cui ID è già occupato ne riceve uno nuovo, come `fetch_2`, e i passaggi incollati che si leggono a vicenda seguono i nuovi nomi.
+- I passaggi si incollano allo stesso modo in un altro workflow, e **⌘V** accetta anche un elenco di passaggi YAML o JSON copiato da un file di workflow.
+
+Quando elimini o incolli dei passaggi, un avviso indica cosa è cambiato; seleziona Annulla al suo interno per annullare quella modifica.
+
+### Trovare, zoomare, salvare ed eseguire
+
+- Per passare a un passaggio in un workflow grande, premi **⌘F** o seleziona il pulsante di ricerca sulla tela, scrivi una parte del nome, dell'ID, dello strumento o del testo del passaggio e sceglilo. Il passaggio viene selezionato e portato in vista.
+- Usa i controlli dello zoom nell'angolo in basso a destra della tela. Seleziona il livello di zoom per tornare al 100%.
+- Seleziona **Trova passaggio**, oppure premi **⌘F** sulla tela, e scrivi una parte del nome di un passaggio per selezionarlo e portarlo in vista. Funziona anche nei workflow integrati in sola lettura.
+- Premi **⌘S** per salvare da qualsiasi punto dell'editor, in modalità Visivo o YAML, anche mentre scrivi nelle impostazioni di un passaggio.
+- Premi **⌘↩** per eseguire il workflow; viene prima salvato se ha modifiche. Nell'editor YAML, nell'assistente e negli altri campi su più righe, seleziona invece **Esegui**.
+- Mentre un'esecuzione è in corso, **Esegui** diventa **Interrompi**. Dopo averlo selezionato, mostra **Interruzione…** finché l'esecuzione non si è fermata.
+
+Se il workflow ha un problema, come un passaggio con un prompt vuoto o una descrizione mancante, Salva ed Esegui si fermano e dicono cosa correggere. Seleziona **Mostra** per aprire il passaggio oppure il titolo e la descrizione del workflow. I passaggi con problemi hanno un contrassegno rosso sulla scheda; passaci sopra il puntatore per leggere cosa non va. In YAML, seleziona **Convalida** per controllare l'intero documento.
+
+### Modifiche non salvate
+
+Finché un workflow ha modifiche non salvate, l'intestazione dell'editor mostra **Non salvato**. Selezionalo per vedere le righe YAML aggiunte e rimosse dall'ultimo salvataggio, e seleziona **Elimina modifiche** per tornare alla versione salvata; nell'editor visivo, **⌘Z** riporta indietro le tue modifiche. Se torni all'elenco dei workflow con modifiche non salvate, scegli **Salva ed esci**, **Scarta** o **Continua a modificare**.
+
+Le modifiche non salvate vengono anche conservate su questo Mac mentre lavori. Se la finestra si chiude o si ricarica prima del salvataggio, riaprendo il workflow compare in alto una barra con **Ripristina**, che rimette le tue modifiche come un unico passaggio annullabile, oppure **Scarta**. Le modifiche vengono riproposte solo se il workflow salvato non è cambiato nel frattempo. Nell'elenco dei workflow, un workflow di questo tipo mostra il tag **Modifiche non salvate**, ed eliminarlo scarta anche quelle modifiche.
+
+### Scorciatoie della tela
+
+| Scorciatoia | Cosa fa |
+| --- | --- |
+| **⌘S** | Salva |
+| **⌘↩** | Esegui (prima salva) |
+| **⌘F** | Trova un passaggio |
+| **⌘Z** | Annulla |
+| **⌘C**, **⌘X**, **⌘V** | Copia, taglia e incolla passaggi |
+| **⌘A** | Scegli tutti i passaggi |
+| **⌫** | Elimina i passaggi selezionati o scelti |
+| **⌥↑**, **⌥↓** | Sposta su o giù il passaggio selezionato |
+| **⌘=**, **⌘-** | Ingrandisci e riduci |
+| **⌘0** | Adatta l'intero workflow alla vista |
+| **?** | Mostra tutte le scorciatoie della tela |
+
+Puoi vedere tutte le scorciatoie della tela anche con il pulsante della tastiera accanto a **Aggiungi un'attività parallela**.
+
+## Comportamento dei passaggi
+
+La sezione **Comportamento** dell'ispettore imposta come viene eseguito un passaggio senza modificare il YAML. La sua intestazione elenca ciò che hai cambiato, ad esempio *Solo se… · Nuovi tentativi 2×*, oppure mostra **Predefinito**.
+
+| Impostazione | Scelte | YAML che scrive |
+|---|---|---|
+| **Esecuzioni** | Ogni volta; solo se una condizione è vera; altrimenti, quando la condizione di un passaggio precedente è falsa. **Esegui anche se i passaggi precedenti non riescono o vengono saltati** mantiene il passaggio in esecuzione dopo un errore a monte. | `if`, `else_of`, `run_when` |
+| **Si ripete** | Una volta; una volta per ogni elemento di un elenco; a round finché una condizione è soddisfatta, fino a un numero massimo di round | `foreach`, `loop` |
+| **Se non riesce** | Interrompi il workflow, oppure continua così i passaggi successivi vengono comunque eseguiti. **Nuovi tentativi** esegue di nuovo il passaggio prima che venga considerato fallito, con un'attesa facoltativa tra un tentativo e l'altro. | `required: false`, `retries` |
+| **Attende** | Il passaggio precedente; nulla, così parte subito; oppure i passaggi che spunti da un elenco di passaggi precedenti e di passaggi di altre attività | `needs` |
+
+**Schema di output** accetta un JSON Schema facoltativo per un risultato strutturato. Scegliere di nuovo un valore predefinito rimuove l'impostazione dal YAML. [Workflow avanzati](/it/workflows/advanced-workflows) spiega ogni impostazione in dettaglio.
+
+## Usare l’assistente di modifica
+
+Seleziona **Assistente** nella barra degli strumenti dell'editor per aprire il pannello dell'assistente accanto alla tela, poi descrivi cosa vuoi, ad esempio: "Aggiungi un passaggio prompt che riassuma il risultato precedente." Per un workflow nuovo e vuoto puoi invece descrivere l'intero processo, come "Ogni mattina, recupera le notizie principali di Hacker News e riassumile." Premi Invio per inviare e **⇧↩** per andare a capo, e scegli il modello sotto il campo di scrittura.
+
+Mentre l'assistente lavora, il pannello mostra cosa sta facendo, ad esempio leggere il workflow, controllare i parametri di uno strumento o modificare, e la tela si aggiorna man mano. La tela è in sola lettura finché la risposta non finisce; seleziona **Interrompi** per terminarla in anticipo.
+
+### Inviare altro mentre lavora
+
+Non devi aspettare che una risposta finisca per chiedere altro. Premi Invio mentre l'assistente sta lavorando e il tuo messaggio attende in una coda sopra il campo di scrittura. I messaggi in coda vengono inviati uno alla volta, in ordine, man mano che ogni risposta finisce.
+
+- Trascina un messaggio in coda per riordinarlo, usa il suo menu **⋯** per modificarlo, oppure seleziona l'icona del cestino per rimuoverlo.
+- Se selezioni **Interrompi** o una risposta non riesce, la coda viene contrassegnata come **In sospeso** e non viene inviato altro da sola. Seleziona **Invia** su un messaggio in coda quando sei pronto.
+- Quando un messaggio non può aspettare, ad esempio una correzione a ciò che l'assistente sta facendo, premi **⌘↩** invece di Invio, oppure seleziona **Invia ora** su un messaggio in coda. La risposta corrente si ferma, mantiene le modifiche che ha già fatto e viene contrassegnata come **Interrotto**, e il tuo messaggio viene inviato subito. Il resto della coda non viene messo in sospeso; viene inviato in ordine dopo di esso.
+
+### Controllare cosa ha cambiato
+
+Ogni risposta che modifica il workflow termina con una scheda che elenca i passaggi che ha aggiunto, modificato o rimosso. Quando una risposta finisce, i passaggi che ha aggiunto sono contrassegnati **Aggiunto** sulla tela e quelli che ha modificato **Modificato**, così vedi cosa controllare. I contrassegni restano finché non salvi, annulli o ripristini la risposta.
+
+- Seleziona un passaggio sulla scheda per selezionarlo sulla tela e portarlo in vista. Gli ID dei passaggi che l'assistente nomina nella sua risposta, come `summarize`, funzionano allo stesso modo.
+- Seleziona **Esegui** sulla scheda della risposta per provare l'ultima modifica dell'assistente. Esegue il workflow come **Esegui** nella barra degli strumenti, chiedendo prima gli input quando servono.
+- Seleziona **Ripristina** sull'ultima scheda per riportare il workflow com'era prima di quella risposta. Anche **Annulla** (**⌘Z**) annulla un'intera risposta in un solo passaggio.
+
+Se una risposta lascia il workflow non valido, l'editor passa a YAML e mostra gli errori. Correggili lì, oppure chiedi all'assistente di correggerli. Le modifiche dell'assistente restano non salvate finché non selezioni **Salva**.
+
+### Indicargli un passaggio o un risultato
+
+- Per fare una domanda su un passaggio, selezionalo sulla tela e scegli **Chiedi all’assistente** nel suo ispettore. Il passaggio viene allegato al tuo messaggio successivo, quindi "rendilo più affidabile" si riferisce a quel passaggio.
+- Quando un passaggio non riesce in un'esecuzione, scegli **Correggi con l’assistente** nel riepilogo dell'esecuzione o nella scheda **Output** del passaggio. Il tuo messaggio porta con sé il passaggio e il suo errore, quindi non devi copiare l'errore.
+- Per fare una domanda su una parte del risultato di un passaggio, seleziona del testo nella sua scheda **Output** e scegli **Chiedi all’assistente** sotto la selezione. Il testo compare come citazione sopra la casella del messaggio e accompagna il tuo messaggio successivo, così puoi chiedere cosa significa o come modificare il passaggio che lo ha prodotto.
+
+### Chat e istruzioni permanenti
+
+Seleziona **Nuova chat** in alto nel pannello per ricominciare; la chat precedente resta nell'elenco. Seleziona il nome della chat in alto nel pannello per tornare a una chat precedente sullo stesso workflow o per eliminarne una. Un workflow salvato conserva le sue ultime dieci chat in questo browser.
+
+Per impostare valori predefiniti che l'assistente deve sempre seguire, seleziona **Impostazioni** (l'icona dei cursori) in alto nel pannello e scrivili sotto **Istruzioni**, ad esempio "Salva i file in ~/Downloads.", "Usa anthropic/claude-haiku-4-5 per i passaggi prompt." o "Rispondi in cinese." Premi **⌘↩** o seleziona **Salva**. Le istruzioni si applicano a ogni workflow che l'assistente costruisce o modifica, e un puntino sull'icona Impostazioni indica che sono attive. Per smettere di usarle, svuota la casella e salva.
+
+## Esegui e controlla
+
+1. Seleziona **Input** e compila i valori per questa esecuzione.
+2. Convalida la definizione e controlla eventuali comandi o chiamate a strumenti.
+3. Scegli **Esegui** e osserva lo stato dei passaggi nel grafo.
+4. Seleziona la scheda **Output** di un passaggio per controllarne il risultato o l'errore. Dopo un'esecuzione, ogni scheda di passaggio mostra anche la prima riga di ciò che il passaggio ha restituito, o il motivo per cui non è riuscito, al posto della sua descrizione; seleziona quella riga per aprire la scheda **Output** del passaggio. Seleziona **Copia** nella scheda **Output** per copiare il risultato del passaggio, o il suo errore quando non ha restituito nulla, ad esempio per incollarlo in una chat o in un documento.
+5. Apri **Esecuzioni** per controllare le esecuzioni precedenti.
+6. Salva il workflow quando sei soddisfatto della sua definizione.
+
+<Warning>
+Un'esecuzione può consumare crediti del provider o modificare dati esterni, a seconda dei suoi passaggi. I passaggi Shell e Strumento agiscono con i permessi del tuo account Mac.
+</Warning>
+
+### Input dell’esecuzione
+
+**Input** nella barra degli strumenti apre un modulo con un campo per ogni input dichiarato dal workflow, che ne mostra il tipo, la descrizione e il valore predefinito:
+
+- Lascia un campo vuoto per usare il suo valore predefinito. Gli elenchi e gli oggetti accettano JSON, come `["a", "b"]`.
+- Un input contrassegnato come **Obbligatorio** e senza valore predefinito richiede un valore. Se è vuoto, o un valore ha il tipo sbagliato, **Esegui** si ferma prima di salvare o eseguire qualsiasi cosa e indica il campo da correggere.
+- Premi **⌘↩** in un campo per eseguire.
+- Il modulo parte dai valori con cui il workflow è stato eseguito l'ultima volta in Enconvo. Seleziona **Cancella** per svuotare tutti i campi in una volta, così l'esecuzione successiva usa di nuovo i valori predefiniti. Rinominare un input mantiene il valore che hai scritto per esso.
+- Mentre sulla tela c'è un'esecuzione passata da **Esecuzioni recenti**, seleziona **Usa i valori di quell’esecuzione** per compilare il modulo con gli input con cui è stata eseguita, poi eseguila di nuovo com'era o con una modifica.
+- Un campo vuoto mostra il suo valore predefinito in grigio. Per modificare un valore predefinito lungo invece di riscriverlo, seleziona **Modifica valore predefinito** accanto al campo per inserirlo nel campo, poi modificalo.
+- Nell'editor visivo, seleziona **Modifica input** per cambiare ciò che il workflow richiede. Se dei passaggi leggono ancora un input che rimuovi, Enconvo li nomina e chiede conferma prima di rimuoverlo. Seleziona **Modifica come JSON** per scrivere gli input come un unico oggetto JSON, comprese le chiavi che il workflow non dichiara. **Usa modulo** torna indietro.
+
+### Quando un’esecuzione termina
+
+Quando un'esecuzione termina, in fondo alla tela compare un riepilogo:
+
+- Se un passaggio non è riuscito, il riepilogo lo nomina e mostra la riga del suo errore che dice cosa è andato storto, come `command not found: datex` invece del solo codice di uscita. Seleziona **Mostra errore** per aprire la scheda **Output** di quel passaggio e portarlo in vista sulla tela.
+- Seleziona **Correggi con l’assistente** per passare all'assistente il passaggio non riuscito e il suo errore. L'assistente inizia la risposta con la causa, poi corregge il passaggio. Se la causa è fuori dal workflow, come una chiave API mancante, un errore di rete o un file mancante, ti dice cosa cambiare invece di modificare. La scheda **Output** di un passaggio non riuscito ha lo stesso pulsante **Correggi con l’assistente**.
+- Seleziona **Riprendi** per continuare un'esecuzione non riuscita o interrotta. I passaggi già terminati mantengono i loro risultati; il passaggio non riuscito e tutti quelli successivi vengono eseguiti di nuovo. Se hai modificato un passaggio dopo l'esecuzione, vengono eseguiti di nuovo anche quel passaggio e quelli successivi. Se cambi gli input dell'esecuzione, l'intero workflow riparte dall'inizio. **Riprendi** compare anche accanto a **Esegui** nella barra degli strumenti finché non avvii un'altra esecuzione.
+- Dopo un'esecuzione senza errori, seleziona **Mostra il risultato** per vedere il risultato dell'ultimo passaggio. Il riepilogo svanisce dopo qualche secondo, a meno che qualcosa non richieda la tua attenzione; seleziona **×** per chiuderlo prima.
+
+### Esecuzioni recenti
+
+**Esecuzioni recenti** elenca le esecuzioni precedenti del workflow, dalla più recente. Ogni riga mostra:
+
+- se l'esecuzione è riuscita, non è riuscita o è ancora in corso;
+- quando è iniziata e quanto è durata;
+- se l'ha avviata una pianificazione (**Programmato**) o una chat (**Dalla chat**);
+- gli input con cui è stata eseguita (passa il puntatore per vederli tutti) e l'errore se non è riuscita.
+
+L'esecuzione mostrata sulla tela è contrassegnata come **Visualizzazione**. Seleziona una riga per mostrare sulla tela i risultati dei passaggi di quell'esecuzione. Quando alcune esecuzioni non sono riuscite e altre sì, seleziona **Operazione non riuscita** sopra l'elenco per vedere solo quelle non riuscite, e **Tutte le esecuzioni** per vederle di nuovo tutte.
+
+### Eseguire con una pianificazione
+
+**Programma**, in alto nel pannello Esecuzioni, elenca le attività programmate che eseguono questo workflow, con quando viene eseguita ciascuna la prossima volta e gli input con cui viene eseguita.
+
+- Quando l'ultima esecuzione di un'attività programmata non è riuscita, passa il puntatore su **Ultima esecuzione non riuscita** per vedere perché, oppure selezionala per aprire quell'esecuzione sulla tela e vedere quale passaggio non è riuscito.
+- Attiva o disattiva un'attività programmata con il suo interruttore, oppure seleziona la matita per cambiarne la pianificazione.
+- Scegli **Aggiungi pianificazione** per aprire il modulo lì, con questo workflow già scelto e i suoi input compilati da **Input dell’esecuzione**.
+- Seleziona **Elimina** su una pianificazione per rimuovere quell'attività programmata.
+
+Le esecuzioni programmate usano il workflow salvato, quindi salva le modifiche prima della prossima esecuzione. Ogni attività programmata è elencata anche in **Attività programmate** nella barra laterale della Finestra di chat; vedi [Attività programmate](/it/workflows/scheduled-jobs).
+
+## Modificare l’YAML
+
+Il salvataggio scrive il workflow in `~/.enconvo/workflows/<id>.yaml`. Seleziona **YAML** per lavorare sullo stesso documento come sorgente. L'editor controlla mentre scrivi: un errore indica la sua riga e colonna, e un avviso segna i campi che non fanno nulla. Il badge **Valido** o **Non valido** e l'azione **Convalida** controllano l'intero documento. Usa lettere, cifre e trattini bassi per gli ID delle attività e dei passaggi, e inizia con una lettera o un trattino basso. Quando torni a **Visivo**, **⌘Z** annulla in un colpo solo le tue modifiche YAML.
+
+```yaml
+version: agent-workflow/v1
+title: Greeting
+description: Produce a greeting and a formatted result without calling a model.
+inputs:
+  name:
+    type: string
+    default: world
+jobs:
+  main:
+    steps:
+      - id: greeting
+        uses: transform
+        value: "Hello, {{ inputs.name }}!"
+      - id: result
+        uses: transform
+        value: "Result: {{ steps.greeting.output }}"
+```
+
+Esegui questo esempio con `Ada` nel campo **name** sotto **Input**. L'ultimo passaggio produce `Result: Hello, Ada!`.
+
+## Fare riferimento ai risultati precedenti
+
+| Espressione | Valore |
+| --- | --- |
+| `{{ inputs.name }}` | Il valore di un input |
+| `{{ steps.greeting.output }}` | Un passaggio precedente della stessa attività |
+| `{{ jobs.research.search.output }}` | Un passaggio completato in un'altra attività |
+| `{{ item }}` e `{{ index }}` | Elemento e indice correnti in `foreach` |
+| `{{ round }}` e `{{ last }}` | Round e output precedente in un ciclo |
+
+Aggiungi `needs` a livello di attività prima di leggere l'output di un'altra attività. Controlla i risultati degli strumenti in **Output** invece di supporre che ogni strumento restituisca gli stessi campi.
+
+### Inserire un valore senza scriverlo
+
+Nell'editor visivo non serve scriverli a mano. Seleziona **Inserisci valore** (il pulsante `{x}` a destra di un campo del passaggio, come il prompt, il comando, un'impostazione dello strumento o una condizione) per elencare ciò che quel passaggio può leggere: gli input del workflow, i risultati dei passaggi precedenti della sua attività, i passaggi delle attività che attende e, per un passaggio ripetuto, l'elemento o il round corrente. Cerca nell'elenco e scegline uno; va dove si trovava il cursore, oppure sostituisce il testo che avevi selezionato.
+
+- Un passaggio shell offre il testo che stampa come `{{ steps.<id>.stdout | trim }}`.
+- Un passaggio con uno schema di output o un'esecuzione precedente elenca anche i campi del suo risultato.
+- Le condizioni, **Interrompi quando** e l'elenco su cui un passaggio si ripete ricevono la forma giusta per quel campo, come un semplice `steps.check.output.ok` in una condizione.
+
+Un campo che legge qualcosa che non può raggiungere mostra sotto un avviso con ciò che va cambiato: un input che il workflow non dichiara, un passaggio che viene eseguito dopo o che è il passaggio stesso, un passaggio che appartiene a un'altra attività, o un'attività che questa non attende. Sulla tela, la scheda di un passaggio con un valore del genere mostra un'icona di avviso accanto al titolo; passaci sopra il puntatore per vedere cosa correggere. Gli avvisi non ti impediscono di salvare.
+
+## Tipi di passaggio
+
+Ogni frammento qui sotto è una voce di passaggio: inseriscila nell'elenco `steps` di un'attività. Nell'editor visivo, scegli lo stesso tipo di passaggio dal selettore dei passaggi.
+
+### Shell
+
+```yaml
+- id: today
+  command: 'date "+%Y-%m-%d"'
+```
+
+Leggi il risultato con `steps.today.output.stdout`. Le impostazioni facoltative includono `cwd`, `shell`, `timeoutMs` ed `env`. I comandi usano i permessi del tuo account Mac; controlla i comandi prima di eseguirli.
+
+### Prompt
+
+```yaml
+- id: summarize
+  prompt: "Summarize this text: {{ inputs.text }}"
+```
+
+Questo chiama un modello una volta. Usa gli [schemi di output](/it/workflows/advanced-workflows) quando i passaggi successivi hanno bisogno di campi strutturati.
+
+### Agente
+
+```yaml
+- id: plan
+  agent: agent/main
+  message: "Propose a three-step plan for {{ inputs.topic }}."
+```
+
+Usa una chiave di comando per un Agente installato. Gli strumenti abilitati e le impostazioni del provider determinano cosa può fare.
+
+### Strumento
+
+```yaml
+- id: saved
+  tool: workflow/list
+  with:
+    limit: 5
+```
+
+`tool` è una route della Local API in forma con barre. `with` fornisce i parametri (`params` è un alias). Scopri le route disponibili in **Impostazioni → API**, oppure chiedi all'assistente di modifica di esaminare gli strumenti installati.
+
+### Transform
+
+Usa `uses: transform` con un `value` per combinare input o output precedenti senza chiamare un modello. L'esempio di [Modificare l'YAML](#modificare-l’yaml) usa due passaggi transform.
+
+### Sottoworkflow
+
+Usa `uses: workflow` con un `workflowId` salvato, oppure con un documento `workflow` inline, per eseguire un processo figlio riutilizzabile. Nell'editor visivo, scegli per nome il workflow salvato e compila in un modulo gli input che richiede. Un passaggio Sottoworkflow senza workflow scelto non viene superato; interrompe l'esecuzione e dice cosa manca. Vedi [Workflow avanzati](/it/workflows/advanced-workflows).
+
+### Approvazione
+
+```yaml
+- id: confirm
+  uses: approval
+  message: "Post this summary to the team? {{ inputs.text }}"
+```
+
+Enconvo ti pone il `message` con **Approva** e **Rifiuta**, e attende la tua risposta, fino a 24 ore a meno che il passaggio non imposti `timeoutMs`. Se approvato, i passaggi successivi vengono eseguiti. Se rifiutato o senza risposta, viene saltato come una condizione falsa: i passaggi successivi vengono saltati e viene eseguito il suo passaggio `else_of`. `steps.confirm.output.feedback` contiene ciò che hai scritto quando hai rifiutato. Mettilo subito prima di un passaggio che invia, pubblica, elimina o paga. Quando selezioni **Riprova** dopo aver rifiutato, alla nuova esecuzione viene detto cosa hai rifiutato e perché. Rifiutare un'approvazione all'interno di un sottoworkflow interrompe l'intera esecuzione, non solo il sottoworkflow.
+
+### Judge
+
+```yaml
+- id: urgent
+  uses: judge
+  question: Does this message ask for a reply today?
+  input: "{{ inputs.text }}"
+```
+
+Jev, il modello di decisione rapida di Enconvo Cloud, risponde alla `question` su `input` con `yes` e una `probability`. `yes` è vero quando la probabilità raggiunge `threshold` (0,5 se non lo imposti). Crea un ramo su di esso con `if: "{{ steps.urgent.output.yes }}"` e un passaggio `else_of`.
+
+### Classify
+
+```yaml
+- id: kind
+  uses: classify
+  question: What kind of request is this?
+  input: "{{ inputs.text }}"
+  options:
+    billing: A question about payments or invoices
+    bug: A report that something is broken
+    other: Anything else
+```
+
+Nell'ispettore, inserisci una riga per opzione. Jev sceglie una delle `options` e restituisce il suo `label`, una `confidence` e le `probabilities` di ciascuna opzione. `options` è un elenco di almeno due etichette, oppure una mappa di ogni etichetta con il suo significato. Crea un ramo con `if: "{{ steps.kind.output.label == 'billing' }}"`.
+
+I passaggi Judge e Classify vengono eseguiti su Enconvo Cloud, quindi richiedono che tu abbia effettuato l'accesso e abbia ancora punti disponibili. Non accettano un `output_schema`.
+
+## Guarda i passaggi
+
+<video controls playsInline preload="none" poster="/images/guides/workflow-visual.jpg" aria-label="Esplora l'editor dei workflow" style={{width: "100%", maxHeight: "640px"}}>
+  <source src="/videos/guides/workflow-editor.mp4" type="video/mp4" />
+  [Scarica la dimostrazione](/videos/guides/workflow-editor.mp4).
+</video>
+
+Passa da Visivo a YAML, controlla gli input dell'esecuzione e apri l'ispettore di un passaggio. Il workflow non viene né modificato né eseguito. Questa dimostrazione senza audio usa acquisizioni reali dell'interfaccia con pause aggiunte per la lettura. I passaggi scritti qui sopra forniscono le stesse istruzioni.
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Flussi di lavoro" icon="diagram-project" href="/it/workflows/introduction">Attività, passaggi e come vengono eseguiti i workflow.</Card>
+  <Card title="Crea il tuo primo flusso di lavoro" icon="play" href="/it/workflows/build-your-first-workflow">Un video tutorial dal template all'esecuzione completata.</Card>
+  <Card title="Workflow avanzati" icon="code-branch" href="/it/workflows/advanced-workflows">Condizioni, cicli, nuovi tentativi, schemi di output e sottoworkflow.</Card>
+  <Card title="Attività programmate" icon="clock" href="/it/workflows/scheduled-jobs">Esegui un workflow con una pianificazione.</Card>
+</CardGroup>

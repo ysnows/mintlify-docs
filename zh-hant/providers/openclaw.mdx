@@ -1,0 +1,222 @@
+---
+title: "OpenClaw"
+description: "在 Enconvo 中將 OpenClaw 代理程式當作與 OpenAI 相容的模型使用"
+---
+
+OpenClaw 是自行架設的 AI 代理程式平台，可讓助理跨聊天、訊息管道、工具、技能和自動化運作。
+
+OpenClaw 可以透過與 OpenAI 相容的閘道公開它的代理程式。啟用閘道後，Enconvo 就能像使用其他 AI 模型一樣使用 OpenClaw 代理程式，包括在聊天、Enconvo 代理程式和由模型驅動的功能中。
+
+OpenClaw 的閘道提供與 OpenAI 相容的端點，例如 `/v1/models`、`/v1/chat/completions` 和 `/v1/responses`。Enconvo 的 OpenClaw 供應商使用 Chat Completions API（`/v1/chat/completions`）。
+
+<Note>
+  Enconvo 不會為此供應商使用 OpenClaw 的 Responses API。請透過與 OpenAI 相容的 Chat Completions 閘道來設定 OpenClaw。
+</Note>
+
+第一次使用 OpenClaw？請先閱讀 [OpenClaw 入門指南](https://docs.openclaw.ai/start/getting-started)，再回到這裡把它連接到 Enconvo。
+
+完整的閘道端點參考，請見 [OpenClaw 閘道文件](https://docs.openclaw.ai/gateway#openai-compatible-endpoints)。
+
+## 開始之前
+
+- 在要執行閘道的機器上已安裝 OpenClaw
+- OpenClaw 閘道正在可連線的主機和連接埠上執行
+- 已啟用 Chat Completions 閘道端點
+- `~/.openclaw/openclaw.json` 中的閘道權杖
+- 已啟用 OpenClaw AI 模型供應商的 Enconvo
+
+## 自動設定
+
+開啟**設定 → AI 模型 → OpenClaw**。設定卡片可以替你啟動、停止並設定本機的 OpenClaw 閘道。
+
+當 OpenClaw 與 Enconvo 安裝在同一台 Mac 上時，請使用**自動設定**。Enconvo 會：
+
+<Steps>
+  <Step title="尋找 OpenClaw">
+    檢查這台 Mac 上是否有 `openclaw` CLI。
+  </Step>
+  <Step title="啟用 Chat Completions">
+    執行 `openclaw config set gateway.http.endpoints.chatCompletions.enabled true`。
+  </Step>
+  <Step title="準備閘道權杖">
+    從 `~/.openclaw/openclaw.json` 讀取 `gateway.auth.token`，如果沒有就建立一個。
+  </Step>
+  <Step title="啟動閘道">
+    啟動或重新啟動 OpenClaw 閘道服務。
+  </Step>
+  <Step title="驗證 API">
+    以 `/health` 和 `/v1/models` 探測閘道。
+  </Step>
+  <Step title="儲存憑證">
+    將基礎網址和閘道權杖儲存到 Enconvo 的 OpenClaw 憑證中。
+  </Step>
+</Steps>
+
+設定卡片會顯示執行狀態標章，例如**執行中**或**已停止**。卡片顯示期間，Enconvo 會定期重新整理這個狀態；卡片不再顯示時就會停止重新整理。
+
+## 開啟 OpenClaw 閘道
+
+你可以請 OpenClaw 替你準備閘道的詳細資料：
+
+```text
+enable openai-compatible api and give me the token and baseurl
+```
+
+請在 Enconvo 的 OpenClaw 憑證設定中使用回傳的基礎網址和權杖。
+
+<Steps>
+  <Step title="啟用 Chat Completions">
+    啟用與 OpenAI 相容的聊天補全端點（只需做一次）：
+
+    ```bash
+    openclaw config set gateway.http.endpoints.chatCompletions.enabled true
+    ```
+  </Step>
+  <Step title="選擇綁定模式">
+    若只允許本機存取，請維持預設的 loopback 綁定。若要讓區域網路上的其他裝置連線到閘道，請綁定到區域網路：
+
+    ```bash
+    openclaw config set gateway.bind lan
+    ```
+  </Step>
+  <Step title="重新啟動閘道">
+    套用設定變更：
+
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="檢查閘道狀態">
+    確認閘道正在執行：
+
+    ```bash
+    openclaw gateway status
+    ```
+  </Step>
+</Steps>
+
+## 手動連接 OpenClaw
+
+開啟**設定 → AI 模型 → OpenClaw**，然後設定憑證供應商。
+
+| 設定 | 值 |
+|---------|-------|
+| **OpenClaw Base URL** | `http://<gateway-host>:<port>/v1` |
+| **Gateway Token** | `~/.openclaw/openclaw.json` 中的 `gateway.auth.token` |
+
+Enconvo 會自動對 OpenClaw 使用 Chat Completions API。
+
+請使用以 `/v1` 結尾的基礎網址，而不是完整的 `/v1/chat/completions` 端點。例如，如果你的端點是 `http://192.168.1.18:18789/v1/chat/completions`，請輸入 `http://192.168.1.18:18789/v1`。
+
+若要從預設的 OpenClaw 設定檔讀取閘道權杖：
+
+```bash
+jq -r '.gateway.auth.token' ~/.openclaw/openclaw.json
+```
+
+Enconvo 會以下列形式傳送這個值：
+
+```http
+Authorization: Bearer <gateway-token>
+```
+
+輸入基礎網址和權杖後，按一下**驗證**。
+
+## 請求與附件的運作方式
+
+Enconvo 透過與 OpenAI 相容的 Chat Completions 向 OpenClaw 傳送請求：
+
+```http
+POST /v1/chat/completions
+```
+
+請使用 `openclaw:main`，或你的 OpenClaw 代理程式清單所列出的其他模型名稱。
+
+<Warning>
+  Enconvo 不會把圖片附件傳送給 OpenClaw。請把 OpenClaw 供應商視為 Enconvo 中的文字／聊天供應商。若有圖片相關的工作流程，請使用支援視覺的模型供應商，或先進行 OCR／圖片分析，再把文字傳送給 OpenClaw。
+</Warning>
+
+## 將 OpenClaw 當作 AI 模型使用
+
+設定完成後，OpenClaw 會出現在模型選擇器中。選擇 **OpenClaw**，並選取由代理程式支援的模型，例如 `openclaw:main`。
+
+當你希望 Enconvo 的對話、指令或功能透過 OpenClaw 代理程式執行，同時保留一般的 Enconvo 介面時，請使用這種模式。
+
+<Steps>
+  <Step title="開啟模型選擇器">
+    在聊天或其他由模型驅動的 Enconvo 功能中，按一下目前的模型名稱。
+  </Step>
+  <Step title="選擇 OpenClaw">
+    在供應商清單中選取 **OpenClaw**。
+  </Step>
+  <Step title="選取 OpenClaw 代理程式模型">
+    從模型清單中選擇 `openclaw:main` 或其他 OpenClaw 代理程式。
+  </Step>
+  <Step title="照常執行功能">
+    提出你的問題或執行 Enconvo 功能。所選的 OpenClaw 代理程式會在背後處理模型呼叫。
+  </Step>
+</Steps>
+
+Enconvo 會從 `openclaw agents list` 載入 OpenClaw 模型。如果本機沒有 OpenClaw CLI，Enconvo 會改用 `openclaw:main`。
+
+## 為 OpenClaw 建立代理程式
+
+你也可以建立一個負責協調 OpenClaw 代理程式的 Enconvo 代理程式。當你想為特定的 OpenClaw 代理程式再加上一層面向 Enconvo 的工作流程、工具組或提示詞時，這很有用。
+
+<Steps>
+  <Step title="開啟建立代理">
+    開啟 SmartBar 並搜尋**建立代理**。
+  </Step>
+  <Step title="為代理程式命名">
+    取一個清楚的標題，例如 `OpenClaw Main`。
+  </Step>
+  <Step title="撰寫協調指示">
+    為 Enconvo 代理程式撰寫指示，說明它應該如何與 OpenClaw 合作。
+
+    ```markdown
+    You coordinate the OpenClaw Main agent for the user.
+
+    Use OpenClaw for agentic work, automation, and tasks that should run through the user's OpenClaw setup.
+    Summarize what OpenClaw did, surface any blockers, and ask before destructive or irreversible actions.
+    ```
+  </Step>
+  <Step title="選擇 OpenClaw 模型">
+    在代理程式的模型設定中，選取 **OpenClaw** 並選擇 `openclaw:main`。
+  </Step>
+  <Step title="儲存並使用代理程式">
+    與新的 Enconvo 代理程式開始對話。它會使用所選的 OpenClaw 代理程式模型，同時保留 Enconvo 代理程式的介面和你設定的工具。
+  </Step>
+</Steps>
+
+## 疑難排解
+
+<AccordionGroup>
+  <Accordion title="模型選擇器中沒有出現 OpenClaw">
+    請確認 OpenClaw 供應商已在**設定 → AI 模型**中啟用。如果模型清單是空的，請確認 `openclaw agents list` 在本機可以執行，或直接使用預設的 `openclaw:main`。
+  </Accordion>
+  <Accordion title="驗證時出現未授權錯誤">
+    重新檢查閘道權杖。Enconvo 需要 `gateway.auth.token` 的值，並將它當作 Bearer 權杖傳送。
+  </Accordion>
+  <Accordion title="連線失敗">
+    用 `openclaw gateway status` 確認閘道正在執行。如果 Enconvo 在另一台裝置上，請將 `gateway.bind` 設為 `lan`，重新啟動閘道，並在基礎網址中使用主機的區域網路 IP。
+  </Accordion>
+  <Accordion title="啟動成功，但 Enconvo 短暫顯示需要注意">
+    OpenClaw 可能在 HTTP 閘道就緒之前就回報 LaunchAgent 已重新啟動。請等幾秒鐘後再看一次設定卡片的執行狀態標章。你也可以用 `openclaw gateway status` 和 `curl http://127.0.0.1:18789/health` 直接驗證。
+  </Accordion>
+  <Accordion title="閘道正在執行，但 `/v1/models` 失敗">
+    請確認 Enconvo 使用的權杖與 `~/.openclaw/openclaw.json` 中的 `gateway.auth.token` 相同。設定狀態仍然可以透過 `/health` 偵測到執行中的閘道，但模型驗證需要 Bearer 權杖。
+  </Accordion>
+  <Accordion title="圖片附件被忽略">
+    Enconvo 中的 OpenClaw 供應商目前僅支援文字。Enconvo 不會把圖片附件傳送給 OpenClaw；若要直接輸入圖片，請選擇支援視覺的供應商。
+  </Accordion>
+  <Accordion title="基礎網址錯誤">
+    請輸入 `http://<gateway-host>:<port>/v1`。不要在 Enconvo 的基礎網址欄位中加入 `/chat/completions`。
+  </Accordion>
+</AccordionGroup>
+
+## 相關內容
+
+<CardGroup cols={2}>
+  <Card title="Hermes Agent" icon="server" href="/zh-hant/providers/hermes">以同樣的方式連接另一個代理程式閘道。</Card>
+  <Card title="代理程式" icon="robot" href="/zh-hant/ai/agents">為代理程式提供指示和工具。</Card>
+</CardGroup>

@@ -1,0 +1,91 @@
+---
+title: "Associa il tuo telefono"
+description: "Associa l'app Enconvo per iPhone o Android a un Mac, a un PC Windows, a un desktop Linux o a un server Linux con solo un terminale."
+---
+
+L'app Enconvo sul tuo telefono si associa a ciascuno dei tuoi computer, così i loro progetti e le loro chat sono sul telefono. Una chat che apri dal telefono continua a essere eseguita su quel computer, con i suoi file, le sue app e i suoi agenti. Il telefono raggiunge il computer tramite il relay di Enconvo, e i messaggi sono cifrati end-to-end. Quando il telefono e il computer sono sulla stessa rete, l'app si connette direttamente, quindi si collega e risponde più velocemente a casa o in ufficio.
+
+Ogni computer si associa al telefono per conto proprio. Associare due computer tra loro (per esempio un portatile Linux con il tuo Mac) non aggiunge nessuno dei due al telefono: associa il telefono a ogni computer che vuoi usare da esso.
+
+## Prima di iniziare
+
+- **Scarica l'app.** iPhone: [TestFlight](https://testflight.apple.com/join/MJQuEN28). Android: Google Play, oppure l'APK. **Scarica l'app per smartphone** in **Impostazioni → Connessioni** sul tuo computer ha un codice di download per ciascuna; anche il pulsante **Scarica l'app per smartphone** del plugin Mobile Companion lo apre.
+- **Usa un solo account.** Accedi all'app del telefono e al computer con lo stesso account Enconvo. Solo i telefoni del tuo account possono associarsi. Anche un account gratuito può associarsi e usare dal telefono le chat del computer e lo Schermo remoto.
+- **Tieni il computer acceso e Enconvo in esecuzione.** Il telefono raggiunge un computer solo mentre Enconvo è in esecuzione lì.
+
+## Mac, Windows o un desktop Linux
+
+I passaggi sono gli stessi su tutti e tre.
+
+<Steps>
+  <Step title="Mostra il codice di abbinamento sul computer">
+    Fai clic sul selettore dei dispositivi in fondo alla barra laterale, poi su **Aggiungi un dispositivo → Abbina un telefono**. Oppure apri **Impostazioni → Connessioni** e seleziona **Mostra il codice di abbinamento**. Compare un codice QR. Funziona una sola volta e dura cinque minuti.
+  </Step>
+  <Step title="Inquadralo con il telefono">
+    Nell'app Enconvo, apri **Remoto**, tocca **Associa un computer** e punta la fotocamera sul codice. Puoi anche inquadrarlo con la Fotocamera dell'iPhone, con una fotocamera Android o con Google Lens: il codice apre Enconvo e lì confermi il computer. Se l'app non è ancora installata, il link del codice ti aiuta a installarla e poi ad associare.
+  </Step>
+  <Step title="Usa il computer dal telefono">
+    Il telefono si associa in un attimo e mostra il computer. Con più di un computer associato, passa da uno all'altro da **Remoto**.
+  </Step>
+</Steps>
+
+Se il codice scade, seleziona **Mostra un nuovo codice** e inquadralo di nuovo.
+
+## Un server Linux con solo un terminale
+
+Un server non ha una finestra per mostrare il codice, quindi lo stampa la riga di comando. Serve Enconvo 2.5.15 Beta 1 o successivo. Segui prima [Installare su un server](/it/getting-started/linux).
+
+<Steps>
+  <Step title="Fai accedere il server">
+    ```bash
+    enconvo login
+    ```
+    Approva il codice che stampa su `enconvo.com/device`.
+  </Step>
+  <Step title="Tieni Enconvo in esecuzione">
+    ```bash
+    enconvo service install
+    ```
+    Il telefono raggiunge il server solo mentre Enconvo è in esecuzione lì.
+  </Step>
+  <Step title="Stampa il codice di abbinamento">
+    ```bash
+    enconvo companion pair --phone
+    ```
+    Disegna un codice QR nel terminale, con un link sotto, e dice quando scade. Il codice funziona una sola volta e dura cinque minuti.
+  </Step>
+  <Step title="Inquadralo o apri il link">
+    Inquadra il codice con la fotocamera del telefono, oppure apri il link sul telefono. Conferma nell'app Enconvo e il server compare sul telefono.
+  </Step>
+</Steps>
+
+- **Via SSH**: il codice viene disegnato nel tuo terminale, quindi funziona anche via SSH. Se va a capo, allarga la finestra o apri invece il link.
+- **Accesso**: se digitato nel tuo terminale, il codice fa accedere anche l'app del telefono, quindi invialo solo al tuo telefono. Un output incanalato o salvato, o un comando eseguito da un agente, stampa solo il link, che non fa accedere l'app: accedi prima all'app con lo stesso account.
+- **Scaduto**: esegui di nuovo `enconvo companion pair --phone`.
+
+## Gestire i telefoni associati
+
+**Impostazioni → Connessioni** su ogni computer elenca i suoi telefoni associati.
+
+| Per | Fai così |
+|---|---|
+| Associare un altro telefono | Mostra un nuovo codice e inquadralo con quel telefono. Un computer può avere fino a 10 telefoni associati. |
+| Rinominare un telefono | Fai clic sul telefono, poi su **Rinomina telefono** accanto al suo nome. |
+| Rimuovere un telefono | Seleziona **Rimuovi** accanto ad esso. Quel telefono non può più raggiungere questo computer. |
+| Ricominciare da capo | Seleziona **Reimposta connessione**. Ogni telefono viene rimosso e deve associarsi di nuovo. |
+
+## Risoluzione dei problemi
+
+| Problema | Soluzione |
+|---|---|
+| Un computer non è sul telefono | Associa il telefono a quel computer direttamente. Associarlo a un altro computer non lo aggiunge. |
+| **Questo codice è scaduto** | Mostra un nuovo codice, o esegui di nuovo il comando, e inquadralo entro cinque minuti. |
+| **Accedi per abbinare un telefono** | Fai accedere il computer a Enconvo. Su un server, esegui `enconvo login`. |
+| Il server dice di non aver effettuato l'accesso | Esegui `enconvo login`, poi di nuovo `enconvo companion pair --phone`. |
+| Il telefono mostra il server come offline | Controlla che Enconvo sia in esecuzione lì: `enconvo service install`, e `sudo loginctl enable-linger "$USER"` se si ferma quando esci. |
+
+## Passaggi successivi
+
+- [App per iPhone](/it/integrations/iphone-app): cosa puoi fare dal tuo telefono, con un video tutorial.
+- [Linux (Beta)](/it/getting-started/linux): installa Enconvo su un desktop o su un server.
+- [I tuoi altri computer](/it/integrations/other-computers): associa i tuoi computer tra loro.

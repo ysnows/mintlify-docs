@@ -1,0 +1,521 @@
+---
+title: "Habilidades"
+description: "Enseña a los Agentes de Enconvo una tarea repetible con una habilidad: instrucciones, referencias y scripts opcionales en una sola carpeta."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Una habilidad agrupa instrucciones, recursos y scripts opcionales para que Enconvo pueda seguir un flujo de trabajo de forma fiable. Crea una cuando te encuentres explicando siempre el mismo procedimiento, como revisar código o dar formato a notas de reunión. Puedes compartir habilidades con tu equipo o con la comunidad.
+
+<Note>
+Las habilidades usan la **divulgación progresiva** para gestionar el contexto con eficiencia: Enconvo empieza con los metadatos de cada habilidad (nombre, descripción, ruta del archivo). Las instrucciones completas solo se cargan cuando se activa una habilidad.
+</Note>
+
+Este vídeo trata las Habilidades y después los Servidores MCP, los Plugins y la Extension Store.
+
+<YouTubePlayer videoId="eZeUgu54kQw" title="How to Use Skills, MCP and Plugins in Enconvo | Step-by-Step Tutorial" />
+
+## Gestiona tus habilidades
+
+Abre **Ajustes → Habilidades**. Todos los Agentes comparten estas habilidades, y cada Agente puede añadir las suyas en sus ajustes.
+
+- Las tarjetas de la parte superior cuentan **Todas las habilidades**, las que están **Activadas, nunca usadas**, las que están **En más de una carpeta** y las que están **Desactivado**. Haz clic en una tarjeta para listar solo esas.
+- Cada fila muestra **Dónde está** (integrada, o la carpeta o app de la que procede) y cuándo fue su **Último uso**. Desactiva las habilidades que tus Agentes no necesiten con el interruptor al final de la fila, o selecciona varias y desactívalas a la vez.
+- **Añadir desde GitHub** instala una habilidad desde un repositorio, e **Importar** añade una desde una carpeta de tu Mac. Consulta [Instalar habilidades](#instalar-habilidades).
+- **Tus skills** lista las habilidades que creaste, según su origen: **Grabado**, **Aprendido**, **Script**, **Escrita** o **Instalado**. Haz clic en una para ver sus **Pasos**, **Precauciones** e **Historial**. Consulta [Habilidades con pasos guardados](#habilidades-con-pasos-guardados).
+
+En la Ventana de chat, también puedes abrir las Habilidades directamente en la ventana desde **Plugins** en la barra de iconos.
+
+## Cómo es una habilidad
+
+Una habilidad es una carpeta con un archivo `SKILL.md`, además de scripts y referencias opcionales.
+
+```
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
+
+### Formato de SKILL.md
+
+`SKILL.md` debe empezar con un bloque de frontmatter que tenga un `name` y una `description`:
+
+```markdown
+---
+name: my-skill
+description: Explain exactly when this skill should and should not trigger.
+---
+
+Step-by-step instructions for EnConvo to follow.
+```
+
+<Tip>
+Enconvo elige una habilidad por su `description`, así que dale un alcance y unos límites claros. Indica **cuándo** usar la habilidad y **cuándo no**.
+</Tip>
+
+## Usa una habilidad
+
+Puedes llamar a una habilidad por su nombre, o dejar que Enconvo elija una que coincida con tu petición.
+
+### Llama a una habilidad por su nombre
+
+Escribe `/` seguido del nombre de la habilidad en SmartBar o en el chat:
+
+```
+/code-reviewer Review this function for security issues
+/meeting-notes Format these raw notes into a structured summary
+/api-checker Check the health of api.example.com
+```
+
+Es la forma más fiable: obtienes exactamente la habilidad que quieres. Para listar solo habilidades, escribe `$`.
+
+Las habilidades de los plugins que instalaste también están en los menús `/` y `$`, con el nombre `plugin:skill` como en Claude Code.
+
+### Deja que Enconvo elija
+
+Cuando no nombras una habilidad, Enconvo relaciona tu petición con la habilidad más relevante según su `description`:
+
+1. Escribes: "Resume estas notas de reunión en tareas pendientes"
+2. Enconvo recorre todas las descripciones de habilidades disponibles
+3. La habilidad `meeting-notes` coincide ("...da formato a transcripciones de reuniones en bruto como notas estructuradas con tareas pendientes...")
+4. La habilidad se activa y sus instrucciones guían la respuesta
+
+La coincidencia se basa en el significado, no solo en palabras clave compartidas, así que una petición redactada de otra forma que la descripción, o escrita en otro idioma, también encuentra la habilidad. Para asegurarte de que un Agente siempre vea una habilidad, fíjala en los ajustes de **Herramientas y habilidades** del Agente; consulta [Agentes](/es/ai/agents).
+
+### Escribe descripciones que coincidan bien
+
+Una buena coincidencia depende de una `description` bien escrita:
+
+| Calidad | Ejemplo |
+|---------|---------|
+| **Demasiado vaga** | "Ayuda con código" |
+| **Demasiado amplia** | "Hace cualquier cosa relacionada con la programación" |
+| **Buena** | "Revisa código en busca de errores, problemas de seguridad y buenas prácticas. Úsala cuando el usuario pida una revisión de código o quiera mejorar su calidad. No la uses para generar código ni para escribir código nuevo." |
+
+Una buena descripción tiene tres partes:
+
+- **Qué hace**: "Revisa código en busca de errores, problemas de seguridad y buenas prácticas"
+- **Cuándo activarla**: "Úsala cuando el usuario pida una revisión de código"
+- **Cuándo no activarla**: "No la uses para generar código ni para escribir código nuevo"
+
+## Dónde viven las habilidades
+
+Enconvo lee habilidades de varios lugares, cada uno con su propio alcance:
+
+| Alcance | Ubicación | Úsalo para |
+|-------|----------|------------|
+| **Proyecto** | `$PROJECT/.agents/skills/` (también `.enconvo/skills/`, `.claude/skills/` y `.codex/skills/`) | Habilidades para un proyecto o espacio de trabajo |
+| **Usuario** | `~/.agents/skills/` (también `~/.enconvo/skills/`, `~/.claude/skills/` y `~/.codex/skills/`) | Habilidades personales para todos tus proyectos |
+| **Sistema** | Incluidas con Enconvo | Habilidades integradas disponibles para todos |
+
+Cada Agente también puede llevar sus propias habilidades: añádelas en **Habilidades** en los ajustes del Agente.
+
+Si dos habilidades en ubicaciones distintas comparten nombre, ambas siguen disponibles; Enconvo no las fusiona. **Ajustes → Habilidades** lista estas habilidades en **En más de una carpeta**.
+
+### Habilidades de proyecto
+
+Las habilidades de proyecto viven dentro de la carpeta de tu proyecto y solo están disponibles cuando ese proyecto está activo:
+
+```
+my-project/
+├── .agents/
+│   └── skills/
+│       ├── deploy-checklist/
+│       │   └── SKILL.md
+│       └── pr-template/
+│           └── SKILL.md
+├── src/
+└── package.json
+```
+
+Úsalas para habilidades que dependen de las convenciones, la estructura de archivos o las herramientas de un proyecto.
+
+### Habilidades de usuario
+
+Las habilidades de usuario en `~/.agents/skills/` están disponibles en todos los proyectos. Úsalas para habilidades personales que no pertenecen a un solo proyecto:
+
+```
+~/.agents/skills/
+├── email-composer/
+│   └── SKILL.md
+├── meeting-notes/
+│   └── SKILL.md
+└── code-reviewer/
+    └── SKILL.md
+```
+
+## Crea una habilidad
+
+### Con el creador de habilidades
+
+La forma más rápida de crear una habilidad es el creador integrado:
+
+```
+/skill-creator
+```
+
+El creador te guía por:
+
+1. Qué hace la habilidad
+2. Cuándo debe activarse
+3. Si debe ser solo de instrucciones o incluir scripts
+
+Solo instrucciones es la opción predeterminada y la recomendada. Añade scripts únicamente cuando necesites un comportamiento determinista o herramientas externas.
+
+### A mano
+
+Crea una carpeta con un archivo `SKILL.md`:
+
+<Steps>
+  <Step title="Crea el directorio de la habilidad">
+    ```bash
+    mkdir -p ~/.agents/skills/my-skill
+    ```
+  </Step>
+  <Step title="Escribe SKILL.md">
+    ```bash
+    cat > ~/.agents/skills/my-skill/SKILL.md << 'EOF'
+    ---
+    name: my-skill
+    description: Summarize selected text into bullet points. Use when the user asks for a summary or key takeaways. Do not use for translation or rewriting tasks.
+    ---
+
+    ## Instructions
+
+    1. Read the selected text from the user's input.
+    2. Identify the 3-5 most important points.
+    3. Return a bullet-point summary.
+    4. Keep each bullet under 20 words.
+    EOF
+    ```
+  </Step>
+  <Step title="Comprueba que aparece">
+    Enconvo detecta los cambios en las habilidades automáticamente. Si la habilidad nueva no aparece, reinicia Enconvo.
+  </Step>
+</Steps>
+
+### Escribe las instrucciones
+
+El cuerpo de `SKILL.md`, debajo del frontmatter, contiene las instrucciones que sigue la IA. Escríbelas como pasos claros e imperativos:
+
+````markdown
+---
+name: changelog-generator
+description: Generate a changelog from git commits. Use when the user asks to create a changelog, release notes, or commit summary. Do not use for general git operations.
+---
+
+## Instructions
+
+1. Read the git log for the specified date range or number of commits.
+2. Group commits by category:
+   - **Features**: New functionality (commits starting with "feat:")
+   - **Fixes**: Bug fixes (commits starting with "fix:")
+   - **Breaking Changes**: Changes that break backward compatibility
+   - **Other**: Everything else
+3. For each commit, write a user-facing description (not the raw commit message).
+4. Format as markdown with version header, date, and categorized bullet points.
+5. Highlight breaking changes with a warning callout.
+
+## Output Format
+
+```
+## v1.2.0 (2024-01-15)
+
+### Features
+- Added dark mode support for all pages
+- New export to PDF option in reports
+
+### Fixes
+- Fixed login timeout on slow connections
+- Resolved duplicate notification issue
+
+### Breaking Changes
+⚠️ API endpoint `/v1/users` now requires authentication
+```
+````
+
+### Consejos para buenas habilidades
+
+- **Mantén cada habilidad enfocada.** Una habilidad hace un solo trabajo. Una habilidad que hace demasiadas cosas es más difícil de activar correctamente y de mantener. Si estás escribiendo 10 o más pasos que cubren varias tareas, divídela en habilidades separadas.
+- **Sé concreto con las entradas.** Indica exactamente de dónde viene la entrada: "Lee el texto seleccionado", "Analiza el archivo adjunto", "Usa la URL del mensaje del usuario".
+- **Define el formato de salida.** Incluye un ejemplo concreto del aspecto que debe tener el resultado, para que los resultados sean coherentes.
+- **Contempla los casos límite.** Añade instrucciones para los casos límite habituales: "Si no se encuentra ningún commit, indica que el rango está vacío" o "Si la entrada no es un JSON válido, pide al usuario que revise el formato".
+- **Escribe pasos imperativos.** Sé explícito con las entradas, los pasos y los resultados esperados. Las instrucciones vagas producen resultados incoherentes.
+- **Prefiere instrucciones a scripts.** Las instrucciones en lenguaje natural son más fáciles de escribir, depurar y cambiar. Usa scripts solo cuando necesites un comportamiento determinista o herramientas externas.
+- **Usa límites claros.** En la descripción, indica tanto lo que la habilidad debe tratar como lo que no.
+- **Prueba tus descripciones de activación.** Prueba distintos prompts para confirmar que la habilidad se activa, y no se activa, cuando debe.
+- **Versiona tus habilidades.** Guarda las habilidades compartidas por el equipo en control de versiones (git), para poder seguir los cambios, revertirlos y colaborar.
+
+## Añade scripts
+
+Para habilidades que necesitan lógica ejecutable, añade una carpeta `scripts/`:
+
+```
+my-skill/
+├── SKILL.md
+└── scripts/
+    └── fetch_data.sh
+```
+
+Haz referencia a los scripts en tu `SKILL.md`:
+
+````markdown
+---
+name: api-checker
+description: Check API endpoint health and response times.
+---
+
+## Instructions
+
+1. Run the health check script:
+   ```bash
+   bash scripts/fetch_data.sh $URL
+   ```
+2. Parse the JSON output.
+3. Report status, response time, and any errors.
+````
+
+### Cuándo usar scripts
+
+| Usa scripts cuando | Usa solo instrucciones cuando |
+|-----------------|---------------------------|
+| Necesitas una salida determinista (formatos exactos, cálculos) | La tarea trata sobre todo de razonamiento y lenguaje |
+| Interactúas con APIs externas o bases de datos | La tarea usa solo las capacidades integradas de la IA |
+| Necesitas procesar o transformar datos mediante programación | La tarea trata de escribir, resumir o analizar |
+| Necesitas autenticación o gestión de credenciales | Las instrucciones por sí solas bastan |
+
+## Añade referencias
+
+Incluye archivos de documentación o de contexto que la habilidad pueda consultar:
+
+```
+my-skill/
+├── SKILL.md
+├── references/
+│   ├── api-docs.md
+│   └── examples.md
+└── scripts/
+    └── run.sh
+```
+
+Haz referencia a ellos en las instrucciones:
+
+```markdown
+Consult `references/api-docs.md` for the API schema before making requests.
+```
+
+Las referencias son útiles para:
+
+- Documentación de API que la habilidad debe seguir
+- Guías de estilo o directrices de marca
+- Ejemplos de código y plantillas
+- Conocimiento específico de un ámbito
+
+## Instalar habilidades
+
+Usa `/skill-installer` para instalar una habilidad desde la tienda de habilidades de Enconvo o desde GitHub. También puede instalar desde Skills.sh, ClawHub y URL directas de ZIP.
+
+### Desde la tienda de habilidades de Enconvo
+
+Busca una habilidad por nombre e instálala:
+
+```
+/skill-installer pdf
+```
+
+Esto busca en la tienda de habilidades de Enconvo e instala la habilidad que coincide. Enconvo detecta automáticamente las habilidades recién instaladas.
+
+### Desde GitHub
+
+Instala una habilidad directamente desde la URL de un repositorio de GitHub:
+
+```
+/skill-installer https://github.com/anthropics/skills/tree/main/skills/pptx
+```
+
+La URL puede apuntar a una subcarpeta, así que puedes instalar una habilidad de un repositorio más grande sin clonarlo entero.
+
+### Desde una carpeta de tu Mac
+
+1. Abre **Ajustes → Habilidades** y haz clic en **Importar**.
+2. Elige una carpeta que contenga subcarpetas de habilidades, cada una con un `SKILL.md`.
+
+Enconvo añade la carpeta a los lugares de los que lee habilidades, y todos los Agentes comparten sus habilidades. Para dejar de usar la carpeta, elígela en el menú de fuentes y después **Quitar carpeta**. La carpeta en sí permanece en el disco.
+
+## Habilidades con pasos guardados
+
+Cada Flujo de trabajo guardado es también una habilidad con su propio `SKILL.md`, y una habilidad puede conservar los pasos de una tarea que ya hizo. Cuando ejecutas una habilidad así, sus pasos guardados se ejecutan primero, sin el modelo principal, lo que es más rápido y barato. Un paso que ya no encaja, como un botón que se movió, se repara a partir de las notas y capturas de pantalla de la propia habilidad. Solo cuando eso falla, un Agente hace la tarea a partir de `SKILL.md`.
+
+En **Tus skills**, una habilidad marcada con **Ejecuta primero sus pasos guardados** tiene pasos; una marcada con **Solo instrucciones** no. El **Historial** de cada habilidad muestra cómo fueron sus ejecuciones y qué aprendió, y puedes restaurar una versión anterior.
+
+### Convierte una grabación en una habilidad
+
+Puedes convertir la grabación de una tarea que hiciste en una habilidad. Cada acción grabada se convierte en un paso comprobado, y su captura de pantalla se conserva para las reparaciones. La habilidad sigue siendo un **Borrador** hasta que una ejecución suya funcione.
+
+### Ejecuta un script como paso
+
+Una habilidad puede guardar un script de [Code Mode](/es/configuration/code-mode) en su propia carpeta `scripts` y ejecutarlo como uno de sus pasos, de modo que una tarea que hace muchas llamadas a herramientas se ejecute como un solo paso.
+
+## Deja que las habilidades aprendan cómo trabajas
+
+Las habilidades pueden aprender cómo te gusta que se hagan las tareas, igual que las Memorias aprenden hechos. Abre **Ajustes → Memoria** y activa **Aprender cómo hacer las cosas**:
+
+- Cuando corriges cómo se hizo una tarea, o un paso tuvo que repararse, la habilidad lo aprende al instante. El chat muestra una nota **Aprendido** con **Deshacer**.
+- Cuando una tarea surge por segunda vez, se convierte en una habilidad nueva.
+- La Revisión de la Memoria y la Limpieza de la Memoria también se ocupan de las habilidades.
+
+En **Al cambiar pasos**, elige **Usar enseguida**, o **Preguntarme antes** para que un cambio en los pasos de una habilidad espere a que hagas clic en **Aplicar** en su nota. Las precauciones se incorporan al instante en ambos casos. Los pagos, los envíos y las eliminaciones siempre te preguntan antes, y las claves y contraseñas nunca se aprenden.
+
+## Gestiona las habilidades
+
+### Consulta tus habilidades
+
+**Ajustes → Habilidades** lista las habilidades que comparten todos los Agentes. Elige una vista en la parte superior:
+
+| Vista | Muestra |
+| --- | --- |
+| **Todas las habilidades** | Cada habilidad una vez, aunque varias carpetas tengan una copia |
+| **Activadas, nunca usadas** | Habilidades que se ofrecen a los Agentes en cada chat, pero que no han usado |
+| **En más de una carpeta** | Habilidades con una copia en más de una carpeta, por ejemplo para Claude Code y Codex |
+| **Desactivado** | Habilidades que los Agentes no reciben |
+
+Busca, filtra por fuente (**Todas las fuentes**, **Integrado**, **De plugins** o una carpeta), u ordena por **Nombre de la A a la Z** o **Último uso**.
+
+### Actualiza habilidades
+
+- **Habilidades de la tienda**: ejecuta `/skill-installer` de nuevo para buscar una versión más reciente.
+- **Habilidades de GitHub**: ejecuta el instalador de nuevo con la misma URL.
+- **Tus propias habilidades**: edita directamente el archivo `SKILL.md`. Enconvo detecta el cambio automáticamente.
+
+### Desactiva una habilidad
+
+Puedes desactivar una habilidad sin eliminarla:
+
+1. Abre **Ajustes → Habilidades**.
+2. Busca la habilidad.
+3. Desactiva su interruptor.
+
+Los Agentes no pueden usar una habilidad desactivada, ni por nombre ni por coincidencia, hasta que la vuelvas a activar. Un perfil de app que fije la habilidad aún puede usarla.
+
+## Habilidades de ejemplo
+
+### Revisor de código
+
+```markdown
+---
+name: code-reviewer
+description: Review code for bugs, security issues, and best practices. Use when the user asks for a code review or wants to improve code quality. Do not use for code generation or writing new code.
+---
+
+## Instructions
+
+1. Read the provided code carefully.
+2. Check for:
+   - Logic errors and edge cases
+   - Security vulnerabilities (injection, XSS, etc.)
+   - Performance issues
+   - Code style and readability
+3. Provide feedback as a numbered list.
+4. For each issue, include:
+   - Severity (Critical / Warning / Suggestion)
+   - Line reference
+   - Explanation and fix
+```
+
+### Notas de reunión
+
+```markdown
+---
+name: meeting-notes
+description: Format raw meeting transcripts into structured notes with action items. Use when the user provides meeting notes, transcripts, or asks to organize meeting content. Do not use for scheduling or calendar tasks.
+---
+
+## Instructions
+
+1. Parse the meeting transcript or raw notes.
+2. Extract and organize into sections:
+   - **Attendees**: List all participants
+   - **Key Decisions**: Bullet-point decisions made
+   - **Discussion Summary**: 3-5 sentence overview
+   - **Action Items**: Table with Owner, Task, Deadline
+3. Use markdown formatting for readability.
+```
+
+### Mensaje de commit de Git
+
+````markdown
+---
+name: commit-message
+description: Generate conventional commit messages from staged changes. Use when the user asks for a commit message or wants to commit changes. Do not use for general git operations like branching or merging.
+---
+
+## Instructions
+
+1. Read the staged diff (use `git diff --staged`).
+2. Identify the type of change:
+   - feat: New feature
+   - fix: Bug fix
+   - docs: Documentation
+   - refactor: Code restructuring
+   - test: Adding tests
+   - chore: Maintenance
+3. Write a commit message following Conventional Commits format:
+   ```
+   type(scope): concise description
+
+   - Detail 1
+   - Detail 2
+   ```
+4. Keep the subject line under 72 characters.
+5. Include a body only if the change needs explanation.
+````
+
+### Generador de documentación de API
+
+````markdown
+---
+name: api-docs
+description: Generate API documentation from source code. Use when the user asks to document an API, endpoint, or function. Do not use for general code documentation or README files.
+---
+
+## Instructions
+
+1. Read the source code file(s) provided.
+2. For each endpoint or public function, document:
+   - **Method & Path** (for HTTP) or **Signature** (for functions)
+   - **Description**: What it does in one sentence
+   - **Parameters**: Name, type, required/optional, description
+   - **Response**: Structure and example
+   - **Errors**: Possible error codes and meanings
+3. Format as markdown with code examples.
+4. Include a curl example for each HTTP endpoint.
+
+## Output Format
+
+### `POST /api/users`
+
+Create a new user account.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| name | string | Yes | Display name |
+
+**Response (201):**
+```json
+{ "id": "usr_123", "email": "user@example.com", "name": "John" }
+```
+````
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/es/ai/agents">Da a un Agente sus propias habilidades y herramientas.</Card>
+  <Card title="Integración con MCP" icon="plug" href="/es/features/mcp">Combina habilidades con herramientas MCP.</Card>
+  <Card title="Enconvo en GitHub" icon="github" href="https://github.com/enconvo">Explora extensiones y habilidades de código abierto.</Card>
+  <Card title="Discord de la comunidad" icon="discord" href="https://discord.gg/jYsdVRRK2k">Comparte habilidades y recibe ayuda de la comunidad.</Card>
+</CardGroup>

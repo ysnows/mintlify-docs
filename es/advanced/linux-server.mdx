@@ -1,0 +1,159 @@
+---
+title: "Configura Enconvo en un servidor Linux"
+description: "Elige los modelos, agentes y plugins de un Enconvo que se ejecuta en un servidor Linux: en su interfaz web, desde su línea de comandos o con la sincronización desde tu Mac."
+---
+
+Esta página es para ti si tu Mac añadió un servidor Linux en **Ajustes → Conexiones** e instaló Enconvo allí. El servidor ejecuta Enconvo sin pantalla, y tu Mac abre sus chats pero no sus ajustes. Puedes configurar el servidor de tres formas: en su interfaz web, desde su línea de comandos o sincronizando con él la configuración de tu Mac.
+
+## Qué comparte tu Mac con el servidor
+
+El emparejamiento permite que tu Mac use los chats, agentes y archivos del servidor. No comparte los ajustes. El servidor mantiene sus propios modelos, agentes, plugins y claves de API, y no los copia de tu Mac.
+
+- Los ajustes y las claves de API no se abren desde tu Mac. Los cambias en el servidor.
+- De fábrica, los agentes del servidor usan el modelo predeterminado. En una instalación nueva es Enconvo Cloud, con la cuenta con la que se ha iniciado sesión en el servidor, así que sus chats usan tus puntos de Cloud.
+- Para cambiar rápidamente el modelo de un agente, usa el selector de modelo en un chat del servidor en tu Mac. Define el modelo, el esfuerzo de razonamiento y la velocidad de ese agente en el servidor. Un proveedor que necesita una clave de API necesita antes esa clave en el servidor.
+
+## Abre la interfaz web del servidor
+
+El servidor puede servir la Ventana de chat y los Ajustes como un sitio web, de modo que puedes usar los Ajustes en el navegador de tu Mac. La instalación desde tu Mac no la activa. Actívala una vez por SSH.
+
+<Steps>
+  <Step title="Activa la interfaz web">
+    Conéctate al servidor con `ssh` y ejecuta:
+
+    ```bash
+    enconvo service install --web 127.0.0.1:54580
+    ```
+
+    Esto reescribe el servicio de Enconvo con la interfaz web activada y lo reinicia. Escucha solo en `127.0.0.1`, así que nada fuera del servidor puede acceder a ella. Cuando vuelves a ejecutar `enconvo service install`, el servicio funciona solo con las opciones de la última ejecución.
+  </Step>
+  <Step title="Abre un túnel desde tu Mac">
+    En Terminal en tu Mac, usa el mismo nombre de host que usas con `ssh`:
+
+    ```bash
+    ssh -N -L 54580:127.0.0.1:54580 my-server
+    ```
+
+    Déjalo en ejecución mientras uses la interfaz web. Pulsa Control-C para cerrarlo.
+  </Step>
+  <Step title="Abre la interfaz web">
+    Abre `http://127.0.0.1:54580` en el navegador de tu Mac. Los Ajustes funcionan como en tu Mac: elige modelos en **Ajustes → Modelo de IA**, añade plugins en **Ajustes → Plugins** e introduce también allí las claves de API.
+  </Step>
+</Steps>
+
+`enconvo service url` en el servidor imprime la dirección de la interfaz web.
+
+### Accede sin túnel
+
+Para abrir la interfaz web desde otros ordenadores sin SSH, enlázala a la red:
+
+```bash
+enconvo service install --web 0.0.0.0:54580
+```
+
+La interfaz web necesita entonces un token de conexión. Ejecuta `enconvo service url` para imprimir la dirección con él, que termina en `?tkn=`. Abre ese enlace una vez y tu navegador conserva el token. Detrás de un proxy inverso, añade `--web-url https://enconvo.example.com` con la dirección que sirve el proxy, o `--web-host <name>` para otro nombre con el que se accede al servidor. Ambos necesitan también el token.
+
+<Warning>
+  El token da a quien lo tenga tu cuenta de Enconvo en el servidor y todos los archivos que su usuario pueda leer. Mantén el enlace en privado, mantén el puerto detrás de un cortafuegos o una VPN y prefiere el túnel SSH. Para reemplazar el token, elimina `~/.config/enconvo/.support/windows-shell/web-token` en el servidor y ejecuta `systemctl --user restart enconvo`.
+</Warning>
+
+## Configura desde la línea de comandos
+
+Las rutas de todos los plugins instalados son comandos `enconvo` en el servidor: `enconvo <plugin> <route> --flags`, o `--input-json` para toda la petición. Añade `-h` en cualquier nivel para ver lo que hay:
+
+```bash
+enconvo -h
+enconvo config -h
+enconvo config set -h
+```
+
+Pon entre comillas las claves que contienen `|`, como `'agent|main'`. Sin comillas, el shell interpreta `|` como una tubería.
+
+### Modelos
+
+Enumera los proveedores de modelos del servidor. El `commandKey` de cada uno, como `llm|enconvo_ai`, es el valor que debes definir:
+
+```bash
+enconvo llm list_providers
+```
+
+Define el modelo predeterminado, que usan todos los agentes configurados con el predeterminado:
+
+```bash
+enconvo config get llm --includes selected
+enconvo config set --preferenceKey llm --keys selected --value 'llm|<provider id>'
+```
+
+Define el modelo de un agente. El agente principal es `agent|main`; `enconvo agent list` muestra el `command_key` de los demás:
+
+```bash
+enconvo config get 'agent|main' --includes llm
+enconvo config set --preferenceKey 'agent|main' --keys llm --value 'llm|<provider id>'
+```
+
+Define el valor como `default` para volver a seguir el modelo predeterminado. `enconvo config preferences 'agent|main'` enumera todos los ajustes que tiene un agente.
+
+Para deshacer un solo ajuste, nómbralo:
+
+```bash
+enconvo config reset 'agent|main' --keys llm
+```
+
+<Warning>
+  `enconvo config reset` sin `--keys` restablece todos los ajustes de esa clave y, en el caso de un agente o un comando, también elimina sus datos del espacio de trabajo. No se puede deshacer.
+</Warning>
+
+`config get` muestra las claves de API y los tokens guardados como `[hidden]`. Introduce las claves de API en los Ajustes de la interfaz web en lugar de con `config set`, para que no queden en el historial de tu shell.
+
+### Plugins
+
+```bash
+enconvo plugin list
+enconvo plugin install owner/repo
+enconvo plugin uninstall <name>
+```
+
+`plugin install` acepta un `owner/repo` de GitHub, una URL de git, un enlace `https` a un `.zip`, `npm:<package>`, una carpeta o `<plugin>@<marketplace>`. Los plugins que necesitan una pantalla se ocultan en un servidor.
+
+### Agentes
+
+```bash
+enconvo agent list
+enconvo agent create -h
+```
+
+`enconvo agent -h` enumera el resto, como eliminar o pausar un agente.
+
+## Usa la configuración de tu Mac con la sincronización
+
+La sincronización copia los ajustes de tu Mac al servidor a través de tu cuenta de Enconvo. Forma parte de los planes de Enconvo Cloud y de las licencias de por vida.
+
+1. En tu Mac, abre **Ajustes → Sincronización**, activa **Sincronizar entre ordenadores** y elige **Cuenta de Enconvo** en **Almacenamiento**. Un servidor Linux no puede acceder a iCloud.
+2. En la interfaz web del servidor, abre **Ajustes → Sincronización** y activa **Sincronizar entre ordenadores**.
+3. En **Qué se sincroniza**, elige qué traer en ambos ordenadores, como **Ajustes**, **Plugins** y **Habilidades**.
+4. Para traer también tus claves de API, activa **Claves de API** en ambos. Está desactivado por defecto. Tu Mac muestra entonces un código: comprueba que el servidor muestra el mismo y haz clic en **Permitir**.
+
+Lo que pertenece a un solo ordenador se queda allí: atajos de teclado, rutas de carpetas y carpetas de trabajo, inicios de sesión, Tareas programadas y bots de mensajería. Consulta [Sincroniza tus Mac](/es/configuration/account) para ver qué cubre cada opción.
+
+## Solución de problemas
+
+| Problema | Qué hacer |
+| --- | --- |
+| `enconvo: command not found` | Abre una sesión SSH nueva. La instalación añade la carpeta de Enconvo a `PATH` en el perfil de tu shell, que una sesión abierta antes de la instalación no ha leído. |
+| `enconvo service url` no imprime ninguna dirección | Enconvo no se está ejecutando, o se ejecuta sin la interfaz web. Vuelve a ejecutar `enconvo service install --web 127.0.0.1:54580`. |
+| El navegador no puede abrir `127.0.0.1:54580` | Comprueba que el túnel sigue abierto y luego comprueba el servicio con `systemctl --user status enconvo` y su registro con `journalctl --user -u enconvo`. |
+| La interfaz web pide su token de conexión | Abre el enlace completo que imprime `enconvo service url`, con `?tkn=` al final. |
+| `service install` dice que Enconvo ya se está ejecutando para este usuario | Tu Mac inició Enconvo como un proceso en segundo plano, lo que hace cuando el servidor no mantiene los servicios de usuario en ejecución tras cerrar sesión. Ejecuta `sudo loginctl enable-linger $USER`, vuelve a ejecutar `enconvo service install --web 127.0.0.1:54580` y reinicia el servidor para que el servicio tome el relevo. |
+| `service install` dice que systemd no está disponible | Ejecuta `enconvo --headless --web 127.0.0.1:54580` con tu propio gestor de procesos. |
+| Los chats usan un modelo distinto al de tu Mac | El servidor tiene sus propios modelos. Comprueba `enconvo config get llm --includes selected`, o activa la sincronización. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="CLI y Local API" icon="terminal" href="/es/advanced/cli-local-api">
+    Ejecuta los comandos de Enconvo desde Terminal y scripts
+  </Card>
+  <Card title="Cuenta y sincronización" icon="rotate" href="/es/configuration/account">
+    Mantén los mismos ajustes en todos los ordenadores
+  </Card>
+</CardGroup>

@@ -1,0 +1,108 @@
+---
+title: "Agentes de código"
+description: "Converse com o Claude Code, o Codex, o Grok Build, o Antigravity, o Muse Code e o Grok Bot dentro do Enconvo e escolha que funcionalidades do Enconvo podem utilizar."
+---
+
+Os agentes de código são as ferramentas de programação com IA que já utiliza, como o Claude Code e o Codex, executadas dentro das conversas do Enconvo. Utilize um quando o trabalho for código numa pasta de projeto: edita ficheiros com diffs, executa comandos e pergunta antes de agir, enquanto o Enconvo guarda a conversa, o respetivo histórico e as aprovações na Janela de chat, na SmartBar e no seu telemóvel.
+
+| Agente de código | Criado por | Executa |
+| --- | --- | --- |
+| **Claude Code** | Anthropic | No seu Mac, com sessão iniciada no Claude |
+| **Codex** | OpenAI | No seu Mac, com sessão iniciada no ChatGPT |
+| **Grok Build** | xAI | No seu Mac, com sessão iniciada no Grok |
+| **Antigravity** | Google | No seu Mac, com sessão iniciada no Google |
+| **Muse Code** | Meta | No seu Mac, com sessão iniciada na Meta, ou no respetivo modelo local |
+| **Grok Bot** | xAI | Na nuvem da xAI, através de uma rotina que liga |
+
+## Antes de começar
+
+Cada agente de código tem a sua própria página em **Definições → Lista de agentes**. Clique nele para ver o respetivo **Estado**:
+
+1. Se mostrar **Não instalado**, clique em **Instalar**, ou execute o comando apresentado no Terminal e clique em **Verificar novamente**. Uma versão demasiado antiga mostra **Atualizar**.
+2. Em **Conta**, clique em **Iniciar sessão com o Claude**, **Iniciar sessão com o ChatGPT**, **Iniciar sessão com o Grok**, **Iniciar sessão com o Google** ou **Iniciar sessão com a Meta**. O Enconvo utiliza o mesmo início de sessão que a linha de comandos do próprio agente no Terminal.
+
+Quando o início de sessão do Claude Code ou do Codex termina nos próximos dez dias, a página do agente, a lista **Atualizações** e o Quadro de um Projeto avisam-no, com **Iniciar sessão novamente**. Uma tarefa do Quadro cujo agente de código tenha a sessão terminada fica **Em espera** e volta a ser executada assim que iniciar sessão.
+
+O Muse Code a funcionar no seu modelo local não precisa de início de sessão na Meta. O Grok Bot precisa antes de uma rotina; consulte [Ligar o Grok Bot](#ligar-o-grok-bot).
+
+## Conversar com um agente de código
+
+1. Na Janela de chat, escolha o agente de código nos cartões de Agente ou no menu Agente.
+2. Escolha a pasta do projeto em que ele trabalha.
+3. Escreva o seu pedido e envie. Os passos, os diffs e os comandos do agente surgem em direto na conversa, e as perguntas de aprovação aparecem como cartões para responder.
+
+As aprovações da conversa seguem o [Modo de permissões](/pt/ai/agents) do Enconvo. Em **Acesso total**, uma nova conversa do Claude Code começa em **Ignorar permissões** (onde as definições do próprio Claude Code o permitirem) e uma nova conversa do Codex em **Acesso total**, pelo que nenhum pergunta antes de agir.
+
+Numa conversa de worktree, o separador **Pull request** do painel lateral (**⌃⇧P**) mostra o pull request do ramo no GitHub, ou cria um. Consulte [Janela de chat](/pt/ai/chat).
+
+Para retomar uma sessão anterior, escolha **Retomar uma sessão anterior**. As sessões que iniciou na linha de comandos do próprio agente também aparecem listadas, com os nomes que lhes deu.
+
+Também pode entregar a um agente de código uma conversa que iniciou com o Mavis, continuando-a numa nova conversa com ele. Outros Agentes podem utilizar agentes de código como subagentes, e um Projeto pode atribuir-lhes tarefas ou pedir a um deles que o lidere. Consulte [Subagentes](/pt/ai/agents) e [Projetos](/pt/ai/projects).
+
+### Claude Code: esforço, modo rápido e Ultracode
+
+O seletor de esforço numa conversa do Claude Code define o respetivo esforço de raciocínio. Quando a sessão o permite, o seletor mostra também o **Modo rápido** e um interruptor **Ultracode**. O Ultracode ativa a orquestração de fluxos de trabalho durante o resto da sessão, com o esforço que escolher, e mantém-se ativo quando muda o esforço. Escrever `/effort ultracode` faz o mesmo. Numa nova conversa, pode definir o modo rápido e o Ultracode antes da primeira mensagem.
+
+### Codex: avisos
+
+Os avisos do Codex ficam fora da conversa. Escreva `/warnings` para os listar.
+
+### Muse Code: continuar no Terminal
+
+Para continuar uma conversa do Muse Code no Terminal, escolha **Continuar no Terminal** ou **Copiar comando** para o copiar. A conversa abre com `muse resume` na respetiva pasta. Quando sair do Muse Code aí e voltar a enviar a partir do Enconvo, os turnos que executou no Terminal regressam à conversa.
+
+As perguntas de aprovação do Muse Code mostram a alteração que uma edição faria. Quando recusa um passo, o que escrever com **Recusar** segue para o Muse Code no mesmo turno, para que possa agir de imediato. As respetivas skills e o `/compact` estão no menu `/`.
+
+<Note>
+O modo Contribuidor do Muse Code está ativo por predefinição, o que permite à Meta treinar os seus modelos com os seus pedidos e código. O Enconvo deixa-o como está; desative-o nas definições do próprio Muse Code.
+</Note>
+
+## Escolher o que um agente de código pode utilizar no Enconvo
+
+Os agentes de código podem utilizar os plugins do Enconvo nas respetivas conversas, como enviar mensagens aos seus Agentes do Enconvo, criar imagens e vídeos, memória, o navegador e a Utilização do computador. Na página do agente em **Definições → Lista de agentes**, em **Funcionalidades do Enconvo**:
+
+- Desative **Funcionalidades do Enconvo** para manter esse agente afastado de todos os plugins do Enconvo.
+- Ou clique em **Personalizar** junto de **Plugins** e desative um plugin de cada vez. Um plugin desativado fica oculto para esse agente e as respetivas chamadas são recusadas.
+
+A alteração aplica-se também às conversas abertas do agente. As conversas de agentes de código no Espaço de trabalho de um cliente ficam inteiramente dentro desse Espaço de trabalho.
+
+## Ligar o Grok Bot
+
+O Grok Bot funciona na nuvem da xAI. O Enconvo envia cada mensagem para uma rotina de Webhook que cria no Grok Bot e mostra a resposta na conversa, mesmo quando chega tarde.
+
+1. No Grok Bot, crie uma rotina com um acionador Webhook.
+2. Abra o **Grok Bot** em **Definições → Lista de agentes**, clique em **Copiar** junto de **Instruções de rotina** e cole-as na rotina.
+3. Adicione o URL do webhook e a chave da rotina como credencial na mesma página e clique em **Testar**. O teste aguarda a resposta da rotina durante cerca de 90 segundos, no máximo.
+
+Enquanto a rotina não estiver ligada, o seletor de agentes mostra o Grok Bot como **Não configurado**. Cada mensagem utiliza a utilização semanal do seu plano do Grok Bot. **Parar** só faz o Enconvo deixar de esperar: a execução da rotina continua na nuvem, e uma resposta que chegue mais tarde é, ainda assim, adicionada à conversa.
+
+Uma mensagem pode ter até 32 000 carateres. Os ficheiros e as imagens anexados ficam no seu Mac; só o texto é enviado.
+
+### Deixar o Grok Bot chamar o Enconvo
+
+Com o servidor MCP do Enconvo, o Grok Bot pode responder às suas conversas, notificar o seu Mac e os seus telemóveis emparelhados e pedir a um Agente no seu Mac que execute uma tarefa.
+
+1. Na página do Grok Bot, em **Grok Bot a chamar o Enconvo**, clique em **Ligar**. Tem de ter sessão iniciada na sua conta do Enconvo.
+2. No Grok Bot, abra **Plugins**, adicione o **URL do servidor** apresentado e inicie sessão com a sua conta do Enconvo quando o Grok Bot o pedir.
+
+Cada pedido a um Agente no seu Mac aguarda a sua aprovação, a menos que ative **Permitir sempre ask_mac**. Os pedidos ficam listados na conversa **Grok Bot neste Mac**. Clique em **Desligar** para impedir o Grok Bot de chamar o Enconvo; desligar, ou o seu Mac ficar offline, retira um pedido ainda em espera.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Uma conversa diz que o agente não tem sessão iniciada | Abra a página do agente em **Definições → Lista de agentes** e clique em **Iniciar sessão novamente**. Uma conversa do Mavis ou uma app que tenha chamado o agente recebe o mesmo erro de início de sessão, e as respetivas tarefas do Quadro ficam **Em espera** até iniciar sessão. |
+| O agente mostra **Não instalado** ou uma versão demasiado antiga | Clique em **Instalar** ou **Atualizar** na respetiva página e, depois, em **Verificar novamente**. |
+| O Muse Code diz que o Enconvo precisa de uma atualização | Atualize o Enconvo para funcionar com o Muse Code mais recente. |
+| O Grok Bot mostra **Não configurado** | Adicione o URL do webhook e a chave da rotina na página do Grok Bot e clique em **Testar**. |
+| O teste do Grok Bot diz que há demasiadas mensagens | A rotina ou o Enconvo está a recusar demasiadas mensagens por agora. Tente novamente mais tarde. |
+| Uma conversa do Muse Code aberta no Terminal não envia | Saia do Muse Code no Terminal para trazer de volta os respetivos turnos e, depois, envie a partir do Enconvo. |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">Subagentes, funções e aprovações.</Card>
+  <Card title="Projetos" icon="folder" href="/pt/ai/projects">Atribua tarefas de código a uma equipa numa só pasta.</Card>
+  <Card title="Janela de chat" icon="comments" href="/pt/ai/chat">Inicie, oriente e organize conversas.</Card>
+  <Card title="Ganchos" icon="anchor" href="/pt/configuration/hooks">Execute os seus próprios comandos quando um Agente age.</Card>
+</CardGroup>

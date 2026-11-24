@@ -1,0 +1,440 @@
+---
+title: "Хуки"
+description: "Автоматично виконуйте команду оболонки або надсилайте вебхук, коли Агент починає роботу, використовує інструмент чи завершує."
+---
+
+Хуки виконують команду оболонки або надсилають HTTP-запит, коли в Enconvo щось відбувається, наприклад агент починає роботу, завершується, зазнає невдачі чи використовує інструмент. Ви налаштовуєте їх у файлі JSON, тож можна додавати сповіщення, журнали, локальну автоматизацію чи інтеграції без створення розширення.
+
+<Note>
+Більшість хуків працюють за принципом «запустив і забув»: вони виконуються у фоні й не блокують Enconvo. Винятки під час запусків агентів — `PreToolUse`, `Stop` і `SubagentStop`. Агент чекає на них, тож вони можуть заблокувати виклик інструмента або повернути агента до роботи. Див. [Блокувальні хуки](#блокувальні-хуки).
+</Note>
+
+## Швидкий старт
+
+<Steps>
+  <Step title="Створіть папку для хуків">
+    ```bash
+    mkdir -p ~/.enconvo
+    ```
+  </Step>
+
+  <Step title="Створіть ~/.enconvo/hooks.json">
+    ```json
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "echo 'Agent status changed' >> /tmp/enconvo-hooks.log"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Запустіть агента">
+    Запустіть будь-якого агента чи команду чату. Коли його статус змінюється, Enconvo виконує
+    налаштовану команду й додає рядок до `/tmp/enconvo-hooks.log`.
+  </Step>
+</Steps>
+
+## Файл конфігурації
+
+Хуки зберігаються в:
+
+```text
+~/.enconvo/hooks.json
+```
+
+Enconvo також читає застарілий файл `~/.config/enconvo/hooks.json`, коли нового файлу немає. Якщо існують обидва файли, перевагу має `~/.enconvo/hooks.json`.
+
+Файл читається знову щоразу, коли спрацьовує подія, тож хуки можна редагувати, поки Enconvo працює. Перезапуск не потрібен.
+
+## Керування хуками в Параметрах
+
+Відкрийте **Параметри → Хуки**, щоб побачити хуки з `~/.enconvo/hooks.json`, згруповані за подією. Вмикайте й вимикайте запис його перемикачем або натисніть **Відкрити hooks.json**, щоб редагувати файл. Вимкнення чи ввімкнення запису записує `enabled: false` або `enabled: true` у цей запис, не змінюючи його команду чи вебхук.
+
+## Хуки з плагінів
+
+Плагіни Claude Code і Codex, як-от context-mode, можуть приносити власні хуки. Щойно ви їх дозволите, вони працюють так, як у Claude Code: на початку чату, навколо кожного повідомлення, виклику інструмента й ущільнення, а також коли відповідь зазнає невдачі чи Агент завершує роботу.
+
+1. Встановіть плагін із **Плагіни** або дайте Агентові в чаті репозиторій GitHub, адресу Git, zip чи пакет npm плагіна. Він запропонує картку Інсталяції плагіна.
+2. Позначте **Дозволити запуск хуків** перед інсталяцією. Плагін, встановлений без цього, показує, що його хуки вимкнено; натисніть на ньому **Дозволити хуки** пізніше, щоб їх увімкнути.
+
+Якщо оновлення плагіна змінює його хуки, вони перестають виконуватися, доки ви не перевірите їх і не дозволите знову. Хуки, які Enconvo не може виконати, перелічено на картці як невиконувані в Enconvo.
+
+## Як працюють хуки
+
+Коли спрацьовує подія, Enconvo:
+
+1. Завантажує `~/.enconvo/hooks.json`.
+2. Звертається до `~/.config/enconvo/hooks.json` лише тоді, коли нового файлу немає.
+3. Знаходить записи в об’єкті `hooks` верхнього рівня, ключ яких збігається з назвою події.
+4. Застосовує необов’язковий регулярний вираз `matcher`.
+5. Пропускає записи, де `enabled` дорівнює `false`.
+6. Виконує всі налаштовані хуки одночасно.
+
+Назви подій хуків відповідають набору життєвого циклу Claude Code і Codex: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop` і `SubagentStop`. Старі назви подій Enconvo та старий пласкій формат JSON і далі працюють для наявних встановлень, але нові записи використовують обгорнутий формат у стилі Codex.
+
+## Довідник конфігурації
+
+```json
+{
+  "hooks": {
+    "event_name": [
+      {
+        "matcher": "optional_regex_filter",
+        "enabled": true,
+        "hooks": [
+          { "type": "command", "command": "..." },
+          { "type": "http", "url": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| Поле | Тип | Обов’язкове | Опис |
+|-------|------|----------|-------------|
+| `hooks` | object | Так | Карта подій, ключ — назва події. |
+| `event_name` | string | Так | Подія, яку слухати. Використовуйте її як ключ усередині `hooks`. |
+| `matcher` | string | Ні | Фільтр регулярним виразом. Для подій інструментів він порівнюється з `toolName`, `toolTitle` або `path`; для інших подій — з назвою події хука. |
+| `enabled` | boolean | Ні | Установіть `false`, щоб залишити запис у конфігурації, але пропускати його виконання. Типово `true`. |
+| `hooks` | array | Так | Хуки команд і HTTP, які слід виконати. |
+
+### Хук команди
+
+Хук команди виконує команду оболонки. Enconvo записує корисне навантаження події в stdin команди як JSON.
+
+```json
+{
+  "type": "command",
+  "command": "bash ~/.enconvo/hooks/on-status-change.sh",
+  "timeout": 30000
+}
+```
+
+| Поле | Тип | Типово | Опис |
+|-------|------|---------|-------------|
+| `type` | `"command"` | - | Обов’язковий тип хука. |
+| `command` | string | - | Команда оболонки для виконання. |
+| `timeout` | number | `30000` | Тайм-аут у мілісекундах. |
+
+### HTTP-хук
+
+HTTP-хук надсилає корисне навантаження події як тіло запиту JSON.
+
+```json
+{
+  "type": "http",
+  "url": "https://example.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer your-token"
+  },
+  "timeout": 30000
+}
+```
+
+| Поле | Тип | Типово | Опис |
+|-------|------|---------|-------------|
+| `type` | `"http"` | - | Обов’язковий тип хука. |
+| `url` | string | - | URL-адреса кінцевої точки HTTP. |
+| `method` | string | `"POST"` | Метод HTTP. |
+| `headers` | object | `{}` | Додаткові заголовки запиту. |
+| `timeout` | number | `30000` | Тайм-аут у мілісекундах. |
+
+## Блокувальні хуки
+
+Під час запуску агента чи бота три події виконуються як блокувальні хуки. Агент чекає на кожен відповідний хук (вони виконуються паралельно), перш ніж продовжити, і читає їхній результат так само, як Claude Code і Codex.
+
+| Подія | Коли | Що може зробити хук |
+|-------|------|----------------------|
+| `PreToolUse` | Безпосередньо перед виконанням виклику інструмента. `matcher` перевіряється за назвою інструмента, заголовком і шляхом маршруту. | Заблокувати виклик або переписати його ввід. |
+| `Stop` | Безпосередньо перед тим, як агент завершує свій хід відповіддю. | Повернути агента до роботи з інструкцією. |
+| `SubagentStop` | Безпосередньо перед тим, як субагент завершує роботу. | Повернути субагента до роботи з інструкцією. |
+
+Хук ухвалює рішення одним із двох способів:
+
+- **Код виходу 2** блокує. Текст, який команда записує в stderr, є причиною.
+- **Код виходу 0 із JSON у stdout.** Будь-який інший вивід, код виходу, помилка чи тайм-аут нічого не вирішують, і запуск триває так, ніби хука не було.
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Writing outside the project is not allowed."
+  }
+}
+```
+
+| Вивід JSON | Ефект |
+|-------------|--------|
+| `hookSpecificOutput.permissionDecision: "deny"` | `PreToolUse`: виклик не виконується. Модель бачить `permissionDecisionReason` як результат інструмента й може обрати інший шлях. |
+| `hookSpecificOutput.permissionDecision: "ask"` | Розглядається як `deny`. В Enconvo ще немає запиту підтвердження для хуків. |
+| `hookSpecificOutput.permissionDecision: "allow"` | `PreToolUse`: виклик виконується. |
+| `hookSpecificOutput.updatedInput` | `PreToolUse`: виклик виконується з цим вводом замість ввода моделі. |
+| `{ "decision": "block", "reason": "..." }` | `Stop` / `SubagentStop`: агент продовжує працювати, а `reason` стає його наступною інструкцією. На `PreToolUse` він блокує виклик. |
+| `{ "decision": "approve" }` | Те саме, що `allow`. |
+
+HTTP-хуки вирішують відповіддю 2xx, тіло якої є тим самим JSON.
+
+Коли збігається кілька хуків, deny перемагає ask, який перемагає allow. Причини об’єднуються, а використовується останній `updatedInput`.
+
+Хук `Stop` може повернути агента найбільше 5 разів за один хід. Під час другої та наступних перевірок `stop_hook_active` дорівнює `true`, тож хук може дозволити агентові зупинитися, коли його інструкцію виконано. Блокування `Stop` застосовується лише тоді, коли агент завершує роботу нормально; невдалий чи зупинений запуск усе одно викликає `Stop` у фоні.
+
+<Tip>
+Агент чекає на блокувальні хуки, тож повільний хук `PreToolUse` сповільнює кожен виклик інструмента, а повільний хук `Stop` затримує завершення ходу. Робіть їх швидкими, задайте короткий `timeout` або виконуйте повільну роботу у фоні (`command &`).
+</Tip>
+
+Блокувальні хуки отримують звичайне [корисне навантаження події](#корисне-навантаження-події) плюс поля Claude Code на верхньому рівні:
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "Qx2...",
+  "cwd": "/Users/you/project",
+  "tool_name": "bash",
+  "tool_input": { "command": "rm -rf build" },
+  "tool_use_id": "call_1",
+  "event": "PreToolUse",
+  "sourceEvent": "agent_tool_step_changed",
+  "params": { "toolName": "bash", "status": "running", "sessionId": "Qx2..." },
+  "timestamp": 1742313600000
+}
+```
+
+`Stop` і `SubagentStop` отримують `stop_hook_active` та `last_assistant_message` замість полів інструмента. Хуки команд виконуються в робочому каталозі агента.
+
+### Заблокуйте небезпечну команду
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/guard.sh
+COMMAND=$(jq -r '.tool_input.command // empty')
+if echo "$COMMAND" | grep -q 'rm -rf /'; then
+  echo "Deleting from the filesystem root is not allowed." >&2
+  exit 2
+fi
+```
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [{ "type": "command", "command": "bash ~/.enconvo/hooks/guard.sh", "timeout": 5000 }]
+      }
+    ]
+  }
+}
+```
+
+### Змусьте агента запустити тести перед завершенням
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/require-tests.sh
+[ "$(jq -r '.stop_hook_active')" = "true" ] && exit 0
+echo '{"decision":"block","reason":"Run the test suite and fix any failures before you finish."}'
+```
+
+## Корисне навантаження події
+
+Хуки команд отримують цей JSON у stdin. HTTP-хуки отримують той самий JSON як тіло запиту.
+
+```json
+{
+  "event": "UserPromptSubmit",
+  "fullEvent": "event-UserPromptSubmit",
+  "sourceEvent": "run_status_changed",
+  "sourceFullEvent": "event-run_status_changed",
+  "params": {
+    "commandKey": "agent|main",
+    "runStatus": "running"
+  },
+  "timestamp": 1742313600000
+}
+```
+
+| Поле | Опис |
+|-------|-------------|
+| `event` | Коротка назва події. |
+| `fullEvent` | Внутрішня назва події з префіксом `event-`. |
+| `sourceEvent` | Початкова подія Enconvo, що породила цю подію хука, коли подію зіставлено для сумісності з Codex. |
+| `sourceFullEvent` | Початкова внутрішня назва події з префіксом `event-`. |
+| `params` | Корисне навантаження, специфічне для події. |
+| `timestamp` | Мітка часу Unix у мілісекундах. |
+
+Фонові хуки отримують також поля Claude Code: `hook_event_name`, `session_id`, коли вона є в події, а для подій інструментів — `tool_name`, `tool_input` і `tool_use_id`.
+
+## Доступні події
+
+| Подія | Параметри | Коли |
+|-------|--------|------|
+| `SessionStart` | `{ command, commandKey }` | Створюється новий сеанс чату. |
+| `UserPromptSubmit` | `{ commandKey, runStatus, status?, sessionId? }` | Запуск агента, чату чи бота починається з вводу користувача. |
+| `PreToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Починається виклик інструмента. Блокувальний під час запусків агентів. |
+| `PermissionRequest` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Виклик інструмента переходить у стан дозволу чи відмови. |
+| `PostToolUse` | `{ toolCallId, toolName, toolTitle?, status, sessionId?, commandKey? }` | Виклик інструмента завершується успішно, невдало, повністю або його відхилено. |
+| `Stop` | `{ commandKey, runStatus, status?, sessionId? }` | Запуск агента, чату чи бота досягає кінцевого статусу. Блокувальний, коли агент завершує роботу нормально. |
+| `SubagentStop` | `{ commandKey, runStatus, status?, sessionId? }` | Субагент ось-ось завершить роботу. Блокувальний. Субагенти не викликають `Stop`. |
+
+Застарілі назви Enconvo, як-от `run_status_changed` і `agent_tool_step_changed`, і далі працюють, тож наявні файли хуків не потрібно одразу мігрувати.
+
+## Рецепти
+
+### Сповіщення macOS, коли агент зазнає невдачі
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STATUS=$(cat | jq -r '.params.runStatus // .params.status') && [ \"$STATUS\" = \"failed\" ] && osascript -e 'display notification \"An agent failed\" with title \"EnConvo\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Журнал змін статусу агента
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{time: (.timestamp / 1000 | strftime(\"%Y-%m-%d %H:%M:%S\")), agent: .params.commandKey, status: (.params.runStatus // .params.status)}' >> ~/.enconvo/agent-status.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Журнал викликів інструментів агента
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.params | \"\\(.status) \\(.toolName) \\(.toolCallId)\"' >> ~/.enconvo/agent-tools.log"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Надсилання в Slack
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Власний скрипт
+
+Створіть скрипт, що читає корисне навантаження події зі stdin:
+
+```bash
+#!/bin/bash
+# ~/.enconvo/hooks/on-status-change.sh
+INPUT=$(cat)
+STATUS=$(echo "$INPUT" | jq -r '.params.runStatus // .params.status')
+AGENT=$(echo "$INPUT" | jq -r '.params.commandKey')
+
+echo "[$(date)] $AGENT -> $STATUS" >> /tmp/enconvo-hooks.log
+
+if [ "$STATUS" = "failed" ]; then
+  osascript -e "display notification \"$AGENT failed\" with title \"EnConvo\""
+fi
+```
+
+Послайтеся на нього з `~/.enconvo/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.enconvo/hooks/on-status-change.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Зробіть скрипт виконуваним:
+
+```bash
+chmod +x ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Усунення несправностей
+
+| Проблема | Що робити |
+| --- | --- |
+| Хук не спрацював | Переконайтеся, що `~/.enconvo/hooks.json` є коректним JSON, що ключ верхнього рівня збігається з назвою події і що команда працює, коли ви запускаєте її самі. Якщо у вас ще є `~/.config/enconvo/hooks.json`, його ігнорують, поки існує новий файл. |
+| Ви не впевнені, чи хуки блокують Enconvo | Блокують лише `PreToolUse`, `Stop` і `SubagentStop`, під час запусків агентів. Кожен інший хук працює за принципом «запустив і забув». Якщо будь-який хук зазнає невдачі чи перевищує тайм-аут, Enconvo записує збій у журнал і продовжує так, ніби хука не було. |
+| Хуки плагіна не спрацьовують | Відкрийте плагін і натисніть **Дозволити хуки**. Після оновлення, що їх змінило, перевірте їх і дозвольте знову. |
+| Команда не знаходить скрипт чи виконуваний файл | Використовуйте абсолютні шляхи. Розгортання `~` оболонкою працює, коли команда виконується через оболонку, але абсолютні шляхи легше налагоджувати. |
+
+### Перевірте скрипт вручну
+
+Передайте зразок корисного навантаження в скрипт через конвеєр:
+
+```bash
+echo '{"event":"Stop","params":{"commandKey":"agent|main","runStatus":"failed"},"timestamp":1742313600000}' | bash ~/.enconvo/hooks/on-status-change.sh
+```
+
+## Пов’язане
+
+<CardGroup cols={2}>
+  <Card title="Агенти" icon="robot" href="/uk/ai/agents">
+    Дізнайтеся про агентів Enconvo та власних ботів
+  </Card>
+  <Card title="Довідник API розширень" icon="code" href="/extensions/extension-api-reference">
+    Створюйте розширення, що випромінюють події або слухають їх
+  </Card>
+</CardGroup>

@@ -1,0 +1,82 @@
+---
+title: "Solución de problemas"
+description: "Resuelve problemas habituales con las respuestas, los atajos, la voz, los permisos y las integraciones, y envía diagnósticos cuando no avances."
+---
+
+Busca tu problema a continuación y prueba la solución de la columna derecha. La mayoría de los problemas se deben a un proveedor sin conectar, a un permiso de macOS que falta o a una copia antigua de la app. Si nada de esto ayuda, [envía diagnósticos](#enviar-diagnósticos) y pregunta en Discord.
+
+## Prueba esto primero
+
+1. **Cierra y vuelve a abrir Enconvo.** Elige **Salir** en el icono de Enconvo de la barra de menús y después abre Enconvo desde **Aplicaciones**.
+2. **Actualiza.** Elige **Buscar actualizaciones** en el icono de la barra de menús, o haz clic en **Buscar actualizaciones** en **Ajustes → General → Actualizaciones**.
+3. **Revisa el modelo.** Abre **Ajustes → Modelo de IA** y comprueba que el proveedor que usas esté conectado. Si no estás seguro, inicia sesión en tu cuenta de Enconvo y usa [Auto Route](/es/providers/auto-route).
+4. **Revisa los permisos.** Abre **Ajustes → Permisos** y activa lo que necesita la función. Consulta [Permisos](/es/configuration/permissions).
+
+## Respuestas y modelos
+
+| Problema | Qué hacer |
+| --- | --- |
+| No hay respuesta, o un error sobre el proveedor | Abre el proveedor en **Ajustes → Modelo de IA** y haz clic en **Validar**. Para un inicio de sesión con un plan, abre el menú de la tarjeta de la cuenta y haz clic en **Volver a conectar**. |
+| Un error sobre límites, cuota o puntos | Revisa la página de uso del proveedor, o **Ajustes → Consumo de puntos** para Enconvo Cloud. Cambia por ahora a otro proveedor. |
+| Todos los proveedores en la nube fallan | Revisa tu conexión a internet. Si estás detrás de un proxy, revisa **Usar las preferencias de proxy de red del sistema** en **Proxy de red** dentro de **Ajustes → General**. Con esa opción activada, las solicitudes a modelos, las descargas web y los Conectores pasan por el proxy del sistema, y un cambio de proxy surte efecto sin reiniciar Enconvo. Los servidores de tu Mac y de la red local, como LM Studio y Ollama, se siguen alcanzando directamente. |
+| Un modelo dice que no está disponible en tu país o región | Activa **Usar las preferencias de proxy de red del sistema** para que las solicitudes de Enconvo pasen por tu proxy. |
+| Las respuestas son lentas | Elige un modelo más pequeño o más rápido, adjunta menos contexto o reduce el esfuerzo de razonamiento. Los modelos locales se ralentizan con entradas largas. |
+| Un modelo falla y los demás funcionan | El problema está en ese modelo o proveedor. Elige otro modelo en el selector de modelos del chat. |
+| Ollama o LM Studio no se conecta | Comprueba que el servidor esté en marcha y que **BaseUrl** coincida con su dirección, y después haz clic en **Actualizar** junto a **Nombre del modelo**. Consulta [Ollama](/es/providers/ollama) o [LM Studio](/es/providers/lm-studio). |
+
+## Atajos y ventanas
+
+| Problema | Qué hacer |
+| --- | --- |
+| Un atajo no hace nada | Puede que otra app use las mismas teclas, como Spotlight, Raycast o Alfred. Cambia uno de ellos en **Ajustes → Atajo**. |
+| Los atajos dejaron de funcionar tras una actualización | Cierra y vuelve a abrir Enconvo. Si no ayuda, desactiva y vuelve a activar Accesibilidad para Enconvo en Ajustes del Sistema. |
+| No encuentras la app | Haz clic en el icono de Enconvo en la barra de menús o en el Dock, o pulsa **⌥Space** para abrir SmartBar. |
+| La tecla de SmartBar o de la Ventana de chat que recuerdas no hace nada | Los valores predeterminados son **⌥Space** para SmartBar y **⌃⌘X** para la Ventana de chat. Revisa **Ajustes → Atajo**. |
+
+## Texto seleccionado y pantalla
+
+| Problema | Qué hacer |
+| --- | --- |
+| PopBar no aparece, o Enconvo no puede leer el texto seleccionado | Activa Accesibilidad para Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Accesibilidad**. Si ya está activada, desactívala, espera dos segundos, vuelve a activarla y abre Enconvo de nuevo. Los campos seguros y algunos editores personalizados no comparten su texto. |
+| Fallan las capturas de pantalla, el OCR o el contexto de pantalla | Activa Enconvo en **Ajustes del Sistema → Privacidad y seguridad → Grabación de pantalla y audio del sistema** y abre Enconvo de nuevo. |
+| Un permiso está activado pero no tiene efecto tras una actualización | Quita Enconvo de esa lista en Ajustes del Sistema con **−**, añádelo de nuevo y abre Enconvo otra vez. |
+| Una función dejó de pedir un permiso | Puede que hayas marcado **No volver a preguntar**. **Ajustes → Permisos** muestra la lista **Usado por** de cada permiso; concédelo ahí. |
+
+## Voz y audio
+
+| Problema | Qué hacer |
+| --- | --- |
+| El Dictado no oye nada | Revisa el permiso de Micrófono y el micrófono seleccionado en **Ajustes → Dictado**. |
+| El Dictado se equivoca o es lento | Prueba otro modelo de voz en **Ajustes → Modelos de dictado**. Añade nombres y términos en **Ajustes → Diccionario**. |
+| Leer en voz alta no suena | Revisa el volumen y el dispositivo de salida de tu Mac. Prueba **Sistema** en **Ajustes → Texto a voz**; no necesita clave y funciona sin conexión. |
+
+Consulta [Dictado](/es/features/dictation) y [Reconocimiento de voz](/es/ai/speech-recognition) para más información.
+
+## Base de conocimientos
+
+| Problema | Qué hacer |
+| --- | --- |
+| Los documentos no terminan de indexarse | Revisa el proveedor de incrustaciones en **Ajustes → Base de conocimientos** y que el tipo de archivo sea compatible. |
+| Las búsquedas no encuentran nada | Comprueba que la base de conocimientos esté adjunta al chat. Baja el umbral de puntuación o aumenta el número de resultados en los ajustes de la base de conocimientos. |
+| Una base de conocimientos grande es lenta | Divídela en bases de conocimientos más pequeñas por tema. |
+
+Consulta [Base de conocimientos](/es/ai/knowledge-base) y [Ajustes de la Base de conocimientos](/es/advanced/knowledge-base-advanced).
+
+## Navegador, apps y plugins
+
+| Problema | Qué hacer |
+| --- | --- |
+| Enconvo no puede controlar tu navegador | Instala la extensión Enconvo Companion desde **Ajustes → Uso del navegador** y reinicia el navegador. Consulta [Extensión del navegador](/es/features/browser-extension). |
+| Un Agente no puede usar tus apps | Activa los permisos que pide **Ajustes → Uso del ordenador**. Consulta [Uso del ordenador](/es/features/computer-use). |
+| Falla un comando de un plugin | Abre **Ajustes → Plugins**, revisa los ajustes y las credenciales del plugin y actualiza Enconvo. |
+| Falla el comando de un Agente con un error de permisos | Puede que el Sandbox del Agente lo haya detenido. Consulta [Sandbox del Agente](/es/configuration/sandbox). |
+
+## Enviar diagnósticos
+
+Cuando Enconvo se congela, se cierra de forma inesperada o sigue funcionando mal, envía registros de diagnóstico al equipo de Enconvo. Elige **Enviar diagnóstico…** en el icono de la barra de menús, o abre **Ajustes → Diagnóstico**. Enconvo elimina los datos personales, como nombres de archivo, direcciones de correo, claves y el texto de tus prompts, antes de que algo salga de tu Mac, y te muestra exactamente qué se envió. Consulta [Privacidad y seguridad](/es/configuration/privacy-security).
+
+## Obtener ayuda
+
+- Pregunta en [Discord](https://discord.gg/jYsdVRRK2k). Incluye tu versión de Enconvo (**Ajustes → Acerca de**), tu versión de macOS, lo que hiciste y lo que pasó.
+- Informa de un problema o sugiere una función con **Enviar comentarios** en el menú de la barra de menús.
+- Consulta las [preguntas frecuentes](/es/faq) para respuestas rápidas.

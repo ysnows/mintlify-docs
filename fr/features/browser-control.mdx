@@ -1,0 +1,112 @@
+---
+title: "Utilisation du navigateur"
+description: "Laissez un Agent lire et agir dans les onglets de votre vrai navigateur, avec les connexions que votre navigateur possède déjà."
+---
+
+L’Utilisation du navigateur permet à un Agent de travailler dans les onglets du navigateur où l’extension Enconvo Companion est connectée. Il peut lire une page, cliquer sur des commandes, remplir des champs, vérifier le résultat et gérer les onglets, le tout avec les connexions que votre navigateur possède déjà. Utilisez-la quand une tâche nécessite un site sur lequel vous êtes connecté.
+
+## Configuration
+
+<Steps>
+  <Step title="Installer l’extension">
+    Installez [Enconvo Companion depuis le Chrome Web Store](https://chromewebstore.google.com/detail/enconvo-companion/afaklbihknigbnjdkegbnenkheogejkd) dans un navigateur Chromium pris en charge, ou cliquez sur **Installer le compagnon de navigateur** dans **Réglages → Utilisation du navigateur**. Pour les autres navigateurs, utilisez le paquet d’extension conçu pour ce navigateur.
+  </Step>
+  <Step title="Laisser les deux ouverts">
+    Gardez Enconvo et le navigateur ouverts.
+  </Step>
+  <Step title="Vérifier la connexion">
+    Cliquez sur l’icône de l’extension. La fenêtre contextuelle affiche **Connecté** et le nom du navigateur.
+  </Step>
+  <Step title="Vérifier l’accès">
+    Assurez-vous que l’Agent que vous allez utiliser dispose des outils de navigateur, et approuvez chaque site web pour lequel l’extension vous demande une autorisation.
+  </Step>
+  <Step title="Essayer une tâche en lecture seule">
+    Commencez par une demande qui ne modifie rien, par exemple « Lis cette page et résume les points principaux. »
+  </Step>
+</Steps>
+
+Safari n’utilise pas l’extension Chromium. Dans Safari, [l’Utilisation de l’ordinateur](/fr/features/computer-use) clique et saisit du texte à l’écran à la place, si bien que tous les navigateurs ne permettent pas les mêmes actions. Consultez [Extensions de navigateur](/fr/features/browser-extension) pour la fenêtre contextuelle, les navigateurs connectés, le ciblage des onglets et les autorisations de sites web.
+
+## Travailler dans un onglet précis
+
+Indiquez le navigateur et la page dans votre demande :
+
+> Dans Edge, lis l’onglet de documentation actuel et liste les trois étapes de configuration. Laisse la page ouverte.
+
+L’Agent lit la page, choisit un élément, agit, puis vérifie ce qui a changé. Les éléments d’une page peuvent changer après une navigation ou une mise à jour en direct. Si l’Agent perd un élément, demandez-lui de regarder à nouveau la page.
+
+Pendant que l’Agent travaille dans un onglet que vous ne voyez pas, une fenêtre [Picture-in-Picture](/fr/features/picture-in-picture) l’affiche en direct dans un coin de l’écran. Cliquez dessus pour aller à l’onglet et reprendre la main.
+
+## À la fin de la tâche
+
+Les onglets qu’un Agent ouvre se ferment à la fin de son tour. Ceux-ci restent ouverts :
+
+- une page que l’Agent vous remet comme résultat
+- un onglet qu’il vous a confié
+- un onglet que vous avez épinglé
+- l’onglet que vous regardez
+
+Vos propres onglets ne sont jamais fermés.
+
+## Ce qu’il peut faire
+
+| Domaine | Exemples |
+| --- | --- |
+| Navigation | Ouvrir une URL, revenir en arrière ou avancer, recharger, attendre une condition |
+| Lecture | État de la page, texte visible, attributs, captures d’écran, contenu sélectionné |
+| Interaction | Cliquer, saisir, remplir, sélectionner, appuyer sur des touches, faire défiler, glisser |
+| Organisation du navigateur | Voir et gérer les onglets, les fenêtres et les sessions connectées |
+| Outils avancés | Évaluation de page, cookies, stockage, historique et inspection propre à chaque navigateur |
+
+### Capturer une page entière
+
+Demandez à l’agent de capturer une page web entière, par exemple « Enregistre une capture d’écran de toute cette page sur mon Bureau. » Il enregistre un fichier PNG à l’endroit demandé, à la résolution propre de la page et sans le curseur de l’agent.
+
+### Connexions et vérifications humaines
+
+Lorsqu’une tâche arrive sur la page de connexion d’un site, une carte vous demande une seule fois le nom d’utilisateur et le mot de passe. Enconvo les saisit sur ce site uniquement, et l’agent ne voit jamais le mot de passe ; consultez [Identifiants](/fr/configuration/credentials). Lorsqu’une page affiche une vérification humaine, l’agent peut vous confier l’onglet. Connectez-vous ou résolvez la vérification dans cet onglet, puis cliquez sur **Rendre à l’agent** pour le lui rendre.
+
+Ce qui fonctionne dépend du navigateur, de la page, de la version de l’extension et des outils que vous avez activés. Les pages du navigateur comme `chrome://` et d’autres contenus restreints peuvent être hors de portée.
+
+<Warning>
+L’Utilisation du navigateur agit sur vos vrais comptes. Précisez si une tâche doit seulement préparer un brouillon ou aussi l’envoyer.
+</Warning>
+
+## Réglages
+
+| Réglage | Emplacement | Ce qu’il modifie |
+| --- | --- | --- |
+| **Default Browser** | **Réglages → Utilisation du navigateur**, puis **Réglages** dans le menu **⋯** | Le navigateur utilisé par les tâches lorsque vous n’en nommez aucun. **Auto (System Default)** suit le navigateur par défaut de votre Mac. |
+| **Extensions de navigateur** | **Réglages → Utilisation du navigateur** | Liste les navigateurs qui ont l’extension, chacun **Connecté** ou **Déconnecté**. |
+| **Picture-in-Picture Window** | **Réglages → Utilisation du navigateur** | Quand une vue en direct de l’onglet de l’Agent s’affiche dans un coin de l’écran : **Toujours** (par défaut), **Only When I Am Needed** ou **Désactivé**. Consultez [Picture in Picture](/fr/features/picture-in-picture). |
+
+Vous pouvez aussi nommer un navigateur dans la tâche elle-même.
+
+Pour les développeurs, la route `browser-use/status` de la Local API indique l’état de la connexion, et **Réglages → API** liste les routes installées et leurs schémas.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Pas de connexion | Vérifiez que l’extension est activée et qu’Enconvo est en cours d’exécution, puis regardez la fenêtre contextuelle. L’extension se connecte à Enconvo sur ce Mac par le port 11225. |
+| Mauvais navigateur ou mauvais onglet | Nommez le navigateur et la page, puis demandez à l’agent de regarder à nouveau la page. |
+| Un clic ou un remplissage échoue | Regardez la page dans son état actuel. Une boîte de dialogue, une navigation ou un cadre intégré a peut-être déplacé la cible. |
+| La capture d’écran est vide | Mettez l’onglet au premier plan et attendez le chargement de la page. |
+| Le site web vous demande de vous connecter | Connectez-vous au site comme d’habitude. Être connecté au navigateur ne signifie pas que la session de chaque site est encore valide. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Extensions de navigateur" icon="puzzle-piece" href="/fr/features/browser-extension">
+    La fenêtre contextuelle, les navigateurs connectés et la sécurité des sites web.
+  </Card>
+  <Card title="Utilisation de l’ordinateur" icon="computer-mouse" href="/fr/features/computer-use">
+    Apps Mac natives, boîtes de dialogue de fichiers et commandes du bureau.
+  </Card>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">
+    Choisissez les outils qu’un Agent peut utiliser.
+  </Card>
+  <Card title="CLI et Local APIs" icon="terminal" href="/fr/advanced/cli-local-api">
+    Appelez les routes de l’Utilisation du navigateur depuis des scripts.
+  </Card>
+</CardGroup>

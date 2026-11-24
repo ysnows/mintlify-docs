@@ -1,0 +1,99 @@
+---
+title: "Ricerca web"
+description: "Lascia che il tuo Agente cerchi sul web informazioni aggiornate e citi le fonti."
+---
+
+La Ricerca web dà ai tuoi Agenti risultati aggiornati dal web. Ogni Agente può cercare; tu scegli il servizio di ricerca che usa, separatamente dal modello che scrive la risposta.
+
+## Scegli un provider di ricerca
+
+1. Apri **Impostazioni → Ricerca web**.
+2. Scegli un provider. Le opzioni di Enconvo Cloud non richiedono una chiave API; per la maggior parte degli altri, aggiungi la tua chiave per quel servizio.
+3. Fai clic su **Imposta come predefinito**.
+
+| Provider | Note |
+| --- | --- |
+| **Automatico** | Cerca con la ricerca web propria del modello della chat e passa a un altro provider quando il modello non ne ha una. Vedi [Cerca con la ricerca del modello](#cerca-con-la-ricerca-del-modello). |
+| **Enconvo Cloud** | Gratuito per ogni account con accesso effettuato, nessuna chiave API necessaria |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search tramite Enconvo Cloud, gratuito per ogni account con accesso effettuato |
+| **Gemini** | Grounding con Google Search tramite un modello Gemini |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Cerca con la tua chiave per quel servizio |
+| **Parallel** | L'indice di ricerca IA di Parallel, che restituisce i passaggi più pertinenti di ogni pagina, con la tua chiave API di Parallel |
+| **PipeLLM** | Risultati di Google tramite la tua chiave [PipeLLM](/it/providers/pipellm) |
+| **DeepSeek** | DeepSeek Search con la tua chiave API di DeepSeek |
+| **xAI X Search** | Cerca post, profili e thread su X, con una chiave API di xAI o l'accesso a xAI |
+| **xAI X Search (Enconvo Cloud)** | Ricerca su X tramite il piano Enconvo Cloud |
+
+L'elenco dei provider contrassegna le opzioni gratuite. Consulta il [Catalogo dei provider](/it/providers/catalog) per l'elenco completo. Alcuni modelli hanno anche opzioni di grounding o di ricerca integrate nelle impostazioni del proprio provider.
+
+## Cerca con la ricerca del modello
+
+Con **Automatico**, ogni ricerca viene eseguita con la ricerca web del modello usato dalla chat, quando quel modello ne ha una: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai e OpenRouter. Usa la chiave o l'accesso che hai collegato per quel modello, e la ricerca è fatturata dal fornitore del modello.
+
+Quando il modello non ha una ricerca propria, o la sua ricerca non riesce, Automatico usa la **Ricerca di riserva**, che è **Enconvo Cloud** a meno che tu non scelga un altro provider.
+
+| Impostazione | Cosa fa |
+| --- | --- |
+| **Percorso di ricerca** | Mostra quale ricerca viene eseguita per il modello della chat e cosa succede in caso di errore. |
+| **Preferisci la ricerca del modello** | Attivo per impostazione predefinita. Disattivalo per usare sempre la ricerca di riserva. |
+| **Ricerca di riserva** | Il provider usato quando il modello non ha una ricerca o questa non riesce. |
+
+Nella chat, ogni passaggio di ricerca web indica quale ricerca ha risposto e perché Automatico è passato alla riserva quando è successo.
+
+## Usa Parallel
+
+1. Ottieni una chiave API da [Parallel](https://platform.parallel.ai).
+2. Aggiungila in **Impostazioni → Gestione delle credenziali → Parallel**.
+3. In **Impostazioni → Ricerca web**, scegli **Parallel** e seleziona una **Modalità di ricerca**:
+
+| Modalità di ricerca | Quando usarla |
+| --- | --- |
+| **Turbo** | Le risposte più rapide. Legge solo query in inglese e giapponese. |
+| **Veloce** | La maggior parte delle ricerche. È quella predefinita. |
+| **Base** | Passaggi più lunghi da ogni pagina. |
+| **Avanzata** | La ricerca più approfondita. Richiede circa 3 secondi e costa di più. |
+
+Parallel addebita ogni ricerca al tuo account Parallel.
+
+## Cerca con un Agente
+
+1. Fai una domanda specifica. Includi un intervallo di date o un luogo quando conta.
+2. L'Agente cerca e risponde con i link alle sue fonti.
+3. Apri le fonti citate e controlla che sostengano la risposta.
+
+Prova:
+
+> Trova le note di rilascio ufficiali dell'ultima versione stabile di questa libreria e riassumi le modifiche incompatibili con i link.
+
+## Scegli la funzione web giusta
+
+| Esigenza | Cosa usare |
+| --- | --- |
+| Scoprire fonti pertinenti | Ricerca web |
+| Leggere un URL noto | [Recupera contenuti web](/it/ai/web-fetch) |
+| Aprire i risultati nel tuo browser | [Link rapidi](/it/features/quick-links) |
+| Interagire con un sito web in cui hai effettuato l'accesso | [Uso del browser](/it/features/browser-control) |
+| Cercare post, profili o thread su X | Il provider **xAI X Search** |
+
+## Risoluzione dei problemi
+
+| Problema | Cosa fare |
+| --- | --- |
+| La risposta non ha fonti | Controlla che l'Agente abbia cercato invece di rispondere solo con il modello. Chiedigli di cercare sul web. |
+| Il provider segnala un errore | Controlla la credenziale del provider e la disponibilità del tuo account presso quel servizio. |
+| Automatico ha usato la ricerca di riserva | Il modello della chat non ha una ricerca web propria, oppure la sua ricerca non è riuscita. Il passaggio di ricerca nella chat indica quale dei due casi. |
+| Il risultato è dietro un login o su una pagina interattiva | Usa un flusso del browser supportato come [Uso del browser](/it/features/browser-control). Recuperare un URL pubblico non dà accesso alla tua sessione con accesso effettuato. |
+
+## Correlati
+
+<CardGroup cols={2}>
+  <Card title="Recupera contenuti web" icon="link" href="/it/ai/web-fetch">
+    Leggi una pagina di cui hai già l'URL.
+  </Card>
+  <Card title="Uso del browser" icon="globe" href="/it/features/browser-control">
+    Lavora con siti web interattivi e con accesso effettuato.
+  </Card>
+  <Card title="Catalogo dei provider" icon="list" href="/it/providers/catalog">
+    Ogni provider di ricerca web supportato da Enconvo.
+  </Card>
+</CardGroup>

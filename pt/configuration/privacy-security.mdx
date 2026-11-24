@@ -1,0 +1,100 @@
+---
+title: "Privacidade e segurança"
+description: "Veja para onde vão os seus pedidos, o que fica no seu Mac e como controlar o contexto, as credenciais, as ferramentas, as análises e os diagnósticos."
+---
+
+O Enconvo guarda os seus dados no seu Mac e utiliza serviços online para as funcionalidades e os fornecedores que escolher. O destino de um pedido depende da funcionalidade, do fornecedor que escolher, das ferramentas que ativar e das integrações que ligar. Esta página mostra cada fluxo e os controlos respetivos.
+
+## Para onde vai o seu conteúdo
+
+| Ação | O que é enviado e para onde |
+| --- | --- |
+| Chat de IA na nuvem | O seu pedido, o contexto da conversa e os anexos que adicionar, para o fornecedor do modelo |
+| Verificação de conteúdo do Enconvo Cloud, a partir de 14 de novembro de 2026 | O texto que acabou de escrever, para o modelo de moderação da OpenAI, antes de um modelo Cloud o receber |
+| Reconhecimento de voz na nuvem | O áudio captado, para o serviço de voz que escolheu |
+| Texto para voz na nuvem | Texto, para o serviço de voz que escolheu |
+| Embeddings ou reordenação na nuvem | O conteúdo do documento e da consulta necessário para a recuperação |
+| Pesquisa ou obtenção na Web | A consulta de pesquisa ou o URL, para o serviço de pesquisa ou o site |
+| Inferência de modelo local | Fica no seu Mac: o modelo é executado aí depois de os seus ficheiros serem transferidos |
+| Ferramentas de navegador ou de computador | Todo o conteúdo e todas as ações que o acesso concedido à ferramenta permitir |
+| Canal de mensagens instantâneas | Mensagens entre o serviço de mensagens ligado e o Agente |
+| Sincronização | As suas conversas, definições, bases de conhecimento e artefactos, para a sua conta Enconvo ou o seu iCloud, depois de ativar a Sincronização. As chaves de API só saem do seu Mac cifradas, depois de as ativar. |
+
+Um modelo de chat local, por si só, não torna todas as ferramentas offline. Uma pesquisa na Web, uma ferramenta MCP remota, um fornecedor de transcrição na nuvem ou um modelo de embeddings na nuvem continuam a enviar conteúdo pela rede.
+
+## Regras de utilização do Enconvo Cloud
+
+A partir de 14 de novembro de 2026, o Enconvo Cloud verifica cada mensagem em função dos nossos [Termos de Utilização](https://www.enconvo.com/terms) antes de ela chegar a um modelo Cloud. Só o texto que acabou de escrever é verificado, e não a conversa anterior, os seus ficheiros nem as suas imagens. Nada muda quando utiliza as suas próprias chaves de API ou modelos locais.
+
+- **O que é guardado:** se uma mensagem for recusada ou assinalada, o Enconvo guarda a conta, a hora, o modelo e as pontuações durante até 90 dias, e nunca as palavras.
+- **Uma mensagem recusada:** não chega ao modelo e não custa pontos. O seu chat mostra o motivo.
+- **Recusas repetidas:** podem suspender a IA Cloud na sua conta. Continua a poder iniciar sessão, gerir ou cancelar a sua subscrição e eliminar a sua conta. Uma subscrição continua ativa até a cancelar.
+- **Se nos enganámos:** escreva para support@enconvo.com.
+
+Para que uma ação de segurança de um fornecedor se aplique a uma conta e não a todos, o Enconvo Cloud também envia à OpenAI e à Anthropic, com cada pedido, um identificador unidirecional criado a partir da sua conta. Não é o seu endereço de e-mail. A [Política de Privacidade](https://www.enconvo.com/privacy) tem os detalhes.
+
+## Controlar o que envia
+
+Reveja os anexos e o contexto antes de enviar um pedido. Os Appshots, as capturas de ecrã, o texto selecionado, o conteúdo da área de transferência e as páginas do navegador podem conter mais do que a frase sobre a qual quer perguntar.
+
+Escolha as suas fontes de contexto em [Compreensão do contexto](/pt/features/context-awareness). Conceda as [permissões do macOS](/pt/configuration/permissions) apenas para as funcionalidades que utiliza e revogue-as nas Definições do Sistema quando já não forem necessárias.
+
+## Credenciais
+
+Gere as chaves de API e os inícios de sessão de conta na secção **Autenticação** de cada fornecedor e na [Gestão de credenciais](/pt/configuration/credentials). Trate a sua configuração local do Enconvo, as cópias de segurança, as definições exportadas e os registos de suporte como sensíveis, e mantenha as chaves e os tokens de conta fora de pedidos, capturas de ecrã e ficheiros partilhados.
+
+Um perfil de fornecedor pode partilhar as suas credenciais entre várias funcionalidades. Verifique todas as funcionalidades que utilizam um perfil antes de o eliminar ou substituir.
+
+<Warning>
+Remover uma chave do Enconvo não a revoga. Se uma chave for divulgada, revogue-a no site do próprio fornecedor.
+</Warning>
+
+## Ferramentas e integrações
+
+Um Agente pode agir através das ferramentas que ativar. O controlo do navegador, a utilização do computador, os comandos de shell, as edições de ficheiros, o Gmail e os servidores MCP externos alcançam coisas diferentes. Verifique as ferramentas do Agente, e a ação que ele propõe, quando trabalha com dados importantes.
+
+Executar uma extensão no seu próprio worker não a impede de alcançar os seus ficheiros locais ou a rede. Instale ferramentas de fontes em que confie e verifique a sua configuração.
+
+O chip **Permissões** num chat decide quando o Agente pergunta antes de agir. Em **Acesso total**, age sem perguntar, incluindo chamadas e mensagens aos seus amigos e colegas de equipa, e só pergunta antes de alterações que possam prejudicar o seu computador. Consulte [Porque é que o Enconvo pergunta antes de um comando](/pt/configuration/sandbox).
+
+Para manter os comandos de shell de um Agente na sua pasta de trabalho e longe das suas chaves, credenciais guardadas e outras aplicações, ative a sua **Sandbox**. Consulte [Sandbox do Agente](/pt/configuration/sandbox). Para manter a Utilização do computador fora de determinadas aplicações, utilize **Acesso a apps** em **Definições → Utilização do computador**; consulte [Utilização do computador](/pt/features/computer-use).
+
+O Web Fetch não pode ser redirecionado por uma página pública para o seu Mac ou para a sua rede local.
+
+## Ligações de início de sessão
+
+Uma ligação de início de sessão de uma página Web não pode mudar o Enconvo para outra conta por si só. A menos que o próprio Enconvo tenha iniciado o início de sessão, pergunta primeiro e mostra a conta que a ligação confirma e a que substituiria. Os Agentes, os agentes de programação e as tarefas agendadas não podem iniciar um início de sessão nem abrir uma ligação de início de sessão.
+
+## Clientes de IA locais
+
+O [MCP da Base de conhecimento](/pt/advanced/knowledge-base-mcp) está desativado até o ativar e aceita ligações locais. Os seus interruptores de visibilidade escolhem as bases de conhecimento que expõe. Um cliente local pode enviar o que recupera para o seu próprio fornecedor de IA, por isso configure também esse cliente com cuidado.
+
+## Análises e diagnósticos
+
+O Enconvo regista eventos de utilização do produto sob um ID de dispositivo, e não a sua conta. Os eventos foram concebidos para excluir endereços de e-mail, texto de conversas e multimédia. Para deixar de os partilhar, desative **Partilhar dados anónimos de análise do produto** no guia de primeira execução, ou em **Privacidade** em **Definições → Geral**. Uma escolha que tenha feito antes mantém-se como está. Os relatórios de falhas e de bloqueios só são enviados enquanto esse interruptor estiver ativado, e não incluem nenhum dos seus conteúdos.
+
+O Enconvo não guarda nos seus registos no seu Mac uma cópia dos seus pedidos de IA, das suas mensagens nem do que escreve.
+
+Os registos de diagnóstico são separados das análises. Quando o Enconvo bloqueia, falha ou se comporta mal, envie-os à equipa do Enconvo com **Enviar diagnóstico…** no menu da barra de menus, ou em **Definições → Diagnóstico**:
+
+- Antes de qualquer coisa sair do seu Mac, o Enconvo retira os dados pessoais, como o nome da sua pasta pessoal, nomes de ficheiros, endereços de e-mail, chaves de API, tokens, ligações, endereços IP e o texto dos pedidos e das respostas.
+- Um relatório leva um ID aleatório criado apenas para diagnósticos, e não a sua conta nem o seu e-mail. Só a equipa do Enconvo o pode ler, e é eliminado após um número definido de dias.
+- Os registos podem, mesmo assim, nomear as aplicações, os comandos e os modelos que utilizou.
+- A página mostra exatamente o que foi enviado e permite-lhe retirar ou eliminar cada relatório.
+
+Quando partilha um registo ou uma captura de ecrã de outra forma, reveja-o primeiro e remova pedidos privados, caminhos, chaves, dados de conta e conteúdos de documentos que não sejam necessários.
+
+## Manter ou remover dados locais
+
+Cada funcionalidade gere os seus próprios dados: o histórico de chats, as bases de conhecimento, as gravações e as credenciais têm, cada um, os seus próprios controlos. Leia as confirmações de eliminação e mantenha cópias de segurança de tudo o que precisar. Eliminar um chat também elimina as imagens e os ficheiros que lhe anexou, a menos que outro chat ainda os mostre.
+
+Remover a aplicação nem sempre remove a sua configuração e os seus dados. Remover dados locais não elimina as cópias que um serviço externo já tenha processado. Para a retenção e as políticas de conta de um fornecedor, consulte esse fornecedor: esta página abrange os fluxos de dados do Enconvo, e não os dele.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Permissões do macOS" icon="shield" href="/pt/configuration/permissions">O que cada permissão permite ao Enconvo fazer.</Card>
+  <Card title="Credenciais" icon="key" href="/pt/configuration/credentials">Chaves de API, inícios de sessão e perfis partilhados.</Card>
+  <Card title="Compreensão do contexto" icon="eye" href="/pt/features/context-awareness">Escolha o contexto que acompanha um pedido.</Card>
+  <Card title="Conta Enconvo" icon="user" href="/pt/configuration/account">A sincronização e o que ela guarda nos seus computadores.</Card>
+</CardGroup>

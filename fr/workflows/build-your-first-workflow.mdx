@@ -1,0 +1,131 @@
+---
+title: "Créez votre premier workflow"
+description: "Suivez une vidéo commentée pour créer un workflow à partir d’un modèle, ajouter des étapes à la main et avec l’assistant, puis l’exécuter et lire la sortie de chaque étape."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Les workflows enchaînent prompts, agents et outils dans une même exécution reproductible. Ce didacticiel en construit un du début à la fin : le créer à partir du modèle **Visite des types d’étapes**, ajouter une étape à la main, laisser l’assistant de workflow en ajouter une autre, puis l’exécuter et lire la sortie de chaque étape.
+
+<YouTubePlayer videoId="g02LJwso1yk" title="How to Build a Workflow in Enconvo | Step-by-Step Tutorial" />
+
+La vidéo dure 2 minutes 24 secondes. Les étapes écrites ci-dessous suivent le même ordre, avec l’horodatage correspondant pour chaque étape.
+
+## Ce que vous allez construire
+
+Le modèle **Visite des types d’étapes** fonctionne déjà tel quel. Au fil du didacticiel, il devient un petit pipeline de contenu :
+
+| Étape | Type | Ce qu’elle fait |
+| --- | --- | --- |
+| Get today's date | Shell | Affiche la date du jour |
+| List saved workflows | Outil | Liste vos workflows existants (s’exécute en parallèle de la date) |
+| Ask the model for an idea | Prompt | Suggère une nouvelle automatisation sur l’entrée `topic` |
+| Let the agent expand it | Agent | Transforme l’idée en un plan en trois étapes |
+| Write a tweet | Prompt | Ajoutée à la main : transforme le plan en un tweet percutant |
+| Translate the tweet into Japanese | Prompt | Ajoutée par l’assistant : traduit le tweet |
+
+## Suivre pas à pas
+
+<Steps>
+  <Step title="Créer un workflow (0:07)">
+    Ouvrez **Réglages → Flux de travail → Gérer** et sélectionnez **Nouveau workflow**. Sous **Ou partir d’un modèle**, choisissez **Visite des types d’étapes**. Le workflow est créé et l’éditeur s’ouvre en mode **Visuel**. La vidéo a été enregistrée avant l’existence de la boîte de dialogue **Nouveau workflow** ; le point de départ s’y appelle donc *Starter Workflow*.
+  </Step>
+  <Step title="Lire le graphe (0:18)">
+    Lisez le graphe de haut en bas. Le nœud **Entrées** déclare ce dont une exécution a besoin ; ici, un seul `topic`. Les deux premières étapes sont côte à côte parce qu’elles appartiennent à des jobs distincts : elles s’exécutent donc en parallèle. Chaque résultat descend ensuite vers les étapes situées en dessous, qui s’exécutent dans l’ordre.
+  </Step>
+  <Step title="Modifier une étape (0:28)">
+    Sélectionnez une étape pour l’ouvrir dans l’inspecteur, où vous pouvez modifier son identifiant, son titre et son prompt. Les doubles accolades insèrent des valeurs dans une étape : `{{ inputs.topic }}` lit une entrée de l’exécution, et `{{ steps.idea.output }}` lit le résultat d’une étape précédente. C’est ainsi que les étapes communiquent entre elles.
+  </Step>
+  <Step title="Ajouter une étape (0:37)">
+    Sélectionnez le **+** sous la dernière étape et choisissez un type d’étape, comme Prompt, Agent, Shell ou Outil. Donnez à la nouvelle étape Prompt l’identifiant `tweet`, le titre « Write a tweet » et ce prompt :
+
+    ```text wrap
+    Turn this plan into one punchy tweet: {{ steps.plan.output }}
+    ```
+
+    <Tip>
+    Après avoir renommé l’identifiant d’une étape, appuyez sur Retour avant de passer au champ suivant.
+    </Tip>
+  </Step>
+  <Step title="Ou demander à l’assistant de workflow (0:57)">
+    Au lieu de modifier à la main, sélectionnez **Assistant** dans la barre d’outils et décrivez le changement dans le panneau qui s’ouvre à côté du canevas :
+
+    ```text wrap
+    Add a final step that translates the tweet into Japanese
+    ```
+
+    L’assistant modifie le graphe et liste les étapes qu’il a changées. Sélectionnez **Rétablir la version précédente** sur sa réponse si le résultat ne vous convient pas. Dans la vidéo, il ajoute une étape `translate_ja` dont le prompt lit `{{ steps.tweet.output }}`. Relisez la nouvelle étape avant d’enregistrer : les modifications de l’assistant restent non enregistrées tant que vous ne sélectionnez pas **Enregistrer**.
+  </Step>
+  <Step title="Voir le YAML (1:16)">
+    Sélectionnez **YAML** dans la barre d’outils pour voir le même workflow sous forme de source. Chaque workflow est un simple fichier, enregistré dans `~/.enconvo/workflows/<id>.yaml`, ce qui le rend facile à lire, à comparer et à partager. Sélectionnez **Visuel** pour revenir au graphe. Le fichier complet se trouve dans [Le workflow terminé](#le-workflow-terminé) ci-dessous.
+  </Step>
+  <Step title="L’exécuter et vérifier la sortie (1:28)">
+    Sélectionnez **Entrées**, définissez les valeurs de l’exécution (la vidéo utilise `{"topic": "matcha"}`) et choisissez **Exécuter**. Les étapes en cours s’illuminent en bleu et les étapes terminées passent au vert. L’étape Agent est plus longue que les autres.
+
+    Quand l’exécution est terminée, sélectionnez n’importe quelle étape et ouvrez son onglet **Sortie** pour voir exactement ce qu’elle a produit. La dernière étape a repris le tweet et l’a traduit, sans copier-coller.
+  </Step>
+  <Step title="Retrouver les exécutions passées (2:05)">
+    Chaque exécution est conservée sous **Exécutions** dans la barre d’outils : vous pouvez ainsi revenir à n’importe quel résultat plus tard.
+  </Step>
+</Steps>
+
+<Note>
+L’exécution d’un workflow appelle de vrais modèles et de vrais outils. Elle peut consommer des crédits de fournisseur, et les étapes Shell ou Outil agissent avec les autorisations de votre compte Mac. Relisez les étapes d’un workflow avant de l’exécuter.
+</Note>
+
+## Le workflow terminé
+
+Voici le workflow construit dans la vidéo, écrit en YAML. La vue **YAML** peut le mettre en forme légèrement différemment.
+
+```yaml
+version: agent-workflow/v1
+title: Starter Workflow
+description: "Starter workflow showing parallel jobs and the four executors: command (shell), prompt (LLM), agent, and tool (Local API)."
+tags:
+  - demo
+inputs:
+  topic:
+    type: string
+    description: Topic to brainstorm an automation for
+    default: coffee
+jobs:
+  date:
+    steps:
+      - id: today
+        name: Get today's date
+        command: 'date "+%Y-%m-%d"'
+  catalog:
+    steps:
+      - id: my_workflows
+        name: List saved workflows (tool)
+        tool: workflow/list
+        with:
+          limit: 5
+  ideate:
+    needs: [date, catalog]
+    steps:
+      - id: idea
+        name: Ask the model for an idea
+        prompt: "Today is {{ jobs.date.today.output.stdout | trim }}. Existing workflows: {{ jobs.catalog.my_workflows.output.summaries | dump }}. Suggest ONE new automation about {{ inputs.topic }} that is not in the list, in one sentence."
+      - id: plan
+        name: Let the agent expand it
+        agent: agent/main
+        message: "Expand this automation idea into a three-step execution plan: {{ steps.idea.output }}"
+      - id: tweet
+        name: Write a tweet
+        prompt: "Turn this plan into one punchy tweet: {{ steps.plan.output }}"
+      - id: translate_ja
+        name: Translate the tweet into Japanese
+        prompt: "Translate this tweet into natural, fluent Japanese. Keep hashtags, emojis, and links intact. Reply with only the translated tweet: {{ steps.tweet.output }}"
+```
+
+Le job `ideate` attend `date` et `catalog` grâce à `needs`, il peut donc lire leurs résultats avec `jobs.<job>.<step>.output`. Au sein d’un job, les étapes suivantes lisent les précédentes avec `steps.<id>.output`.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Flux de travail" icon="diagram-project" href="/fr/workflows/introduction">Les jobs, les étapes et chaque type d’étape.</Card>
+  <Card title="Créer des flux de travail" icon="pen-to-square" href="/fr/workflows/creating-workflows">L’éditeur visuel, le YAML et l’assistant de modification en détail.</Card>
+  <Card title="Flux de travail avancés" icon="code-branch" href="/fr/workflows/advanced-workflows">Conditions, boucles, nouvelles tentatives, schémas de sortie et sous-flux de travail.</Card>
+  <Card title="Tâches planifiées" icon="clock" href="/fr/workflows/scheduled-jobs">Exécutez un workflow ou une instruction d’Agent à une heure donnée.</Card>
+</CardGroup>

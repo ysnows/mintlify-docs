@@ -1,0 +1,103 @@
+---
+title: "Canaux de messagerie instantanée"
+description: "Connectez un bot Telegram ou Discord à un Agent Enconvo, et choisissez qui peut lui parler."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Les Canaux de messagerie instantanée permettent de parler à un Agent Enconvo depuis Telegram ou Discord. Chaque canal est un bot lié à un seul Agent : les messages entrants vont à cet Agent, qui rédige les réponses. Un même Agent peut servir plusieurs canaux, mais chaque canal ne sert au plus qu’un seul Agent. Configurez-les dans **Réglages → Canaux de messagerie instantanée**.
+
+Cette vidéo configure un canal Telegram, entre un aperçu d’Avatar et un aperçu de la gestion des identifiants.
+
+<YouTubePlayer videoId="O5rNJwqlisg" title="How to Use Avatars, IM Channels and Credentials in Enconvo | Step-by-Step Tutorial" />
+
+## Avant de commencer
+
+- Créez un bot sur la plateforme et copiez son jeton de bot (voir [Telegram](#telegram) et [Discord](#discord) ci-dessous).
+- Gardez Enconvo en cours d’exécution et le Mac en ligne tant que le bot écoute.
+
+<Note>
+L’offre gratuite fait fonctionner un bot de messagerie instantanée à la fois. Une offre Enconvo Cloud ou une licence à vie en fait fonctionner davantage. Consultez [Offres et tarifs](/fr/pricing).
+</Note>
+
+## Ajouter un canal
+
+<Steps>
+  <Step title="Ajouter le canal">
+    Ouvrez **Réglages → Canaux de messagerie instantanée**, cliquez sur **Ajouter un nouveau canal**, puis choisissez **Telegram** ou **Discord**.
+  </Step>
+  <Step title="Le nommer">
+    Donnez au canal un nom que vous reconnaîtrez.
+  </Step>
+  <Step title="Coller le jeton du bot">
+    Collez le jeton de bot de la plateforme dans **Bot Token**.
+  </Step>
+  <Step title="Choisir l’Agent">
+    Dans **bind agent**, choisissez l’Agent qui traite les messages entrants.
+  </Step>
+  <Step title="L’activer">
+    Vérifiez qui peut utiliser le bot (pour Telegram, **Access Control**), puis activez **Enable Channel**.
+  </Step>
+  <Step title="Le tester">
+    Cliquez sur **Vérifier la connexion** et assurez-vous que le canal affiche **Connecté**. Envoyez ensuite un message de test depuis un compte autorisé.
+  </Step>
+</Steps>
+
+Le modèle et les outils de l’Agent lié déterminent ce à quoi le bot peut répondre.
+
+## Telegram
+
+Créez un bot avec **BotFather** de Telegram et copiez son jeton de bot. Avant d’activer le canal, ouvrez son **Access Control** :
+
+| Contrôle | Ce qu’il fait |
+| --- | --- |
+| **Politique** | **Jumelage requis** (par défaut) : un nouvel utilisateur partage un code de jumelage et attend votre approbation. **Ouvert (tout le monde)** : toute personne qui trouve le bot peut l’utiliser. |
+| **Demandes en attente** | **Approuver** ou **Refuser** chaque utilisateur qui a demandé le jumelage. N’approuvez que les personnes que vous visez. |
+| **Utilisateurs autorisés** | Les utilisateurs que vous avez approuvés. **Supprimer** en retire un de la liste ; il doit refaire le jumelage pour utiliser le bot. |
+
+Si le bot fonctionne dans une discussion directe mais pas dans un groupe, vérifiez la confidentialité du bot et les autorisations de groupe de Telegram, en plus de la politique d’accès du canal. Un jeton seul ne donne pas au bot l’accès à toutes les conversations.
+
+## Discord
+
+Créez une application et un bot dans le Discord Developer Portal. Invitez le bot sur votre serveur, et donnez-lui les autorisations et les intents dont il a besoin pour recevoir et envoyer les messages voulus. Collez son jeton de bot dans le canal Discord et liez un Agent.
+
+S’il se connecte mais ne répond pas, vérifiez les autorisations du canal sur Discord et si le bot reçoit ce type de message. Limitez le bot au serveur et aux canaux que vous visez.
+
+## Sessions et réponses
+
+Chaque conversation entrante obtient sa propre session de discussion avec l’Agent lié. Les réponses suivent cette conversation ; les utilisateurs connectés ne partagent pas une seule transcription. Changer l’Agent lié redémarre le canal, de sorte que les messages suivants vont au nouvel Agent.
+
+Saisissez une commande de bot dans la discussion pour contrôler la conversation au lieu d’envoyer un message à l’Agent : `/new` démarre une nouvelle session de discussion, et `/stop` arrête la réponse en cours, y compris les messages envoyés juste avant. Les commandes de bot fonctionnent dans Telegram et Discord, et une commande envoyée avec une pièce jointe s’exécute quand même comme une commande.
+
+Pour un bot public ou d’équipe, utilisez un Agent dédié avec des instructions et des outils adaptés. Vérifiez les outils qu’il peut utiliser avant de laisser d’autres personnes y accéder.
+
+## Envoi planifié
+
+Les [Tâches planifiées](/fr/workflows/scheduled-jobs) peuvent envoyer leurs résultats vers une discussion de messagerie instantanée que vous avez configurée. Choisissez vous-même la destination, et utilisez l’historique d’exécution de la tâche pour distinguer une exécution échouée d’un envoi échoué.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Déconnecté | Vérifiez le jeton du bot, le réseau, que **Enable Channel** est activé et qu’Enconvo est en cours d’exécution. Un bot Discord dont la connexion devient silencieuse se reconnecte tout seul. |
+| Connecté mais silencieux | Vérifiez l’Agent lié, le fournisseur de modèle de l’Agent, les autorisations de la plateforme et la politique de jumelage. |
+| Le bot ne répond pas comme il faut | Vérifiez les instructions, les outils et le modèle de l’Agent lié. |
+| Un utilisateur Telegram ne peut pas se connecter | Cherchez sa demande de jumelage sous **Demandes en attente**, et vérifiez **Utilisateurs autorisés**. |
+| Un deuxième bot ne démarre pas | L’offre gratuite fait fonctionner un bot de messagerie instantanée à la fois. Désactivez l’autre bot, ou passez à une offre supérieure. |
+| Les réponses s’arrêtent quand vous quittez Enconvo | Le bot écoute via Enconvo sur votre Mac, donc l’app doit rester en cours d’exécution. |
+
+Les Canaux de messagerie instantanée ne configurent que Telegram et Discord. Si vous joignez Slack ou Feishu via un autre plugin ou un serveur MCP, suivez le guide propre à cette intégration.
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot" href="/fr/ai/agents">
+    Configurez l’Agent qui répond à votre bot.
+  </Card>
+  <Card title="Tâches planifiées" icon="clock" href="/fr/workflows/scheduled-jobs">
+    Envoyez des résultats planifiés vers une discussion de messagerie instantanée.
+  </Card>
+  <Card title="Offres et tarifs" icon="credit-card" href="/fr/pricing">
+    Ce que comprend chaque offre.
+  </Card>
+</CardGroup>

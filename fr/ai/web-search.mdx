@@ -1,0 +1,99 @@
+---
+title: "Recherche web"
+description: "Laissez votre Agent chercher sur le web des informations à jour et citer ses sources."
+---
+
+La Recherche web donne à vos Agents des résultats à jour issus du web. Chaque Agent peut chercher ; vous choisissez le service de recherche qu’il utilise, indépendamment du modèle qui rédige la réponse.
+
+## Choisir un fournisseur de recherche
+
+1. Ouvrez **Réglages → Recherche web**.
+2. Choisissez un fournisseur. Les options Enconvo Cloud n’ont pas besoin de clé API ; pour la plupart des autres, ajoutez votre clé pour ce service.
+3. Cliquez sur **Définir par défaut**.
+
+| Fournisseur | Remarques |
+| --- | --- |
+| **Automatique** | Cherche avec la recherche web propre au modèle de chat, et se rabat sur un autre fournisseur quand le modèle n’en a pas. Voir [Chercher avec la recherche propre au modèle](#chercher-avec-la-recherche-propre-au-modèle). |
+| **Enconvo Cloud** | Gratuit pour tout compte connecté, sans clé API |
+| **DeepSeek (Enconvo Cloud)** | DeepSeek Search via Enconvo Cloud, gratuit pour tout compte connecté |
+| **Gemini** | Ancrage avec Google Search via un modèle Gemini |
+| **Tavily**, **Bing**, **Brave**, **Google Custom**, **Exa** | Recherche avec votre propre clé pour ce service |
+| **Parallel** | L’index de recherche IA de Parallel, qui renvoie les passages les plus pertinents de chaque page, avec votre clé API Parallel |
+| **PipeLLM** | Résultats Google avec votre clé [PipeLLM](/fr/providers/pipellm) |
+| **DeepSeek** | DeepSeek Search avec votre clé API DeepSeek |
+| **xAI X Search** | Recherche des publications, profils et fils de discussion sur X, avec une clé API xAI ou une connexion xAI |
+| **xAI X Search (Enconvo Cloud)** | Recherche sur X via l’offre Enconvo Cloud |
+
+La liste des fournisseurs signale les options gratuites. Consultez le [Catalogue des fournisseurs](/fr/providers/catalog) pour la liste complète. Certains modèles ont aussi des options d’ancrage ou de recherche intégrées dans les réglages de leur propre fournisseur.
+
+## Chercher avec la recherche propre au modèle
+
+Avec **Automatique**, chaque recherche s’exécute sur la recherche web du modèle utilisé par le chat, lorsque ce modèle en a une : OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Kimi, Z.ai et OpenRouter. Elle utilise la clé ou la connexion que vous avez configurée pour ce modèle, et c’est l’éditeur du modèle qui la facture.
+
+Quand le modèle n’a pas de recherche propre, ou que sa recherche échoue, Automatique utilise la **Recherche de secours**, qui est **Enconvo Cloud** sauf si vous choisissez un autre fournisseur.
+
+| Réglage | Fonction |
+| --- | --- |
+| **Parcours de recherche** | Indique quelle recherche s’exécute pour le modèle de chat, et ce qui se passe en cas d’échec. |
+| **Privilégier la recherche du modèle** | Activé par défaut. Désactivez-le pour toujours utiliser la recherche de secours. |
+| **Recherche de secours** | Le fournisseur utilisé quand le modèle n’a pas de recherche ou que celle-ci échoue. |
+
+Dans le chat, chaque étape de recherche web indique quelle recherche a répondu, et pourquoi Automatique s’est rabattu sur la recherche de secours le cas échéant.
+
+## Utiliser Parallel
+
+1. Obtenez une clé API auprès de [Parallel](https://platform.parallel.ai).
+2. Ajoutez-la dans **Réglages → Gestion des identifiants → Parallel**.
+3. Dans **Réglages → Recherche web**, choisissez **Parallel** puis un **Mode de recherche** :
+
+| Mode de recherche | À utiliser pour |
+| --- | --- |
+| **Turbo** | Les réponses les plus rapides. Il ne lit que les requêtes en anglais et en japonais. |
+| **Rapide** | La plupart des recherches. C’est le mode par défaut. |
+| **Basique** | Des passages plus longs de chaque page. |
+| **Avancé** | La recherche la plus approfondie. Elle prend environ 3 secondes et coûte plus cher. |
+
+Parallel facture chaque recherche à votre compte Parallel.
+
+## Chercher avec un Agent
+
+1. Posez une question précise. Indiquez une période ou un lieu quand c’est important.
+2. L’Agent cherche et répond avec des liens vers ses sources.
+3. Ouvrez les sources citées et vérifiez qu’elles étayent la réponse.
+
+Essayez :
+
+> Trouve les notes de version officielles de la dernière version stable de cette bibliothèque et résume les changements incompatibles avec des liens.
+
+## Choisir la bonne capacité web
+
+| Besoin | À utiliser |
+| --- | --- |
+| Découvrir des sources pertinentes | Recherche web |
+| Lire une URL connue | [Récupérer le contenu web](/fr/ai/web-fetch) |
+| Ouvrir les résultats dans votre navigateur | [Liens rapides](/fr/features/quick-links) |
+| Interagir avec un site web où vous êtes connecté | [Utilisation du navigateur](/fr/features/browser-control) |
+| Chercher des publications, profils ou fils de discussion sur X | Fournisseur **xAI X Search** |
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| La réponse n’a pas de sources | Vérifiez que l’Agent a bien cherché au lieu de répondre à partir du seul modèle. Demandez-lui de chercher sur le web. |
+| Le fournisseur signale une erreur | Vérifiez l’identifiant du fournisseur et le quota de votre compte auprès de ce service. |
+| Automatique a utilisé la recherche de secours | Le modèle de chat n’a pas de recherche web propre, ou sa recherche a échoué. L’étape de recherche dans le chat indique laquelle. |
+| Le résultat se trouve derrière une connexion ou sur une page interactive | Utilisez un parcours de navigateur pris en charge comme [Utilisation du navigateur](/fr/features/browser-control). Récupérer une URL publique ne donne pas accès à votre session connectée. |
+
+## À voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Récupérer le contenu web" icon="link" href="/fr/ai/web-fetch">
+    Lisez une page dont vous avez déjà l’URL.
+  </Card>
+  <Card title="Utilisation du navigateur" icon="globe" href="/fr/features/browser-control">
+    Travaillez avec des sites web interactifs où vous êtes connecté.
+  </Card>
+  <Card title="Catalogue des fournisseurs" icon="list" href="/fr/providers/catalog">
+    Tous les fournisseurs de recherche web pris en charge par Enconvo.
+  </Card>
+</CardGroup>

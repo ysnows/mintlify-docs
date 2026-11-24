@@ -1,0 +1,210 @@
+---
+title: "확장 프로그램 개발"
+description: "TypeScript 명령과 Local API 라우트로 Enconvo 플러그인을 만들고, 앱에서 사용해 본 다음 플러그인 스토어에 게시하세요."
+---
+
+이 가이드는 Enconvo에 자신만의 명령을 추가하려는 개발자를 위한 것입니다. 명령 하나와 Local API 라우트 하나로 플러그인을 만들어 Enconvo에 빌드하고, 테스트한 다음 플러그인 스토어에 게시합니다.
+
+Enconvo 플러그인은 `package.json`에 메타데이터를 두고, `src/` 아래에 명령을, `src/api/` 아래에 선택적으로 API 라우트를 두는 ESM 패키지입니다. 명령은 Enconvo의 확장 런타임을 통해 실행됩니다. 플러그인 명령은 `Command` 인터페이스를 구현한 클래스가 아니라 기본 내보내기(default export) 함수입니다.
+
+## 시작하기 전에
+
+Node.js 18 이상, npm 또는 다른 패키지 관리자, 그리고 Mac에서 실행 중인 Enconvo가 필요합니다.
+
+## 빠른 시작
+
+새 폴더에 플러그인 프로젝트를 만드세요.
+
+```sh
+npx -p @enconvo/api enconvo plugin create hello-enconvo
+cd hello-enconvo
+npm install
+npm run dev
+```
+
+프로젝트에는 명령 하나(**Say Hello**), Local API 라우트 하나, 자리 표시자 아이콘, README가 들어 있습니다. `npm run dev`는 플러그인을 Enconvo에 빌드하고, 저장할 때마다 다시 빌드합니다. Enconvo에서 **Say Hello**를 검색해 실행해 보세요.
+
+플러그인 이름은 폴더 이름에서 가져옵니다. 직접 지정하려면 `--name`, `--title`, `--description`, `--author`를 전달하세요. 빌드하면 설치된 플러그인의 파일이 교체되므로, Enconvo에 설치된 어떤 플러그인도 쓰지 않는 이름을 고르세요. `plugin create`는 그런 이름을 거부합니다.
+
+Codex와 Claude Code에도 설치되는 플러그인을 만들려면 `--template skills`(스킬) 또는 `--template mcp`(MCP 서버)로 시작하세요. 해당 패키지는 [Plugin Formats](/extensions/plugin-formats)를, 폴더, GitHub, 마켓플레이스의 플러그인을 사용해 보는 방법은 [플러그인 설치](/ko/extensions/installing-plugins)를 참고하세요.
+
+<Note>
+`plugin create`, `plugin validate`, 검토용 게시에는 0.1.173보다 최신인 `@enconvo/api` 릴리스가 필요합니다. 사용 중인 버전에 없다면 아래 설명대로 프로젝트를 직접 설정하세요.
+</Note>
+
+## 프로젝트를 직접 설정
+
+```text
+hello-enconvo/
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── hello.ts
+│   └── api/
+│       └── echo.ts
+└── assets/
+    └── icon.png
+```
+
+`package.json`을 만드세요.
+
+```json
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "hello_enconvo",
+  "version": "0.1.0",
+  "title": "Hello Enconvo",
+  "description": "A small example command and API.",
+  "author": "Your Name",
+  "icon": "icon.png",
+  "type": "module",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "hello",
+      "title": "Say Hello",
+      "description": "Return a greeting for the input text.",
+      "commandType": "command",
+      "mode": "no-view"
+    }
+  ],
+  "scripts": {
+    "build": "enconvo plugin build",
+    "dev": "enconvo plugin build --dev",
+    "validate": "enconvo plugin validate"
+  }
+}
+```
+
+`categories`의 첫 번째 항목은 플러그인 페이지와 스토어에서 플러그인이 표시되는 섹션을 정합니다. Productivity, Communication, Developer Tools, Data & Analytics, Finance, Creativity, Business & Operations, Education & Research, Security 중에서 고르세요.
+
+SDK를 설치하고, 빌드 도구는 개발 의존성으로 설치하세요.
+
+```sh
+npm install @enconvo/api
+npm install --save-dev tsup typescript @types/node
+```
+
+`enconvo plugin build`는 플러그인 자체의 `tsup`으로 코드를 컴파일합니다. 이것이 없으면 빌드에 컴파일할 도구가 없습니다. 최신 SDK는 오류로 멈추고, 오래된 SDK는 명령을 빌드하지 않은 채 끝납니다.
+
+`tsconfig.json`을 만드세요.
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+5MB 이하의 정사각형 PNG, JPEG, WebP, GIF 아이콘을 `assets/icon.png`에 두세요.
+
+## 명령 추가
+
+`commands[].name`은 소스 파일 이름과 일치합니다. 다음을 `src/hello.ts`에 넣으세요.
+
+```typescript
+import { EnconvoResponse, type RequestOptions } from "@enconvo/api";
+
+export default async function main(request: Request) {
+  const options = await request.json() as RequestOptions;
+  const name = String(options.input_text || "").trim() || "World";
+  return EnconvoResponse.text(`Hello, ${name}!`);
+}
+```
+
+명령 키는 `hello_enconvo|hello`입니다. 런타임 환경설정과 요청 매개변수는 요청 본문에 병합됩니다.
+
+## Local API 라우트 추가
+
+`src/api/`의 파일은 빌드 중에 자동으로 발견되며 `commands[]` 항목이 필요 없습니다. 다음을 `src/api/echo.ts`에 넣으세요.
+
+```typescript
+interface EchoParams {
+  /** Text to return. @required */
+  text: string;
+}
+
+/** Return the supplied text. */
+export default async function main(request: Request) {
+  const params = await request.json() as EchoParams;
+  if (typeof params.text !== "string") {
+    return Response.json({ error: "text must be a string" }, { status: 400 });
+  }
+  return Response.json({ text: params.text });
+}
+```
+
+이것은 `hello_enconvo/echo`가 됩니다. `src/api/items/list.ts` 같은 디렉터리는 `hello_enconvo/items/list`가 됩니다. 정확한 요청 형태는 설치된 [Local API 스키마](/ko/advanced/cli-local-api)를 사용하세요.
+
+## 빌드와 테스트
+
+```sh
+npm run build
+npm run dev
+npx enconvo plugin generate-schema
+```
+
+플러그인 디렉터리에서 빌드하세요. 정상적인 빌드는 `ready - built extension successfully`로 끝납니다. `error` 줄이 출력되면 거기에 나온 문제를 고치고 다시 빌드하세요. 개발 모드는 파일을 감시하다가 다시 빌드합니다. API 스키마는 플러그인의 `skills/` 디렉터리에 생성됩니다.
+
+Enconvo가 실행 중인 동안 라우트를 호출해 보세요.
+
+```sh
+curl -X POST http://localhost:54535/api/hello_enconvo/echo \
+  -H "Content-Type: application/json" -d '{"text":"hi"}'
+```
+
+플러그인을 공유하기 전에 인사 명령과 잘못된 API 입력을 테스트하세요. 빌드가 성공했다고 해서 네이티브 작업이나 모든 제공업체 호출까지 테스트된 것은 아닙니다.
+
+## 플러그인 스토어에 게시
+
+```sh
+npm run validate
+npx enconvo plugin publish
+```
+
+### 플러그인 확인
+
+`plugin validate`는 아무것도 업로드하지 않고 플러그인이 스토어 규칙에 맞는지 확인합니다. 보고되는 각 문제는 [Validation Codes](/extensions/validation-codes)에서 설명합니다. 빌드 후에는 패키지에 포함될 파일 수와 제외되는 파일도 보여 줍니다. 다음을 확인합니다.
+
+- 이름에 영문자, 숫자, 점, 대시, 밑줄만 사용했는지
+- `version`이 `1.2.3` 형태인지
+- 플러그인에 제목이 있는지
+- 아이콘이 5MB 이하의 PNG, JPEG, WebP, GIF인지
+
+`metadata/` 폴더에 스크린샷을 최대 8장까지 추가할 수 있으며, 스토어의 플러그인 페이지에서 설명 아래에 파일 이름 순서로 표시됩니다.
+
+### 검토용으로 업로드
+
+`plugin publish`는 플러그인을 빌드한 뒤 로그인한 Enconvo 계정으로 업로드하므로, Enconvo가 실행 중이고 로그인되어 있어야 합니다. Enconvo는 스토어에 표시되기 전에 모든 버전을 검토합니다. 새 플러그인이 승인되기 전에는 본인만 볼 수 있으며, 업데이트가 검토 중일 때 스토어는 이전 버전을 계속 제공합니다.
+
+업데이트할 때마다 `package.json`의 `version`을 올리세요. `plugin publish`는 빌드하기 전에 스토어가 릴리스한 버전을 물어보고, 내 버전이 더 높지 않으면 다음에 쓸 버전을 알려 주며 멈춥니다. 검토 중이거나 반려된 버전은 그대로 다시 제출할 수 있으며, 새 업로드가 기존 것을 대체합니다.
+
+패키지는 빌드된 플러그인으로 만들어집니다. `.env` 파일, `node_modules`, 버전 관리 폴더, `.zip` 아카이브는 제외되지만, 다른 자격 증명이나 비공개 파일이 포함되지 않았는지 확인하세요.
+
+검토자는 [플러그인 스토어 가이드라인](/ko/extensions/publishing-guidelines)을 따릅니다. 시험해 볼 프롬프트가 담긴 `review` 객체를 `package.json`에 추가하고, 데모 계정의 로그인 정보는 `--review-notes`로 전달하세요. 이는 검토자에게만 보입니다.
+
+## 다음 단계
+
+<CardGroup cols={2}>
+  <Card title="AI 모델 및 음성 플러그인" icon="microchip" href="/extensions/provider-plugins">
+    Enconvo의 선택기에 나만의 AI 모델이나 텍스트 음성 변환 음성을 추가합니다
+  </Card>
+  <Card title="Extension API 레퍼런스" icon="book" href="/extensions/extension-api-reference">
+    SDK의 구성 요소입니다
+  </Card>
+  <Card title="Plugin Formats" icon="box" href="/extensions/plugin-formats">
+    Codex와 Claude Code에도 설치되는 스킬 및 MCP 플러그인입니다
+  </Card>
+  <Card title="워크플로" icon="diagram-project" href="/ko/workflows/introduction">
+    플러그인이 필요 없는 재사용 가능한 다단계 프로세스입니다
+  </Card>
+</CardGroup>

@@ -1,0 +1,103 @@
+---
+title: "Canais de mensagens instantâneas"
+description: "Ligue um bot do Telegram ou do Discord a um Agente do Enconvo e escolha quem pode falar com ele."
+---
+
+import { YouTubePlayer } from '/snippets/youtube-player.mdx';
+
+Os Canais de mensagens instantâneas permitem que as pessoas falem com um Agente do Enconvo a partir do Telegram ou do Discord. Cada canal é um bot associado a um Agente: as mensagens recebidas vão para esse Agente, que escreve as respostas. Um Agente pode servir vários canais, mas cada canal serve no máximo um Agente. Configure-os em **Definições → Canais de mensagens instantâneas**.
+
+Este vídeo configura um canal do Telegram, entre uma olhadela ao Avatar e à Gestão de credenciais.
+
+<YouTubePlayer videoId="O5rNJwqlisg" title="How to Use Avatars, IM Channels and Credentials in Enconvo | Step-by-Step Tutorial" />
+
+## Antes de começar
+
+- Crie um bot na plataforma e copie o respetivo token de bot (consulte [Telegram](#telegram) e [Discord](#discord) abaixo).
+- Mantenha o Enconvo em execução e o Mac online enquanto o bot estiver à escuta.
+
+<Note>
+O plano gratuito executa um bot de mensagens instantâneas de cada vez. Um plano do Enconvo Cloud ou uma licença vitalícia executa mais. Consulte [Planos e preços](/pt/pricing).
+</Note>
+
+## Adicionar um canal
+
+<Steps>
+  <Step title="Adicione o canal">
+    Abra **Definições → Canais de mensagens instantâneas**, clique em **Adicionar novo canal** e escolha **Telegram** ou **Discord**.
+  </Step>
+  <Step title="Dê um nome">
+    Dê ao canal um nome que reconheça.
+  </Step>
+  <Step title="Cole o token do bot">
+    Cole o token de bot da plataforma em **Bot Token**.
+  </Step>
+  <Step title="Escolha o Agente">
+    Em **bind agent**, escolha o Agente que trata das mensagens recebidas.
+  </Step>
+  <Step title="Ative-o">
+    Reveja quem pode usar o bot (no Telegram, **Access Control**) e depois ative **Enable Channel**.
+  </Step>
+  <Step title="Teste-o">
+    Clique em **Verificar ligação** e certifique-se de que o canal mostra **Ligado**. Depois envie uma mensagem de teste a partir de uma conta autorizada.
+  </Step>
+</Steps>
+
+O modelo e as ferramentas do Agente associado decidem o que o bot pode responder.
+
+## Telegram
+
+Crie um bot com o **BotFather** do Telegram e copie o respetivo token de bot. Antes de ativar o canal, abra o seu **Access Control**:
+
+| Controlo | O que faz |
+| --- | --- |
+| **Política** | **Emparelhamento necessário** (a predefinição): um novo utilizador partilha um código de emparelhamento e aguarda a sua aprovação. **Aberto (todos)**: qualquer pessoa que encontre o bot pode usá-lo. |
+| **Pedidos pendentes** | **Aprovar** ou **Recusar** cada utilizador que pediu para emparelhar. Aprove apenas as pessoas que pretende. |
+| **Utilizadores autorizados** | Os utilizadores que aprovou. **Remover** retira um da lista; precisa de voltar a emparelhar para usar o bot. |
+
+Se o bot funciona numa conversa direta mas não num grupo, verifique a privacidade de bots e as permissões de grupo do Telegram, bem como a política de acesso do canal. Um token, por si só, não dá ao bot acesso a todas as conversas.
+
+## Discord
+
+Crie uma aplicação e um bot no Discord Developer Portal. Convide o bot para o seu servidor e dê-lhe as permissões e os intents de que precisa para receber e enviar as mensagens que pretende. Cole o token de bot no canal do Discord e associe um Agente.
+
+Se ligar mas não responder, verifique as permissões do canal no Discord e se o bot recebe esse tipo de mensagem. Mantenha o bot limitado ao servidor e aos canais que pretende.
+
+## Sessões e respostas
+
+Cada conversa recebida tem a sua própria sessão de chat com o Agente associado. As respostas seguem essa conversa; os utilizadores ligados não partilham uma única transcrição. Alterar o Agente associado reinicia o canal, pelo que as mensagens seguintes vão para o novo Agente.
+
+Escreva um comando de bot na conversa para controlar a conversa em vez de enviar uma mensagem ao Agente: `/new` inicia uma nova sessão de chat e `/stop` pára a resposta em curso, incluindo as mensagens enviadas pouco antes. Os comandos de bot funcionam no Telegram e no Discord, e um comando enviado com um anexo continua a ser executado como comando.
+
+Para um bot público ou de equipa, use um Agente dedicado com instruções e ferramentas adequadas. Reveja que ferramentas ele pode usar antes de deixar outras pessoas aceder-lhe.
+
+## Entrega agendada
+
+As [tarefas agendadas](/pt/workflows/scheduled-jobs) podem enviar os seus resultados para uma conversa de mensagens instantâneas que configurou. Escolha por si próprio o destino e use o histórico de execuções da tarefa para distinguir uma execução falhada de uma entrega falhada.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Desligado | Verifique o token do bot, a rede, se **Enable Channel** está ativado e se o Enconvo está em execução. Um bot do Discord cuja ligação fica em silêncio volta a ligar-se por si. |
+| Ligado mas em silêncio | Verifique o Agente associado, o fornecedor de modelo do Agente, as permissões da plataforma e a política de emparelhamento. |
+| O bot responde de forma errada | Verifique as instruções, as ferramentas e o modelo do Agente associado. |
+| Um utilizador do Telegram não consegue ligar-se | Procure o pedido de emparelhamento dele em **Pedidos pendentes** e verifique **Utilizadores autorizados**. |
+| Um segundo bot não arranca | O plano gratuito executa um bot de mensagens instantâneas de cada vez. Desative o outro bot ou mude de plano. |
+| As respostas param depois de sair do Enconvo | O bot escuta através do Enconvo no seu Mac, pelo que a app tem de continuar em execução. |
+
+Os Canais de mensagens instantâneas configuram apenas o Telegram e o Discord. Se aceder ao Slack ou ao Feishu através de outro plugin ou de um servidor MCP, siga o guia próprio dessa integração.
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">
+    Configure o Agente que responde ao seu bot.
+  </Card>
+  <Card title="Tarefas agendadas" icon="clock" href="/pt/workflows/scheduled-jobs">
+    Envie resultados agendados para uma conversa de mensagens instantâneas.
+  </Card>
+  <Card title="Planos e preços" icon="credit-card" href="/pt/pricing">
+    O que cada plano inclui.
+  </Card>
+</CardGroup>

@@ -1,0 +1,80 @@
+---
+title: "Executor de código"
+description: "Permita que um Agente execute comandos de shell, scripts, compilações e servidores de desenvolvimento num terminal real no seu Mac."
+---
+
+O Executor de código dá a um Agente um terminal real no seu Mac. Use-o para compilações, testes, scripts, ferramentas de pacotes e servidores de desenvolvimento. Os programas que tem instalados e as permissões da sua conta decidem o que pode ser executado.
+
+<Warning>
+Os comandos são executados a sério, com o acesso da sua conta aos seus ficheiros e à rede, a menos que ative a **Sandbox** do Agente. Reveja qualquer comando que instale software, altere ficheiros ou afete um serviço online antes de ser executado.
+</Warning>
+
+## Antes de começar
+
+- Ative o Executor de código no Agente que está a usar.
+- A etiqueta **Permissões** na conversa decide quando o Agente pergunta primeiro. **Pedir aprovação** pergunta antes de executar um comando, e **Aprovar por mim** pergunta apenas por ações que pareçam inseguras. Consulte [Aprovar ações](/pt/ai/agents).
+- Para manter os comandos do Agente restritos à pasta de trabalho e longe das suas chaves e de outras aplicações, ative a **Sandbox** na mesma etiqueta. Consulte [Sandbox do Agente](/pt/configuration/sandbox).
+
+## Executar um comando
+
+Indique ao Agente uma pasta e uma tarefa específica:
+
+> No meu projeto de exemplo, execute o comando de testes existente e comunique o resultado. Não altere ficheiros.
+
+O Agente mostra o resultado do comando e diz-lhe se terminou ou se ainda está a decorrer. Para ler, editar e pesquisar ficheiros, o Agente usa antes as [ferramentas de ficheiros](/pt/ai/file-tools).
+
+## Como os comandos são executados
+
+Cada comando é executado num pseudoterminal, pelo que um comando que peça entrada pode ser respondido sem iniciar um novo processo.
+
+| Modo | Para que serve |
+| --- | --- |
+| **oneshot** | Comandos que terminam sozinhos, como testes, compilações ou um script |
+| **long_running** | Servidores, observadores e processos que esperam por um evento externo |
+| **interactive** | REPLs, aplicações de terminal e sessões interativas de linha de comandos |
+
+Um resultado com `status: running` e um `session_id` significa que o processo continua. O Agente pode **ler** o seu resultado, **escrever** entrada nele ou **parar** o processo. Para responder a um pedido, o Agente escreve nessa sessão; iniciar outro comando não lhe responde.
+
+## Esperar que algo termine
+
+Quando uma tarefa tem de esperar, por exemplo que uma compilação escreva o seu resultado ou que um servidor arranque, o Agente usa a ferramenta **Wait For** em vez de um ciclo de shell. Espera por um destes casos, sem nenhum comando em execução:
+
+- Um ficheiro aparecer
+- Uma linha num ficheiro de registo
+- Um processo ou a sessão de um comando terminar
+- Uma porta abrir, ou um endereço responder
+
+A espera aparece nas tarefas em segundo plano da conversa. O Agente é informado quando se cumpre, falha ou expira, e pode fazer outro trabalho entretanto.
+
+## Pasta de trabalho e limites de tempo
+
+Os comandos são executados em `workDir` quando o Agente a define, e na pasta de trabalho da conversa caso contrário. Usam a sua shell, com o seu projeto e o ambiente virtual de Python configurados. Comandos separados não partilham variáveis temporárias da shell, a menos que corram na mesma sessão.
+
+A primeira espera é independente do limite de tempo rígido do comando. Um comando oneshot espera até 30 segundos pelo resultado; se ainda estiver a decorrer nessa altura, o Agente recebe o resultado até ao momento enquanto o trabalho continua. O comando é parado ao fim de 30 minutos por predefinição. Para um servidor ou um observador, use o modo long_running em vez de o tratar como um comando oneshot que falhou.
+
+## Definições
+
+Abra **Definições → Plugins → Executor de código**.
+
+| Definição | O que altera |
+| --- | --- |
+| **Enable RTK** | Comprime o resultado longo dos comandos antes de o Agente o ler, para usar menos tokens. Ativado por predefinição |
+
+Se faltar um detalhe de que precisa no resultado comprimido, peça um comando mais focado ou a parte relevante do registo. Um resultado cortado não prova que o comando teve êxito.
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| Comando não encontrado | Verifique se o programa está instalado e disponível na sua shell |
+| O comando espera por entrada | Peça ao Agente que responda ao pedido na mesma sessão. Um comando que espera por uma entrada que ninguém pode dar termina de imediato |
+| Permissão negada | Verifique o caminho de destino e as permissões do macOS. Com a Sandbox ativada, clique na linha por baixo do passo para ver o que a bloqueou |
+| O comando excedeu o tempo | Leia o último resultado e escolha o modo certo antes de o executar de novo |
+| Um servidor continua em execução | Peça ao Agente que pare a sessão quando já não precisar dele |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Ficheiros e pastas" icon="folder-open" href="/pt/ai/file-tools">Permita que um Agente encontre, leia e edite ficheiros.</Card>
+  <Card title="Agentes" icon="robot" href="/pt/ai/agents">Defina as ferramentas de um Agente e quando pergunta primeiro.</Card>
+</CardGroup>

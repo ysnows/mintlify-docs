@@ -1,0 +1,65 @@
+---
+title: "Utilitários multimédia"
+description: "Comprima imagens, vídeo e áudio, guarde o som de um vídeo ou descarregue um vídeo a partir de uma ligação."
+---
+
+Os Utilitários multimédia são comandos locais para tarefas multimédia do dia a dia: tornar ficheiros de imagem, vídeo ou áudio mais pequenos, guardar a banda sonora de um vídeo ou descarregar um vídeo de uma página Web. Encontre-os na SmartBar, ou em **Definições → Plugins**.
+
+| Comando | O que faz | Guarda em |
+| --- | --- | --- |
+| **Image Compress** | Comprime uma ou mais imagens, ou todas as imagens de uma pasta e das suas subpastas, com qualidade ajustável | Substitui as imagens originais |
+| **Video Compress** | Torna um ficheiro de vídeo mais pequeno | `~/Downloads` |
+| **Audio Compress** | Torna um ficheiro de áudio mais pequeno consoante a qualidade que escolher e mantém a capa (MP3, WAV, M4A, AAC, OGG, FLAC) | `~/Downloads` |
+| **Extract Audio** | Guarda a faixa de áudio de um vídeo, ou de todos os vídeos de uma pasta, como M4A (MP3 quando a faixa não pode ser copiada) | `~/.cache/enconvo/transcribe` |
+| **Online Video Downloader** | Descarrega o vídeo ou o áudio de uma ligação, como YouTube, TikTok, Instagram, Reddit, X ou Vimeo | `~/Downloads` |
+
+<Warning>
+O **Image Compress** substitui as imagens originais por predefinição. Para as manter, desative primeiro **Overwrite Original Image File** nas respetivas definições; as cópias comprimidas vão então para uma pasta `enconvo-compressed-images` junto às imagens.
+</Warning>
+
+## Comprimir um ficheiro ou extrair o seu áudio
+
+1. Selecione os ficheiros no Finder, ou anexe-os. Para o Image Compress também pode escolher uma pasta: as suas imagens e as das suas subpastas são comprimidas, e as cópias mantêm a mesma estrutura de pastas.
+2. Abra a SmartBar e execute o comando.
+3. Abra o resultado e verifique-o.
+
+Mantenha o original enquanto experimenta definições de compressão. As definições de cada comando estão em **Definições → Plugins**: **Image Utils** para o Image Compress e **Media Utils** para os restantes.
+
+| Definição | O que altera |
+| --- | --- |
+| **Qualidade** | De 0 a 100; um valor mais alto mantém mais qualidade e cria um ficheiro maior. 80 por predefinição |
+| **Caminho da pasta de destino** | Para onde vai o ficheiro comprimido: um caminho absoluto, ou um caminho relativo ao ficheiro |
+| **Overwrite Original … File** | Substitui o ficheiro original. Ativado por predefinição para imagens, desativado para vídeo e áudio |
+
+## Descarregar um vídeo
+
+1. Abra a página do vídeo no navegador, ou copie a respetiva ligação.
+2. Execute o **Online Video Downloader** a partir da SmartBar. Obtém a ligação do separador ativo do navegador, ou de uma ligação que escreva.
+3. Acompanhe o progresso na Dynamic Island, onde pode cancelar. Quando terminar, clique em **Mostrar no Finder**.
+
+A transferência é guardada no histórico de conversas e um ficheiro que já descarregou é reutilizado em vez de ser obtido de novo. O funcionamento num site depende do site e do que ele lhe permite aceder. Descarregue apenas conteúdo que tenha autorização para guardar.
+
+| Definição | O que altera |
+| --- | --- |
+| **Output Directory** | Para onde vão as transferências. `~/Downloads` por predefinição |
+| **Audio Only** | Descarrega apenas o áudio |
+| **Favorite Resolution** | A resolução a descarregar, de **Best** (a predefinição) até 144p |
+| **Force Convert to Compatible MP4** | Converte o vídeo para um MP4 que é reproduzido em todo o lado. Ativado por predefinição; demora mais tempo e usa mais CPU |
+| **Use Browser Cookies** | Inicia sessão com os cookies do seu navegador, para vídeos que só você pode ver. Escolha o navegador em **Navegador** |
+
+## Resolução de problemas
+
+| Problema | O que fazer |
+| --- | --- |
+| **No images to compress** | Selecione as imagens no Finder ou anexe-as e execute o comando de novo |
+| Uma conversão falha | Verifique o formato do ficheiro, se a pasta de saída permite escrita e se tem espaço livre em disco |
+| Um vídeo privado não é descarregado | Ative **Use Browser Cookies** e escolha o navegador com que tem sessão iniciada |
+| As transferências de um site deixam de funcionar | Leia o erro e atualize o plugin antes de tentar de novo. Os sites mudam os seus formatos e as suas regras de acesso |
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Geração de imagens" icon="image" href="/pt/ai/image-generation">Crie ou edite uma imagem na conversa.</Card>
+  <Card title="Geração de vídeos" icon="film" href="/pt/ai/video-generation">Transforme um prompt ou uma imagem num clipe.</Card>
+  <Card title="Transcrição" icon="file-audio" href="/pt/features/transcription">Transforme áudio e vídeo em texto.</Card>
+</CardGroup>

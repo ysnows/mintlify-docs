@@ -1,0 +1,56 @@
+---
+title: "Modèles locaux"
+description: "Exécutez des modèles sur votre propre matériel et gardez une tâche entière sur votre Mac."
+---
+
+Exécutez des modèles sur votre Mac, ou sur un autre ordinateur qui vous appartient, lorsque vous voulez que vos discussions restent privées ou que vous voulez travailler sans compte chez un fournisseur. Enconvo dispose d’un moteur intégré et se connecte aussi à Ollama et à LM Studio.
+
+## Choisir un environnement d’exécution
+
+| Environnement | Idéal pour | Configuration |
+| --- | --- | --- |
+| [Local LLM (MLX)](/fr/providers/mlx) | Exécuter des modèles dans Enconvo sur un Mac Apple Silicon avec macOS 15 ou version ultérieure | Choisir et télécharger un modèle dans les Réglages |
+| [Ollama](/fr/providers/ollama) | Les modèles que vous gérez déjà avec Ollama, sur ce Mac ou sur un serveur | Démarrer Ollama et définir son adresse |
+| [LM Studio](/fr/providers/lm-studio) | Les modèles que vous utilisez déjà dans LM Studio, sur ce Mac ou sur un serveur | Démarrer le serveur de LM Studio et définir son adresse |
+
+## Commencer petit
+
+1. Configurez l’environnement d’exécution et téléchargez ou chargez un modèle.
+2. Envoyez un court message texte.
+3. Quand cela fonctionne, ajoutez des documents ou des outils.
+4. Surveillez l’utilisation de la mémoire et la vitesse avant d’essayer un modèle plus grand. **Réglages → Modèles locaux** affiche les modèles présents sur ce Mac et la mémoire qu’ils utilisent.
+
+La taille du modèle, la quantification, la longueur du contexte et les autres tâches en cours influencent toutes la mémoire. Fiez-vous à la taille que montre le sélecteur de modèle plutôt qu’à une règle fixe.
+
+## Garder toute la tâche en local
+
+Un modèle de discussion local ne garde pas à lui seul tout sur votre Mac. La reconnaissance vocale, la synthèse vocale, l’OCR, l’analyse de documents, les embeddings, le reranking, la recherche et les outils MCP utilisent chacun leur propre fournisseur. Enconvo propose des fournisseurs locaux pour plusieurs d’entre eux ; le [catalogue des fournisseurs](/fr/providers/catalog) les liste.
+
+**Réglages → Modèles locaux** indique quelles fonctions s’exécutent sur ce Mac et lesquelles s’exécutent dans le cloud. La recherche web et les autres services en ligne ont toujours besoin d’Internet, et un modèle local peut encore appeler des outils qui envoient du contenu hors de votre Mac.
+
+## Utiliser un serveur de modèles sur un autre ordinateur
+
+Configurez le serveur pour qu’il accepte les connexions réseau, et définissez **BaseUrl** dans Enconvo sur l’adresse de cet ordinateur. `localhost` désigne toujours le Mac qui exécute Enconvo. Si macOS bloque la connexion, activez Enconvo dans **Réglages Système → Confidentialité et sécurité → Réseau local**.
+
+## Utiliser un autre serveur de modèles
+
+Pour un serveur tel que llama.cpp, vLLM, KoboldCpp ou text-generation-webui, cliquez sur **Ajouter un nouveau fournisseur** en bas de **Réglages → Modèle d’IA** et choisissez **Compatible OpenAI**. Collez l’adresse du serveur comme URL de base ; Enconvo l’accepte avec ou sans `/v1`, et même avec le point d’accès complet. Laissez la clé API vide lorsque le serveur n’en vérifie pas.
+
+## Longues discussions avec un petit contexte
+
+Les serveurs locaux font souvent tourner un modèle avec un contexte plus petit que celui qu’il permet. Enconvo lit le contexte avec lequel Ollama, llama.cpp, LM Studio, KoboldCpp et text-generation-webui s’exécutent réellement, et compacte la discussion pour qu’elle y tienne. Avec un petit contexte, il résume une longue discussion par parties. Pour donner plus de place au modèle, augmentez la longueur du contexte dans les réglages du serveur lui-même.
+
+## Dépannage
+
+| Problème | Que faire |
+| --- | --- |
+| Le modèle oublie le début d’une longue discussion | Le serveur utilise un petit contexte. Augmentez la longueur du contexte dans les réglages du serveur, ou démarrez une nouvelle discussion. |
+| Le modèle ignore les outils ou les images | Il ne les accepte pas ; Enconvo répond donc sans eux. Choisissez un modèle qui prend en charge les appels d’outils ou les images en entrée. |
+| La connexion échoue | Lisez l’erreur : Enconvo affiche le message du serveur lui-même et nomme la cause. Vérifiez que le serveur est lancé et que l’adresse et le port sont corrects. |
+
+## Voir aussi
+
+<CardGroup cols={2}>
+  <Card title="Local LLM (MLX)" icon="laptop" href="/fr/providers/mlx">Le moteur intégré d’Enconvo.</Card>
+  <Card title="Confidentialité et sécurité" icon="shield" href="/fr/configuration/privacy-security">Où vont vos données, fonction par fonction.</Card>
+</CardGroup>
